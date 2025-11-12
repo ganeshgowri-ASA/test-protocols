@@ -1,0 +1,168 @@
+{
+  "version": "1.0",
+  "schemas": {
+    "base": {
+      "file": "base_protocol_schema.json",
+      "description": "Base schema for all protocols"
+    },
+    "electrical": {
+      "file": "electrical_protocol_schema.json",
+      "description": "Electrical characterization and testing"
+    },
+    "thermal": {
+      "file": "thermal_protocol_schema.json",
+      "description": "Thermal cycling and heat dissipation"
+    },
+    "mechanical": {
+      "file": "mechanical_protocol_schema.json",
+      "description": "Mechanical load and stress testing"
+    }
+  },
+  "protocol_catalog": {
+    "IEC61215": {
+      "name": "Terrestrial Photovoltaic Modules - Design Qualification and Type Approval",
+      "protocols": [
+        {
+          "id": "IEC61215-10-1",
+          "name": "Visual Inspection",
+          "type": "inspection"
+        },
+        {
+          "id": "IEC61215-10-2",
+          "name": "Maximum Power Determination",
+          "type": "electrical"
+        },
+        {
+          "id": "IEC61215-10-3",
+          "name": "Insulation Test",
+          "type": "electrical"
+        },
+        {
+          "id": "IEC61215-10-4",
+          "name": "Temperature Coefficient Measurement",
+          "type": "electrical"
+        },
+        {
+          "id": "IEC61215-10-5",
+          "name": "NOCT Measurement",
+          "type": "thermal"
+        },
+        {
+          "id": "IEC61215-10-6",
+          "name": "Low Irradiance Performance",
+          "type": "electrical"
+        },
+        {
+          "id": "IEC61215-10-7",
+          "name": "Outdoor Exposure Test",
+          "type": "environmental"
+        },
+        {
+          "id": "IEC61215-10-8",
+          "name": "Hot Spot Endurance",
+          "type": "thermal"
+        },
+        {
+          "id": "IEC61215-10-9",
+          "name": "UV Preconditioning",
+          "type": "environmental"
+        },
+        {
+          "id": "IEC61215-10-10",
+          "name": "Thermal Cycling",
+          "type": "thermal"
+        },
+        {
+          "id": "IEC61215-10-11",
+          "name": "Humidity Freeze",
+          "type": "environmental"
+        },
+        {
+          "id": "IEC61215-10-12",
+          "name": "Damp Heat",
+          "type": "environmental"
+        },
+        {
+          "id": "IEC61215-10-13",
+          "name": "Robustness of Terminations",
+          "type": "mechanical"
+        },
+        {
+          "id": "IEC61215-10-14",
+          "name": "Wet Leakage Current",
+          "type": "electrical"
+        },
+        {
+          "id": "IEC61215-10-15",
+          "name": "Mechanical Load",
+          "type": "mechanical"
+        },
+        {
+          "id": "IEC61215-10-16",
+          "name": "Hail Impact",
+          "type": "mechanical"
+        },
+        {
+          "id": "IEC61215-10-17",
+          "name": "Bypass Diode Thermal Test",
+          "type": "thermal"
+        },
+        {
+          "id": "IEC61215-10-18",
+          "name": "Reverse Current Overload",
+          "type": "electrical"
+        }
+      ]
+    },
+    "IEC61730": {
+      "name": "PV Module Safety Qualification",
+      "protocols": [
+        {
+          "id": "IEC61730-MST-01",
+          "name": "Construction of Module",
+          "type": "inspection"
+        },
+        {
+          "id": "IEC61730-MST-02",
+          "name": "Accessibility Test",
+          "type": "safety"
+        },
+        {
+          "id": "IEC61730-MST-23",
+          "name": "Cut Susceptibility Test",
+          "type": "mechanical"
+        }
+      ]
+    },
+    "Custom": {
+      "name": "Custom Testing Protocols",
+      "protocols": [
+        {
+          "id": "CUSTOM-PID-01",
+          "name": "Potential Induced Degradation",
+          "type": "reliability"
+        },
+        {
+          "id": "CUSTOM-LID-01",
+          "name": "Light Induced Degradation",
+          "type": "reliability"
+        },
+        {
+          "id": "CUSTOM-FLASH-01",
+          "name": "Flash Testing",
+          "type": "electrical"
+        },
+        {
+          "id": "CUSTOM-EL-01",
+          "name": "Electroluminescence Imaging",
+          "type": "characterization"
+        },
+        {
+          "id": "CUSTOM-IR-01",
+          "name": "Infrared Thermography",
+          "type": "thermal"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "electrical_protocol_schema.json",
+  "title": "Electrical Test Protocol Schema",
+  "description": "Schema for electrical characterization and testing protocols",
+  "allOf": [
+    {
+      "$ref": "base_protocol_schema.json"
+    },
+    {
+      "properties": {
+        "protocol_type": {
+          "const": "electrical"
+        },
+        "parameters": {
+          "type": "object",
+          "required": ["module_id", "test_type"],
+          "properties": {
+            "module_id": {
+              "type": "string",
+              "description": "PV module identifier"
+            },
+            "test_type": {
+              "type": "string",
+              "enum": [
+                "iv_curve",
+                "insulation_resistance",
+                "ground_continuity",
+                "wet_leakage_current",
+                "diode_test",
+                "bypass_diode",
+                "flash_test"
+              ]
+            },
+            "irradiance": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1500,
+              "description": "Irradiance in W/m²"
+            },
+            "temperature": {
+              "type": "number",
+              "minimum": -40,
+              "maximum": 150,
+              "description": "Module temperature in °C"
+            },
+            "voltage_range": {
+              "type": "object",
+              "properties": {
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                }
+              }
+            },
+            "current_range": {
+              "type": "object",
+              "properties": {
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        },
+        "acceptance_criteria": {
+          "type": "object",
+          "properties": {
+            "min_power": {
+              "type": "number",
+              "description": "Minimum acceptable power output (W)"
+            },
+            "min_efficiency": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Minimum efficiency percentage"
+            },
+            "max_voltage": {
+              "type": "number"
+            },
+            "max_current": {
+              "type": "number"
+            },
+            "min_insulation_resistance": {
+              "type": "number",
+              "description": "Minimum insulation resistance (MΩ)"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "protocol_id": "IEC61215-10-10",
+  "protocol_name": "Thermal Cycling Test",
+  "protocol_type": "thermal",
+  "version": "1.0",
+  "standard": "IEC 61215",
+  "description": "Assessment of ability to withstand thermal mismatch, fatigue and other stresses caused by repeated changes of temperature",
+  "parameters": {
+    "module_id": "",
+    "test_type": "thermal_cycling",
+    "temperature_profile": {
+      "min_temp": -40,
+      "max_temp": 85,
+      "ramp_rate": 100,
+      "dwell_time": 30
+    },
+    "number_of_cycles": 200,
+    "humidity": 0,
+    "pre_conditioning": "none"
+  },
+  "measurements": [],
+  "acceptance_criteria": {
+    "max_power_degradation": 5,
+    "no_major_visual_defects": true,
+    "insulation_resistance_pass": true,
+    "wet_leakage_current_pass": true
+  },
+  "metadata": {
+    "timestamp": "",
+    "operator": "",
+    "facility": "",
+    "equipment": [
+      "Thermal chamber",
+      "Temperature data logger",
+      "Solar simulator",
+      "I-V curve tracer"
+    ]
+  },
+  "status": "pending"
+}

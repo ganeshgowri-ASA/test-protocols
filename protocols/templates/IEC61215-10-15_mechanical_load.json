@@ -1,0 +1,47 @@
+{
+  "protocol_id": "IEC61215-10-15",
+  "protocol_name": "Mechanical Load Test",
+  "protocol_type": "mechanical",
+  "version": "1.0",
+  "standard": "IEC 61215",
+  "description": "Determination of module capability to withstand wind, snow, static or ice loads",
+  "parameters": {
+    "module_id": "",
+    "test_type": "mechanical_load",
+    "load_profile": {
+      "load_value": 2400,
+      "load_direction": "front",
+      "duration": 3600,
+      "cycles": 3
+    },
+    "support_points": [
+      {"x": 0, "y": 0},
+      {"x": 1000, "y": 0},
+      {"x": 0, "y": 1600},
+      {"x": 1000, "y": 1600}
+    ],
+    "measurement_points": [
+      {"x": 500, "y": 800, "description": "center"}
+    ]
+  },
+  "measurements": [],
+  "acceptance_criteria": {
+    "max_deflection": 40,
+    "max_power_degradation": 5,
+    "no_cracks": true,
+    "no_delamination": true,
+    "insulation_test_pass": true
+  },
+  "metadata": {
+    "timestamp": "",
+    "operator": "",
+    "facility": "",
+    "equipment": [
+      "Mechanical load tester",
+      "Deflection measurement system",
+      "Solar simulator",
+      "I-V curve tracer"
+    ]
+  },
+  "status": "pending"
+}

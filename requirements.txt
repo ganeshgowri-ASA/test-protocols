@@ -1,0 +1,51 @@
+# Core Testing Framework
+pytest==7.4.3
+pytest-cov==4.1.0
+pytest-xdist==3.5.0
+pytest-timeout==2.2.0
+pytest-mock==3.12.0
+pytest-asyncio==0.21.1
+
+# UI Framework
+streamlit==1.29.0
+plotly==5.18.0
+pandas==2.1.4
+numpy==1.26.2
+
+# Data Validation
+jsonschema==4.20.0
+pydantic==2.5.2
+marshmallow==3.20.1
+
+# Performance Testing
+locust==2.20.0
+pytest-benchmark==4.0.0
+
+# Code Quality
+coverage==7.3.4
+black==23.12.1
+flake8==7.0.0
+pylint==3.0.3
+mypy==1.7.1
+
+# Monitoring & Logging
+prometheus-client==0.19.0
+loguru==0.7.2
+
+# Data Generation
+faker==21.0.0
+hypothesis==6.92.1
+
+# API/Integration Testing
+requests==2.31.0
+responses==0.24.1
+
+# Reports & Documentation
+reportlab==4.0.8
+jinja2==3.1.2
+markdown==3.5.1
+
+# Utilities
+python-dateutil==2.8.2
+pytz==2023.3.post1
+pyyaml==6.0.1

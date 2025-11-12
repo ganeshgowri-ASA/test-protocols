@@ -1,0 +1,959 @@
+{
+  "protocol_metadata": {
+    "protocol_id": "PVTP-035",
+    "version": "1.0",
+    "title": "Sand & Dust Ingress Test (IEC 60529 IP6X)",
+    "description": "Dust tightness verification test for PV modules to assess protection against fine dust ingress in desert and arid environments",
+    "test_type": "environmental_ingress_protection",
+    "created_date": "2025-11-12",
+    "last_modified": "2025-11-12",
+    "author": "PV Testing Laboratory",
+    "status": "active",
+    "compliance_standards": [
+      {
+        "standard_id": "IEC 60529",
+        "version": "2020",
+        "edition": "3.0",
+        "section": "IP6X",
+        "title": "Degrees of protection provided by enclosures (IP Code) - Dust tight",
+        "requirements": [
+          "No ingress of dust after 8 hours exposure at 20 Pa underpressure",
+          "Talc powder test dust (particle size < 75 μm)",
+          "Test temperature 40°C ±5°C",
+          "Visual inspection: no dust deposit inside enclosure"
+        ]
+      },
+      {
+        "standard_id": "IEC 61215",
+        "version": "4.0",
+        "section": "10.18",
+        "title": "Bypass Diode Thermal Test (includes dust ingress check for junction box)"
+      },
+      {
+        "standard_id": "IEC 61730",
+        "version": "2.0",
+        "section": "MST 51",
+        "title": "Environmental Testing - Dust"
+      }
+    ],
+    "related_protocols": ["PVTP-033", "PVTP-036", "PVTP-039"],
+    "approval_status": {
+      "reviewed_by": "Environmental Test Engineer",
+      "approved_by": "Quality Director",
+      "approval_date": "2025-11-12"
+    }
+  },
+  "test_objectives": {
+    "primary_objective": "Verify PV module dust-tight protection per IEC 60529 IP6X rating",
+    "secondary_objectives": [
+      "Assess junction box sealing integrity against fine dust ingress",
+      "Evaluate cable gland/conduit entry seal effectiveness",
+      "Verify frame drainage holes do not allow dust ingress to electrical compartments",
+      "Assess gasket and seal performance under simulated desert conditions",
+      "Validate module suitability for desert and arid climate installations"
+    ],
+    "acceptance_criteria": {
+      "visual_inspection_internal": "No visible dust deposits inside junction box or electrical compartments",
+      "electrical_performance": "No degradation in insulation resistance or electrical parameters",
+      "seal_integrity": "All seals and gaskets intact, no visible damage",
+      "safety": "Pass insulation resistance test post-exposure"
+    },
+    "application_context": {
+      "target_environments": [
+        "Desert PV installations",
+        "Middle East and North Africa (MENA) region",
+        "Dry, arid climates with high dust concentrations",
+        "Mining areas",
+        "Agricultural fields with soil dust"
+      ],
+      "field_dust_challenges": "Fine particulate ingress can cause electrical tracking, corrosion, thermal issues"
+    }
+  },
+  "test_equipment": {
+    "dust_test_chamber": {
+      "manufacturer": "Weisstechnik or equivalent",
+      "model": "Dust Chamber IP6X Certified",
+      "serial_number": "To be recorded",
+      "specifications": {
+        "chamber_volume": {
+          "value": 1000,
+          "unit": "liters"
+        },
+        "test_dust_type": "Talc powder per IEC 60529 Annex C",
+        "dust_particle_size": "< 75 μm",
+        "dust_concentration": {
+          "value": 2,
+          "unit": "kg/m³",
+          "note": "Typical concentration in chamber"
+        },
+        "underpressure": {
+          "value": 20,
+          "unit": "Pa",
+          "tolerance": "±2 Pa",
+          "measurement": "Differential pressure transducer"
+        },
+        "temperature_control": {
+          "range": "15-50°C",
+          "accuracy": "±2°C"
+        },
+        "circulation_system": "Forced air circulation to maintain dust suspension",
+        "exhaust_system": "HEPA filtered exhaust"
+      },
+      "calibration": {
+        "frequency": "Annual",
+        "last_calibration_date": "2025-07-01",
+        "next_calibration_date": "2026-07-01",
+        "calibration_certificate": "CAL-DUST-2025-001",
+        "calibrated_parameters": ["Pressure control", "Temperature uniformity", "Air flow"]
+      }
+    },
+    "test_dust_specification": {
+      "material": "Talc powder (hydrated magnesium silicate)",
+      "specification": "Per IEC 60529 Annex C",
+      "particle_size_distribution": {
+        "d50": "< 20 μm",
+        "d90": "< 75 μm",
+        "analysis_method": "Laser diffraction particle size analyzer"
+      },
+      "supplier": "NIST-traceable test dust supplier",
+      "batch_certification": "Required with particle size analysis"
+    },
+    "measurement_instruments": {
+      "differential_pressure_transducer": {
+        "manufacturer": "Setra or Omega",
+        "range": "0-100 Pa",
+        "accuracy": "±0.5 Pa or ±1% of reading",
+        "purpose": "Monitor chamber underpressure"
+      },
+      "particle_counter": {
+        "model": "TSI AeroTrak 9000",
+        "measurement_range": "0.3-25 μm",
+        "purpose": "Verify dust concentration in chamber"
+      },
+      "iv_curve_tracer": {
+        "model": "PVE PV Analyzer 1500V",
+        "accuracy": "±0.5%",
+        "purpose": "Pre/post electrical characterization"
+      },
+      "insulation_tester": {
+        "model": "Fluke 1550C",
+        "range": "250V - 5kV",
+        "purpose": "Insulation resistance measurement"
+      },
+      "borescope": {
+        "model": "Olympus IPLEX NX",
+        "purpose": "Internal junction box inspection without disassembly"
+      },
+      "thermohygrometer": {
+        "model": "Vaisala HMT330",
+        "temperature_accuracy": "±0.2°C",
+        "humidity_accuracy": "±1.0% RH"
+      }
+    }
+  },
+  "test_sequence": {
+    "pre_test_phase": {
+      "duration": "2-4 hours",
+      "steps": [
+        {
+          "step_number": 1,
+          "action": "Visual inspection and documentation",
+          "parameters": {
+            "inspection_areas": [
+              "Junction box lid gasket condition",
+              "Cable gland seals",
+              "Frame drainage holes and weep holes",
+              "Module perimeter seal",
+              "Back sheet surface",
+              "Frame joints"
+            ],
+            "photography": "High-resolution images of all sealing areas",
+            "gasket_inspection": "Check for deformation, cracks, proper seating"
+          },
+          "acceptance": "All seals intact and properly seated"
+        },
+        {
+          "step_number": 2,
+          "action": "Electrical characterization (baseline)",
+          "parameters": {
+            "measurements": ["Voc", "Isc", "Pmax", "Vmp", "Imp", "FF"],
+            "irradiance": "1000 W/m²",
+            "module_temperature": "25°C ±2°C",
+            "spectrum": "AM 1.5G"
+          },
+          "data_logging": {
+            "file_name": "baseline_iv_curve.csv",
+            "parameters_logged": ["voltage", "current", "power", "temperature", "irradiance"]
+          }
+        },
+        {
+          "step_number": 3,
+          "action": "Insulation resistance test (initial)",
+          "parameters": {
+            "test_voltage": "1000V DC",
+            "duration": "60 seconds",
+            "min_resistance": "40 MΩ"
+          }
+        },
+        {
+          "step_number": 4,
+          "action": "Junction box internal inspection (baseline)",
+          "parameters": {
+            "method": "Photograph junction box interior (if design allows non-destructive access) OR borescope inspection",
+            "documentation": "Cleanliness verification, terminal condition",
+            "note": "If junction box must remain sealed, skip this step and rely on post-test comparison"
+          }
+        },
+        {
+          "step_number": 5,
+          "action": "Module cleaning",
+          "parameters": {
+            "cleaning_method": "Compressed air blow-off to remove any pre-existing dust",
+            "inspection": "Verify all external surfaces clean",
+            "handling": "Clean gloves to prevent contamination"
+          }
+        },
+        {
+          "step_number": 6,
+          "action": "Chamber preparation and dust verification",
+          "parameters": {
+            "chamber_cleaning": "Remove residual dust from previous tests",
+            "test_dust_preparation": "Weigh and load 2 kg/m³ of talc powder",
+            "particle_size_verification": "Verify test dust batch certification",
+            "pressure_system_check": "Verify underpressure control functional"
+          }
+        }
+      ]
+    },
+    "dust_exposure_test_phase": {
+      "duration": "8 hours",
+      "test_conditions": {
+        "exposure_duration": {
+          "value": 8,
+          "unit": "hours",
+          "note": "Per IEC 60529 for IP6X rating"
+        },
+        "chamber_underpressure": {
+          "value": 20,
+          "unit": "Pa",
+          "tolerance": "±2 Pa",
+          "note": "Negative pressure inside module relative to chamber to drive dust ingress"
+        },
+        "chamber_temperature": {
+          "value": 40,
+          "unit": "°C",
+          "tolerance": "±5°C"
+        },
+        "dust_concentration": {
+          "value": 2,
+          "unit": "kg/m³"
+        },
+        "air_circulation": "Forced circulation to maintain dust suspension"
+      },
+      "steps": [
+        {
+          "step_number": 7,
+          "action": "Module installation in chamber",
+          "parameters": {
+            "mounting": "Module installed per intended field orientation",
+            "orientation": "Junction box accessible to dust exposure",
+            "underpressure_connection": "If applicable, internal module volume connected to vacuum source to create pressure differential",
+            "note": "For junction box testing, ensure junction box interior is at lower pressure than chamber"
+          }
+        },
+        {
+          "step_number": 8,
+          "action": "Chamber conditioning",
+          "parameters": {
+            "sequence": [
+              "1. Close chamber, establish temperature at 40°C (1 hour)",
+              "2. Introduce test dust to chamber",
+              "3. Start air circulation to suspend dust",
+              "4. Establish underpressure of 20 Pa (if applicable to module design)",
+              "5. Verify stable conditions for 15 minutes"
+            ],
+            "verification": "Pressure and temperature within tolerance"
+          }
+        },
+        {
+          "step_number": 9,
+          "action": "Execute 8-hour dust exposure",
+          "parameters": {
+            "duration": "8 hours continuous",
+            "monitoring": "Pressure, temperature, dust suspension every 15 minutes",
+            "operator_checks": "Visual check of chamber operation every 2 hours"
+          },
+          "data_logging": {
+            "parameters": [
+              "timestamp",
+              "elapsed_time_hours",
+              "chamber_temperature",
+              "chamber_pressure",
+              "underpressure_differential",
+              "dust_concentration_estimate"
+            ],
+            "sampling_rate": "15 minutes",
+            "file_format": "CSV"
+          }
+        },
+        {
+          "step_number": 10,
+          "action": "Chamber shutdown and clearing",
+          "parameters": {
+            "sequence": [
+              "1. Stop air circulation (dust settles)",
+              "2. Release underpressure",
+              "3. Wait 30 minutes for dust to settle",
+              "4. Carefully open chamber to avoid dust disturbance"
+            ],
+            "safety": "Dust mask and safety glasses for chamber access"
+          }
+        }
+      ]
+    },
+    "post_test_phase": {
+      "duration": "2-4 hours",
+      "steps": [
+        {
+          "step_number": 11,
+          "action": "External cleaning (do not open junction box yet)",
+          "parameters": {
+            "cleaning_method": "Soft brush and compressed air to remove external dust",
+            "areas_cleaned": "Frame, cable exterior, back sheet",
+            "areas_NOT_cleaned": "Junction box interior (inspection first)",
+            "photography": "Document as-removed condition before cleaning"
+          }
+        },
+        {
+          "step_number": 12,
+          "action": "Junction box internal inspection (critical step)",
+          "parameters": {
+            "method": "Carefully open junction box lid OR use borescope if non-destructive inspection required",
+            "inspection_criteria": [
+              "Visual inspection for dust deposits on terminals, diodes, PCB",
+              "Quantitative assessment: no visible dust (pass), minor dust traces (borderline), significant dust (fail)",
+              "Photography: high-resolution macro images of interior"
+            ],
+            "acceptance_ip6x": "No dust ingress (dust tight)",
+            "note": "This is the primary pass/fail criterion for IP6X"
+          }
+        },
+        {
+          "step_number": 13,
+          "action": "Cable gland and seal inspection",
+          "parameters": {
+            "inspection": "Check for dust penetration around cable glands, conduit entries",
+            "method": "Visual inspection, wipe test",
+            "acceptance": "No dust ingress past seals"
+          }
+        },
+        {
+          "step_number": 14,
+          "action": "Frame drainage hole inspection",
+          "parameters": {
+            "inspection": "Verify drainage holes did not allow dust into frame cavity or electrical compartments",
+            "method": "Visual inspection, compressed air blow-through test",
+            "acceptance": "No dust pathway to electrical components"
+          }
+        },
+        {
+          "step_number": 15,
+          "action": "Complete external cleaning",
+          "parameters": {
+            "cleaning_method": "Soft cloth with deionized water, compressed air",
+            "drying": "Air dry minimum 2 hours"
+          }
+        },
+        {
+          "step_number": 16,
+          "action": "Electrical characterization (post-test)",
+          "parameters": {
+            "measurements": ["Voc", "Isc", "Pmax", "Vmp", "Imp", "FF"],
+            "irradiance": "1000 W/m²",
+            "module_temperature": "25°C ±2°C",
+            "spectrum": "AM 1.5G"
+          },
+          "data_logging": {
+            "file_name": "post_test_iv_curve.csv",
+            "parameters_logged": ["voltage", "current", "power", "temperature", "irradiance"]
+          }
+        },
+        {
+          "step_number": 17,
+          "action": "Insulation resistance test (post-test)",
+          "parameters": {
+            "test_voltage": "1000V DC",
+            "duration": "60 seconds",
+            "min_resistance": "40 MΩ"
+          }
+        },
+        {
+          "step_number": 18,
+          "action": "Pass/fail determination",
+          "parameters": {
+            "primary_criterion": "No dust ingress into junction box or electrical compartments (IP6X)",
+            "secondary_criteria": [
+              "Insulation resistance ≥ 40 MΩ",
+              "No electrical performance degradation",
+              "Seals and gaskets intact"
+            ],
+            "overall_assessment": "Pass if all criteria met"
+          }
+        }
+      ]
+    }
+  },
+  "data_logging": {
+    "logging_system": {
+      "software": "LabVIEW 2023 + Chamber Control System",
+      "database": "PostgreSQL 15.0",
+      "backup_frequency": "Real-time to redundant server"
+    },
+    "environmental_data": {
+      "sampling_rate": "15 minutes",
+      "parameters": [
+        {
+          "name": "timestamp",
+          "unit": "ISO8601",
+          "type": "datetime"
+        },
+        {
+          "name": "elapsed_time",
+          "unit": "hours",
+          "type": "float"
+        },
+        {
+          "name": "chamber_temperature",
+          "unit": "°C",
+          "accuracy": "±0.5°C",
+          "type": "float",
+          "valid_range": "35-45°C"
+        },
+        {
+          "name": "chamber_pressure",
+          "unit": "Pa",
+          "accuracy": "±0.5 Pa",
+          "type": "float"
+        },
+        {
+          "name": "underpressure_differential",
+          "unit": "Pa",
+          "accuracy": "±0.5 Pa",
+          "type": "float",
+          "valid_range": "18-22 Pa"
+        },
+        {
+          "name": "relative_humidity",
+          "unit": "%",
+          "accuracy": "±2%",
+          "type": "float"
+        },
+        {
+          "name": "dust_concentration",
+          "unit": "particles/cm³ or mg/m³",
+          "type": "float",
+          "note": "If particle counter used"
+        }
+      ],
+      "file_format": "CSV",
+      "file_naming": "PVTP-035_{sample_id}_{date}_environmental_log.csv"
+    },
+    "electrical_characterization_data": {
+      "sampling_rate": "Pre-test and post-test",
+      "parameters": [
+        {
+          "name": "open_circuit_voltage",
+          "symbol": "Voc",
+          "unit": "V",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "short_circuit_current",
+          "symbol": "Isc",
+          "unit": "A",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "maximum_power",
+          "symbol": "Pmax",
+          "unit": "W",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "insulation_resistance",
+          "symbol": "Riso",
+          "unit": "MΩ",
+          "accuracy": "±5%"
+        }
+      ],
+      "file_format": "CSV",
+      "file_naming": "PVTP-035_{sample_id}_{date}_{pre_post}_electrical_data.csv"
+    },
+    "inspection_data": {
+      "parameters": [
+        {
+          "name": "component_id",
+          "description": "Junction box, cable gland, frame drainage, etc.",
+          "type": "string"
+        },
+        {
+          "name": "dust_ingress_rating",
+          "description": "None / Trace / Minor / Significant",
+          "type": "enum"
+        },
+        {
+          "name": "ip6x_pass_fail",
+          "description": "Pass / Fail",
+          "type": "enum",
+          "criteria": "None or Trace = Pass, Minor/Significant = Fail"
+        },
+        {
+          "name": "seal_condition",
+          "description": "Intact / Damaged / Deformed",
+          "type": "enum"
+        },
+        {
+          "name": "photo_reference",
+          "type": "string"
+        }
+      ],
+      "file_format": "CSV",
+      "file_naming": "PVTP-035_{sample_id}_{date}_inspection_report.csv"
+    },
+    "quality_checks": {
+      "real_time_validation": [
+        {
+          "parameter": "underpressure_differential",
+          "check_type": "range",
+          "min_value": 18.0,
+          "max_value": 22.0,
+          "action_on_failure": "Alarm, adjust vacuum source, log deviation"
+        },
+        {
+          "parameter": "chamber_temperature",
+          "check_type": "range",
+          "min_value": 35.0,
+          "max_value": 45.0,
+          "action_on_failure": "Adjust heater, log deviation"
+        }
+      ],
+      "data_completeness": {
+        "required_fields": [
+          "timestamp",
+          "elapsed_time",
+          "chamber_temperature",
+          "underpressure_differential"
+        ],
+        "action_on_missing": "Flag data gap, investigate DAQ"
+      }
+    },
+    "retention_policy": {
+      "raw_environmental_data": "10 years",
+      "electrical_characterization": "Permanent",
+      "inspection_photographs": "10 years",
+      "test_reports": "Permanent"
+    }
+  },
+  "analysis_and_reporting": {
+    "time_series_analysis": {
+      "chamber_stability_assessment": {
+        "metrics": [
+          "Temperature stability over 8 hours",
+          "Underpressure consistency",
+          "Dust concentration uniformity (if measured)"
+        ],
+        "visualization": [
+          "Temperature vs. time",
+          "Underpressure vs. time",
+          "Pressure control chart with ±2 Pa limits"
+        ]
+      }
+    },
+    "baseline_comparison": {
+      "electrical_parameters": {
+        "comparison_metrics": [
+          {
+            "parameter": "Pmax",
+            "calculation": "Δ% = 100 × (Pmax_post - Pmax_pre) / Pmax_pre",
+            "threshold": "< 1% (no degradation expected)",
+            "criticality": "Failure indicator if significant degradation"
+          },
+          {
+            "parameter": "Riso",
+            "calculation": "Post-test value",
+            "threshold": "≥ 40 MΩ",
+            "criticality": "Critical - dust ingress can reduce insulation"
+          }
+        ],
+        "visualization": [
+          "Pre/post IV curve overlay",
+          "Insulation resistance bar chart"
+        ]
+      },
+      "visual_inspection": {
+        "junction_box_comparison": "Before/after interior photographs",
+        "dust_ingress_mapping": "Component-level ingress assessment",
+        "ip6x_rating": "Pass / Fail per IEC 60529"
+      }
+    },
+    "degradation_modeling": {
+      "dust_ingress_pathways_analysis": {
+        "investigation": "If dust ingress detected, identify pathway",
+        "common_failure_modes": [
+          "Junction box gasket compression set or damage",
+          "Cable gland seal degradation",
+          "Frame drainage hole design allows dust ingress",
+          "Inadequate seal compression or misalignment"
+        ],
+        "corrective_action": "Design modification to improve sealing"
+      },
+      "field_correlation": {
+        "approach": "IP6X test simulates worst-case dust exposure",
+        "field_validation": "Modules passing IP6X suitable for desert installations",
+        "maintenance_recommendation": "Periodic gasket inspection in high-dust environments"
+      }
+    },
+    "statistical_analysis": {
+      "sample_size_requirements": {
+        "minimum_per_design": 3,
+        "note": "IP6X is binary pass/fail, multiple samples verify consistency"
+      },
+      "pass_rate_calculation": {
+        "formula": "Pass rate (%) = 100 × (Samples with no dust ingress / Total samples)",
+        "target": "100% for IP6X certification"
+      }
+    },
+    "visualization_requirements": {
+      "automated_plots": [
+        {
+          "plot_type": "Chamber underpressure time series",
+          "x_axis": "Time (hours)",
+          "y_axis": "Underpressure (Pa)",
+          "control_limits": "18-22 Pa"
+        },
+        {
+          "plot_type": "Temperature stability",
+          "x_axis": "Time (hours)",
+          "y_axis": "Temperature (°C)",
+          "target_range": "35-45°C"
+        },
+        {
+          "plot_type": "Insulation resistance comparison",
+          "x_axis": "Sample ID",
+          "y_axis": "Riso (MΩ)",
+          "threshold_line": "40 MΩ minimum"
+        }
+      ],
+      "export_formats": ["PNG", "SVG", "PDF"]
+    },
+    "report_generation": {
+      "template": "IEC 60529 IP6X Test Report Template",
+      "sections": [
+        "Executive summary with IP6X pass/fail determination",
+        "Sample identification and design description",
+        "Test equipment and calibration",
+        "Test dust specification and batch certification",
+        "Test procedure summary",
+        "Environmental conditions log (8 hours)",
+        "Post-test inspection findings",
+        "Junction box interior photographs (critical evidence)",
+        "Dust ingress assessment per component",
+        "Electrical characterization results",
+        "Insulation resistance verification",
+        "IP6X rating determination",
+        "Deviations from standard",
+        "Conclusions and recommendations"
+      ],
+      "automated_generation": "Python + Jinja2 templates",
+      "review_cycle": "Technical review → QA review → Final approval"
+    }
+  },
+  "quality_control": {
+    "pre_test_qc": {
+      "checklist": [
+        {
+          "item": "Dust chamber calibration current",
+          "acceptance": "Within 12 months, certificate on file"
+        },
+        {
+          "item": "Test dust batch certified",
+          "acceptance": "Particle size analysis confirms < 75 μm"
+        },
+        {
+          "item": "Pressure measurement system verified",
+          "acceptance": "Accuracy ±0.5 Pa or better"
+        },
+        {
+          "item": "Temperature control verified",
+          "acceptance": "40°C ±5°C capability confirmed"
+        },
+        {
+          "item": "Module baseline inspection complete",
+          "acceptance": "All seals intact, electrical tests passed"
+        },
+        {
+          "item": "Chamber cleaned of residual dust",
+          "acceptance": "Visual verification, no contamination"
+        }
+      ],
+      "approver": "Test Engineer"
+    },
+    "in_test_monitoring": {
+      "checks_during_8h_exposure": [
+        {
+          "item": "Underpressure maintenance",
+          "frequency": "Continuous monitoring, visual check every 2 hours",
+          "action_if_deviation": "Adjust vacuum system, log deviation"
+        },
+        {
+          "item": "Temperature stability",
+          "frequency": "Continuous monitoring",
+          "action_if_deviation": "Adjust heater, log deviation"
+        },
+        {
+          "item": "Dust suspension",
+          "frequency": "Visual check every 2 hours",
+          "action_if_inadequate": "Check circulation fan, add dust if settled"
+        }
+      ]
+    },
+    "post_test_qc": {
+      "data_review": [
+        {
+          "item": "8 hours exposure completed with valid data",
+          "reviewer": "Test Engineer"
+        },
+        {
+          "item": "Underpressure and temperature within spec throughout",
+          "reviewer": "Test Engineer"
+        },
+        {
+          "item": "Junction box inspection documented with photographs",
+          "reviewer": "Test Engineer + QA Engineer"
+        },
+        {
+          "item": "Dust ingress assessment completed per IEC 60529 criteria",
+          "reviewer": "QA Engineer"
+        },
+        {
+          "item": "Electrical tests completed post-exposure",
+          "reviewer": "Test Engineer"
+        }
+      ],
+      "report_review": {
+        "technical_review": "Senior Test Engineer",
+        "qa_review": "QA Manager",
+        "final_approval": "Technical Director"
+      }
+    }
+  },
+  "non_conformance_management": {
+    "potential_non_conformances": [
+      {
+        "nc_type": "Underpressure out of tolerance (< 18 or > 22 Pa)",
+        "severity": "Major if > 2 hours cumulative, Minor if < 2 hours",
+        "corrective_action": "Investigate pressure control system, may extend test duration",
+        "documentation": "NC log + pressure system verification"
+      },
+      {
+        "nc_type": "Temperature out of range (< 35 or > 45°C)",
+        "severity": "Minor",
+        "corrective_action": "Adjust chamber, log deviation",
+        "documentation": "NC log"
+      },
+      {
+        "nc_type": "Test dust particle size out of specification",
+        "severity": "Critical",
+        "corrective_action": "Invalidate test, obtain correct test dust, retest",
+        "documentation": "Critical NC report + new dust batch certification"
+      },
+      {
+        "nc_type": "Dust ingress detected in junction box",
+        "severity": "Critical - IP6X failure",
+        "corrective_action": "Module fails IP6X rating, failure analysis required",
+        "documentation": "Failure analysis report + design review"
+      },
+      {
+        "nc_type": "Insulation resistance < 40 MΩ post-test",
+        "severity": "Critical",
+        "corrective_action": "Safety failure, investigate dust ingress pathway",
+        "documentation": "Safety failure report"
+      }
+    ],
+    "nc_workflow": {
+      "detection": "Real-time monitoring or post-test inspection",
+      "documentation": "NC form PVTP-NC-001",
+      "investigation": "Root cause analysis within 5 business days",
+      "corrective_action": "Per NC management procedure QP-008",
+      "verification": "QA verification of corrective action",
+      "closure": "QA Manager approval"
+    }
+  },
+  "traceability": {
+    "sample_traceability": {
+      "required_information": [
+        "Sample ID",
+        "Manufacturer, model, serial number",
+        "Junction box model and gasket type",
+        "Cable gland type and seal material",
+        "Frame design (drainage hole configuration)",
+        "Manufacturing date"
+      ],
+      "chain_of_custody": "Receipt through test completion"
+    },
+    "test_execution_traceability": {
+      "operator_id": "Recorded for each phase",
+      "equipment_id": "Chamber SN + calibration status",
+      "test_dust_batch": "Lot number + particle size certification",
+      "environmental_data": "Continuous logging for 8 hours",
+      "test_start_end_times": "ISO8601 timestamps"
+    },
+    "calibration_traceability": {
+      "dust_chamber": {
+        "calibration_certificate": "Pressure, temperature, flow",
+        "next_calibration_due": "Verified before test"
+      },
+      "pressure_transducer": {
+        "calibration_certificate": "Traceable to NIST",
+        "accuracy_verification": "±0.5 Pa or better"
+      },
+      "test_dust_certification": {
+        "particle_size_analysis": "Laser diffraction method",
+        "batch_traceability": "Supplier certification with d50 and d90 values"
+      }
+    },
+    "data_traceability": {
+      "raw_data_files": "Timestamped with sample ID",
+      "inspection_photographs": "Metadata embedded (date, time, sample ID)",
+      "analysis_scripts": "Version controlled (Git)",
+      "report_generation_date": "Documented in report footer"
+    },
+    "compliance_mapping": {
+      "iec_60529_requirements": [
+        {
+          "requirement": "Clause 13.4 - IP6X: No dust ingress",
+          "evidence": "Junction box inspection photographs showing no dust",
+          "location": "Section 9 of test report"
+        },
+        {
+          "requirement": "Clause 13.4.2 - Test duration 8 hours at 20 Pa underpressure",
+          "evidence": "Environmental data log showing compliance",
+          "location": "Section 8 of test report"
+        },
+        {
+          "requirement": "Annex C - Test dust specification (talc < 75 μm)",
+          "evidence": "Dust batch certification",
+          "location": "Section 7.2 of test report"
+        }
+      ]
+    }
+  },
+  "safety_considerations": {
+    "hazards": [
+      {
+        "hazard": "Respirable dust inhalation",
+        "risk_level": "Medium",
+        "mitigation": "Dust mask (N95 or P100) when accessing chamber, HEPA filtered exhaust"
+      },
+      {
+        "hazard": "Electrical shock from module",
+        "risk_level": "Medium",
+        "mitigation": "Ensure disconnected during handling, use insulated tools"
+      },
+      {
+        "hazard": "Slip hazard from dust accumulation",
+        "risk_level": "Low",
+        "mitigation": "Clean work area regularly, use vacuum with HEPA filter"
+      }
+    ],
+    "ppe_requirements": [
+      "Dust mask (N95 or P100 respirator) for chamber access",
+      "Safety glasses",
+      "Lab coat or coveralls",
+      "Safety shoes",
+      "Nitrile gloves"
+    ],
+    "emergency_procedures": {
+      "dust_exposure": "Move to fresh air, seek medical attention if respiratory distress",
+      "equipment_malfunction": "E-stop, isolate power, notify supervisor"
+    }
+  },
+  "training_requirements": {
+    "required_training": [
+      {
+        "course": "IEC 60529 IP Code Testing",
+        "frequency": "Initial + when procedure updated",
+        "provider": "Senior Test Engineer"
+      },
+      {
+        "course": "Dust Chamber Operation and Maintenance",
+        "frequency": "Initial + biennial refresher",
+        "provider": "Equipment manufacturer or certified trainer"
+      },
+      {
+        "course": "Respiratory Protection and Dust Hazards",
+        "frequency": "Annual",
+        "provider": "Safety Department"
+      },
+      {
+        "course": "Laboratory Safety and PPE",
+        "frequency": "Annual",
+        "provider": "Safety Department"
+      }
+    ],
+    "competency_verification": {
+      "method": "Practical demonstration + written assessment",
+      "assessment_areas": [
+        "Chamber setup and pressure control",
+        "Test dust handling and loading",
+        "Post-test inspection and dust ingress assessment",
+        "Data review and IP6X rating determination"
+      ],
+      "passing_score": "≥ 90%",
+      "requalification": "Every 2 years"
+    }
+  },
+  "references": {
+    "standards": [
+      {
+        "document": "IEC 60529:2020",
+        "title": "Degrees of protection provided by enclosures (IP Code)"
+      },
+      {
+        "document": "IEC 61215-2:2021",
+        "title": "Terrestrial photovoltaic (PV) modules - Design qualification and type approval - Part 2: Test procedures"
+      },
+      {
+        "document": "IEC 61730-2:2016",
+        "title": "Photovoltaic (PV) module safety qualification - Part 2: Requirements for testing"
+      },
+      {
+        "document": "ISO 12103-1:2016",
+        "title": "Road vehicles - Test contaminants for filter evaluation - Part 1: Arizona test dust"
+      }
+    ],
+    "internal_documents": [
+      {
+        "document": "SOP-ENV-003",
+        "title": "Dust Chamber Operation Procedure"
+      },
+      {
+        "document": "SOP-INSP-002",
+        "title": "Junction Box Inspection Procedure"
+      },
+      {
+        "document": "QP-008",
+        "title": "Non-Conformance Management Procedure"
+      }
+    ]
+  },
+  "revision_history": [
+    {
+      "version": "1.0",
+      "date": "2025-11-12",
+      "author": "PV Testing Laboratory",
+      "changes": "Initial protocol creation based on IEC 60529:2020",
+      "approved_by": "Quality Director"
+    }
+  ]
+}

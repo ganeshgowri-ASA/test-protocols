@@ -1,0 +1,1011 @@
+{
+  "protocol_metadata": {
+    "protocol_id": "PVTP-037",
+    "version": "1.0",
+    "title": "Wind Load Simulation",
+    "description": "Aerodynamic wind load testing for PV modules to verify structural integrity under high wind conditions",
+    "test_type": "environmental_mechanical_load",
+    "created_date": "2025-11-12",
+    "last_modified": "2025-11-12",
+    "author": "PV Testing Laboratory",
+    "status": "active",
+    "compliance_standards": [
+      {
+        "standard_id": "IEC 61215",
+        "version": "4.0",
+        "section": "MQT 16",
+        "title": "Mechanical Load Test - Front and Rear",
+        "note": "Uses static load as surrogate for wind load"
+      },
+      {
+        "standard_id": "IEC 61730",
+        "version": "2.0",
+        "section": "MST 24",
+        "title": "Mechanical Stress Test"
+      },
+      {
+        "standard_id": "ASCE 7",
+        "version": "2022",
+        "title": "Minimum Design Loads for Buildings and Other Structures (wind load provisions)"
+      },
+      {
+        "standard_id": "UL 1703",
+        "version": "2022",
+        "section": "35",
+        "title": "Wind Load Resistance Test"
+      }
+    ],
+    "related_protocols": ["PVTP-032", "PVTP-038"],
+    "approval_status": {
+      "reviewed_by": "Structural Test Engineer",
+      "approved_by": "Quality Director",
+      "approval_date": "2025-11-12"
+    }
+  },
+  "test_objectives": {
+    "primary_objective": "Verify PV module structural integrity under simulated wind loads per IEC 61215 MQT 16",
+    "secondary_objectives": [
+      "Assess module frame strength and deflection under wind pressure",
+      "Evaluate glass flexural strength under aerodynamic loading",
+      "Verify mounting system and fastener adequacy",
+      "Measure electrical performance degradation after cyclic loading",
+      "Validate suitability for high-wind regions (hurricanes, typhoons)"
+    ],
+    "acceptance_criteria": {
+      "visual_inspection": "No cracks, permanent deformation, or major visual defects",
+      "electrical_performance": "Power degradation ≤ 5% after load cycling",
+      "insulation_resistance": "≥ 40 MΩ post-test",
+      "safety": "Pass dielectric withstand test",
+      "structural": "No frame cracks, glass breakage, or delamination"
+    },
+    "wind_load_scenarios": {
+      "uplift_load": {
+        "description": "Negative pressure (suction) on module back due to wind uplift",
+        "load_magnitude": "2400 Pa (typical per IEC 61215)",
+        "direction": "Perpendicular to module, pulling away from mounting"
+      },
+      "downforce_load": {
+        "description": "Positive pressure on module front due to direct wind",
+        "load_magnitude": "2400 Pa (typical per IEC 61215)",
+        "direction": "Perpendicular to module, pushing toward mounting"
+      },
+      "cyclic_loading": {
+        "description": "Alternating uplift and downforce to simulate wind gusts",
+        "cycles": "3 cycles of 1000 Pa, 3 cycles of 2400 Pa",
+        "load_duration": "Typically 10 seconds per half-cycle"
+      }
+    }
+  },
+  "test_equipment": {
+    "mechanical_load_simulator": {
+      "manufacturer": "Erichsen or equivalent",
+      "model": "Model 483 Mechanical Load Test System",
+      "serial_number": "To be recorded",
+      "specifications": {
+        "load_application_method": "Pneumatic pressure chamber or vacuum chamber",
+        "pressure_range": {
+          "min": 0,
+          "max": 5000,
+          "unit": "Pa",
+          "control_accuracy": "±50 Pa"
+        },
+        "chamber_size": "Accommodates modules up to 2.5m × 1.5m",
+        "load_uniformity": "±5% across module surface",
+        "cycle_control": "Automated pressure cycling with programmable profiles"
+      },
+      "calibration": {
+        "frequency": "Semi-annual",
+        "last_calibration_date": "2025-07-01",
+        "next_calibration_date": "2026-01-01",
+        "calibration_certificate": "CAL-MECH-2025-H2-001",
+        "traceable_to": "NIST"
+      }
+    },
+    "mounting_frame": {
+      "description": "Test fixture simulating field mounting",
+      "design": "Clamping per IEC 61215 (front and rear load tests)",
+      "clamping_width": "≥ 10% of module edge length",
+      "rigidity": "Fixture deflection < 2% of module deflection under load",
+      "material": "Aluminum or steel frame"
+    },
+    "measurement_instruments": {
+      "pressure_transducers": {
+        "quantity": 4,
+        "range": "0-5000 Pa",
+        "accuracy": "±10 Pa or ±0.5% of reading",
+        "purpose": "Monitor pressure uniformity across module surface"
+      },
+      "displacement_sensors": {
+        "type": "Laser triangulation or LVDT",
+        "quantity": 5,
+        "range": "0-100 mm",
+        "accuracy": "±0.1 mm",
+        "purpose": "Measure module center and edge deflection during loading"
+      },
+      "strain_gauges": {
+        "type": "Foil strain gauges (optional)",
+        "quantity": "4-8 per module",
+        "purpose": "Measure frame strain at critical locations"
+      },
+      "iv_curve_tracer": {
+        "model": "PVE PV Analyzer 1500V",
+        "accuracy": "±0.5%",
+        "purpose": "Pre/post electrical characterization"
+      },
+      "insulation_tester": {
+        "model": "Fluke 1550C",
+        "range": "250V - 5kV",
+        "purpose": "Insulation resistance measurement"
+      },
+      "high_speed_camera": {
+        "model": "Optional for deflection visualization",
+        "frame_rate": "30-60 fps",
+        "purpose": "Document module deflection behavior"
+      }
+    }
+  },
+  "test_sequence": {
+    "pre_test_phase": {
+      "duration": "2-4 hours",
+      "steps": [
+        {
+          "step_number": 1,
+          "action": "Visual inspection and documentation",
+          "parameters": {
+            "inspection_areas": [
+              "Module frame (straightness, no pre-existing deformation)",
+              "Glass surface (no cracks or chips)",
+              "Back sheet integrity",
+              "Junction box mounting",
+              "Module edges and corners"
+            ],
+            "photography": "High-resolution images from multiple angles"
+          },
+          "acceptance": "No pre-existing damage or deformation"
+        },
+        {
+          "step_number": 2,
+          "action": "Dimensional measurement",
+          "parameters": {
+            "measurements": [
+              "Module planarity (flatness) - measure bow/twist",
+              "Frame dimensions (length, width, depth)",
+              "Diagonal measurements (check squareness)"
+            ],
+            "instruments": "Calipers, straightedge, feeler gauges",
+            "documentation": "Record baseline dimensions for post-test comparison"
+          }
+        },
+        {
+          "step_number": 3,
+          "action": "Electrical characterization (baseline)",
+          "parameters": {
+            "measurements": ["Voc", "Isc", "Pmax", "Vmp", "Imp", "FF"],
+            "irradiance": "1000 W/m²",
+            "module_temperature": "25°C ±2°C",
+            "spectrum": "AM 1.5G"
+          },
+          "data_logging": {
+            "file_name": "baseline_iv_curve.csv",
+            "parameters_logged": ["voltage", "current", "power", "temperature", "irradiance"]
+          }
+        },
+        {
+          "step_number": 4,
+          "action": "Insulation resistance test (initial)",
+          "parameters": {
+            "test_voltage": "1000V DC",
+            "duration": "60 seconds",
+            "min_resistance": "40 MΩ"
+          }
+        },
+        {
+          "step_number": 5,
+          "action": "Module mounting in test fixture",
+          "parameters": {
+            "mounting_method": "Per IEC 61215 (clamps at module edges)",
+            "clamping_force": "Typical field installation torque (manufacturer spec)",
+            "support_points": "All four edges for framed modules, or per design",
+            "orientation": "Horizontal (face up for front load, face down for rear load)"
+          }
+        },
+        {
+          "step_number": 6,
+          "action": "Instrumentation installation",
+          "parameters": {
+            "pressure_transducers": "4 locations (center, 3 near edges)",
+            "displacement_sensors": "5 locations (center + 4 quadrants)",
+            "strain_gauges": "If used, bond to frame at mid-spans and corners",
+            "data_acquisition": "Connect to logging system, verify signals"
+          }
+        }
+      ]
+    },
+    "mechanical_load_test_phase": {
+      "duration": "1-2 hours",
+      "steps": [
+        {
+          "step_number": 7,
+          "action": "Front load test (downforce)",
+          "parameters": {
+            "test_sequence": [
+              "Ramp to +1000 Pa over 10 seconds",
+              "Hold 1000 Pa for 10 seconds",
+              "Release to 0 Pa over 10 seconds",
+              "Repeat for 3 cycles",
+              "Ramp to +2400 Pa over 10 seconds",
+              "Hold 2400 Pa for 10 seconds",
+              "Release to 0 Pa over 10 seconds",
+              "Repeat for 3 cycles"
+            ],
+            "pressure_control_tolerance": "±50 Pa",
+            "monitoring": "Continuous pressure, deflection, strain logging"
+          },
+          "data_logging": {
+            "parameters": [
+              "timestamp",
+              "cycle_number",
+              "applied_pressure",
+              "pressure_transducer_1_4_readings",
+              "center_deflection",
+              "edge_deflection_4_locations",
+              "strain_gauge_readings"
+            ],
+            "sampling_rate": "10 Hz (10 samples/second)"
+          }
+        },
+        {
+          "step_number": 8,
+          "action": "Inspection after front load",
+          "parameters": {
+            "timing": "Immediately after load release",
+            "inspection": [
+              "Visual inspection for cracks, delamination, or permanent deformation",
+              "Check glass for cracks (including edge inspection)",
+              "Verify frame integrity (no bending or cracking)",
+              "Junction box condition"
+            ],
+            "photography": "Document any changes"
+          },
+          "acceptance": "No major visual defects"
+        },
+        {
+          "step_number": 9,
+          "action": "Module re-orientation for rear load test",
+          "parameters": {
+            "orientation": "Flip module (face down) for rear surface loading",
+            "mounting": "Same clamping configuration",
+            "instrumentation": "Verify sensors repositioned correctly"
+          }
+        },
+        {
+          "step_number": 10,
+          "action": "Rear load test (uplift simulation)",
+          "parameters": {
+            "test_sequence": [
+              "Ramp to +1000 Pa (pressure on rear, simulating uplift) over 10 seconds",
+              "Hold 1000 Pa for 10 seconds",
+              "Release to 0 Pa over 10 seconds",
+              "Repeat for 3 cycles",
+              "Ramp to +2400 Pa over 10 seconds",
+              "Hold 2400 Pa for 10 seconds",
+              "Release to 0 Pa over 10 seconds",
+              "Repeat for 3 cycles"
+            ],
+            "pressure_control_tolerance": "±50 Pa",
+            "monitoring": "Continuous pressure, deflection, strain logging"
+          },
+          "data_logging": {
+            "parameters": [
+              "timestamp",
+              "cycle_number",
+              "applied_pressure",
+              "pressure_uniformity",
+              "center_deflection",
+              "edge_deflection",
+              "strain_gauge_readings"
+            ],
+            "sampling_rate": "10 Hz"
+          }
+        },
+        {
+          "step_number": 11,
+          "action": "Final visual inspection after rear load",
+          "parameters": {
+            "timing": "Immediately after load release",
+            "inspection": [
+              "Back sheet condition (no tearing or delamination)",
+              "Frame integrity",
+              "Junction box mounting (no detachment)",
+              "Module planarity (check for permanent bow)"
+            ],
+            "photography": "Comprehensive post-test documentation"
+          }
+        }
+      ]
+    },
+    "post_test_phase": {
+      "duration": "2-4 hours",
+      "steps": [
+        {
+          "step_number": 12,
+          "action": "Dimensional measurement (post-test)",
+          "parameters": {
+            "measurements": [
+              "Module planarity (compare to baseline)",
+              "Frame dimensions",
+              "Diagonal measurements"
+            ],
+            "acceptance": "Permanent deformation < 1% of module dimension"
+          }
+        },
+        {
+          "step_number": 13,
+          "action": "Detailed visual inspection",
+          "parameters": {
+            "inspection_method": "Microscopic examination of glass, frame, and seals",
+            "defect_classification": "Per IEC 61215 Section 7.1",
+            "documentation": "High-resolution photographs of any defects"
+          }
+        },
+        {
+          "step_number": 14,
+          "action": "Electrical characterization (post-test)",
+          "parameters": {
+            "measurements": ["Voc", "Isc", "Pmax", "Vmp", "Imp", "FF"],
+            "irradiance": "1000 W/m²",
+            "module_temperature": "25°C ±2°C",
+            "spectrum": "AM 1.5G"
+          },
+          "data_logging": {
+            "file_name": "post_test_iv_curve.csv",
+            "parameters_logged": ["voltage", "current", "power", "temperature", "irradiance"]
+          }
+        },
+        {
+          "step_number": 15,
+          "action": "Insulation resistance test (post-test)",
+          "parameters": {
+            "test_voltage": "1000V DC",
+            "duration": "60 seconds",
+            "min_resistance": "40 MΩ"
+          }
+        },
+        {
+          "step_number": 16,
+          "action": "Dielectric withstand test (post-test)",
+          "parameters": {
+            "test_voltage": "1000V + 2×Voc_max",
+            "duration": "60 seconds",
+            "acceptance": "No breakdown"
+          }
+        },
+        {
+          "step_number": 17,
+          "action": "Performance degradation and pass/fail determination",
+          "parameters": {
+            "degradation_calculation": "Δ% = 100 × (Pmax_pre - Pmax_post) / Pmax_pre",
+            "acceptance": "≤ 5% degradation",
+            "structural_acceptance": "No cracks, permanent deformation < 1%",
+            "combined_assessment": "Electrical + structural + visual criteria"
+          }
+        }
+      ]
+    }
+  },
+  "data_logging": {
+    "logging_system": {
+      "software": "LabVIEW 2023 + NI CompactDAQ",
+      "database": "PostgreSQL 15.0",
+      "backup_frequency": "Real-time to redundant server"
+    },
+    "mechanical_test_data": {
+      "sampling_rate": "10 Hz (10 samples/second)",
+      "parameters": [
+        {
+          "name": "timestamp",
+          "unit": "ISO8601",
+          "type": "datetime"
+        },
+        {
+          "name": "test_phase",
+          "unit": "text",
+          "type": "enum",
+          "values": ["front_load_1000Pa", "front_load_2400Pa", "rear_load_1000Pa", "rear_load_2400Pa"]
+        },
+        {
+          "name": "cycle_number",
+          "unit": "count",
+          "type": "integer"
+        },
+        {
+          "name": "applied_pressure_target",
+          "unit": "Pa",
+          "type": "float"
+        },
+        {
+          "name": "pressure_sensor_1_center",
+          "unit": "Pa",
+          "accuracy": "±10 Pa",
+          "type": "float"
+        },
+        {
+          "name": "pressure_sensor_2_edge",
+          "unit": "Pa",
+          "accuracy": "±10 Pa",
+          "type": "float"
+        },
+        {
+          "name": "pressure_sensor_3_edge",
+          "unit": "Pa",
+          "accuracy": "±10 Pa",
+          "type": "float"
+        },
+        {
+          "name": "pressure_sensor_4_edge",
+          "unit": "Pa",
+          "accuracy": "±10 Pa",
+          "type": "float"
+        },
+        {
+          "name": "deflection_center",
+          "unit": "mm",
+          "accuracy": "±0.1 mm",
+          "type": "float"
+        },
+        {
+          "name": "deflection_edge_1",
+          "unit": "mm",
+          "accuracy": "±0.1 mm",
+          "type": "float"
+        },
+        {
+          "name": "deflection_edge_2",
+          "unit": "mm",
+          "accuracy": "±0.1 mm",
+          "type": "float"
+        },
+        {
+          "name": "deflection_edge_3",
+          "unit": "mm",
+          "accuracy": "±0.1 mm",
+          "type": "float"
+        },
+        {
+          "name": "deflection_edge_4",
+          "unit": "mm",
+          "accuracy": "±0.1 mm",
+          "type": "float"
+        },
+        {
+          "name": "strain_gauge_readings",
+          "unit": "microstrain",
+          "accuracy": "±5 µε",
+          "type": "array of floats",
+          "note": "If strain gauges used"
+        }
+      ],
+      "file_format": "CSV",
+      "file_naming": "PVTP-037_{sample_id}_{date}_mechanical_data.csv"
+    },
+    "electrical_characterization_data": {
+      "sampling_rate": "Pre-test and post-test",
+      "parameters": [
+        {
+          "name": "Voc",
+          "unit": "V",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "Isc",
+          "unit": "A",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "Pmax",
+          "unit": "W",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "Vmp",
+          "unit": "V",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "Imp",
+          "unit": "A",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "FF",
+          "unit": "ratio",
+          "accuracy": "±1%"
+        }
+      ],
+      "file_format": "CSV",
+      "file_naming": "PVTP-037_{sample_id}_{date}_{pre_post}_iv_data.csv"
+    },
+    "quality_checks": {
+      "real_time_validation": [
+        {
+          "parameter": "applied_pressure",
+          "check_type": "range",
+          "target_1000Pa": {"min": 950, "max": 1050},
+          "target_2400Pa": {"min": 2350, "max": 2450},
+          "action_on_failure": "Alarm, adjust pressure controller, log deviation"
+        },
+        {
+          "parameter": "pressure_uniformity",
+          "check_type": "coefficient_of_variation",
+          "max_cv": "10%",
+          "action_on_failure": "Check for air leaks, adjust chamber"
+        },
+        {
+          "parameter": "deflection_center",
+          "check_type": "threshold",
+          "max_deflection": "50 mm (typical, depends on module size)",
+          "action_on_failure": "Pause test if excessive deflection (potential failure)"
+        }
+      ]
+    },
+    "retention_policy": {
+      "raw_mechanical_data": "10 years",
+      "electrical_characterization": "Permanent",
+      "photographs": "10 years",
+      "test_reports": "Permanent"
+    }
+  },
+  "analysis_and_reporting": {
+    "time_series_analysis": {
+      "deflection_behavior": {
+        "metrics": [
+          "Maximum deflection vs. applied load",
+          "Deflection hysteresis (elastic recovery)",
+          "Cycle-to-cycle deflection repeatability"
+        ],
+        "visualization": [
+          "Load vs. deflection curve (all cycles overlaid)",
+          "Deflection time series for each cycle",
+          "Pressure uniformity across module surface"
+        ]
+      },
+      "structural_response_analysis": {
+        "calculations": [
+          "Module stiffness (N/m or Pa/mm deflection)",
+          "Frame strain vs. applied load (if strain gauges used)",
+          "Permanent vs. elastic deformation"
+        ]
+      }
+    },
+    "baseline_comparison": {
+      "electrical_parameters": {
+        "comparison_metrics": [
+          {
+            "parameter": "Pmax",
+            "calculation": "Δ% = 100 × (Pmax_post - Pmax_pre) / Pmax_pre",
+            "threshold": "≤ 5%",
+            "criticality": "Critical - Test failure if exceeded"
+          },
+          {
+            "parameter": "Voc",
+            "calculation": "Δ%",
+            "threshold": "≤ 2%"
+          },
+          {
+            "parameter": "Isc",
+            "calculation": "Δ%",
+            "threshold": "≤ 2%"
+          }
+        ],
+        "visualization": [
+          "Pre/post IV curve overlay",
+          "Power degradation bar chart"
+        ]
+      },
+      "dimensional_comparison": {
+        "metrics": [
+          "Permanent deformation (bow/twist)",
+          "Frame dimensional changes",
+          "Module planarity deviation"
+        ],
+        "acceptance": "Permanent deformation < 1% of module dimension"
+      }
+    },
+    "degradation_modeling": {
+      "structural_fatigue_analysis": {
+        "approach": "Assess cyclic loading effects on module structure",
+        "factors": [
+          "Glass fatigue under cyclic bending",
+          "Frame material fatigue",
+          "Adhesive bond stress cycling",
+          "Cell interconnect fatigue"
+        ],
+        "field_correlation": "6 load cycles ≈ 25 years of field wind exposure (conservative)"
+      },
+      "failure_mode_analysis": {
+        "categories": [
+          "Glass fracture (tensile stress on loaded surface)",
+          "Frame permanent deformation or cracking",
+          "Delamination (glass-to-encapsulant)",
+          "Cell cracking (excessive flexure)",
+          "Junction box detachment",
+          "Solder joint fatigue"
+        ],
+        "severity_rating": "Critical / Major / Minor",
+        "root_cause_investigation": "For any failures"
+      }
+    },
+    "statistical_analysis": {
+      "sample_size_requirements": {
+        "minimum_per_design": 2,
+        "recommended_for_validation": 5,
+        "statistical_confidence": "95%"
+      },
+      "pass_rate_calculation": {
+        "formula": "Pass rate (%) = 100 × (Passed samples / Total samples)",
+        "target": "≥ 100% for design qualification"
+      }
+    },
+    "visualization_requirements": {
+      "automated_plots": [
+        {
+          "plot_type": "Load-deflection curve",
+          "x_axis": "Applied pressure (Pa)",
+          "y_axis": "Center deflection (mm)",
+          "data_series": ["Cycle 1", "Cycle 2", "Cycle 3", "Cycle 4", "Cycle 5", "Cycle 6"]
+        },
+        {
+          "plot_type": "Deflection profile along module length",
+          "x_axis": "Position along module (mm)",
+          "y_axis": "Deflection (mm)",
+          "visualization": "At maximum load (2400 Pa)"
+        },
+        {
+          "plot_type": "Pressure uniformity heat map",
+          "visualization": "2D module map showing pressure distribution"
+        },
+        {
+          "plot_type": "Power degradation bar chart",
+          "x_axis": "Sample ID",
+          "y_axis": "Power degradation (%)",
+          "threshold_line": "5% limit"
+        },
+        {
+          "plot_type": "Deflection vs. time (all cycles)",
+          "x_axis": "Time (seconds)",
+          "y_axis": "Center deflection (mm)"
+        }
+      ],
+      "export_formats": ["PNG", "SVG", "PDF"]
+    },
+    "report_generation": {
+      "template": "IEC 61215 Mechanical Load Test Report Template",
+      "sections": [
+        "Executive summary with pass/fail determination",
+        "Sample identification",
+        "Test equipment and calibration",
+        "Test procedure summary",
+        "Load-deflection analysis (front and rear)",
+        "Pressure uniformity assessment",
+        "Structural response (stiffness, permanent deformation)",
+        "Visual inspection results (with photographs)",
+        "Electrical characterization results (pre/post comparison)",
+        "Power degradation analysis",
+        "Failure mode analysis (if applicable)",
+        "Conclusions and recommendations",
+        "Suitability for high-wind regions"
+      ],
+      "automated_generation": "Python + Jinja2 templates",
+      "review_cycle": "Technical review → Structural engineer review → QA review → Final approval"
+    }
+  },
+  "quality_control": {
+    "pre_test_qc": {
+      "checklist": [
+        {
+          "item": "Mechanical load system calibration current",
+          "acceptance": "Within 6 months, certificate on file"
+        },
+        {
+          "item": "Pressure sensors verified",
+          "acceptance": "±10 Pa accuracy or better"
+        },
+        {
+          "item": "Displacement sensors calibrated",
+          "acceptance": "±0.1 mm accuracy"
+        },
+        {
+          "item": "Test fixture rigidity verified",
+          "acceptance": "Fixture deflection < 2% of module deflection"
+        },
+        {
+          "item": "Module baseline characterization complete",
+          "acceptance": "All electrical and dimensional data logged"
+        },
+        {
+          "item": "Data acquisition system functional",
+          "acceptance": "All sensors reading correctly, 10 Hz sampling verified"
+        }
+      ],
+      "approver": "Test Engineer"
+    },
+    "in_test_monitoring": {
+      "monitored_parameters": [
+        {
+          "parameter": "applied_pressure",
+          "frequency": "Continuous (10 Hz)",
+          "action_if_out_of_spec": "Pause cycle, adjust controller, repeat cycle"
+        },
+        {
+          "parameter": "center_deflection",
+          "frequency": "Continuous (10 Hz)",
+          "action_if_excessive": "Pause test if deflection > safety threshold (module failure imminent)"
+        },
+        {
+          "parameter": "pressure_uniformity",
+          "frequency": "Per cycle",
+          "action_if_poor": "Check for air leaks, redistribute pressure"
+        }
+      ]
+    },
+    "post_test_qc": {
+      "data_review": [
+        {
+          "item": "All 6 load cycles completed with valid data",
+          "reviewer": "Test Engineer"
+        },
+        {
+          "item": "Pressure control within ±50 Pa throughout test",
+          "reviewer": "Test Engineer"
+        },
+        {
+          "item": "Deflection measurements consistent and reasonable",
+          "reviewer": "Structural Engineer"
+        },
+        {
+          "item": "Pre/post electrical data complete",
+          "reviewer": "Test Engineer"
+        },
+        {
+          "item": "Visual inspection and dimensional measurements documented",
+          "reviewer": "QA Engineer"
+        },
+        {
+          "item": "Power degradation calculation verified",
+          "reviewer": "QA Engineer"
+        }
+      ],
+      "report_review": {
+        "technical_review": "Senior Test Engineer",
+        "structural_review": "Structural Engineer",
+        "qa_review": "QA Manager",
+        "final_approval": "Technical Director"
+      }
+    }
+  },
+  "non_conformance_management": {
+    "potential_non_conformances": [
+      {
+        "nc_type": "Pressure out of tolerance (> ±50 Pa)",
+        "severity": "Major",
+        "corrective_action": "Repeat affected cycle",
+        "documentation": "NC log + pressure system verification"
+      },
+      {
+        "nc_type": "Pressure uniformity poor (CV > 10%)",
+        "severity": "Major",
+        "corrective_action": "Investigate air leaks, adjust chamber, may require retest",
+        "documentation": "NC report + chamber verification"
+      },
+      {
+        "nc_type": "Displacement sensor failure during test",
+        "severity": "Major",
+        "corrective_action": "If redundant sensors available, continue; otherwise, restart test",
+        "documentation": "NC report + sensor verification"
+      },
+      {
+        "nc_type": "Glass fracture during test",
+        "severity": "Critical",
+        "corrective_action": "Module fails test, failure analysis required",
+        "documentation": "Failure analysis report + design review"
+      },
+      {
+        "nc_type": "Permanent deformation > 1%",
+        "severity": "Critical",
+        "corrective_action": "Module fails test, structural analysis required",
+        "documentation": "Failure analysis report + structural engineering review"
+      },
+      {
+        "nc_type": "Power degradation > 5%",
+        "severity": "Critical",
+        "corrective_action": "Module fails test, investigate root cause (cell cracks, delamination)",
+        "documentation": "Failure analysis report + EL imaging"
+      }
+    ],
+    "nc_workflow": {
+      "detection": "Real-time during test or post-test analysis",
+      "documentation": "NC form PVTP-NC-001",
+      "investigation": "Root cause analysis within 5 business days",
+      "corrective_action": "Per NC management procedure QP-008",
+      "verification": "QA verification of corrective action effectiveness",
+      "closure": "QA Manager approval"
+    }
+  },
+  "traceability": {
+    "sample_traceability": {
+      "required_information": [
+        "Sample ID",
+        "Manufacturer, model, serial number",
+        "Module dimensions and weight",
+        "Frame material and dimensions",
+        "Glass thickness and type",
+        "Mounting hole pattern",
+        "Manufacturing date"
+      ]
+    },
+    "test_execution_traceability": {
+      "operator_id": "Recorded for each test phase",
+      "equipment_id": "Load system SN + calibration status",
+      "test_fixture_id": "Fixture ID + configuration",
+      "mechanical_data": "Continuous 10 Hz logging throughout test",
+      "test_start_end_times": "ISO8601 timestamps"
+    },
+    "calibration_traceability": {
+      "mechanical_load_system": {
+        "calibration_certificate": "Pressure control, load uniformity",
+        "traceable_to": "NIST",
+        "next_calibration_due": "Verified before test"
+      },
+      "pressure_transducers": {
+        "calibration_certificate": "Individual sensor calibration",
+        "accuracy_verification": "±10 Pa or better"
+      },
+      "displacement_sensors": {
+        "calibration_certificate": "Calibration to known distances",
+        "accuracy_verification": "±0.1 mm"
+      }
+    },
+    "compliance_mapping": {
+      "iec_61215_requirements": [
+        {
+          "requirement": "MQT 16.2 - 3 cycles at 1000 Pa front and rear",
+          "evidence": "Mechanical test data log showing 6 cycles (3 front + 3 rear at 1000 Pa)",
+          "location": "Section 8.1 of test report"
+        },
+        {
+          "requirement": "MQT 16.3 - 3 cycles at 2400 Pa front and rear",
+          "evidence": "Mechanical test data log showing 6 cycles (3 front + 3 rear at 2400 Pa)",
+          "location": "Section 8.2 of test report"
+        },
+        {
+          "requirement": "MQT 16.4 - No major visual defects",
+          "evidence": "Visual inspection report with photographs",
+          "location": "Section 9 of test report"
+        },
+        {
+          "requirement": "MQT 16.5 - Power degradation ≤ 5%",
+          "evidence": "Pre/post IV curves and degradation calculation",
+          "location": "Section 10 of test report"
+        }
+      ]
+    }
+  },
+  "safety_considerations": {
+    "hazards": [
+      {
+        "hazard": "Module structural failure (glass breakage, frame collapse)",
+        "risk_level": "High",
+        "mitigation": [
+          "Safety shields around test fixture",
+          "Controlled pressure ramp (not sudden application)",
+          "Real-time deflection monitoring with emergency stop",
+          "Personnel clear of test area during loading"
+        ]
+      },
+      {
+        "hazard": "Compressed air pressure system",
+        "risk_level": "Medium",
+        "mitigation": "Pressure relief valves, operator training, regular inspection"
+      },
+      {
+        "hazard": "Electrical shock from module",
+        "risk_level": "Medium",
+        "mitigation": "Ensure disconnected during mechanical loading, insulated tools"
+      },
+      {
+        "hazard": "Sharp edges from broken glass",
+        "risk_level": "Medium",
+        "mitigation": "Cut-resistant gloves when handling damaged modules, safety glasses"
+      }
+    ],
+    "ppe_requirements": [
+      "Safety glasses (ANSI Z87.1)",
+      "Cut-resistant gloves (when handling damaged modules)",
+      "Safety shoes",
+      "Face shield (if entering test area during loading - generally not allowed)"
+    ],
+    "emergency_procedures": {
+      "module_failure": "E-stop, release pressure, isolate area, assess damage before handling",
+      "equipment_malfunction": "E-stop, isolate power/air, notify supervisor and maintenance"
+    }
+  },
+  "training_requirements": {
+    "required_training": [
+      {
+        "course": "IEC 61215 Mechanical Load Testing",
+        "frequency": "Initial + when procedure updated",
+        "provider": "Senior Test Engineer"
+      },
+      {
+        "course": "Mechanical Load System Operation and Safety",
+        "frequency": "Initial + annual refresher",
+        "provider": "Equipment manufacturer or certified trainer"
+      },
+      {
+        "course": "Structural Mechanics Fundamentals (for data analysts)",
+        "frequency": "Initial",
+        "provider": "Structural Engineer"
+      },
+      {
+        "course": "Laboratory Safety and PPE",
+        "frequency": "Annual",
+        "provider": "Safety Department"
+      }
+    ],
+    "competency_verification": {
+      "method": "Practical demonstration + written assessment",
+      "assessment_areas": [
+        "Test fixture setup and module mounting",
+        "Pressure control and monitoring",
+        "Sensor installation and data acquisition",
+        "Load-deflection data analysis",
+        "Safety procedures"
+      ],
+      "passing_score": "≥ 90%",
+      "requalification": "Every 2 years"
+    }
+  },
+  "references": {
+    "standards": [
+      {
+        "document": "IEC 61215-2:2021",
+        "title": "Terrestrial photovoltaic (PV) modules - Design qualification and type approval - Part 2: Test procedures"
+      },
+      {
+        "document": "IEC 61730-2:2016",
+        "title": "Photovoltaic (PV) module safety qualification - Part 2: Requirements for testing"
+      },
+      {
+        "document": "ASCE 7-22",
+        "title": "Minimum Design Loads for Buildings and Other Structures"
+      },
+      {
+        "document": "UL 1703:2022",
+        "title": "Standard for Flat-Plate Photovoltaic Modules and Panels"
+      }
+    ],
+    "internal_documents": [
+      {
+        "document": "SOP-MECH-001",
+        "title": "Mechanical Load Test System Operation Procedure"
+      },
+      {
+        "document": "SOP-STRUCT-001",
+        "title": "Module Structural Analysis Procedure"
+      },
+      {
+        "document": "QP-008",
+        "title": "Non-Conformance Management Procedure"
+      }
+    ]
+  },
+  "revision_history": [
+    {
+      "version": "1.0",
+      "date": "2025-11-12",
+      "author": "PV Testing Laboratory",
+      "changes": "Initial protocol creation based on IEC 61215-2:2021 MQT 16",
+      "approved_by": "Quality Director"
+    }
+  ]
+}

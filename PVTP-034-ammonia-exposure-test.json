@@ -1,0 +1,1173 @@
+{
+  "protocol_metadata": {
+    "protocol_id": "PVTP-034",
+    "version": "1.0",
+    "title": "Ammonia Exposure Test (IEC 62716)",
+    "description": "Accelerated corrosion test for PV modules exposed to ammonia-rich environments (agricultural, livestock facilities)",
+    "test_type": "environmental_chemical_corrosion",
+    "created_date": "2025-11-12",
+    "last_modified": "2025-11-12",
+    "author": "PV Testing Laboratory",
+    "status": "active",
+    "compliance_standards": [
+      {
+        "standard_id": "IEC 62716",
+        "version": "2013",
+        "edition": "1.0",
+        "title": "Photovoltaic (PV) modules - Ammonia corrosion testing",
+        "requirements": [
+          "500 ppm NH3 concentration",
+          "85°C chamber temperature",
+          "85% relative humidity",
+          "1000 hours total exposure",
+          "Power degradation ≤ 5%, no critical corrosion"
+        ]
+      },
+      {
+        "standard_id": "IEC 61215",
+        "version": "4.0",
+        "section": "MQT 22",
+        "title": "Ammonia Corrosion Test (optional)"
+      }
+    ],
+    "related_protocols": ["PVTP-033", "PVTP-039"],
+    "approval_status": {
+      "reviewed_by": "Chemical Testing Specialist",
+      "approved_by": "Quality Director",
+      "approval_date": "2025-11-12"
+    }
+  },
+  "test_objectives": {
+    "primary_objective": "Evaluate PV module resistance to ammonia-induced corrosion per IEC 62716",
+    "secondary_objectives": [
+      "Assess corrosion resistance of metallization (silver busbars)",
+      "Evaluate junction box and interconnect resistance to ammonia",
+      "Measure electrical performance degradation after exposure",
+      "Identify ammonia-sensitive materials and components",
+      "Validate suitability for agricultural/livestock facility installations"
+    ],
+    "acceptance_criteria": {
+      "visual_inspection": "No major visual defects (silver corrosion, encapsulation failure)",
+      "electrical_performance": "Power degradation ≤ 5% from baseline",
+      "insulation_resistance": "≥ 40 MΩ post-test",
+      "safety": "Pass dielectric withstand test",
+      "corrosion_severity": "No failure of critical components (busbars, interconnects)"
+    },
+    "application_context": {
+      "target_environments": [
+        "Agricultural installations near livestock facilities",
+        "Poultry and dairy farm rooftops",
+        "Fertilizer storage areas",
+        "Wastewater treatment facilities"
+      ],
+      "field_ammonia_concentrations": "Typically 10-50 ppm, peaks to 100+ ppm near sources",
+      "accelerated_test_factor": "500 ppm for 1000h ≈ 5-10 years field exposure"
+    }
+  },
+  "test_equipment": {
+    "ammonia_exposure_chamber": {
+      "manufacturer": "Weiss Umwelttechnik",
+      "model": "WK3-340/70-NH3",
+      "serial_number": "To be recorded",
+      "specifications": {
+        "chamber_volume": {
+          "value": 340,
+          "unit": "liters"
+        },
+        "temperature_range": {
+          "min": -40,
+          "max": 180,
+          "unit": "°C",
+          "control_accuracy": "±1°C"
+        },
+        "humidity_range": {
+          "min": 10,
+          "max": 98,
+          "unit": "%",
+          "control_accuracy": "±3%"
+        },
+        "ammonia_concentration_range": {
+          "min": 0,
+          "max": 1000,
+          "unit": "ppm",
+          "control_accuracy": "±50 ppm"
+        },
+        "gas_circulation": "Forced air circulation, uniform distribution",
+        "safety_features": [
+          "Exhaust scrubber for ammonia neutralization",
+          "Gas leak detection and alarm",
+          "Emergency purge system",
+          "Personal exposure monitoring"
+        ]
+      },
+      "calibration": {
+        "frequency": "Annual",
+        "last_calibration_date": "2025-06-01",
+        "next_calibration_date": "2026-06-01",
+        "calibration_certificate": "CAL-AMM-2025-001",
+        "traceable_to": "NIST"
+      }
+    },
+    "ammonia_monitoring_system": {
+      "ammonia_analyzer": {
+        "manufacturer": "Thermo Fisher Scientific",
+        "model": "Model 17i NH3 Analyzer",
+        "measurement_principle": "Chemiluminescence",
+        "range": "0-1000 ppm",
+        "accuracy": "±1% of reading or ±1 ppm (whichever is greater)",
+        "response_time": "< 60 seconds"
+      },
+      "calibration_gases": {
+        "zero_gas": "Ultra-high purity nitrogen (99.999%)",
+        "span_gas": "500 ppm NH3 in N2, NIST-traceable"
+      }
+    },
+    "measurement_instruments": {
+      "iv_curve_tracer": {
+        "model": "PVE PV Analyzer 1500V",
+        "accuracy": "±0.5%",
+        "purpose": "Pre/post electrical characterization"
+      },
+      "insulation_tester": {
+        "model": "Fluke 1550C",
+        "range": "250V - 5kV",
+        "purpose": "Insulation resistance measurement"
+      },
+      "thermohygrometer": {
+        "model": "Vaisala HMT330",
+        "temperature_accuracy": "±0.2°C",
+        "humidity_accuracy": "±1.0% RH"
+      },
+      "colorimeter": {
+        "model": "X-Rite i1Pro 3",
+        "purpose": "Quantify silver discoloration (CIE L*a*b* color space)",
+        "repeatability": "ΔE < 0.2"
+      }
+    }
+  },
+  "test_sequence": {
+    "pre_test_phase": {
+      "duration": "4-8 hours",
+      "steps": [
+        {
+          "step_number": 1,
+          "action": "Visual inspection and documentation",
+          "parameters": {
+            "inspection_areas": [
+              "Front glass (busbar visibility and color)",
+              "Junction box and terminals",
+              "Frame and fasteners",
+              "Cable glands and seals",
+              "Encapsulation edges",
+              "Back sheet"
+            ],
+            "color_measurement": "CIE L*a*b* measurement of silver busbars (baseline)",
+            "photography": "High-resolution images (macro of busbars, junction box)"
+          },
+          "acceptance": "No pre-existing corrosion or discoloration"
+        },
+        {
+          "step_number": 2,
+          "action": "Electrical characterization (baseline)",
+          "parameters": {
+            "measurements": ["Voc", "Isc", "Pmax", "Vmp", "Imp", "FF", "Rs", "Rsh"],
+            "irradiance": "1000 W/m²",
+            "module_temperature": "25°C ±2°C",
+            "spectrum": "AM 1.5G"
+          },
+          "data_logging": {
+            "file_name": "baseline_iv_curve.csv",
+            "parameters_logged": ["voltage", "current", "power", "temperature", "irradiance"]
+          }
+        },
+        {
+          "step_number": 3,
+          "action": "Insulation resistance test (initial)",
+          "parameters": {
+            "test_voltage": "1000V DC",
+            "duration": "60 seconds",
+            "min_resistance": "40 MΩ"
+          }
+        },
+        {
+          "step_number": 4,
+          "action": "Dielectric withstand test (initial)",
+          "parameters": {
+            "test_voltage": "1000V + 2×Voc_max",
+            "duration": "60 seconds",
+            "acceptance": "No breakdown"
+          }
+        },
+        {
+          "step_number": 5,
+          "action": "Module cleaning",
+          "parameters": {
+            "cleaning_method": "Soft cloth with deionized water",
+            "drying": "Air dry minimum 4 hours",
+            "handling": "Clean gloves to prevent contamination"
+          }
+        },
+        {
+          "step_number": 6,
+          "action": "Chamber preparation and safety verification",
+          "parameters": {
+            "chamber_cleaning": "Purge residual ammonia, clean interior",
+            "safety_systems_check": "Gas detection, exhaust scrubber, emergency purge",
+            "ammonia_analyzer_calibration": "Zero and span calibration",
+            "personal_safety": "PPE available, exposure monitoring active"
+          }
+        }
+      ]
+    },
+    "exposure_test_phase": {
+      "duration": "1000 hours (41.67 days)",
+      "test_conditions": {
+        "ammonia_concentration": {
+          "target": 500,
+          "unit": "ppm",
+          "tolerance": "±50 ppm",
+          "monitoring": "Continuous with NH3 analyzer"
+        },
+        "temperature": {
+          "target": 85,
+          "unit": "°C",
+          "tolerance": "±2°C",
+          "monitoring": "Continuous"
+        },
+        "relative_humidity": {
+          "target": 85,
+          "unit": "%",
+          "tolerance": "±5%",
+          "monitoring": "Continuous"
+        },
+        "test_mode": "Continuous exposure (no cycling)"
+      },
+      "steps": [
+        {
+          "step_number": 7,
+          "action": "Module installation in chamber",
+          "parameters": {
+            "mounting": "Open-rack support, no enclosure",
+            "orientation": "Front glass facing up (45° tilt)",
+            "spacing": "Minimum 150 mm between modules for gas circulation",
+            "electrical_connection": "Cables and junction box fully exposed to ammonia atmosphere"
+          }
+        },
+        {
+          "step_number": 8,
+          "action": "Chamber conditioning phase",
+          "parameters": {
+            "sequence": [
+              "1. Heat chamber to 85°C without ammonia (2 hours)",
+              "2. Stabilize humidity at 85% RH (2 hours)",
+              "3. Introduce ammonia gradually to 500 ppm (1 hour)",
+              "4. Verify stable conditions (1 hour)"
+            ],
+            "verification": "All parameters within tolerance before starting 1000h timer"
+          }
+        },
+        {
+          "step_number": 9,
+          "action": "Continuous ammonia exposure (1000 hours)",
+          "parameters": {
+            "duration": "1000 hours continuous",
+            "monitoring_frequency": "Every 5 minutes",
+            "operator_checks": "Daily visual check through chamber window (no opening)"
+          },
+          "data_logging": {
+            "parameters": [
+              "timestamp",
+              "elapsed_time_hours",
+              "chamber_temperature",
+              "chamber_humidity",
+              "ammonia_concentration",
+              "chamber_pressure"
+            ],
+            "sampling_rate": "5 minutes",
+            "file_format": "CSV"
+          }
+        },
+        {
+          "step_number": 10,
+          "action": "Interim inspections (at 250h, 500h, 750h)",
+          "parameters": {
+            "inspection_method": "Visual through chamber observation port (no opening)",
+            "observation_targets": [
+              "Visible discoloration of silver busbars",
+              "Junction box condition",
+              "Any signs of delamination or bubbling"
+            ],
+            "photography": "Through chamber window if possible",
+            "acceptance": "Test continues regardless of observations (unless safety concern)"
+          }
+        }
+      ]
+    },
+    "post_test_phase": {
+      "duration": "2-3 days",
+      "steps": [
+        {
+          "step_number": 11,
+          "action": "Chamber purge and cooldown",
+          "parameters": {
+            "sequence": [
+              "1. Stop ammonia injection",
+              "2. Purge with fresh air for 2 hours (ammonia scrubber active)",
+              "3. Reduce temperature to 30°C",
+              "4. Verify ammonia concentration < 5 ppm before opening",
+              "5. PPE required for chamber access"
+            ],
+            "safety_verification": "Gas detection confirms safe NH3 level"
+          }
+        },
+        {
+          "step_number": 12,
+          "action": "Module removal and initial inspection",
+          "parameters": {
+            "ppe_required": "Respirator, chemical gloves, safety glasses",
+            "handling": "Careful removal, avoid touching corroded surfaces",
+            "initial_photography": "Document as-removed condition (before cleaning)"
+          }
+        },
+        {
+          "step_number": 13,
+          "action": "Visual inspection and corrosion assessment",
+          "parameters": {
+            "inspection_areas": [
+              "Silver busbar discoloration and corrosion",
+              "Junction box terminal corrosion",
+              "Frame and fastener condition",
+              "Encapsulation edge sealing",
+              "Back sheet condition",
+              "Cable insulation integrity"
+            ],
+            "color_measurement": "CIE L*a*b* measurement of busbars (post-test)",
+            "color_change_calculation": "ΔE = √[(ΔL*)² + (Δa*)² + (Δb*)²]",
+            "photography": "High-resolution macro images matching pre-test angles"
+          }
+        },
+        {
+          "step_number": 14,
+          "action": "Module cleaning procedure",
+          "parameters": {
+            "first_rinse": "Deionized water spray to remove ammonia residue",
+            "rinse_duration": "5 minutes",
+            "neutralization": "Optional: dilute acetic acid rinse for heavy ammonia deposits",
+            "final_rinse": "Deionized water spray",
+            "drying": "Air dry at 20°C for 24 hours minimum"
+          }
+        },
+        {
+          "step_number": 15,
+          "action": "Electrical characterization (post-test)",
+          "parameters": {
+            "wait_time": "Minimum 24 hours after cleaning and drying",
+            "measurements": ["Voc", "Isc", "Pmax", "Vmp", "Imp", "FF", "Rs", "Rsh"],
+            "irradiance": "1000 W/m²",
+            "module_temperature": "25°C ±2°C",
+            "spectrum": "AM 1.5G"
+          },
+          "data_logging": {
+            "file_name": "post_test_iv_curve.csv",
+            "parameters_logged": ["voltage", "current", "power", "temperature", "irradiance"]
+          }
+        },
+        {
+          "step_number": 16,
+          "action": "Insulation resistance test (post-test)",
+          "parameters": {
+            "test_voltage": "1000V DC",
+            "duration": "60 seconds",
+            "min_resistance": "40 MΩ"
+          }
+        },
+        {
+          "step_number": 17,
+          "action": "Dielectric withstand test (post-test)",
+          "parameters": {
+            "test_voltage": "1000V + 2×Voc_max",
+            "duration": "60 seconds",
+            "acceptance": "No breakdown"
+          }
+        },
+        {
+          "step_number": 18,
+          "action": "Performance degradation and pass/fail determination",
+          "parameters": {
+            "degradation_calculation": "Δ% = 100 × (Pmax_pre - Pmax_post) / Pmax_pre",
+            "visual_acceptance": "No failure of critical components",
+            "combined_assessment": "Electrical + visual + insulation results"
+          }
+        }
+      ]
+    }
+  },
+  "data_logging": {
+    "logging_system": {
+      "software": "LabVIEW 2023 + Weiss Chamber Control + NH3 Analyzer Interface",
+      "database": "PostgreSQL 15.0",
+      "backup_frequency": "Real-time to redundant server + daily full backup"
+    },
+    "environmental_data": {
+      "sampling_rate": "5 minutes",
+      "parameters": [
+        {
+          "name": "timestamp",
+          "unit": "ISO8601",
+          "type": "datetime"
+        },
+        {
+          "name": "elapsed_time",
+          "unit": "hours",
+          "type": "float"
+        },
+        {
+          "name": "chamber_temperature",
+          "unit": "°C",
+          "accuracy": "±0.2°C",
+          "type": "float",
+          "valid_range": "83-87°C"
+        },
+        {
+          "name": "chamber_humidity",
+          "unit": "%",
+          "accuracy": "±1.0%",
+          "type": "float",
+          "valid_range": "80-90%"
+        },
+        {
+          "name": "ammonia_concentration",
+          "unit": "ppm",
+          "accuracy": "±1% of reading or ±1 ppm",
+          "type": "float",
+          "valid_range": "450-550 ppm"
+        },
+        {
+          "name": "chamber_pressure",
+          "unit": "Pa",
+          "accuracy": "±10 Pa",
+          "type": "float"
+        },
+        {
+          "name": "exhaust_scrubber_status",
+          "unit": "boolean",
+          "type": "boolean",
+          "description": "Active/Inactive"
+        }
+      ],
+      "file_format": "CSV",
+      "file_naming": "PVTP-034_{sample_id}_{date}_environmental_log.csv"
+    },
+    "electrical_characterization_data": {
+      "sampling_rate": "Pre-test and post-test",
+      "parameters": [
+        {
+          "name": "open_circuit_voltage",
+          "symbol": "Voc",
+          "unit": "V",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "short_circuit_current",
+          "symbol": "Isc",
+          "unit": "A",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "maximum_power",
+          "symbol": "Pmax",
+          "unit": "W",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "voltage_at_max_power",
+          "symbol": "Vmp",
+          "unit": "V",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "current_at_max_power",
+          "symbol": "Imp",
+          "unit": "A",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "fill_factor",
+          "symbol": "FF",
+          "unit": "ratio",
+          "accuracy": "±1%"
+        },
+        {
+          "name": "series_resistance",
+          "symbol": "Rs",
+          "unit": "Ω",
+          "accuracy": "±5%",
+          "note": "Critical parameter for busbar corrosion detection"
+        },
+        {
+          "name": "shunt_resistance",
+          "symbol": "Rsh",
+          "unit": "Ω",
+          "accuracy": "±10%"
+        }
+      ],
+      "file_format": "CSV",
+      "file_naming": "PVTP-034_{sample_id}_{date}_{pre_post}_iv_data.csv"
+    },
+    "corrosion_visual_assessment_data": {
+      "parameters": [
+        {
+          "name": "component_id",
+          "description": "Busbar, junction box terminal, frame, etc.",
+          "type": "string"
+        },
+        {
+          "name": "corrosion_type",
+          "description": "Silver sulfide (black), silver oxide (brown), etc.",
+          "type": "string"
+        },
+        {
+          "name": "severity_rating",
+          "description": "None / Minor / Moderate / Severe",
+          "type": "enum"
+        },
+        {
+          "name": "color_change_deltaE",
+          "description": "CIE ΔE (busbars only)",
+          "unit": "unitless",
+          "type": "float"
+        },
+        {
+          "name": "functional_impact",
+          "description": "Critical / Major / Minor / None",
+          "type": "enum"
+        },
+        {
+          "name": "photo_reference",
+          "type": "string"
+        }
+      ],
+      "file_format": "CSV",
+      "file_naming": "PVTP-034_{sample_id}_{date}_corrosion_assessment.csv"
+    },
+    "quality_checks": {
+      "real_time_validation": [
+        {
+          "parameter": "ammonia_concentration",
+          "check_type": "range",
+          "min_value": 450,
+          "max_value": 550,
+          "action_on_failure": "Alarm, adjust gas flow, log deviation"
+        },
+        {
+          "parameter": "chamber_temperature",
+          "check_type": "range",
+          "min_value": 83.0,
+          "max_value": 87.0,
+          "action_on_failure": "Alarm, adjust heater, log deviation"
+        },
+        {
+          "parameter": "chamber_humidity",
+          "check_type": "range",
+          "min_value": 80.0,
+          "max_value": 90.0,
+          "action_on_failure": "Adjust humidifier, log deviation"
+        },
+        {
+          "parameter": "exhaust_scrubber_status",
+          "check_type": "boolean",
+          "expected_value": true,
+          "action_on_failure": "Critical alarm, pause test, investigate"
+        }
+      ],
+      "data_completeness": {
+        "required_fields": [
+          "timestamp",
+          "elapsed_time",
+          "chamber_temperature",
+          "chamber_humidity",
+          "ammonia_concentration"
+        ],
+        "action_on_missing": "Flag data gap, investigate DAQ system"
+      }
+    },
+    "retention_policy": {
+      "raw_environmental_data": "10 years",
+      "electrical_characterization": "Permanent",
+      "corrosion_assessment_records": "Permanent",
+      "photographs": "10 years",
+      "test_reports": "Permanent"
+    }
+  },
+  "analysis_and_reporting": {
+    "time_series_analysis": {
+      "chamber_stability_assessment": {
+        "metrics": [
+          "Temperature stability (mean, std dev, excursions)",
+          "Humidity stability throughout 1000h",
+          "Ammonia concentration stability",
+          "Control system performance"
+        ],
+        "visualization": [
+          "Temperature time series over 1000h",
+          "Ammonia concentration control chart",
+          "Humidity profile",
+          "Combined environmental parameters plot"
+        ]
+      },
+      "ammonia_exposure_dose": {
+        "calculation": "Cumulative dose (ppm·h) = ∫ [NH3(t)] dt",
+        "target_dose": "500,000 ppm·h",
+        "actual_dose": "Calculated from logged NH3 concentration"
+      }
+    },
+    "baseline_comparison": {
+      "electrical_parameters": {
+        "comparison_metrics": [
+          {
+            "parameter": "Pmax",
+            "calculation": "Δ% = 100 × (Pmax_post - Pmax_pre) / Pmax_pre",
+            "threshold": "≤ 5%",
+            "criticality": "Critical - Test failure if exceeded"
+          },
+          {
+            "parameter": "Rs",
+            "calculation": "Δ% = 100 × (Rs_post - Rs_pre) / Rs_pre",
+            "threshold": "Monitor (typically increases with busbar corrosion)",
+            "criticality": "Indicator of contact resistance increase"
+          },
+          {
+            "parameter": "FF",
+            "calculation": "ΔFF = FF_post - FF_pre",
+            "threshold": "≤ 3%",
+            "criticality": "Sensitive to Rs increase"
+          },
+          {
+            "parameter": "Voc",
+            "calculation": "Δ% = 100 × (Voc_post - Voc_pre) / Voc_pre",
+            "threshold": "≤ 2%",
+            "criticality": "Warning indicator"
+          }
+        ],
+        "visualization": [
+          "Pre/post IV curve overlay",
+          "Parameter change waterfall chart",
+          "Rs increase vs. busbar discoloration correlation"
+        ]
+      },
+      "visual_inspection": {
+        "color_change_analysis": {
+          "metric": "CIE ΔE (busbar discoloration)",
+          "interpretation": [
+            "ΔE < 3: Not perceptible",
+            "ΔE 3-6: Slightly perceptible",
+            "ΔE 6-12: Noticeable",
+            "ΔE > 12: Very noticeable"
+          ],
+          "correlation": "ΔE vs. electrical degradation"
+        },
+        "comparison": "Before/after photographs (side-by-side)",
+        "component_assessment": "Component-by-component corrosion severity"
+      }
+    },
+    "degradation_modeling": {
+      "corrosion_mechanism_analysis": {
+        "silver_corrosion": {
+          "reactions": [
+            "2Ag + NH3 + H2O + ½O2 → 2AgOH + NH3 (silver hydroxide)",
+            "4Ag + 4NH3 + O2 → 4[Ag(NH3)2]+ + 4OH- (silver ammonia complex)",
+            "Ag + H2S → Ag2S (silver sulfide - black tarnish)"
+          ],
+          "factors": [
+            "Temperature acceleration",
+            "Humidity role in reaction kinetics",
+            "Oxygen availability",
+            "Ammonia concentration"
+          ]
+        },
+        "contact_resistance_increase": {
+          "mechanism": "Corrosion products increase busbar-to-cell interface resistance",
+          "modeling": "Rs increase correlates with ΔE and Pmax loss"
+        }
+      },
+      "field_lifetime_prediction": {
+        "approach": "Arrhenius-based acceleration factor",
+        "test_conditions": "85°C, 500 ppm NH3",
+        "typical_field_conditions": "40°C average, 20 ppm NH3",
+        "estimated_acceleration_factor": "10-20x (conservative)",
+        "predicted_field_lifetime": "1000h test ≈ 10,000-20,000h field (≈ 5-10 years)"
+      },
+      "failure_mode_analysis": {
+        "categories": [
+          "Busbar corrosion (visual + electrical impact)",
+          "Junction box terminal corrosion",
+          "Interconnect ribbon corrosion",
+          "Frame corrosion",
+          "Encapsulation delamination (edge)",
+          "Cable insulation degradation"
+        ],
+        "severity_rating": "Critical / Major / Minor",
+        "root_cause_investigation": "For critical and major failures"
+      }
+    },
+    "statistical_analysis": {
+      "sample_size_requirements": {
+        "minimum_per_design": 2,
+        "recommended_for_validation": 4,
+        "statistical_confidence": "95%"
+      },
+      "pass_rate_calculation": {
+        "formula": "Pass rate (%) = 100 × (Passed samples / Total samples)",
+        "target": "≥ 100% for agricultural environment rating"
+      },
+      "measurement_uncertainty": {
+        "Pmax_uncertainty": "±2%",
+        "Rs_uncertainty": "±5%",
+        "NH3_concentration_uncertainty": "±2%",
+        "color_measurement_uncertainty": "ΔE ± 0.2"
+      }
+    },
+    "visualization_requirements": {
+      "automated_plots": [
+        {
+          "plot_type": "IV curve overlay (pre vs. post)",
+          "x_axis": "Voltage (V)",
+          "y_axis": "Current (A)"
+        },
+        {
+          "plot_type": "Power degradation bar chart",
+          "x_axis": "Sample ID",
+          "y_axis": "Power degradation (%)",
+          "threshold_line": "5% limit"
+        },
+        {
+          "plot_type": "Series resistance change",
+          "x_axis": "Sample ID",
+          "y_axis": "ΔRs (%)"
+        },
+        {
+          "plot_type": "Ammonia concentration time series",
+          "x_axis": "Time (hours)",
+          "y_axis": "NH3 concentration (ppm)",
+          "control_limits": "450-550 ppm"
+        },
+        {
+          "plot_type": "Temperature and humidity profile",
+          "x_axis": "Time (hours)",
+          "y_axis": "Temperature (°C) and RH (%)"
+        },
+        {
+          "plot_type": "Busbar color change (ΔE) correlation with Rs increase",
+          "x_axis": "ΔE (color change)",
+          "y_axis": "ΔRs (%)"
+        }
+      ],
+      "export_formats": ["PNG", "SVG", "PDF"]
+    },
+    "report_generation": {
+      "template": "IEC 62716 Test Report Template v1.0",
+      "sections": [
+        "Executive summary with pass/fail determination",
+        "Sample identification and description",
+        "Test equipment and calibration status",
+        "Test procedure summary",
+        "Environmental conditions log (1000 hours)",
+        "Ammonia exposure dose calculation",
+        "Post-test visual inspection with photographs",
+        "Busbar color change analysis (ΔE)",
+        "Corrosion severity assessment",
+        "Electrical characterization results (pre/post comparison)",
+        "Power degradation and Rs increase analysis",
+        "Insulation and dielectric test results",
+        "Failure mode analysis (if applicable)",
+        "Deviations from procedure",
+        "Conclusions and recommendations",
+        "Suitability for agricultural/ammonia-rich environments"
+      ],
+      "automated_generation": "Python + Jinja2 templates",
+      "review_cycle": "Technical review → Chemical safety review → QA review → Final approval"
+    }
+  },
+  "quality_control": {
+    "pre_test_qc": {
+      "checklist": [
+        {
+          "item": "Ammonia chamber calibration current",
+          "acceptance": "Within 12 months, certificate on file"
+        },
+        {
+          "item": "NH3 analyzer calibrated (zero and span)",
+          "acceptance": "Daily calibration before test start"
+        },
+        {
+          "item": "Temperature and humidity sensors verified",
+          "acceptance": "Within ±0.5°C and ±2% RH"
+        },
+        {
+          "item": "Exhaust scrubber functional",
+          "acceptance": "Flow verification, chemical level adequate"
+        },
+        {
+          "item": "Gas detection system operational",
+          "acceptance": "Tested with calibration gas"
+        },
+        {
+          "item": "Module baseline characterization complete",
+          "acceptance": "Electrical, visual, and color measurement data logged"
+        },
+        {
+          "item": "Safety equipment available",
+          "acceptance": "Respirators, chemical gloves, emergency shower accessible"
+        }
+      ],
+      "approver": "Test Engineer + Safety Officer"
+    },
+    "in_test_monitoring": {
+      "daily_checks": [
+        {
+          "item": "Ammonia concentration verification",
+          "frequency": "Daily",
+          "method": "Review NH3 analyzer trending",
+          "action_if_deviation": "Adjust gas flow rate, recalibrate analyzer"
+        },
+        {
+          "item": "Temperature and humidity stability",
+          "frequency": "Daily",
+          "action_if_deviation": "Adjust chamber controller, log deviation"
+        },
+        {
+          "item": "Exhaust scrubber operation",
+          "frequency": "Daily",
+          "action_if_failure": "Pause test, service scrubber, verify safe restart"
+        },
+        {
+          "item": "Data logging system operational",
+          "frequency": "Daily",
+          "action_if_failure": "Investigate DAQ, ensure no data loss"
+        }
+      ],
+      "weekly_checks": [
+        {
+          "item": "Visual inspection through chamber window",
+          "frequency": "Weekly (250h, 500h, 750h)",
+          "observation": "Busbar discoloration progression, no opening chamber"
+        },
+        {
+          "item": "Calibration gas cylinder pressure check",
+          "frequency": "Weekly",
+          "action_if_low": "Order replacement cylinder"
+        }
+      ]
+    },
+    "post_test_qc": {
+      "data_review": [
+        {
+          "item": "1000 hours completed with valid data",
+          "reviewer": "Test Engineer"
+        },
+        {
+          "item": "Environmental parameters within spec throughout test",
+          "reviewer": "Test Engineer"
+        },
+        {
+          "item": "Cumulative NH3 dose calculation verified",
+          "reviewer": "Test Engineer"
+        },
+        {
+          "item": "Pre/post electrical data complete and analyzed",
+          "reviewer": "Test Engineer"
+        },
+        {
+          "item": "Corrosion assessment and color measurement documented",
+          "reviewer": "Chemical Engineer"
+        },
+        {
+          "item": "Power degradation and Rs increase calculations verified",
+          "reviewer": "QA Engineer"
+        }
+      ],
+      "report_review": {
+        "technical_review": "Senior Test Engineer",
+        "chemical_safety_review": "Safety Officer",
+        "qa_review": "QA Manager",
+        "final_approval": "Technical Director"
+      }
+    }
+  },
+  "non_conformance_management": {
+    "potential_non_conformances": [
+      {
+        "nc_type": "Ammonia concentration out of range (< 450 or > 550 ppm)",
+        "severity": "Major if > 4 consecutive hours, Minor if < 4 hours",
+        "corrective_action": "Investigate gas supply/analyzer, may extend test duration proportionally",
+        "documentation": "NC report + NH3 analyzer verification"
+      },
+      {
+        "nc_type": "Temperature excursion (< 83 or > 87°C)",
+        "severity": "Major if > 4 hours, Minor if < 4 hours",
+        "corrective_action": "Adjust chamber, evaluate impact on acceleration factor",
+        "documentation": "NC log + chamber maintenance record"
+      },
+      {
+        "nc_type": "Humidity out of range (< 80 or > 90%)",
+        "severity": "Minor",
+        "corrective_action": "Adjust humidifier, monitor impact",
+        "documentation": "NC log"
+      },
+      {
+        "nc_type": "Exhaust scrubber failure",
+        "severity": "Critical - Safety hazard",
+        "corrective_action": "Immediate test pause, repair scrubber, verify safe NH3 levels",
+        "documentation": "Critical NC report + safety investigation"
+      },
+      {
+        "nc_type": "Data acquisition failure (> 4 hours data loss)",
+        "severity": "Major",
+        "corrective_action": "Investigate DAQ, may require test extension",
+        "documentation": "NC report + IT investigation"
+      },
+      {
+        "nc_type": "Power degradation > 5%",
+        "severity": "Critical",
+        "corrective_action": "Module fails IEC 62716, full failure analysis",
+        "documentation": "Failure analysis report"
+      },
+      {
+        "nc_type": "Critical component corrosion (busbar failure, junction box terminal failure)",
+        "severity": "Critical",
+        "corrective_action": "Module fails test, materials investigation",
+        "documentation": "Failure analysis report + metallurgical analysis"
+      }
+    ],
+    "nc_workflow": {
+      "detection": "Real-time monitoring or post-test analysis",
+      "documentation": "NC form PVTP-NC-001",
+      "investigation": "Root cause analysis within 5 business days",
+      "corrective_action": "Per NC management procedure QP-008",
+      "verification": "QA verification of corrective action effectiveness",
+      "closure": "QA Manager approval"
+    }
+  },
+  "traceability": {
+    "sample_traceability": {
+      "required_information": [
+        "Sample ID (unique identifier)",
+        "Manufacturer, model, serial number",
+        "Manufacturing date and batch",
+        "Cell technology (mono/poly, PERC, etc.)",
+        "Metallization type (screen-printed silver paste grade)",
+        "Encapsulation materials (EVA, POE, etc.)",
+        "Junction box model and terminal material"
+      ],
+      "chain_of_custody": "Receipt through post-test storage"
+    },
+    "test_execution_traceability": {
+      "operator_id": "Recorded for each test phase",
+      "equipment_id": "Chamber SN + NH3 analyzer SN + calibration status",
+      "calibration_gas_batch": "Cylinder lot number, certification date",
+      "environmental_data": "Continuous 5-minute logging for 1000h",
+      "test_start_end_times": "ISO8601 timestamps"
+    },
+    "calibration_traceability": {
+      "ammonia_chamber": {
+        "calibration_certificate": "Traceable to NIST",
+        "sensors_calibrated": "Temperature, humidity, pressure",
+        "next_calibration_due": "Verified before test start"
+      },
+      "nh3_analyzer": {
+        "zero_calibration": "Daily with UHP nitrogen",
+        "span_calibration": "Daily with 500 ppm NIST-traceable gas",
+        "calibration_log": "Automated logging in analyzer software"
+      },
+      "measurement_instruments": {
+        "iv_curve_tracer": "Annual calibration to NIST-traceable reference cells",
+        "colorimeter": "Calibration to ceramic color standards",
+        "insulation_tester": "Annual calibration certificate"
+      }
+    },
+    "data_traceability": {
+      "raw_data_files": "Timestamped file names with sample ID",
+      "data_processing_scripts": "Version controlled (Git repository)",
+      "analysis_software_version": "Logged in metadata",
+      "report_generation_date": "Documented in report"
+    },
+    "compliance_mapping": {
+      "iec_62716_requirements": [
+        {
+          "requirement": "Section 5.1 - 500 ppm NH3, 85°C, 85% RH, 1000h",
+          "evidence": "Environmental data log showing compliance",
+          "location": "Section 8 of test report"
+        },
+        {
+          "requirement": "Section 6 - No major visual defects",
+          "evidence": "Visual inspection report with photographs and corrosion assessment",
+          "location": "Section 9 of test report"
+        },
+        {
+          "requirement": "Section 6 - Power degradation ≤ 5%",
+          "evidence": "Pre/post IV curves and degradation calculation",
+          "location": "Section 10 of test report"
+        },
+        {
+          "requirement": "Section 6 - Pass insulation resistance test",
+          "evidence": "Post-test insulation resistance ≥ 40 MΩ",
+          "location": "Section 11 of test report"
+        }
+      ]
+    }
+  },
+  "safety_considerations": {
+    "hazards": [
+      {
+        "hazard": "Ammonia gas exposure",
+        "risk_level": "High",
+        "health_effects": "Irritation (eyes, respiratory), high concentrations can be fatal",
+        "mitigation": [
+          "Sealed chamber with exhaust scrubber",
+          "Continuous gas detection with alarm",
+          "Emergency purge system",
+          "Respirator and chemical gloves for chamber access",
+          "Personnel training on NH3 hazards"
+        ]
+      },
+      {
+        "hazard": "High temperature chamber surfaces",
+        "risk_level": "Medium",
+        "mitigation": "Allow cooldown before access, heat-resistant gloves"
+      },
+      {
+        "hazard": "Electrical shock from modules",
+        "risk_level": "Medium",
+        "mitigation": "Ensure disconnected, use insulated tools, follow LOTO"
+      },
+      {
+        "hazard": "Corrosive ammonia solution (in scrubber)",
+        "risk_level": "Medium",
+        "mitigation": "Chemical-resistant PPE for scrubber maintenance"
+      }
+    ],
+    "ppe_requirements": [
+      "Full-face respirator with ammonia cartridges (chamber access)",
+      "Safety glasses (minimum for all lab work)",
+      "Chemical-resistant gloves (nitrile or neoprene)",
+      "Lab coat",
+      "Safety shoes"
+    ],
+    "exposure_limits": {
+      "osha_pel": "50 ppm (8-hour TWA)",
+      "niosh_rel": "25 ppm (10-hour TWA)",
+      "idlh": "300 ppm (immediately dangerous to life or health)",
+      "odor_threshold": "5-50 ppm (most people detect)"
+    },
+    "emergency_procedures": {
+      "ammonia_leak": [
+        "Activate emergency purge system",
+        "Evacuate laboratory",
+        "Notify safety officer and emergency response team",
+        "Do not re-enter until NH3 < 5 ppm verified"
+      ],
+      "personnel_exposure": [
+        "Move to fresh air immediately",
+        "If eye contact: Rinse with water for 15 minutes",
+        "If inhalation: Seek medical attention immediately",
+        "Complete incident report and exposure documentation"
+      ],
+      "equipment_malfunction": "E-stop, isolate power/gas, notify supervisor"
+    }
+  },
+  "training_requirements": {
+    "required_training": [
+      {
+        "course": "IEC 62716 Ammonia Corrosion Testing",
+        "frequency": "Initial + when procedure updated",
+        "provider": "Senior Chemical Test Engineer"
+      },
+      {
+        "course": "Ammonia Hazards and Safe Handling",
+        "frequency": "Annual",
+        "provider": "Safety Department",
+        "content": [
+          "NH3 health effects and exposure limits",
+          "Gas detection systems",
+          "Emergency response procedures",
+          "Respirator fit testing"
+        ]
+      },
+      {
+        "course": "Ammonia Chamber Operation and Maintenance",
+        "frequency": "Initial + annual refresher",
+        "provider": "Equipment manufacturer or certified trainer"
+      },
+      {
+        "course": "Respirator Training and Fit Testing",
+        "frequency": "Annual",
+        "provider": "Safety Department",
+        "note": "Required for chamber access"
+      },
+      {
+        "course": "Chemical Safety and Spill Response",
+        "frequency": "Annual",
+        "provider": "Safety Department"
+      }
+    ],
+    "competency_verification": {
+      "method": "Practical demonstration + written assessment + safety drill",
+      "assessment_areas": [
+        "Chamber setup and NH3 concentration control",
+        "NH3 analyzer calibration and operation",
+        "Emergency response procedures",
+        "Proper PPE selection and use",
+        "Data review and analysis"
+      ],
+      "passing_score": "≥ 90%",
+      "requalification": "Every 2 years"
+    }
+  },
+  "references": {
+    "standards": [
+      {
+        "document": "IEC 62716:2013",
+        "title": "Photovoltaic (PV) modules - Ammonia corrosion testing"
+      },
+      {
+        "document": "IEC 61215-2:2021",
+        "title": "Terrestrial photovoltaic (PV) modules - Design qualification and type approval - Part 2: Test procedures"
+      },
+      {
+        "document": "OSHA 29 CFR 1910.1000",
+        "title": "Air Contaminants - Ammonia PEL"
+      },
+      {
+        "document": "NIOSH Publication 81-123",
+        "title": "Occupational Health Guidelines for Ammonia"
+      }
+    ],
+    "internal_documents": [
+      {
+        "document": "SOP-CHEM-003",
+        "title": "Ammonia Chamber Operation and Safety Procedure"
+      },
+      {
+        "document": "SOP-EMERG-002",
+        "title": "Chemical Emergency Response Procedure"
+      },
+      {
+        "document": "QP-008",
+        "title": "Non-Conformance Management Procedure"
+      },
+      {
+        "document": "SOP-PPE-001",
+        "title": "Personal Protective Equipment Selection and Use"
+      }
+    ]
+  },
+  "revision_history": [
+    {
+      "version": "1.0",
+      "date": "2025-11-12",
+      "author": "PV Testing Laboratory",
+      "changes": "Initial protocol creation based on IEC 62716:2013",
+      "approved_by": "Quality Director"
+    }
+  ]
+}

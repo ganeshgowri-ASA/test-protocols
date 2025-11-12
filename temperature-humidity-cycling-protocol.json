@@ -1,0 +1,527 @@
+{
+  "metadata": {
+    "protocol_id": "THC-2024-001",
+    "name": "Temperature-Humidity Cycling Test",
+    "version": "1.0.0",
+    "created_date": "2024-11-12",
+    "created_by": "Engineering Team",
+    "last_modified": "2024-11-12",
+    "description": "Accelerated aging test combining temperature and humidity cycling to simulate environmental stress on PV modules",
+    "compliance_standards": [
+      {
+        "standard": "IEC 61215",
+        "section": "10.2.1",
+        "requirement": "Thermal Cycling"
+      },
+      {
+        "standard": "IEC 61215",
+        "section": "10.2.2",
+        "requirement": "Humidity Freeze"
+      },
+      {
+        "standard": "UL 1703",
+        "section": "3.4",
+        "requirement": "Temperature Cycling"
+      }
+    ],
+    "test_type": "environmental_degradation"
+  },
+  "objectives": {
+    "primary": "Evaluate module degradation under repeated temperature-humidity stress",
+    "secondary": [
+      "Detect delamination and moisture ingress",
+      "Assess encapsulant adhesion",
+      "Verify solder joint reliability"
+    ],
+    "success_criteria": {
+      "visual_inspection": "No cracks, delamination, or discoloration",
+      "electrical_performance": "Max 5% power loss",
+      "insulation_resistance": ">100 MOhm after test"
+    }
+  },
+  "test_chamber_integration": {
+    "chamber_type": "Temperature-Humidity Cycling Chamber",
+    "chamber_id": "THC-001",
+    "chamber_model": "Cincinnati Sub-Zero Tenney Environmental Chamber",
+    "specifications": {
+      "temperature_range": {
+        "min_celsius": -40,
+        "max_celsius": 85,
+        "ramp_rate_celsius_per_minute": 15,
+        "stability_celsius": 2
+      },
+      "humidity_range": {
+        "min_rh_percent": 10,
+        "max_rh_percent": 95,
+        "stability_rh_percent": 3
+      },
+      "chamber_volume_liters": 500,
+      "sample_size_max_mm": [
+        2000,
+        1000,
+        100
+      ]
+    },
+    "sensors": {
+      "temperature": {
+        "sensor_id": "TEMP-001",
+        "type": "PT100 RTD",
+        "accuracy_celsius": 0.5,
+        "calibration_due": "2025-05-12",
+        "calibration_status": "valid"
+      },
+      "humidity": {
+        "sensor_id": "HUM-001",
+        "type": "Capacitive RH Sensor",
+        "accuracy_rh_percent": 2,
+        "calibration_due": "2025-05-12",
+        "calibration_status": "valid"
+      }
+    },
+    "safety_interlocks": [
+      {
+        "name": "Temperature overshoot protection",
+        "trigger": "Temperature exceeds max by 5°C",
+        "action": "Emergency stop"
+      },
+      {
+        "name": "Door interlock",
+        "trigger": "Chamber door opened during test",
+        "action": "Pause test, alert operator"
+      }
+    ],
+    "pre_test_requirements": [
+      "Chamber humidity must be between 50-70%",
+      "Chamber temperature must be within 2°C of room temperature",
+      "All sensors must pass calibration check",
+      "Sample mounting brackets must be clean and dry"
+    ]
+  },
+  "test_sequence": [
+    {
+      "step_id": 1,
+      "name": "Initial Conditioning",
+      "description": "Stabilize chamber and samples at ambient conditions",
+      "duration_minutes": 120,
+      "conditions": {
+        "temperature_celsius": 23,
+        "humidity_rh_percent": 50
+      },
+      "logging_interval_seconds": 300,
+      "qc_checks": [
+        {
+          "check_id": "QC-1.1",
+          "parameter": "temperature_stability",
+          "target": "23±2°C",
+          "pass_threshold": "Maintain for 30 minutes"
+        },
+        {
+          "check_id": "QC-1.2",
+          "parameter": "humidity_stability",
+          "target": "50±3%RH",
+          "pass_threshold": "Maintain for 30 minutes"
+        }
+      ]
+    },
+    {
+      "step_id": 2,
+      "name": "Thermal Cycling Loop",
+      "description": "Repeat thermal cycling for specified number of cycles",
+      "repeat_count": 200,
+      "sub_steps": [
+        {
+          "sub_step_id": "2a",
+          "name": "Heat Phase",
+          "duration_minutes": 60,
+          "conditions": {
+            "temperature_celsius": 85,
+            "humidity_rh_percent": 50,
+            "ramp_rate_celsius_per_minute": 15
+          },
+          "logging_interval_seconds": 60,
+          "qc_checks": [
+            {
+              "check_id": "QC-2a.1",
+              "parameter": "temperature_stability",
+              "target": "85±2°C",
+              "pass_threshold": "Maintain for 30 minutes"
+            }
+          ]
+        },
+        {
+          "sub_step_id": "2b",
+          "name": "Cool Phase",
+          "duration_minutes": 60,
+          "conditions": {
+            "temperature_celsius": -40,
+            "humidity_rh_percent": 50,
+            "ramp_rate_celsius_per_minute": 15
+          },
+          "logging_interval_seconds": 60,
+          "qc_checks": [
+            {
+              "check_id": "QC-2b.1",
+              "parameter": "temperature_stability",
+              "target": "-40±2°C",
+              "pass_threshold": "Maintain for 30 minutes"
+            }
+          ]
+        },
+        {
+          "sub_step_id": "2c",
+          "name": "Humidity High Phase",
+          "duration_minutes": 60,
+          "conditions": {
+            "temperature_celsius": 23,
+            "humidity_rh_percent": 85,
+            "ramp_rate_celsius_per_minute": 3
+          },
+          "logging_interval_seconds": 60,
+          "qc_checks": [
+            {
+              "check_id": "QC-2c.1",
+              "parameter": "humidity_stability",
+              "target": "85±3%RH",
+              "pass_threshold": "Maintain for 20 minutes"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "step_id": 3,
+      "name": "Final Conditioning",
+      "description": "Stabilize at ambient conditions before sample removal",
+      "duration_minutes": 120,
+      "conditions": {
+        "temperature_celsius": 23,
+        "humidity_rh_percent": 50
+      },
+      "logging_interval_seconds": 300,
+      "qc_checks": [
+        {
+          "check_id": "QC-3.1",
+          "parameter": "temperature_stability",
+          "target": "23±2°C",
+          "pass_threshold": "Maintain for 30 minutes"
+        }
+      ]
+    }
+  ],
+  "data_logging": {
+    "description": "Time-series data collection during test",
+    "parameters": [
+      {
+        "parameter_id": "temp_internal",
+        "parameter_name": "Chamber Internal Temperature",
+        "source": "chamber_sensor_1",
+        "unit": "Celsius",
+        "data_type": "float",
+        "sampling_interval_seconds": 60,
+        "aggregation_methods": [
+          {
+            "method": "raw",
+            "description": "Individual measurements"
+          },
+          {
+            "method": "mean",
+            "window_minutes": 10
+          },
+          {
+            "method": "min_max",
+            "window_minutes": 10
+          }
+        ],
+        "quality_checks": [
+          {
+            "check": "range_validation",
+            "valid_range": [-50, 100]
+          },
+          {
+            "check": "rate_of_change",
+            "max_change_per_minute": 20
+          }
+        ]
+      },
+      {
+        "parameter_id": "humidity_internal",
+        "parameter_name": "Chamber Internal Humidity",
+        "source": "chamber_sensor_2",
+        "unit": "Percent Relative Humidity",
+        "data_type": "float",
+        "sampling_interval_seconds": 60,
+        "aggregation_methods": [
+          {
+            "method": "raw",
+            "description": "Individual measurements"
+          },
+          {
+            "method": "mean",
+            "window_minutes": 10
+          }
+        ],
+        "quality_checks": [
+          {
+            "check": "range_validation",
+            "valid_range": [0, 100]
+          }
+        ]
+      },
+      {
+        "parameter_id": "cycle_count",
+        "parameter_name": "Thermal Cycle Number",
+        "source": "test_controller",
+        "unit": "Count",
+        "data_type": "integer",
+        "sampling_interval_seconds": 3600,
+        "description": "Increments with each completed cycle"
+      },
+      {
+        "parameter_id": "elapsed_time",
+        "parameter_name": "Test Elapsed Time",
+        "source": "system_clock",
+        "unit": "Seconds",
+        "data_type": "integer",
+        "sampling_interval_seconds": 3600
+      }
+    ],
+    "storage": {
+      "format": "CSV with ISO8601 timestamps",
+      "location": "/data/test_results/THC-2024-001/{test_run_id}/raw_data.csv",
+      "retention_years": 5,
+      "backup": "Daily to archive storage"
+    }
+  },
+  "analysis": {
+    "automated_analysis": {
+      "description": "Automated analysis performed after test completion"
+    },
+    "charts": [
+      {
+        "chart_id": "thc_temp_profile",
+        "title": "Temperature Profile Over Test Duration",
+        "type": "line",
+        "x_axis": {
+          "parameter": "elapsed_time",
+          "unit": "Hours"
+        },
+        "y_axis": {
+          "parameter": "temp_internal",
+          "unit": "Celsius"
+        },
+        "series": [
+          {
+            "name": "Chamber Temperature",
+            "data_source": "temp_internal",
+            "color": "red",
+            "line_width": 2
+          }
+        ],
+        "reference_lines": [
+          {
+            "value": 85,
+            "label": "Max Spec",
+            "style": "dashed"
+          },
+          {
+            "value": -40,
+            "label": "Min Spec",
+            "style": "dashed"
+          }
+        ]
+      },
+      {
+        "chart_id": "thc_humidity_profile",
+        "title": "Humidity Profile Over Test Duration",
+        "type": "line",
+        "x_axis": {
+          "parameter": "elapsed_time",
+          "unit": "Hours"
+        },
+        "y_axis": {
+          "parameter": "humidity_internal",
+          "unit": "Percent"
+        },
+        "series": [
+          {
+            "name": "Chamber Humidity",
+            "data_source": "humidity_internal",
+            "color": "blue"
+          }
+        ]
+      },
+      {
+        "chart_id": "thc_cycle_tracking",
+        "title": "Cycle Progress",
+        "type": "line",
+        "x_axis": {
+          "parameter": "elapsed_time",
+          "unit": "Hours"
+        },
+        "y_axis": {
+          "parameter": "cycle_count",
+          "unit": "Count"
+        }
+      }
+    ],
+    "statistics": [
+      {
+        "stat_id": "temperature_stats",
+        "title": "Temperature Statistics",
+        "parameters": ["temp_internal"],
+        "calculations": [
+          "mean",
+          "std_dev",
+          "min",
+          "max",
+          "range"
+        ]
+      },
+      {
+        "stat_id": "humidity_stats",
+        "title": "Humidity Statistics",
+        "parameters": ["humidity_internal"],
+        "calculations": [
+          "mean",
+          "std_dev",
+          "min",
+          "max"
+        ]
+      },
+      {
+        "stat_id": "ramp_rate_analysis",
+        "title": "Ramp Rate Performance",
+        "parameters": ["temp_internal"],
+        "calculations": [
+          "slope_analysis",
+          "average_ramp_rate"
+        ]
+      }
+    ]
+  },
+  "quality_control": {
+    "pre_test_checks": [
+      {
+        "check_id": "QC-Pre-1",
+        "description": "Verify chamber calibration is current",
+        "requirement": "Calibration not older than 12 months",
+        "pass_fail": true
+      },
+      {
+        "check_id": "QC-Pre-2",
+        "description": "Verify sample identification",
+        "requirement": "All samples properly labeled and documented",
+        "pass_fail": true
+      }
+    ],
+    "in_test_checks": [
+      {
+        "check_id": "QC-In-1",
+        "description": "Temperature ramp rate compliance",
+        "parameter": "temperature_ramp_rate",
+        "min": 14,
+        "max": 16,
+        "unit": "°C/min"
+      },
+      {
+        "check_id": "QC-In-2",
+        "description": "Temperature stability during hold",
+        "parameter": "temperature_stability",
+        "tolerance": 2,
+        "unit": "°C"
+      }
+    ],
+    "post_test_checks": [
+      {
+        "check_id": "QC-Post-1",
+        "description": "Visual inspection for damage",
+        "parameter": "visual_condition",
+        "pass_criteria": "No cracks, bubbles, or delamination",
+        "pass_fail": true
+      }
+    ]
+  },
+  "traceability": {
+    "audit_trail": {
+      "track_operator": true,
+      "track_chamber_id": true,
+      "track_sensor_calibration_status": true,
+      "timestamp_format": "ISO8601",
+      "timezone": "UTC"
+    },
+    "sample_tracking": {
+      "sample_id_format": "PV-{project}-{batch}-{sequence}",
+      "example": "PV-2024-BTC001-001",
+      "identification_requirements": [
+        "Sample ID label on module",
+        "Barcode for automated tracking",
+        "Photographic documentation"
+      ]
+    },
+    "compliance_mapping": [
+      {
+        "standard": "IEC 61215",
+        "requirement": "Thermal Cycling -40°C to 85°C, 200 cycles",
+        "test_sequence_step": 2,
+        "evidence_location": "raw_data.csv, chamber_logs.log"
+      },
+      {
+        "standard": "IEC 61215",
+        "requirement": "Temperature cycle duration 1-3 hours",
+        "test_sequence_step": "2a, 2b, 2c",
+        "evidence_location": "analysis/cycle_duration_analysis.csv"
+      },
+      {
+        "standard": "UL 1703",
+        "requirement": "Module exposed to thermal cycling",
+        "test_sequence_step": 2,
+        "evidence_location": "raw_data.csv"
+      }
+    ],
+    "report_generation": {
+      "template": "thermal_humidity_cycling_report_template.html",
+      "includes": [
+        "test_parameters",
+        "environmental_profile_charts",
+        "statistical_analysis",
+        "qc_results",
+        "compliance_statement",
+        "operator_signature_block",
+        "equipment_calibration_status"
+      ]
+    }
+  },
+  "integration": {
+    "lims_integration": {
+      "enabled": true,
+      "export_format": "JSON",
+      "fields_to_export": [
+        "protocol_id",
+        "test_run_id",
+        "sample_ids",
+        "test_start_date",
+        "test_end_date",
+        "chamber_id",
+        "pass_fail_status"
+      ]
+    },
+    "qms_integration": {
+      "enabled": true,
+      "document_type": "Test Report",
+      "review_required": true,
+      "approval_chain": [
+        "Test Technician",
+        "Quality Engineer",
+        "Quality Manager"
+      ]
+    },
+    "project_management_integration": {
+      "enabled": true,
+      "update_fields": [
+        "test_status",
+        "completion_percentage",
+        "pass_fail_indicator"
+      ]
+    }
+  }
+}

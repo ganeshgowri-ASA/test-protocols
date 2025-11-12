@@ -1,0 +1,465 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PV Testing Protocol Schema",
+  "description": "JSON Schema for validating PV testing protocol definitions",
+  "type": "object",
+  "required": ["metadata", "objectives", "test_chamber_integration", "test_sequence", "data_logging", "traceability"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "description": "Protocol metadata and identification",
+      "required": ["protocol_id", "name", "version", "created_date", "description"],
+      "properties": {
+        "protocol_id": {
+          "type": "string",
+          "description": "Unique protocol identifier",
+          "pattern": "^[A-Z0-9]{3,}-[0-9]{4}-[0-9]{3}$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable protocol name"
+        },
+        "version": {
+          "type": "string",
+          "description": "Protocol version (semantic versioning)",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "created_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Protocol creation date (YYYY-MM-DD)"
+        },
+        "created_by": {
+          "type": "string",
+          "description": "Name of person/team who created protocol"
+        },
+        "last_modified": {
+          "type": "string",
+          "format": "date"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed protocol description"
+        },
+        "test_type": {
+          "type": "string",
+          "enum": [
+            "environmental_degradation",
+            "electrical_performance",
+            "mechanical_stress",
+            "safety_testing",
+            "materials_characterization",
+            "accelerated_aging"
+          ]
+        },
+        "compliance_standards": {
+          "type": "array",
+          "description": "Applicable standards and regulations",
+          "items": {
+            "type": "object",
+            "properties": {
+              "standard": {
+                "type": "string",
+                "description": "Standard code (e.g., IEC 61215, ASTM B117)"
+              },
+              "section": {
+                "type": "string",
+                "description": "Section or clause number"
+              },
+              "requirement": {
+                "type": "string",
+                "description": "Description of requirement"
+              }
+            },
+            "required": ["standard"]
+          }
+        }
+      }
+    },
+    "objectives": {
+      "type": "object",
+      "description": "Test objectives and success criteria",
+      "properties": {
+        "primary": {
+          "type": "string",
+          "description": "Primary test objective"
+        },
+        "secondary": {
+          "type": "array",
+          "description": "Secondary objectives",
+          "items": {
+            "type": "string"
+          }
+        },
+        "success_criteria": {
+          "type": "object",
+          "description": "Criteria for test success",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["primary"]
+    },
+    "test_chamber_integration": {
+      "type": "object",
+      "description": "Test chamber specifications and requirements",
+      "required": ["chamber_type"],
+      "properties": {
+        "chamber_type": {
+          "type": "string",
+          "description": "Type of test chamber"
+        },
+        "chamber_id": {
+          "type": "string",
+          "description": "Unique chamber identifier"
+        },
+        "chamber_model": {
+          "type": "string",
+          "description": "Manufacturer and model of chamber"
+        },
+        "specifications": {
+          "type": "object",
+          "description": "Chamber technical specifications"
+        },
+        "sensors": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "sensor_id": {"type": "string"},
+                  "type": {"type": "string"},
+                  "accuracy_celsius": {"type": "number"},
+                  "accuracy_rh_percent": {"type": "number"},
+                  "calibration_due": {"type": "string", "format": "date"},
+                  "calibration_status": {"type": "string"}
+                }
+              }
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "sensor_id": {"type": "string"},
+                  "type": {"type": "string"},
+                  "accuracy_celsius": {"type": "number"},
+                  "accuracy_rh_percent": {"type": "number"},
+                  "calibration_due": {"type": "string", "format": "date"},
+                  "calibration_status": {"type": "string"}
+                }
+              }
+            }
+          ]
+        },
+        "safety_interlocks": {
+          "type": "array",
+          "description": "Safety interlock specifications",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "trigger": {"type": "string"},
+              "action": {"type": "string"}
+            }
+          }
+        },
+        "pre_test_requirements": {
+          "type": "array",
+          "description": "Requirements before test starts",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "test_sequence": {
+      "type": "array",
+      "description": "Ordered sequence of test steps",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["step_id", "name"],
+        "properties": {
+          "step_id": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "duration_minutes": {
+            "type": "number",
+            "minimum": 0
+          },
+          "duration_hours": {
+            "type": "number",
+            "minimum": 0
+          },
+          "repeat_count": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "conditions": {
+            "type": "object",
+            "description": "Environmental/operational conditions"
+          },
+          "logging_interval_seconds": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "qc_checks": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "sub_steps": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "intermediate_inspections": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "data_logging": {
+      "type": "object",
+      "description": "Data collection specifications",
+      "required": ["parameters"],
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "parameters": {
+          "type": "array",
+          "description": "Parameters to log",
+          "items": {
+            "type": "object",
+            "required": ["parameter_id", "parameter_name", "unit"],
+            "properties": {
+              "parameter_id": {
+                "type": "string"
+              },
+              "parameter_name": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "unit": {
+                "type": "string"
+              },
+              "data_type": {
+                "type": "string",
+                "enum": ["float", "integer", "string", "boolean"]
+              },
+              "sampling_interval_seconds": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "aggregation_methods": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "quality_checks": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "storage": {
+          "type": "object",
+          "properties": {
+            "format": {
+              "type": "string",
+              "enum": ["CSV", "JSON", "HDF5", "NetCDF"]
+            },
+            "location": {
+              "type": "string"
+            },
+            "retention_years": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "backup": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "analysis": {
+      "type": "object",
+      "description": "Analysis and visualization specifications",
+      "properties": {
+        "automated_analysis": {
+          "type": "object"
+        },
+        "charts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "chart_id": {"type": "string"},
+              "title": {"type": "string"},
+              "type": {
+                "type": "string",
+                "enum": ["line", "scatter", "histogram", "heatmap", "bar"]
+              }
+            }
+          }
+        },
+        "statistics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "stat_id": {"type": "string"},
+              "title": {"type": "string"},
+              "parameters": {
+                "type": "array",
+                "items": {"type": "string"}
+              },
+              "calculations": {
+                "type": "array",
+                "items": {"type": "string"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "quality_control": {
+      "type": "object",
+      "description": "Quality control requirements",
+      "properties": {
+        "pre_test_checks": {
+          "type": "array",
+          "items": {"type": "object"}
+        },
+        "in_test_checks": {
+          "type": "array",
+          "items": {"type": "object"}
+        },
+        "post_test_checks": {
+          "type": "array",
+          "items": {"type": "object"}
+        }
+      }
+    },
+    "traceability": {
+      "type": "object",
+      "description": "Traceability and compliance requirements",
+      "required": ["audit_trail"],
+      "properties": {
+        "audit_trail": {
+          "type": "object",
+          "properties": {
+            "track_operator": {"type": "boolean"},
+            "track_chamber_id": {"type": "boolean"},
+            "track_sensor_calibration_status": {"type": "boolean"},
+            "timestamp_format": {
+              "type": "string",
+              "enum": ["ISO8601", "Unix", "Custom"]
+            },
+            "timezone": {"type": "string"}
+          }
+        },
+        "sample_tracking": {
+          "type": "object",
+          "properties": {
+            "sample_id_format": {"type": "string"},
+            "example": {"type": "string"},
+            "identification_requirements": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "sample_id_requirements": {
+              "type": "array",
+              "items": {"type": "string"}
+            }
+          }
+        },
+        "compliance_mapping": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "standard": {"type": "string"},
+              "requirement": {"type": "string"},
+              "test_sequence_step": {
+                "oneOf": [
+                  {"type": "integer"},
+                  {"type": "string"}
+                ]
+              },
+              "evidence": {"type": "string"},
+              "evidence_location": {"type": "string"}
+            }
+          }
+        },
+        "report_generation": {
+          "type": "object"
+        }
+      }
+    },
+    "integration": {
+      "type": "object",
+      "description": "System integration specifications",
+      "properties": {
+        "lims_integration": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "export_format": {"type": "string"},
+            "fields_to_export": {
+              "type": "array",
+              "items": {"type": "string"}
+            }
+          }
+        },
+        "qms_integration": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "document_type": {"type": "string"},
+            "review_required": {"type": "boolean"},
+            "approval_chain": {
+              "type": "array",
+              "items": {"type": "string"}
+            }
+          }
+        },
+        "project_management_integration": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "update_fields": {
+              "type": "array",
+              "items": {"type": "string"}
+            }
+          }
+        }
+      }
+    }
+  }
+}

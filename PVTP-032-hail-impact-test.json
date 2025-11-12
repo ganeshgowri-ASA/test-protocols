@@ -1,0 +1,931 @@
+{
+  "protocol_metadata": {
+    "protocol_id": "PVTP-032",
+    "version": "1.0",
+    "title": "Hail Impact Test (IEC 61215 MQT 19)",
+    "description": "Mechanical impact resistance test using 25mm ice balls to simulate hail damage on PV modules",
+    "test_type": "environmental_mechanical",
+    "created_date": "2025-11-12",
+    "last_modified": "2025-11-12",
+    "author": "PV Testing Laboratory",
+    "status": "active",
+    "compliance_standards": [
+      {
+        "standard_id": "IEC 61215",
+        "version": "4.0",
+        "section": "MQT 19",
+        "title": "Mechanical Load Test - Hail",
+        "requirements": [
+          "25mm diameter ice balls at 23 m/s impact velocity",
+          "11 impact points per module",
+          "No visual defects, <5% power degradation post-test"
+        ]
+      },
+      {
+        "standard_id": "IEC 61730",
+        "version": "2.0",
+        "section": "MST 23",
+        "title": "Impact Test"
+      }
+    ],
+    "related_protocols": ["PVTP-001", "PVTP-037", "PVTP-038"],
+    "approval_status": {
+      "reviewed_by": "Technical Manager",
+      "approved_by": "Quality Director",
+      "approval_date": "2025-11-12"
+    }
+  },
+  "test_objectives": {
+    "primary_objective": "Verify PV module resistance to hail impact damage per IEC 61215 MQT 19",
+    "secondary_objectives": [
+      "Assess structural integrity after repeated impacts",
+      "Evaluate glass strength and lamination quality",
+      "Measure power degradation post-impact",
+      "Identify potential failure modes and weak points"
+    ],
+    "acceptance_criteria": {
+      "visual_inspection": "No cracks, delamination, or junction box damage",
+      "electrical_performance": "Power degradation ≤ 5% from baseline",
+      "insulation_resistance": "≥ 40 MΩ (wet leakage current test)",
+      "safety": "Pass dielectric withstand test at 1000V + (2 × Voc max)"
+    }
+  },
+  "test_equipment": {
+    "hail_impact_simulator": {
+      "manufacturer": "Atlas Material Testing",
+      "model": "HTS-45 Hail Test System",
+      "specifications": {
+        "ice_ball_diameter": {
+          "value": 25,
+          "unit": "mm",
+          "tolerance": "±1 mm"
+        },
+        "impact_velocity": {
+          "value": 23,
+          "unit": "m/s",
+          "tolerance": "±1 m/s"
+        },
+        "launch_mechanism": "Pneumatic cannon",
+        "velocity_measurement": "Dual laser gate system",
+        "impact_angle": {
+          "value": 90,
+          "unit": "degrees",
+          "tolerance": "±5 degrees"
+        }
+      },
+      "calibration": {
+        "frequency": "quarterly",
+        "last_calibration_date": "2025-08-15",
+        "next_calibration_date": "2025-11-15",
+        "calibration_certificate": "CAL-HTS-2025-Q3-001",
+        "traceable_to": "NIST"
+      }
+    },
+    "ice_production_system": {
+      "manufacturer": "Custom Built",
+      "type": "Ice ball mold system",
+      "specifications": {
+        "water_source": "Distilled water",
+        "freezing_temperature": -20,
+        "freezing_duration": "≥24 hours",
+        "storage_temperature": -10
+      }
+    },
+    "measurement_instruments": {
+      "high_speed_camera": {
+        "model": "Phantom VEO 640L",
+        "frame_rate": "1000 fps",
+        "purpose": "Impact documentation"
+      },
+      "iv_curve_tracer": {
+        "model": "PVE PV Analyzer 1500V",
+        "accuracy": "±0.5%",
+        "purpose": "Pre/post electrical characterization"
+      },
+      "insulation_tester": {
+        "model": "Fluke 1550C",
+        "range": "250V - 5kV",
+        "purpose": "Insulation resistance measurement"
+      }
+    },
+    "environmental_conditions": {
+      "ambient_temperature": {
+        "target": 25,
+        "unit": "°C",
+        "tolerance": "±5°C"
+      },
+      "relative_humidity": {
+        "target": 50,
+        "unit": "%",
+        "tolerance": "±20%"
+      }
+    }
+  },
+  "test_sequence": {
+    "pre_test_phase": {
+      "duration": "2-4 hours",
+      "steps": [
+        {
+          "step_number": 1,
+          "action": "Visual inspection and documentation",
+          "parameters": {
+            "inspection_areas": ["Front glass", "Back sheet", "Frame", "Junction box", "Cables"],
+            "documentation": "High-resolution photographs (all areas)"
+          },
+          "acceptance": "No pre-existing damage"
+        },
+        {
+          "step_number": 2,
+          "action": "Electrical characterization (baseline)",
+          "parameters": {
+            "measurements": ["Voc", "Isc", "Pmax", "Vmp", "Imp", "FF"],
+            "irradiance": "1000 W/m²",
+            "module_temperature": "25°C",
+            "spectrum": "AM 1.5G"
+          },
+          "data_logging": {
+            "file_name": "baseline_iv_curve.csv",
+            "parameters_logged": ["voltage", "current", "power", "temperature"]
+          }
+        },
+        {
+          "step_number": 3,
+          "action": "Insulation resistance test",
+          "parameters": {
+            "test_voltage": "1000V DC",
+            "duration": "60 seconds",
+            "min_resistance": "40 MΩ"
+          }
+        },
+        {
+          "step_number": 4,
+          "action": "Wet leakage current test",
+          "parameters": {
+            "surface_resistance": "≥ 1 MΩ",
+            "test_voltage": "Calculated per IEC 61215"
+          }
+        },
+        {
+          "step_number": 5,
+          "action": "Module mounting and positioning",
+          "parameters": {
+            "mounting_angle": "Horizontal (face up)",
+            "support": "Rigid frame per IEC 61215",
+            "clamping": "Standard mounting clamps"
+          }
+        }
+      ]
+    },
+    "impact_test_phase": {
+      "duration": "30-60 minutes",
+      "steps": [
+        {
+          "step_number": 6,
+          "action": "Ice ball preparation and conditioning",
+          "parameters": {
+            "ice_ball_diameter": "25 mm ±1mm",
+            "quantity": "11 per module",
+            "storage_temperature": "-10°C",
+            "pre_impact_conditioning": "Remove from freezer 2 minutes before launch"
+          }
+        },
+        {
+          "step_number": 7,
+          "action": "Impact velocity calibration",
+          "parameters": {
+            "target_velocity": "23 m/s",
+            "tolerance": "±1 m/s",
+            "verification": "Laser gate measurement for each shot",
+            "pneumatic_pressure_adjustment": "As needed"
+          }
+        },
+        {
+          "step_number": 8,
+          "action": "Execute impact sequence",
+          "parameters": {
+            "total_impacts": 11,
+            "impact_pattern": "Per IEC 61215 Figure 16",
+            "impact_locations": [
+              {"location": "Center", "x": 0, "y": 0},
+              {"location": "Cell center", "x": "+150mm", "y": 0},
+              {"location": "Cell center", "x": "-150mm", "y": 0},
+              {"location": "Cell center", "x": 0, "y": "+150mm"},
+              {"location": "Cell center", "x": 0, "y": "-150mm"},
+              {"location": "Cell edge", "x": "+300mm", "y": "+300mm"},
+              {"location": "Cell edge", "x": "-300mm", "y": "+300mm"},
+              {"location": "Cell edge", "x": "+300mm", "y": "-300mm"},
+              {"location": "Cell edge", "x": "-300mm", "y": "-300mm"},
+              {"location": "Corner bypass diode area", "x": "+400mm", "y": "+500mm"},
+              {"location": "Corner junction box area", "x": "+400mm", "y": "-500mm"}
+            ],
+            "interval_between_impacts": "30 seconds minimum"
+          },
+          "data_logging_per_impact": {
+            "parameters": [
+              "impact_number",
+              "timestamp",
+              "ice_ball_diameter",
+              "measured_velocity",
+              "impact_location_x",
+              "impact_location_y",
+              "ambient_temperature",
+              "relative_humidity"
+            ],
+            "video_recording": "High-speed (1000 fps) + standard video"
+          }
+        },
+        {
+          "step_number": 9,
+          "action": "Post-impact visual inspection",
+          "parameters": {
+            "timing": "Immediately after each impact",
+            "inspection": "Document any visible damage",
+            "photography": "High-resolution images of impact points"
+          }
+        }
+      ]
+    },
+    "post_test_phase": {
+      "duration": "2-4 hours",
+      "steps": [
+        {
+          "step_number": 10,
+          "action": "Final visual inspection",
+          "parameters": {
+            "inspection_areas": ["All impact points", "Back sheet", "Frame", "Junction box", "Cables"],
+            "documentation": "Comprehensive photographic record",
+            "defect_classification": "Per IEC 61215 Section 7.1"
+          }
+        },
+        {
+          "step_number": 11,
+          "action": "Electrical characterization (post-test)",
+          "parameters": {
+            "measurements": ["Voc", "Isc", "Pmax", "Vmp", "Imp", "FF"],
+            "irradiance": "1000 W/m²",
+            "module_temperature": "25°C",
+            "spectrum": "AM 1.5G"
+          },
+          "data_logging": {
+            "file_name": "post_test_iv_curve.csv",
+            "parameters_logged": ["voltage", "current", "power", "temperature"]
+          }
+        },
+        {
+          "step_number": 12,
+          "action": "Insulation resistance test",
+          "parameters": {
+            "test_voltage": "1000V DC",
+            "duration": "60 seconds",
+            "min_resistance": "40 MΩ"
+          }
+        },
+        {
+          "step_number": 13,
+          "action": "Wet leakage current test",
+          "parameters": {
+            "surface_resistance": "≥ 1 MΩ",
+            "test_voltage": "Calculated per IEC 61215"
+          }
+        },
+        {
+          "step_number": 14,
+          "action": "Power degradation calculation",
+          "parameters": {
+            "formula": "Degradation (%) = 100 × (Pmax_baseline - Pmax_post) / Pmax_baseline",
+            "acceptance": "≤ 5%"
+          }
+        }
+      ]
+    }
+  },
+  "data_logging": {
+    "logging_system": {
+      "software": "LabVIEW 2023 + PVDAQ",
+      "database": "PostgreSQL 15.0",
+      "backup_frequency": "Real-time to redundant server"
+    },
+    "impact_event_data": {
+      "sampling_rate": "Per impact event",
+      "parameters": [
+        {
+          "name": "impact_number",
+          "unit": "count",
+          "type": "integer"
+        },
+        {
+          "name": "timestamp",
+          "unit": "ISO8601",
+          "type": "datetime"
+        },
+        {
+          "name": "ice_ball_diameter",
+          "unit": "mm",
+          "accuracy": "±0.1 mm",
+          "type": "float"
+        },
+        {
+          "name": "impact_velocity",
+          "unit": "m/s",
+          "accuracy": "±0.1 m/s",
+          "type": "float"
+        },
+        {
+          "name": "impact_location_x",
+          "unit": "mm",
+          "accuracy": "±5 mm",
+          "type": "float"
+        },
+        {
+          "name": "impact_location_y",
+          "unit": "mm",
+          "accuracy": "±5 mm",
+          "type": "float"
+        },
+        {
+          "name": "ambient_temperature",
+          "unit": "°C",
+          "accuracy": "±0.5°C",
+          "type": "float"
+        },
+        {
+          "name": "relative_humidity",
+          "unit": "%",
+          "accuracy": "±3%",
+          "type": "float"
+        },
+        {
+          "name": "visible_damage",
+          "unit": "boolean",
+          "type": "boolean"
+        },
+        {
+          "name": "damage_description",
+          "unit": "text",
+          "type": "string"
+        }
+      ],
+      "file_format": "CSV",
+      "file_naming": "PVTP-032_{sample_id}_{date}_impact_log.csv"
+    },
+    "electrical_characterization_data": {
+      "sampling_rate": "Pre-test and post-test",
+      "parameters": [
+        {
+          "name": "open_circuit_voltage",
+          "symbol": "Voc",
+          "unit": "V",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "short_circuit_current",
+          "symbol": "Isc",
+          "unit": "A",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "maximum_power",
+          "symbol": "Pmax",
+          "unit": "W",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "voltage_at_max_power",
+          "symbol": "Vmp",
+          "unit": "V",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "current_at_max_power",
+          "symbol": "Imp",
+          "unit": "A",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "fill_factor",
+          "symbol": "FF",
+          "unit": "ratio",
+          "accuracy": "±1%"
+        },
+        {
+          "name": "module_temperature",
+          "symbol": "Tmod",
+          "unit": "°C",
+          "accuracy": "±1°C"
+        },
+        {
+          "name": "irradiance",
+          "symbol": "G",
+          "unit": "W/m²",
+          "accuracy": "±2%"
+        }
+      ],
+      "file_format": "CSV",
+      "file_naming": "PVTP-032_{sample_id}_{date}_{pre_post}_iv_curve.csv"
+    },
+    "quality_checks": {
+      "real_time_validation": [
+        {
+          "parameter": "impact_velocity",
+          "check_type": "range",
+          "min_value": 22.0,
+          "max_value": 24.0,
+          "action_on_failure": "Reject shot, repeat impact"
+        },
+        {
+          "parameter": "ice_ball_diameter",
+          "check_type": "range",
+          "min_value": 24.0,
+          "max_value": 26.0,
+          "action_on_failure": "Reject ice ball, use new one"
+        },
+        {
+          "parameter": "ambient_temperature",
+          "check_type": "range",
+          "min_value": 20.0,
+          "max_value": 30.0,
+          "action_on_failure": "Warning log, continue test"
+        }
+      ],
+      "data_completeness": {
+        "required_fields": [
+          "impact_number",
+          "timestamp",
+          "ice_ball_diameter",
+          "impact_velocity",
+          "impact_location_x",
+          "impact_location_y"
+        ],
+        "action_on_missing": "Flag test as incomplete, require corrective action"
+      }
+    },
+    "retention_policy": {
+      "raw_data": "10 years",
+      "processed_data": "10 years",
+      "video_recordings": "5 years",
+      "reports": "Permanent"
+    }
+  },
+  "analysis_and_reporting": {
+    "time_series_analysis": {
+      "impact_sequence_trending": {
+        "metrics": [
+          "Cumulative damage progression",
+          "Velocity consistency across shots",
+          "Environmental condition stability"
+        ],
+        "visualization": [
+          "Impact velocity vs. shot number",
+          "Damage severity vs. impact location",
+          "Environmental conditions timeline"
+        ]
+      }
+    },
+    "baseline_comparison": {
+      "electrical_parameters": {
+        "comparison_metrics": [
+          {
+            "parameter": "Pmax",
+            "calculation": "Δ% = 100 × (Pmax_post - Pmax_pre) / Pmax_pre",
+            "threshold": "≤ 5%",
+            "criticality": "Critical - Test failure if exceeded"
+          },
+          {
+            "parameter": "Voc",
+            "calculation": "Δ% = 100 × (Voc_post - Voc_pre) / Voc_pre",
+            "threshold": "≤ 2%",
+            "criticality": "Warning indicator"
+          },
+          {
+            "parameter": "Isc",
+            "calculation": "Δ% = 100 × (Isc_post - Isc_pre) / Isc_pre",
+            "threshold": "≤ 2%",
+            "criticality": "Warning indicator"
+          },
+          {
+            "parameter": "FF",
+            "calculation": "ΔFF = FF_post - FF_pre",
+            "threshold": "≤ 3%",
+            "criticality": "Warning indicator"
+          }
+        ],
+        "visualization": [
+          "Pre/post IV curve overlay",
+          "Parameter change bar chart",
+          "Power degradation histogram"
+        ]
+      },
+      "visual_inspection": {
+        "comparison": "Pre-test vs. post-test photographs",
+        "defect_mapping": "2D module map with defect locations",
+        "severity_classification": "Per IEC 61215 Section 7.1"
+      }
+    },
+    "degradation_modeling": {
+      "impact_energy_analysis": {
+        "calculation": "E = 0.5 × m × v²",
+        "parameters": {
+          "ice_ball_mass": "8.2 g (for 25mm diameter)",
+          "velocity": "23 m/s",
+          "calculated_energy": "2.17 J per impact"
+        }
+      },
+      "cumulative_damage_model": {
+        "approach": "Statistical correlation analysis",
+        "factors": [
+          "Number of impacts",
+          "Impact location (cell center vs. edge)",
+          "Ice ball velocity variation",
+          "Module design parameters"
+        ],
+        "outputs": [
+          "Damage probability vs. impact energy",
+          "Failure mode distribution",
+          "Predictive model for field hail damage"
+        ]
+      },
+      "failure_mode_analysis": {
+        "categories": [
+          "Glass fracture (front surface)",
+          "Cell cracking",
+          "Delamination",
+          "Junction box damage",
+          "Frame deformation",
+          "Electrical isolation failure"
+        ],
+        "severity_rating": "1 (minor) to 5 (critical)",
+        "root_cause_investigation": "For any failures"
+      }
+    },
+    "statistical_analysis": {
+      "sample_size_requirements": {
+        "minimum_per_design": 2,
+        "recommended_for_validation": 5,
+        "statistical_confidence": "95%"
+      },
+      "pass_rate_calculation": {
+        "formula": "Pass rate (%) = 100 × (Passed samples / Total samples)",
+        "target": "≥ 100% for design qualification"
+      },
+      "measurement_uncertainty": {
+        "Pmax_uncertainty": "±2% (combined standard uncertainty)",
+        "velocity_uncertainty": "±1%",
+        "dimensional_uncertainty": "±0.5 mm"
+      }
+    },
+    "visualization_requirements": {
+      "automated_plots": [
+        {
+          "plot_type": "IV curve overlay",
+          "x_axis": "Voltage (V)",
+          "y_axis": "Current (A)",
+          "data_series": ["Pre-test", "Post-test"]
+        },
+        {
+          "plot_type": "Power degradation bar chart",
+          "x_axis": "Sample ID",
+          "y_axis": "Power degradation (%)",
+          "threshold_line": "5% limit"
+        },
+        {
+          "plot_type": "Impact velocity control chart",
+          "x_axis": "Impact number",
+          "y_axis": "Velocity (m/s)",
+          "control_limits": "22-24 m/s"
+        },
+        {
+          "plot_type": "Damage location heat map",
+          "visualization": "2D module representation with damage severity coding"
+        }
+      ],
+      "export_formats": ["PNG", "SVG", "PDF"]
+    },
+    "report_generation": {
+      "template": "IEC 61215 Test Report Template v4.0",
+      "sections": [
+        "Executive summary",
+        "Sample identification",
+        "Test equipment and calibration",
+        "Test procedure summary",
+        "Impact log (all 11 impacts)",
+        "Visual inspection results (with photos)",
+        "Electrical characterization results",
+        "Pass/fail determination",
+        "Deviations and anomalies",
+        "Conclusions and recommendations"
+      ],
+      "automated_generation": "Python + Jinja2 templates",
+      "review_cycle": "Technical review → QA review → Final approval"
+    }
+  },
+  "quality_control": {
+    "pre_test_qc": {
+      "checklist": [
+        {
+          "item": "Hail simulator calibration current",
+          "acceptance": "Within 90 days, certificate on file"
+        },
+        {
+          "item": "Velocity measurement system functional check",
+          "acceptance": "Laser gates operational, ±0.1 m/s accuracy verified"
+        },
+        {
+          "item": "Ice balls prepared and conditioned",
+          "acceptance": "≥11 ice balls, 25±1 mm diameter, stored at -10°C"
+        },
+        {
+          "item": "Module baseline characterization complete",
+          "acceptance": "All electrical parameters measured and logged"
+        },
+        {
+          "item": "High-speed camera operational",
+          "acceptance": "Recording test footage at ≥1000 fps"
+        },
+        {
+          "item": "Safety systems functional",
+          "acceptance": "E-stop, interlocks, personal protective equipment available"
+        }
+      ],
+      "approver": "Test Engineer"
+    },
+    "in_test_monitoring": {
+      "monitored_parameters": [
+        {
+          "parameter": "impact_velocity",
+          "frequency": "Every shot",
+          "action_if_out_of_spec": "Reject and repeat shot"
+        },
+        {
+          "parameter": "ice_ball_diameter",
+          "frequency": "Before each shot",
+          "action_if_out_of_spec": "Use new ice ball"
+        },
+        {
+          "parameter": "ambient_conditions",
+          "frequency": "Every 10 minutes",
+          "action_if_out_of_spec": "Log and continue (unless extreme)"
+        }
+      ],
+      "operator_interventions": [
+        "Velocity adjustment if shots consistently out of tolerance",
+        "Ice ball replacement if cracking during handling",
+        "Test pause if equipment malfunction"
+      ]
+    },
+    "post_test_qc": {
+      "data_review": [
+        {
+          "item": "All 11 impacts logged with valid velocities",
+          "reviewer": "Test Engineer"
+        },
+        {
+          "item": "Video recordings complete and archived",
+          "reviewer": "Test Engineer"
+        },
+        {
+          "item": "Pre/post electrical data complete",
+          "reviewer": "Test Engineer"
+        },
+        {
+          "item": "Power degradation calculation verified",
+          "reviewer": "QA Engineer"
+        },
+        {
+          "item": "Visual inspection photos archived",
+          "reviewer": "Test Engineer"
+        }
+      ],
+      "report_review": {
+        "technical_review": "Senior Test Engineer",
+        "qa_review": "QA Manager",
+        "final_approval": "Technical Director"
+      }
+    }
+  },
+  "non_conformance_management": {
+    "potential_non_conformances": [
+      {
+        "nc_type": "Out-of-tolerance impact velocity",
+        "severity": "Major",
+        "corrective_action": "Repeat impact with correct velocity",
+        "documentation": "NC log entry + retest record"
+      },
+      {
+        "nc_type": "Ice ball diameter out of specification",
+        "severity": "Major",
+        "corrective_action": "Use new ice ball meeting specification",
+        "documentation": "NC log entry + ice ball measurement record"
+      },
+      {
+        "nc_type": "Equipment malfunction during test",
+        "severity": "Critical",
+        "corrective_action": "Pause test, resolve issue, repeat affected impacts",
+        "documentation": "NC report + maintenance record + retest justification"
+      },
+      {
+        "nc_type": "Power degradation > 5%",
+        "severity": "Critical",
+        "corrective_action": "Module fails test, investigate root cause",
+        "documentation": "Failure analysis report + NC report"
+      },
+      {
+        "nc_type": "Visual damage (cracks, delamination)",
+        "severity": "Critical",
+        "corrective_action": "Module fails test, document failure mode",
+        "documentation": "Failure analysis report with photographs"
+      },
+      {
+        "nc_type": "Insulation resistance failure post-test",
+        "severity": "Critical",
+        "corrective_action": "Module fails test, safety investigation required",
+        "documentation": "Safety failure report + isolation procedure"
+      }
+    ],
+    "nc_workflow": {
+      "detection": "Real-time during test or post-test analysis",
+      "documentation": "NC form PVTP-NC-001",
+      "investigation": "Root cause analysis within 48 hours",
+      "corrective_action": "Defined in NC management procedure",
+      "verification": "QA verification of corrective action effectiveness",
+      "closure": "QA Manager approval"
+    }
+  },
+  "traceability": {
+    "sample_traceability": {
+      "required_information": [
+        "Sample ID (unique identifier)",
+        "Manufacturer and model",
+        "Serial number",
+        "Manufacturing date/batch",
+        "Receipt date at laboratory",
+        "Storage conditions prior to test",
+        "Pre-test conditioning history"
+      ],
+      "chain_of_custody": "Documented from receipt to test completion"
+    },
+    "test_execution_traceability": {
+      "operator_id": "Recorded in test log",
+      "equipment_id": "Hail simulator serial number + calibration certificate",
+      "ice_ball_batch": "Batch number and preparation date",
+      "environmental_conditions": "Logged continuously during test",
+      "test_start_end_times": "ISO8601 format timestamps"
+    },
+    "calibration_traceability": {
+      "velocity_measurement_system": {
+        "calibration_date": "Logged in equipment database",
+        "calibration_certificate": "Traceable to NIST",
+        "next_calibration_due": "Verified before test execution"
+      },
+      "dimensional_measurement_tools": {
+        "calipers_certificate": "Valid calibration required",
+        "traceability": "ISO 17025 accredited laboratory"
+      },
+      "iv_curve_tracer": {
+        "calibration_certificate": "Annual calibration to reference cells",
+        "reference_cell_traceability": "NIST-traceable calibration"
+      }
+    },
+    "data_traceability": {
+      "raw_data_files": "Unique file names with sample ID and timestamp",
+      "data_processing_scripts": "Version controlled (Git)",
+      "analysis_software_version": "Logged in metadata",
+      "report_generation_date": "Documented in report footer"
+    },
+    "compliance_mapping": {
+      "iec_61215_requirements": [
+        {
+          "requirement": "MQT 19.2 - Impact velocity 23 m/s",
+          "evidence": "Impact log with measured velocities",
+          "location": "Section 8.1 of test report"
+        },
+        {
+          "requirement": "MQT 19.3 - 11 impact locations per Figure 16",
+          "evidence": "Impact location diagram and photographs",
+          "location": "Section 8.2 of test report"
+        },
+        {
+          "requirement": "MQT 19.4 - No major visual defects",
+          "evidence": "Visual inspection report with photos",
+          "location": "Section 9.1 of test report"
+        },
+        {
+          "requirement": "MQT 19.5 - Power degradation ≤ 5%",
+          "evidence": "Pre/post IV curve data and calculation",
+          "location": "Section 9.2 of test report"
+        },
+        {
+          "requirement": "MQT 19.6 - Pass wet leakage current test",
+          "evidence": "Insulation resistance test results",
+          "location": "Section 9.3 of test report"
+        }
+      ]
+    }
+  },
+  "safety_considerations": {
+    "hazards": [
+      {
+        "hazard": "Projectile impact",
+        "risk_level": "High",
+        "mitigation": "Safety enclosure, interlocks, warning signs, no personnel in impact zone"
+      },
+      {
+        "hazard": "Glass breakage and sharp edges",
+        "risk_level": "Medium",
+        "mitigation": "Safety glasses, cut-resistant gloves during handling"
+      },
+      {
+        "hazard": "Electrical shock from module",
+        "risk_level": "Medium",
+        "mitigation": "Verify module disconnected during handling, use insulated tools"
+      },
+      {
+        "hazard": "Compressed air system",
+        "risk_level": "Medium",
+        "mitigation": "Pressure regulator, safety relief valve, operator training"
+      }
+    ],
+    "ppe_requirements": [
+      "Safety glasses (ANSI Z87.1)",
+      "Cut-resistant gloves (when handling damaged modules)",
+      "Safety shoes",
+      "Hearing protection (if noise > 85 dBA)"
+    ],
+    "emergency_procedures": {
+      "equipment_malfunction": "E-stop, isolate power, notify supervisor",
+      "module_fire": "Activate fire suppression, evacuate, call emergency services",
+      "injury": "First aid, notify safety officer, complete incident report"
+    }
+  },
+  "training_requirements": {
+    "required_training": [
+      {
+        "course": "PV Module Testing Fundamentals",
+        "frequency": "Annual",
+        "provider": "Internal training program"
+      },
+      {
+        "course": "Hail Impact Test Procedure PVTP-032",
+        "frequency": "Initial + when procedure updated",
+        "provider": "Senior Test Engineer"
+      },
+      {
+        "course": "Laboratory Safety and PPE",
+        "frequency": "Annual",
+        "provider": "Safety Department"
+      },
+      {
+        "course": "Electrical Safety (NFPA 70E)",
+        "frequency": "Triennial",
+        "provider": "Certified electrical safety trainer"
+      }
+    ],
+    "competency_verification": {
+      "method": "Supervised test execution + written assessment",
+      "passing_score": "≥ 90%",
+      "requalification": "Every 2 years or if major procedure changes"
+    }
+  },
+  "references": {
+    "standards": [
+      {
+        "document": "IEC 61215-2:2021",
+        "title": "Terrestrial photovoltaic (PV) modules - Design qualification and type approval - Part 2: Test procedures"
+      },
+      {
+        "document": "IEC 61730-2:2016",
+        "title": "Photovoltaic (PV) module safety qualification - Part 2: Requirements for testing"
+      },
+      {
+        "document": "IEC 60068-2-75:1997",
+        "title": "Environmental testing - Part 2-75: Tests - Test Eh: Hammer tests"
+      }
+    ],
+    "internal_documents": [
+      {
+        "document": "QP-001",
+        "title": "Quality Management System Manual"
+      },
+      {
+        "document": "SOP-PVTEST-001",
+        "title": "PV Module Receipt and Handling Procedure"
+      },
+      {
+        "document": "SOP-CAL-005",
+        "title": "Calibration Management Procedure"
+      },
+      {
+        "document": "FM-NC-001",
+        "title": "Non-Conformance Report Form"
+      }
+    ]
+  },
+  "revision_history": [
+    {
+      "version": "1.0",
+      "date": "2025-11-12",
+      "author": "PV Testing Laboratory",
+      "changes": "Initial protocol creation based on IEC 61215-2:2021",
+      "approved_by": "Technical Director"
+    }
+  ]
+}

@@ -1,0 +1,923 @@
+{
+  "protocol_metadata": {
+    "protocol_id": "PVTP-036",
+    "version": "1.0",
+    "title": "Rain & Water Spray Test",
+    "description": "Water ingress protection test for PV modules simulating heavy rain, driving rain, and water spray exposure",
+    "test_type": "environmental_water_ingress",
+    "created_date": "2025-11-12",
+    "last_modified": "2025-11-12",
+    "author": "PV Testing Laboratory",
+    "status": "active",
+    "compliance_standards": [
+      {
+        "standard_id": "IEC 61215",
+        "version": "4.0",
+        "section": "MQT 12",
+        "title": "Outdoor Exposure Test (includes weather exposure)"
+      },
+      {
+        "standard_id": "IEC 60529",
+        "version": "2020",
+        "section": "IPX4 / IPX5",
+        "title": "Water spray protection"
+      },
+      {
+        "standard_id": "IEC 61730",
+        "version": "2.0",
+        "section": "MST 52",
+        "title": "Environmental Testing - Rain"
+      },
+      {
+        "standard_id": "ASTM D5894",
+        "version": "2016",
+        "title": "Standard Practice for Cyclic Salt Fog/UV Exposure of Painted Metal (includes water spray)"
+      }
+    ],
+    "related_protocols": ["PVTP-033", "PVTP-035", "PVTP-039"],
+    "approval_status": {
+      "reviewed_by": "Environmental Test Engineer",
+      "approved_by": "Quality Director",
+      "approval_date": "2025-11-12"
+    }
+  },
+  "test_objectives": {
+    "primary_objective": "Verify PV module water ingress protection under simulated rain and water spray conditions",
+    "secondary_objectives": [
+      "Assess junction box and cable gland water sealing effectiveness",
+      "Evaluate frame drainage system performance",
+      "Verify edge sealing integrity under water exposure",
+      "Measure electrical safety after water exposure (wet leakage current)",
+      "Validate suitability for outdoor installation in all climates"
+    ],
+    "acceptance_criteria": {
+      "visual_inspection": "No water ingress into junction box or laminate",
+      "electrical_performance": "Power degradation ≤ 2%",
+      "insulation_resistance_wet": "≥ 40 MΩ after water spray",
+      "wet_leakage_current": "Pass per IEC 61215",
+      "safety": "No electrical shock hazard during wet conditions"
+    },
+    "test_scenarios": [
+      {
+        "scenario": "Vertical Rain (IPX3)",
+        "description": "Simulates normal rainfall on module face",
+        "spray_angle": "60° from vertical",
+        "duration": "10 minutes per test cycle"
+      },
+      {
+        "scenario": "Driving Rain (IPX4)",
+        "description": "Simulates wind-driven rain from all directions",
+        "spray_angle": "All directions",
+        "duration": "10 minutes per direction (40 min total)"
+      },
+      {
+        "scenario": "High-Pressure Water Jet (IPX5)",
+        "description": "Simulates extreme storm conditions and cleaning",
+        "water_pressure": "30 kPa at 3m distance",
+        "duration": "3 minutes per test area"
+      }
+    ]
+  },
+  "test_equipment": {
+    "rain_spray_chamber": {
+      "manufacturer": "Weiss Umwelttechnik",
+      "model": "WK3-600 Rain Test Chamber",
+      "serial_number": "To be recorded",
+      "specifications": {
+        "chamber_volume": {
+          "value": 600,
+          "unit": "liters"
+        },
+        "spray_system": "Oscillating spray nozzles with adjustable flow",
+        "water_flow_rate": {
+          "ipx3": "10 L/min",
+          "ipx4": "10 L/min",
+          "ipx5": "12.5 L/min at 30 kPa"
+        },
+        "spray_angle_control": "Adjustable 0-90° from vertical",
+        "test_module_mounting": "Rotating platform for all-angle exposure",
+        "water_collection_system": "Drain with flow measurement"
+      },
+      "calibration": {
+        "frequency": "Annual",
+        "last_calibration_date": "2025-08-01",
+        "next_calibration_date": "2026-08-01",
+        "calibration_certificate": "CAL-RAIN-2025-001",
+        "calibrated_parameters": ["Flow rate", "Spray pattern", "Pressure"]
+      }
+    },
+    "water_quality_specification": {
+      "type": "Deionized or distilled water",
+      "conductivity": "< 5 μS/cm at 25°C",
+      "ph": "6.5-7.5",
+      "temperature": "15-30°C",
+      "note": "Clean water prevents false failures from contamination"
+    },
+    "measurement_instruments": {
+      "flow_meter": {
+        "type": "Magnetic flow meter",
+        "range": "0-50 L/min",
+        "accuracy": "±2%"
+      },
+      "pressure_gauge": {
+        "range": "0-100 kPa",
+        "accuracy": "±1 kPa"
+      },
+      "iv_curve_tracer": {
+        "model": "PVE PV Analyzer 1500V",
+        "accuracy": "±0.5%",
+        "purpose": "Pre/post electrical characterization"
+      },
+      "insulation_tester": {
+        "model": "Fluke 1550C",
+        "range": "250V - 5kV",
+        "purpose": "Wet insulation resistance measurement"
+      },
+      "leakage_current_meter": {
+        "model": "Chroma 19032",
+        "range": "0.1 μA - 10 mA",
+        "accuracy": "±1%",
+        "purpose": "Wet leakage current test per IEC 61215"
+      },
+      "moisture_meter": {
+        "model": "Tramex MRH III",
+        "purpose": "Detect moisture in junction box"
+      },
+      "thermohygrometer": {
+        "model": "Vaisala HMT330",
+        "temperature_accuracy": "±0.2°C",
+        "humidity_accuracy": "±1.0% RH"
+      }
+    }
+  },
+  "test_sequence": {
+    "pre_test_phase": {
+      "duration": "4-8 hours",
+      "steps": [
+        {
+          "step_number": 1,
+          "action": "Visual inspection and documentation",
+          "parameters": {
+            "inspection_areas": [
+              "Junction box lid and gasket",
+              "Cable glands and conduit entries",
+              "Frame drainage holes",
+              "Edge sealing (perimeter)",
+              "Back sheet integrity",
+              "Module connectors (if present)"
+            ],
+            "photography": "High-resolution images of all sealing points"
+          },
+          "acceptance": "All seals intact, no pre-existing water damage"
+        },
+        {
+          "step_number": 2,
+          "action": "Electrical characterization (baseline dry conditions)",
+          "parameters": {
+            "measurements": ["Voc", "Isc", "Pmax", "Vmp", "Imp", "FF"],
+            "irradiance": "1000 W/m²",
+            "module_temperature": "25°C ±2°C",
+            "spectrum": "AM 1.5G"
+          },
+          "data_logging": {
+            "file_name": "baseline_dry_iv_curve.csv",
+            "parameters_logged": ["voltage", "current", "power", "temperature", "irradiance"]
+          }
+        },
+        {
+          "step_number": 3,
+          "action": "Insulation resistance test (dry baseline)",
+          "parameters": {
+            "test_voltage": "1000V DC",
+            "duration": "60 seconds",
+            "min_resistance": "40 MΩ"
+          }
+        },
+        {
+          "step_number": 4,
+          "action": "Module cleaning",
+          "parameters": {
+            "cleaning_method": "Deionized water and soft cloth",
+            "drying": "Air dry minimum 2 hours"
+          }
+        }
+      ]
+    },
+    "water_spray_test_phase": {
+      "duration": "2-3 hours (multiple test scenarios)",
+      "test_scenarios": [
+        {
+          "scenario_id": "IPX3_vertical_rain",
+          "description": "Vertical rain spray test",
+          "steps": [
+            {
+              "step_number": 5,
+              "action": "Module installation for IPX3 test",
+              "parameters": {
+                "mounting_angle": "Module tilted at typical installation angle (20-30°)",
+                "orientation": "Front glass facing spray",
+                "spray_configuration": "Oscillating spray ±60° from vertical"
+              }
+            },
+            {
+              "step_number": 6,
+              "action": "Execute IPX3 spray (10 minutes)",
+              "parameters": {
+                "water_flow_rate": "10 L/min",
+                "spray_angle": "±60° from vertical",
+                "duration": "10 minutes",
+                "module_orientation": "Front surface exposed"
+              },
+              "data_logging": {
+                "parameters": ["timestamp", "flow_rate", "water_temperature", "spray_angle"],
+                "frequency": "Every 30 seconds"
+              }
+            }
+          ]
+        },
+        {
+          "scenario_id": "IPX4_driving_rain",
+          "description": "All-direction water spray (driving rain)",
+          "steps": [
+            {
+              "step_number": 7,
+              "action": "Execute IPX4 spray from 4 directions",
+              "parameters": {
+                "water_flow_rate": "10 L/min",
+                "spray_angle": "All directions (0°, 90°, 180°, 270°)",
+                "duration_per_direction": "10 minutes",
+                "total_duration": "40 minutes"
+              },
+              "data_logging": {
+                "parameters": ["timestamp", "flow_rate", "spray_direction", "elapsed_time"],
+                "frequency": "Every 30 seconds"
+              }
+            }
+          ]
+        },
+        {
+          "scenario_id": "IPX5_high_pressure_jet",
+          "description": "High-pressure water jet (storm simulation)",
+          "steps": [
+            {
+              "step_number": 8,
+              "action": "Execute IPX5 high-pressure spray",
+              "parameters": {
+                "water_flow_rate": "12.5 L/min",
+                "water_pressure": "30 kPa (at 3m distance)",
+                "nozzle_diameter": "6.3 mm",
+                "spray_pattern": "Direct jet at critical sealing areas",
+                "target_areas": [
+                  "Junction box lid seam",
+                  "Cable gland entries",
+                  "Frame joints",
+                  "Module edges"
+                ],
+                "duration_per_area": "3 minutes",
+                "total_duration": "15 minutes"
+              },
+              "data_logging": {
+                "parameters": ["timestamp", "flow_rate", "pressure", "target_area"],
+                "frequency": "Every 30 seconds"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "post_spray_inspection_phase": {
+      "duration": "2-4 hours",
+      "steps": [
+        {
+          "step_number": 9,
+          "action": "Immediate post-spray visual inspection (wet condition)",
+          "parameters": {
+            "timing": "Within 5 minutes of spray completion",
+            "inspection": [
+              "Check for water pooling on module surface",
+              "Verify drainage from frame weep holes",
+              "Look for water seepage at seals",
+              "Photograph any anomalies"
+            ]
+          }
+        },
+        {
+          "step_number": 10,
+          "action": "Wet leakage current test (IEC 61215 Section 10.15)",
+          "parameters": {
+            "timing": "Immediately after spray, module still wet",
+            "test_voltage": "1.25 × (Voc_max + 1000V) or as specified in IEC 61215",
+            "surface_resistance": "Must be < 1 MΩ (verify surface is wet)",
+            "leakage_current_limit": "< 1 mA per module",
+            "duration": "60 seconds",
+            "safety": "High voltage - follow LOTO, use insulated test fixture"
+          }
+        },
+        {
+          "step_number": 11,
+          "action": "Wet insulation resistance test",
+          "parameters": {
+            "timing": "Immediately after wet leakage current test",
+            "test_voltage": "1000V DC",
+            "duration": "60 seconds",
+            "min_resistance": "40 MΩ"
+          }
+        },
+        {
+          "step_number": 12,
+          "action": "Junction box internal inspection",
+          "parameters": {
+            "timing": "Open junction box within 10 minutes of spray completion",
+            "inspection": [
+              "Visual inspection for water droplets or moisture",
+              "Moisture meter measurement inside junction box",
+              "Check terminals and diodes for water contact",
+              "Photograph interior condition"
+            ],
+            "acceptance": "No water ingress (dry interior)"
+          }
+        },
+        {
+          "step_number": 13,
+          "action": "Frame drainage and edge seal inspection",
+          "parameters": {
+            "drainage_check": "Verify water drained from frame, no pooling",
+            "edge_inspection": "Check for water ingress at module perimeter seal",
+            "delamination_check": "Look for edge delamination or bubbling (early indicator)"
+          }
+        },
+        {
+          "step_number": 14,
+          "action": "Module drying",
+          "parameters": {
+            "method": "Air dry at room temperature",
+            "duration": "Minimum 24 hours",
+            "environment": "20°C ±5°C, < 70% RH"
+          }
+        },
+        {
+          "step_number": 15,
+          "action": "Electrical characterization (post-test dry)",
+          "parameters": {
+            "timing": "After 24 hour drying period",
+            "measurements": ["Voc", "Isc", "Pmax", "Vmp", "Imp", "FF"],
+            "irradiance": "1000 W/m²",
+            "module_temperature": "25°C ±2°C",
+            "spectrum": "AM 1.5G"
+          },
+          "data_logging": {
+            "file_name": "post_test_dry_iv_curve.csv",
+            "parameters_logged": ["voltage", "current", "power", "temperature", "irradiance"]
+          }
+        },
+        {
+          "step_number": 16,
+          "action": "Insulation resistance test (post-test dry)",
+          "parameters": {
+            "test_voltage": "1000V DC",
+            "duration": "60 seconds",
+            "min_resistance": "40 MΩ"
+          }
+        },
+        {
+          "step_number": 17,
+          "action": "Pass/fail determination",
+          "parameters": {
+            "primary_criteria": [
+              "No water ingress into junction box",
+              "Pass wet leakage current test",
+              "Wet insulation resistance ≥ 40 MΩ"
+            ],
+            "secondary_criteria": [
+              "Power degradation ≤ 2%",
+              "No edge delamination or seal damage",
+              "Frame drainage functioning properly"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "data_logging": {
+    "logging_system": {
+      "software": "LabVIEW 2023 + Rain Chamber Control",
+      "database": "PostgreSQL 15.0",
+      "backup_frequency": "Real-time to redundant server"
+    },
+    "spray_test_data": {
+      "sampling_rate": "30 seconds",
+      "parameters": [
+        {
+          "name": "timestamp",
+          "unit": "ISO8601",
+          "type": "datetime"
+        },
+        {
+          "name": "test_scenario",
+          "unit": "text",
+          "type": "enum",
+          "values": ["IPX3", "IPX4", "IPX5"]
+        },
+        {
+          "name": "elapsed_time",
+          "unit": "minutes",
+          "type": "float"
+        },
+        {
+          "name": "water_flow_rate",
+          "unit": "L/min",
+          "accuracy": "±0.2 L/min",
+          "type": "float"
+        },
+        {
+          "name": "water_pressure",
+          "unit": "kPa",
+          "accuracy": "±1 kPa",
+          "type": "float"
+        },
+        {
+          "name": "spray_angle",
+          "unit": "degrees",
+          "type": "float"
+        },
+        {
+          "name": "water_temperature",
+          "unit": "°C",
+          "accuracy": "±0.5°C",
+          "type": "float"
+        },
+        {
+          "name": "ambient_temperature",
+          "unit": "°C",
+          "accuracy": "±0.5°C",
+          "type": "float"
+        },
+        {
+          "name": "relative_humidity",
+          "unit": "%",
+          "accuracy": "±2%",
+          "type": "float"
+        }
+      ],
+      "file_format": "CSV",
+      "file_naming": "PVTP-036_{sample_id}_{date}_spray_log.csv"
+    },
+    "electrical_test_data": {
+      "parameters": [
+        {
+          "name": "test_condition",
+          "type": "enum",
+          "values": ["baseline_dry", "wet_immediately_after_spray", "post_test_dry"]
+        },
+        {
+          "name": "Voc",
+          "unit": "V",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "Isc",
+          "unit": "A",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "Pmax",
+          "unit": "W",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "insulation_resistance",
+          "unit": "MΩ",
+          "accuracy": "±5%"
+        },
+        {
+          "name": "wet_leakage_current",
+          "unit": "mA",
+          "accuracy": "±1%"
+        }
+      ],
+      "file_format": "CSV",
+      "file_naming": "PVTP-036_{sample_id}_{date}_electrical_data.csv"
+    },
+    "inspection_data": {
+      "parameters": [
+        {
+          "name": "component_id",
+          "description": "Junction box, cable gland, frame seal, etc.",
+          "type": "string"
+        },
+        {
+          "name": "water_ingress_detected",
+          "type": "boolean"
+        },
+        {
+          "name": "moisture_level",
+          "description": "Dry / Slight moisture / Wet",
+          "type": "enum"
+        },
+        {
+          "name": "seal_condition",
+          "description": "Intact / Degraded / Damaged",
+          "type": "enum"
+        },
+        {
+          "name": "drainage_performance",
+          "description": "Good / Acceptable / Poor",
+          "type": "enum"
+        },
+        {
+          "name": "photo_reference",
+          "type": "string"
+        }
+      ],
+      "file_format": "CSV",
+      "file_naming": "PVTP-036_{sample_id}_{date}_inspection_report.csv"
+    },
+    "quality_checks": {
+      "real_time_validation": [
+        {
+          "parameter": "water_flow_rate",
+          "check_type": "range",
+          "ipx3_ipx4": {"min": 9.0, "max": 11.0},
+          "ipx5": {"min": 11.5, "max": 13.5},
+          "action_on_failure": "Adjust pump speed, log deviation"
+        },
+        {
+          "parameter": "water_pressure_ipx5",
+          "check_type": "range",
+          "min_value": 28.0,
+          "max_value": 32.0,
+          "action_on_failure": "Adjust pump or nozzle distance"
+        }
+      ]
+    },
+    "retention_policy": {
+      "raw_spray_data": "10 years",
+      "electrical_characterization": "Permanent",
+      "inspection_photographs": "10 years",
+      "test_reports": "Permanent"
+    }
+  },
+  "analysis_and_reporting": {
+    "time_series_analysis": {
+      "spray_consistency_assessment": {
+        "metrics": [
+          "Flow rate stability over test duration",
+          "Pressure consistency (IPX5)",
+          "Water temperature variation"
+        ],
+        "visualization": [
+          "Flow rate vs. time",
+          "Pressure control chart (IPX5)"
+        ]
+      }
+    },
+    "baseline_comparison": {
+      "electrical_parameters": {
+        "comparison_metrics": [
+          {
+            "parameter": "Pmax",
+            "calculation": "Δ% = 100 × (Pmax_post_dry - Pmax_baseline_dry) / Pmax_baseline_dry",
+            "threshold": "≤ 2%",
+            "criticality": "Warning if exceeded"
+          },
+          {
+            "parameter": "wet_leakage_current",
+            "threshold": "< 1 mA",
+            "criticality": "Critical - safety failure if exceeded"
+          },
+          {
+            "parameter": "wet_insulation_resistance",
+            "threshold": "≥ 40 MΩ",
+            "criticality": "Critical - indicates water ingress if failed"
+          }
+        ],
+        "visualization": [
+          "Pre/post IV curve overlay",
+          "Insulation resistance bar chart (dry vs. wet)"
+        ]
+      },
+      "visual_inspection": {
+        "junction_box_assessment": "Water ingress detected: Yes/No",
+        "seal_integrity": "All seals intact: Yes/No",
+        "drainage_performance": "Adequate drainage: Yes/No"
+      }
+    },
+    "degradation_modeling": {
+      "water_ingress_pathways_analysis": {
+        "investigation": "If water ingress detected, identify pathway",
+        "common_failure_modes": [
+          "Junction box gasket degradation or improper seating",
+          "Cable gland seal failure",
+          "Frame drainage hole allows water into electrical cavity",
+          "Edge seal delamination"
+        ],
+        "corrective_action": "Design improvement or seal replacement"
+      },
+      "field_correlation": {
+        "approach": "IPX tests simulate years of rain exposure in hours",
+        "validation": "Modules passing all IPX tests suitable for outdoor installation",
+        "maintenance_recommendation": "Periodic seal inspection in high-rainfall regions"
+      }
+    },
+    "statistical_analysis": {
+      "sample_size_requirements": {
+        "minimum_per_design": 2,
+        "recommended": 4
+      },
+      "pass_rate_calculation": {
+        "formula": "Pass rate (%) = 100 × (Passed samples / Total samples)",
+        "target": "100%"
+      }
+    },
+    "visualization_requirements": {
+      "automated_plots": [
+        {
+          "plot_type": "Water flow rate time series",
+          "x_axis": "Time (minutes)",
+          "y_axis": "Flow rate (L/min)"
+        },
+        {
+          "plot_type": "Insulation resistance comparison",
+          "x_axis": "Test condition (Baseline dry / Wet / Post-test dry)",
+          "y_axis": "Riso (MΩ)"
+        },
+        {
+          "plot_type": "Wet leakage current",
+          "x_axis": "Sample ID",
+          "y_axis": "Leakage current (mA)",
+          "threshold_line": "1 mA limit"
+        }
+      ],
+      "export_formats": ["PNG", "SVG", "PDF"]
+    },
+    "report_generation": {
+      "template": "Rain & Water Spray Test Report Template",
+      "sections": [
+        "Executive summary with pass/fail determination",
+        "Sample identification",
+        "Test equipment and calibration",
+        "Test procedure summary (IPX3, IPX4, IPX5)",
+        "Spray test data logs",
+        "Post-spray inspection findings",
+        "Junction box interior photographs",
+        "Wet leakage current test results",
+        "Wet and dry insulation resistance comparison",
+        "Electrical characterization results",
+        "Water ingress assessment",
+        "Conclusions and recommendations"
+      ],
+      "automated_generation": "Python + Jinja2 templates",
+      "review_cycle": "Technical review → QA review → Final approval"
+    }
+  },
+  "quality_control": {
+    "pre_test_qc": {
+      "checklist": [
+        {
+          "item": "Rain chamber calibration current",
+          "acceptance": "Within 12 months"
+        },
+        {
+          "item": "Flow meter verified",
+          "acceptance": "±2% accuracy"
+        },
+        {
+          "item": "Water quality verified",
+          "acceptance": "Conductivity < 5 μS/cm"
+        },
+        {
+          "item": "Module baseline characterization complete",
+          "acceptance": "All electrical tests passed"
+        },
+        {
+          "item": "High-voltage safety for wet leakage current test",
+          "acceptance": "Safety procedures reviewed, equipment verified"
+        }
+      ],
+      "approver": "Test Engineer + Safety Officer"
+    },
+    "in_test_monitoring": {
+      "checks": [
+        {
+          "item": "Flow rate consistency",
+          "frequency": "Continuous monitoring",
+          "action_if_deviation": "Adjust pump, log deviation"
+        },
+        {
+          "item": "Spray pattern uniformity",
+          "frequency": "Visual check every 10 minutes",
+          "action_if_inadequate": "Adjust nozzles"
+        }
+      ]
+    },
+    "post_test_qc": {
+      "data_review": [
+        {
+          "item": "All spray scenarios completed with valid data",
+          "reviewer": "Test Engineer"
+        },
+        {
+          "item": "Wet leakage current test passed",
+          "reviewer": "Test Engineer + Safety Officer"
+        },
+        {
+          "item": "Junction box inspection documented",
+          "reviewer": "QA Engineer"
+        },
+        {
+          "item": "Water ingress assessment completed",
+          "reviewer": "QA Engineer"
+        }
+      ],
+      "report_review": {
+        "technical_review": "Senior Test Engineer",
+        "safety_review": "Safety Officer",
+        "qa_review": "QA Manager",
+        "final_approval": "Technical Director"
+      }
+    }
+  },
+  "non_conformance_management": {
+    "potential_non_conformances": [
+      {
+        "nc_type": "Flow rate out of tolerance",
+        "severity": "Major",
+        "corrective_action": "Repeat affected spray scenario",
+        "documentation": "NC log + flow meter verification"
+      },
+      {
+        "nc_type": "Water ingress into junction box",
+        "severity": "Critical",
+        "corrective_action": "Module fails test, failure analysis required",
+        "documentation": "Failure analysis report"
+      },
+      {
+        "nc_type": "Wet leakage current > 1 mA",
+        "severity": "Critical - Safety failure",
+        "corrective_action": "Module fails test, safety investigation",
+        "documentation": "Safety failure report"
+      },
+      {
+        "nc_type": "Wet insulation resistance < 40 MΩ",
+        "severity": "Critical",
+        "corrective_action": "Module fails test, investigate water ingress pathway",
+        "documentation": "Failure analysis report"
+      }
+    ],
+    "nc_workflow": {
+      "detection": "During test or post-test inspection",
+      "documentation": "NC form PVTP-NC-001",
+      "investigation": "Root cause analysis within 5 business days",
+      "corrective_action": "Per QP-008",
+      "verification": "QA verification",
+      "closure": "QA Manager approval"
+    }
+  },
+  "traceability": {
+    "sample_traceability": {
+      "required_information": [
+        "Sample ID",
+        "Manufacturer, model, serial number",
+        "Junction box and gasket type",
+        "Cable gland type",
+        "Frame design",
+        "Manufacturing date"
+      ]
+    },
+    "test_execution_traceability": {
+      "operator_id": "Recorded",
+      "equipment_id": "Chamber SN + calibration status",
+      "water_quality_verification": "Conductivity measurement logged",
+      "test_start_end_times": "ISO8601 timestamps"
+    },
+    "calibration_traceability": {
+      "rain_chamber": {
+        "calibration_certificate": "Flow rate, pressure, spray pattern",
+        "next_calibration_due": "Verified before test"
+      },
+      "flow_meter": {
+        "calibration_certificate": "Traceable to NIST",
+        "accuracy": "±2%"
+      }
+    },
+    "compliance_mapping": {
+      "iec_60529_requirements": [
+        {
+          "requirement": "IPX3 / IPX4 / IPX5 per Clause 14",
+          "evidence": "Spray test logs and inspection reports",
+          "location": "Sections 8-9 of test report"
+        }
+      ],
+      "iec_61215_requirements": [
+        {
+          "requirement": "Section 10.15 - Wet leakage current test",
+          "evidence": "Leakage current < 1 mA",
+          "location": "Section 10 of test report"
+        }
+      ]
+    }
+  },
+  "safety_considerations": {
+    "hazards": [
+      {
+        "hazard": "Electrical shock during wet leakage current test",
+        "risk_level": "High",
+        "mitigation": [
+          "Use insulated test fixture per IEC 61215",
+          "Follow LOTO procedures",
+          "High-voltage safety training required",
+          "Use isolation transformer",
+          "Ground fault circuit interrupter (GFCI) protection"
+        ]
+      },
+      {
+        "hazard": "Slip hazard from water on floor",
+        "risk_level": "Medium",
+        "mitigation": "Non-slip flooring, water containment, absorbent mats"
+      },
+      {
+        "hazard": "Electrical shock from module",
+        "risk_level": "Medium",
+        "mitigation": "Ensure disconnected when not under test, insulated tools"
+      }
+    ],
+    "ppe_requirements": [
+      "Safety glasses",
+      "Electrical insulating gloves (Class 0 or higher for wet leakage current test)",
+      "Waterproof lab coat or apron",
+      "Safety shoes (slip-resistant, waterproof)"
+    ],
+    "emergency_procedures": {
+      "electrical_shock": "Disconnect power immediately, call emergency services, administer first aid",
+      "equipment_malfunction": "E-stop, isolate power/water, notify supervisor"
+    }
+  },
+  "training_requirements": {
+    "required_training": [
+      {
+        "course": "IEC 60529 IPX Rain Testing",
+        "frequency": "Initial + when procedure updated",
+        "provider": "Senior Test Engineer"
+      },
+      {
+        "course": "High-Voltage Safety for Wet Leakage Current Testing",
+        "frequency": "Annual",
+        "provider": "Safety Department / Certified electrical safety trainer"
+      },
+      {
+        "course": "Rain Chamber Operation",
+        "frequency": "Initial + biennial refresher",
+        "provider": "Equipment manufacturer or certified trainer"
+      },
+      {
+        "course": "Laboratory Safety and PPE",
+        "frequency": "Annual",
+        "provider": "Safety Department"
+      }
+    ],
+    "competency_verification": {
+      "method": "Practical demonstration + written assessment",
+      "passing_score": "≥ 90%",
+      "requalification": "Every 2 years"
+    }
+  },
+  "references": {
+    "standards": [
+      {
+        "document": "IEC 60529:2020",
+        "title": "Degrees of protection provided by enclosures (IP Code)"
+      },
+      {
+        "document": "IEC 61215-2:2021",
+        "title": "Terrestrial photovoltaic (PV) modules - Design qualification and type approval - Part 2: Test procedures"
+      },
+      {
+        "document": "IEC 61730-2:2016",
+        "title": "Photovoltaic (PV) module safety qualification - Part 2: Requirements for testing"
+      }
+    ],
+    "internal_documents": [
+      {
+        "document": "SOP-ENV-004",
+        "title": "Rain Chamber Operation Procedure"
+      },
+      {
+        "document": "SOP-SAFE-003",
+        "title": "High-Voltage Wet Leakage Current Test Safety Procedure"
+      },
+      {
+        "document": "QP-008",
+        "title": "Non-Conformance Management Procedure"
+      }
+    ]
+  },
+  "revision_history": [
+    {
+      "version": "1.0",
+      "date": "2025-11-12",
+      "author": "PV Testing Laboratory",
+      "changes": "Initial protocol creation",
+      "approved_by": "Quality Director"
+    }
+  ]
+}

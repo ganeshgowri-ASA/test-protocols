@@ -1,0 +1,1136 @@
+{
+  "protocol_metadata": {
+    "protocol_id": "PVTP-039",
+    "version": "1.0",
+    "title": "Outdoor Exposure / Accelerated Weathering Test",
+    "description": "Combined environmental stress test simulating long-term outdoor exposure through accelerated UV, temperature, humidity, and cyclic weathering",
+    "test_type": "environmental_accelerated_aging",
+    "created_date": "2025-11-12",
+    "last_modified": "2025-11-12",
+    "author": "PV Testing Laboratory",
+    "status": "active",
+    "compliance_standards": [
+      {
+        "standard_id": "IEC 61215",
+        "version": "4.0",
+        "section": "MQT 12",
+        "title": "Outdoor Exposure Test",
+        "requirements": [
+          "60 kWh/m² total UV irradiance (280-400 nm)",
+          "Temperature: 55°C ±5°C during UV exposure",
+          "Optional: cyclic exposure with humidity"
+        ]
+      },
+      {
+        "standard_id": "IEC 61215",
+        "version": "4.0",
+        "section": "MQT 13",
+        "title": "UV Preconditioning Test",
+        "requirements": [
+          "15 kWh/m² UV irradiance (280-400 nm)",
+          "Temperature: 60°C ±5°C"
+        ]
+      },
+      {
+        "standard_id": "IEC 61730",
+        "version": "2.0",
+        "section": "MST 50",
+        "title": "UV Test"
+      },
+      {
+        "standard_id": "ASTM G154",
+        "version": "2016",
+        "title": "Standard Practice for Operating Fluorescent Ultraviolet (UV) Lamp Apparatus for Exposure of Nonmetallic Materials"
+      },
+      {
+        "standard_id": "ASTM G155",
+        "version": "2021",
+        "title": "Standard Practice for Operating Xenon Arc Lamp Apparatus for Exposure of Materials"
+      },
+      {
+        "standard_id": "ISO 4892-2",
+        "version": "2013",
+        "title": "Plastics - Methods of exposure to laboratory light sources - Part 2: Xenon-arc lamps"
+      }
+    ],
+    "related_protocols": ["PVTP-033", "PVTP-034", "PVTP-036"],
+    "approval_status": {
+      "reviewed_by": "Environmental Test Engineer",
+      "approved_by": "Quality Director",
+      "approval_date": "2025-11-12"
+    }
+  },
+  "test_objectives": {
+    "primary_objective": "Assess PV module degradation under accelerated environmental aging simulating 25-30 years of outdoor exposure",
+    "secondary_objectives": [
+      "Evaluate UV-induced degradation of encapsulation materials (yellowing, delamination)",
+      "Assess back sheet weathering and embrittlement",
+      "Measure electrical performance degradation over time",
+      "Identify time-dependent failure modes (corrosion, seal degradation, delamination)",
+      "Validate module lifetime predictions and warranty claims",
+      "Generate degradation rate data for field performance modeling"
+    ],
+    "acceptance_criteria": {
+      "visual_inspection": "No major visual defects (chalking, cracking, delamination < 5% of module area)",
+      "electrical_performance": "Power degradation per test specification (typically 8-15% for extended tests)",
+      "insulation_resistance": "≥ 40 MΩ post-test",
+      "safety": "Pass dielectric withstand test",
+      "encapsulation": "No severe yellowing (ΔE < 15 per IEC 61215), < 5% delamination area"
+    },
+    "test_duration_scenarios": {
+      "uv_preconditioning": {
+        "description": "IEC 61215 MQT 13 - Short UV exposure before other tests",
+        "uv_dose": "15 kWh/m²",
+        "duration": "Approximately 125-150 hours",
+        "field_equivalent": "Approx. 1-2 years UV exposure"
+      },
+      "outdoor_exposure": {
+        "description": "IEC 61215 MQT 12 - Standard qualification test",
+        "uv_dose": "60 kWh/m²",
+        "duration": "Approximately 500-600 hours",
+        "field_equivalent": "Approx. 5-7 years outdoor exposure"
+      },
+      "extended_accelerated_aging": {
+        "description": "Custom long-term durability test (beyond IEC 61215)",
+        "uv_dose": "200-300 kWh/m²",
+        "duration": "1500-2500 hours (2-3 months)",
+        "field_equivalent": "Approx. 20-30 years outdoor exposure",
+        "note": "For design validation and lifetime prediction studies"
+      }
+    }
+  },
+  "test_equipment": {
+    "accelerated_weathering_chamber": {
+      "manufacturer": "Atlas Material Testing Technology",
+      "model": "Ci5000 Weather-Ometer (Xenon Arc) or SunTest XXL+ (Xenon)",
+      "serial_number": "To be recorded",
+      "specifications": {
+        "light_source": "Xenon arc lamp with daylight filters (to simulate solar spectrum)",
+        "spectral_distribution": "Similar to CIE Solar D65 or AM 1.5 Global",
+        "irradiance_control": {
+          "wavelength": "340 nm (UV-A)",
+          "intensity": "0.35-1.0 W/m²/nm at 340 nm",
+          "uniformity": "±10% across test area"
+        },
+        "chamber_temperature_range": {
+          "min": 35,
+          "max": 100,
+          "unit": "°C",
+          "control_accuracy": "±2°C"
+        },
+        "black_panel_temperature": {
+          "typical": "63°C or 100°C (depending on test specification)",
+          "control_accuracy": "±3°C",
+          "note": "Simulates module operating temperature"
+        },
+        "humidity_control": {
+          "range": "10-95% RH",
+          "accuracy": "±5% RH"
+        },
+        "water_spray_capability": "Optional for cyclic weathering (spray/dry cycles)",
+        "sample_capacity": "Multiple modules up to 2m² total test area"
+      },
+      "calibration": {
+        "frequency": "Quarterly",
+        "last_calibration_date": "2025-09-01",
+        "next_calibration_date": "2025-12-01",
+        "calibration_certificate": "CAL-WEATHER-2025-Q3-001",
+        "traceable_to": "NIST-traceable radiometer and temperature standards"
+      }
+    },
+    "alternative_uv_chamber": {
+      "type": "Fluorescent UV-A lamps (UVA-340 lamps per ASTM G154)",
+      "application": "Lower-cost alternative for UV preconditioning",
+      "limitations": "Does not include full solar spectrum (IR, visible), less accurate simulation",
+      "note": "Xenon arc preferred for IEC 61215 compliance"
+    },
+    "monitoring_instruments": {
+      "uv_radiometer": {
+        "manufacturer": "Solar Light Company or EKO",
+        "model": "PMA2100 or equivalent",
+        "measurement_range": "280-400 nm (UV-A + UV-B)",
+        "accuracy": "±5%",
+        "purpose": "Monitor cumulative UV dose (kWh/m²)"
+      },
+      "spectroradiometer": {
+        "model": "Ocean Optics or equivalent",
+        "range": "200-1100 nm",
+        "purpose": "Verify spectral distribution of weathering chamber light source"
+      },
+      "black_panel_thermometer": {
+        "type": "Insulated black panel temperature sensor per ISO 4892",
+        "accuracy": "±1°C",
+        "purpose": "Measure module surface temperature under irradiation"
+      },
+      "iv_curve_tracer": {
+        "model": "PVE PV Analyzer 1500V",
+        "accuracy": "±0.5%",
+        "purpose": "Periodic electrical characterization (baseline, interim, post-test)"
+      },
+      "insulation_tester": {
+        "model": "Fluke 1550C",
+        "range": "250V - 5kV",
+        "purpose": "Insulation resistance measurement"
+      },
+      "colorimeter": {
+        "model": "X-Rite i1Pro 3",
+        "purpose": "Quantify encapsulation yellowing (CIE L*a*b* color space)",
+        "repeatability": "ΔE < 0.2"
+      },
+      "thermohygrometer": {
+        "model": "Vaisala HMT330",
+        "temperature_accuracy": "±0.2°C",
+        "humidity_accuracy": "±1.0% RH"
+      }
+    }
+  },
+  "test_sequence": {
+    "pre_test_phase": {
+      "duration": "1 day",
+      "steps": [
+        {
+          "step_number": 1,
+          "action": "Visual inspection and documentation",
+          "parameters": {
+            "inspection_areas": [
+              "Encapsulation clarity (no pre-existing yellowing)",
+              "Back sheet condition",
+              "Frame and junction box",
+              "Module edges and seals",
+              "Label legibility"
+            ],
+            "color_measurement": "CIE L*a*b* measurement of encapsulant (baseline)",
+            "photography": "High-resolution images (close-up of encapsulant, back sheet)"
+          },
+          "acceptance": "No pre-existing discoloration, damage, or defects"
+        },
+        {
+          "step_number": 2,
+          "action": "Electrical characterization (baseline)",
+          "parameters": {
+            "measurements": ["Voc", "Isc", "Pmax", "Vmp", "Imp", "FF", "Rs", "Rsh"],
+            "irradiance": "1000 W/m²",
+            "module_temperature": "25°C ±2°C",
+            "spectrum": "AM 1.5G"
+          },
+          "data_logging": {
+            "file_name": "baseline_iv_curve.csv",
+            "parameters_logged": ["voltage", "current", "power", "temperature", "irradiance"]
+          }
+        },
+        {
+          "step_number": 3,
+          "action": "Insulation resistance test (initial)",
+          "parameters": {
+            "test_voltage": "1000V DC",
+            "duration": "60 seconds",
+            "min_resistance": "40 MΩ"
+          }
+        },
+        {
+          "step_number": 4,
+          "action": "Module cleaning",
+          "parameters": {
+            "cleaning_method": "Deionized water and soft cloth",
+            "drying": "Air dry minimum 2 hours"
+          }
+        },
+        {
+          "step_number": 5,
+          "action": "Chamber preparation and verification",
+          "parameters": {
+            "xenon_lamp_check": "Verify lamp hours < maximum (typically 1500-2000 hours)",
+            "spectral_verification": "Measure spectral distribution with spectroradiometer",
+            "irradiance_calibration": "Verify UV irradiance at 340 nm with calibrated radiometer",
+            "temperature_sensors": "Verify black panel thermometer calibration"
+          }
+        }
+      ]
+    },
+    "accelerated_weathering_test_phase": {
+      "duration": "Variable: 125-2500 hours depending on test specification",
+      "test_cycle_options": {
+        "option_1_continuous_uv": {
+          "description": "IEC 61215 MQT 13 UV Preconditioning",
+          "cycle": "Continuous UV exposure",
+          "uv_irradiance": "0.35-1.0 W/m²/nm at 340 nm",
+          "black_panel_temperature": "60°C ±5°C",
+          "humidity": "Not controlled (ambient chamber humidity)",
+          "total_uv_dose": "15 kWh/m²",
+          "duration": "125-150 hours"
+        },
+        "option_2_outdoor_exposure": {
+          "description": "IEC 61215 MQT 12 Outdoor Exposure Test",
+          "cycle": "Continuous UV exposure",
+          "uv_irradiance": "0.35-1.0 W/m²/nm at 340 nm",
+          "black_panel_temperature": "55°C ±5°C",
+          "humidity": "Not controlled",
+          "total_uv_dose": "60 kWh/m²",
+          "duration": "500-600 hours"
+        },
+        "option_3_cyclic_weathering": {
+          "description": "Advanced accelerated aging with cyclic UV/humidity/spray",
+          "cycle_duration": "24 hours",
+          "cycle_sequence": [
+            {
+              "phase": "UV exposure",
+              "duration": "8 hours",
+              "uv_irradiance": "0.70 W/m²/nm at 340 nm",
+              "black_panel_temperature": "63°C",
+              "humidity": "50% RH"
+            },
+            {
+              "phase": "Condensation (humidity)",
+              "duration": "8 hours",
+              "uv_off": true,
+              "chamber_temperature": "50°C",
+              "humidity": "100% RH (condensing)",
+              "note": "Simulates nighttime dew/condensation"
+            },
+            {
+              "phase": "Water spray",
+              "duration": "0.5 hours",
+              "uv_off": true,
+              "water_spray": "Deionized water",
+              "chamber_temperature": "25°C",
+              "note": "Simulates rain"
+            },
+            {
+              "phase": "Drying",
+              "duration": "7.5 hours",
+              "uv_irradiance": "0.70 W/m²/nm at 340 nm",
+              "black_panel_temperature": "63°C",
+              "humidity": "50% RH"
+            }
+          ],
+          "total_cycles": "60-100 cycles",
+          "total_uv_dose": "200-300 kWh/m²",
+          "duration": "1500-2500 hours (2-3 months)"
+        }
+      },
+      "steps": [
+        {
+          "step_number": 6,
+          "action": "Module installation in weathering chamber",
+          "parameters": {
+            "mounting": "Modules positioned perpendicular to light source",
+            "spacing": "Adequate spacing for uniform irradiance (no shadowing)",
+            "orientation": "Front glass facing light source",
+            "electrical_connection": "Cables routed outside chamber (unless testing electrical components under load)"
+          }
+        },
+        {
+          "step_number": 7,
+          "action": "Execute accelerated weathering exposure",
+          "parameters": {
+            "test_mode": "Select Option 1, 2, or 3 based on test specification",
+            "monitoring_frequency": "Continuous irradiance, temperature, humidity logging (every 5 minutes)",
+            "operator_checks": "Daily visual inspection through chamber window, weekly chamber verification"
+          },
+          "data_logging": {
+            "parameters": [
+              "timestamp",
+              "elapsed_time_hours",
+              "cumulative_uv_dose_kWh_per_m2",
+              "uv_irradiance_340nm",
+              "black_panel_temperature",
+              "chamber_air_temperature",
+              "chamber_humidity",
+              "cycle_phase",
+              "xenon_lamp_hours"
+            ],
+            "sampling_rate": "5 minutes",
+            "file_format": "CSV"
+          }
+        },
+        {
+          "step_number": 8,
+          "action": "Interim inspections and electrical characterization",
+          "parameters": {
+            "frequency": "Every 15 kWh/m² UV dose (or monthly for extended tests)",
+            "timing": "Pause chamber, remove modules, allow to cool to 25°C",
+            "inspections": [
+              "Visual inspection (yellowing, delamination, back sheet embrittlement)",
+              "Color measurement (ΔE calculation)",
+              "IV curve measurement",
+              "Insulation resistance test"
+            ],
+            "data_logging": "Time-series degradation data (Pmax vs. UV dose)",
+            "return_to_chamber": "After inspection, return modules to chamber and resume exposure"
+          },
+          "note": "Interim data enables degradation rate calculation and early failure detection"
+        }
+      ]
+    },
+    "post_test_phase": {
+      "duration": "1-2 days",
+      "steps": [
+        {
+          "step_number": 9,
+          "action": "Final visual inspection",
+          "parameters": {
+            "timing": "After reaching target UV dose",
+            "inspection": [
+              "Encapsulation yellowing severity and distribution",
+              "Delamination (measure affected area as % of module)",
+              "Back sheet embrittlement (flex test, visual cracks)",
+              "Frame and junction box condition",
+              "Seal integrity",
+              "Label legibility"
+            ],
+            "color_measurement": "CIE L*a*b* measurement of encapsulant (post-test)",
+            "color_change_calculation": "ΔE = √[(ΔL*)² + (Δa*)² + (Δb*)²]",
+            "photography": "High-resolution images matching pre-test locations"
+          }
+        },
+        {
+          "step_number": 10,
+          "action": "Electrical characterization (final post-test)",
+          "parameters": {
+            "wait_time": "Allow modules to cool and stabilize (24 hours at 25°C)",
+            "measurements": ["Voc", "Isc", "Pmax", "Vmp", "Imp", "FF", "Rs", "Rsh"],
+            "irradiance": "1000 W/m²",
+            "module_temperature": "25°C ±2°C",
+            "spectrum": "AM 1.5G"
+          },
+          "data_logging": {
+            "file_name": "final_post_test_iv_curve.csv",
+            "parameters_logged": ["voltage", "current", "power", "temperature", "irradiance"]
+          }
+        },
+        {
+          "step_number": 11,
+          "action": "Insulation resistance test (post-test)",
+          "parameters": {
+            "test_voltage": "1000V DC",
+            "duration": "60 seconds",
+            "min_resistance": "40 MΩ"
+          }
+        },
+        {
+          "step_number": 12,
+          "action": "Dielectric withstand test (post-test)",
+          "parameters": {
+            "test_voltage": "1000V + 2×Voc_max",
+            "duration": "60 seconds",
+            "acceptance": "No breakdown"
+          }
+        },
+        {
+          "step_number": 13,
+          "action": "Advanced characterization (optional)",
+          "parameters": {
+            "electroluminescence_imaging": "Identify cell cracks, shunts, inactive areas",
+            "uv_fluorescence": "Detect EVA degradation and browning",
+            "infrared_thermography": "Identify hot spots and electrical anomalies",
+            "cross_section_analysis": "Destructive analysis to assess encapsulation/adhesion (if available)"
+          },
+          "note": "Provides detailed failure mode analysis"
+        },
+        {
+          "step_number": 14,
+          "action": "Performance degradation and pass/fail determination",
+          "parameters": {
+            "power_degradation": "Δ% = 100 × (Pmax_pre - Pmax_final) / Pmax_pre",
+            "acceptance_iec_61215": "ΔE < 15, delamination < 5% area, per standard",
+            "acceptance_extended_test": "Custom criteria (e.g., < 15% power loss for 300 kWh/m²)",
+            "combined_assessment": "Electrical + visual + insulation + safety"
+          }
+        }
+      ]
+    }
+  },
+  "data_logging": {
+    "logging_system": {
+      "software": "Atlas Weather-Ometer Control + LabVIEW 2023",
+      "database": "PostgreSQL 15.0",
+      "backup_frequency": "Real-time to redundant server + daily full backup"
+    },
+    "environmental_data": {
+      "sampling_rate": "5 minutes",
+      "parameters": [
+        {
+          "name": "timestamp",
+          "unit": "ISO8601",
+          "type": "datetime"
+        },
+        {
+          "name": "elapsed_time",
+          "unit": "hours",
+          "type": "float"
+        },
+        {
+          "name": "cumulative_uv_dose",
+          "unit": "kWh/m²",
+          "accuracy": "±5%",
+          "type": "float"
+        },
+        {
+          "name": "uv_irradiance_340nm",
+          "unit": "W/m²/nm",
+          "accuracy": "±5%",
+          "type": "float"
+        },
+        {
+          "name": "black_panel_temperature",
+          "unit": "°C",
+          "accuracy": "±1°C",
+          "type": "float"
+        },
+        {
+          "name": "chamber_air_temperature",
+          "unit": "°C",
+          "accuracy": "±0.5°C",
+          "type": "float"
+        },
+        {
+          "name": "chamber_humidity",
+          "unit": "%",
+          "accuracy": "±2%",
+          "type": "float"
+        },
+        {
+          "name": "cycle_phase",
+          "unit": "text",
+          "type": "enum",
+          "values": ["uv_exposure", "condensation", "water_spray", "drying"]
+        },
+        {
+          "name": "xenon_lamp_hours",
+          "unit": "hours",
+          "type": "float",
+          "note": "Track lamp aging"
+        }
+      ],
+      "file_format": "CSV",
+      "file_naming": "PVTP-039_{sample_id}_{date}_weathering_log.csv"
+    },
+    "interim_inspection_data": {
+      "frequency": "Every 15 kWh/m² or monthly",
+      "parameters": [
+        {
+          "name": "cumulative_uv_dose_at_inspection",
+          "unit": "kWh/m²",
+          "type": "float"
+        },
+        {
+          "name": "Voc",
+          "unit": "V",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "Isc",
+          "unit": "A",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "Pmax",
+          "unit": "W",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "FF",
+          "unit": "ratio",
+          "accuracy": "±1%"
+        },
+        {
+          "name": "Rs",
+          "unit": "Ω",
+          "accuracy": "±5%"
+        },
+        {
+          "name": "Rsh",
+          "unit": "Ω",
+          "accuracy": "±10%"
+        },
+        {
+          "name": "insulation_resistance",
+          "unit": "MΩ",
+          "accuracy": "±5%"
+        },
+        {
+          "name": "encapsulation_deltaE",
+          "unit": "unitless",
+          "accuracy": "±0.5"
+        },
+        {
+          "name": "visual_delamination_area_percent",
+          "unit": "%",
+          "type": "float"
+        }
+      ],
+      "file_format": "CSV",
+      "file_naming": "PVTP-039_{sample_id}_{date}_interim_data.csv"
+    },
+    "quality_checks": {
+      "real_time_validation": [
+        {
+          "parameter": "uv_irradiance_340nm",
+          "check_type": "range",
+          "min_value": 0.30,
+          "max_value": 1.10,
+          "action_on_failure": "Alarm, check lamp condition, adjust power supply"
+        },
+        {
+          "parameter": "black_panel_temperature",
+          "check_type": "range",
+          "typical_range": "±5°C of target",
+          "action_on_failure": "Adjust chamber temperature control"
+        },
+        {
+          "parameter": "cumulative_uv_dose",
+          "check_type": "trending",
+          "action_on_failure": "Verify radiometer functioning, check lamp output"
+        }
+      ],
+      "data_completeness": {
+        "required_fields": [
+          "timestamp",
+          "cumulative_uv_dose",
+          "uv_irradiance_340nm",
+          "black_panel_temperature"
+        ],
+        "action_on_missing": "Flag data gap, investigate DAQ system"
+      }
+    },
+    "retention_policy": {
+      "raw_environmental_data": "10 years",
+      "interim_inspection_data": "Permanent",
+      "electrical_characterization": "Permanent",
+      "photographs": "10 years",
+      "test_reports": "Permanent"
+    }
+  },
+  "analysis_and_reporting": {
+    "time_series_analysis": {
+      "degradation_rate_analysis": {
+        "metrics": [
+          "Power degradation rate (%/kWh/m² or %/year)",
+          "Fill factor degradation trend",
+          "Series resistance increase rate",
+          "Encapsulation yellowing progression (ΔE vs. UV dose)"
+        ],
+        "visualization": [
+          "Pmax vs. cumulative UV dose",
+          "Degradation rate curve (exponential, linear, or accelerating)",
+          "FF vs. UV dose",
+          "ΔE vs. UV dose"
+        ]
+      },
+      "environmental_stability_assessment": {
+        "metrics": [
+          "UV irradiance stability over test duration",
+          "Black panel temperature consistency",
+          "Humidity control (for cyclic tests)"
+        ],
+        "visualization": [
+          "UV irradiance time series",
+          "Temperature control chart"
+        ]
+      }
+    },
+    "baseline_comparison": {
+      "electrical_parameters": {
+        "comparison_metrics": [
+          {
+            "parameter": "Pmax",
+            "calculation": "Δ% = 100 × (Pmax_final - Pmax_baseline) / Pmax_baseline",
+            "threshold_uv_preconditioning": "Typically < 5%",
+            "threshold_outdoor_exposure": "< 8%",
+            "threshold_extended_test": "Custom (e.g., < 15% for 300 kWh/m²)"
+          },
+          {
+            "parameter": "FF",
+            "calculation": "ΔFF",
+            "note": "Sensitive indicator of Rs increase and cell degradation"
+          },
+          {
+            "parameter": "Rs",
+            "calculation": "Δ%",
+            "note": "Increases due to encapsulant browning, corrosion"
+          }
+        ],
+        "visualization": [
+          "Pre/post IV curve overlay",
+          "Multi-point IV curve overlay (baseline, interim, final)",
+          "Parameter degradation waterfall chart"
+        ]
+      },
+      "visual_inspection": {
+        "encapsulation_yellowing": {
+          "metric": "ΔE (CIE color change)",
+          "acceptance_iec_61215": "ΔE < 15",
+          "severity_classification": [
+            "ΔE < 5: Minimal yellowing",
+            "ΔE 5-10: Moderate yellowing",
+            "ΔE 10-15: Significant yellowing (borderline)",
+            "ΔE > 15: Severe yellowing (fail per IEC 61215)"
+          ]
+        },
+        "delamination": {
+          "metric": "% of module area delaminated",
+          "acceptance_iec_61215": "< 5% area",
+          "measurement": "Image analysis or manual measurement"
+        },
+        "back_sheet_embrittlement": {
+          "assessment": "Flex test, visual cracks, chalking",
+          "severity": "Qualitative (None / Minor / Moderate / Severe)"
+        }
+      }
+    },
+    "degradation_modeling": {
+      "lifetime_prediction": {
+        "approach": "Extrapolate degradation rate to predict field lifetime",
+        "acceleration_factor": "Test UV dose rate / Field UV dose rate",
+        "typical_field_uv": "60 kWh/m²/year (moderate climate) to 100 kWh/m²/year (high solar regions)",
+        "example_calculation": "If 60 kWh/m² test → 2% Pmax loss, then 25 years (1500 kWh/m²) → estimated 50% loss (if linear, or use non-linear model)",
+        "note": "Actual field degradation is often slower due to lower operating temperatures and intermittent stress"
+      },
+      "arrhenius_model": {
+        "description": "Temperature-accelerated aging model",
+        "formula": "AF = exp[(Ea/k) × (1/T_field - 1/T_test)]",
+        "parameters": {
+          "Ea": "Activation energy (eV) - material-specific",
+          "k": "Boltzmann constant",
+          "T_field": "Field operating temperature (K)",
+          "T_test": "Test chamber black panel temperature (K)"
+        },
+        "application": "Combine UV dose acceleration with thermal acceleration for more accurate lifetime prediction"
+      },
+      "failure_mode_analysis": {
+        "categories": [
+          "Encapsulation yellowing/browning (UV-induced EVA degradation)",
+          "Delamination (adhesion loss between layers)",
+          "Back sheet embrittlement and cracking",
+          "Cell interconnect corrosion (accelerated by UV and moisture)",
+          "Junction box seal degradation",
+          "Label fading and loss of legibility",
+          "Frame anodization degradation"
+        ],
+        "severity_rating": "Critical / Major / Minor",
+        "root_cause_investigation": "For all critical and major failures"
+      }
+    },
+    "statistical_analysis": {
+      "sample_size_requirements": {
+        "minimum_per_design": 3,
+        "recommended_for_validation": 6,
+        "statistical_confidence": "95%"
+      },
+      "degradation_rate_statistics": {
+        "calculations": [
+          "Mean degradation rate (%/kWh/m²)",
+          "Standard deviation",
+          "Confidence interval (95%)",
+          "Outlier detection"
+        ]
+      }
+    },
+    "visualization_requirements": {
+      "automated_plots": [
+        {
+          "plot_type": "Power degradation vs. UV dose",
+          "x_axis": "Cumulative UV dose (kWh/m²)",
+          "y_axis": "Pmax degradation (%)",
+          "data_series": "All samples + mean + confidence interval"
+        },
+        {
+          "plot_type": "IV curve evolution",
+          "x_axis": "Voltage (V)",
+          "y_axis": "Current (A)",
+          "data_series": ["Baseline", "Interim 1", "Interim 2", "Final"]
+        },
+        {
+          "plot_type": "Fill factor degradation",
+          "x_axis": "UV dose (kWh/m²)",
+          "y_axis": "Fill factor (ratio)"
+        },
+        {
+          "plot_type": "Encapsulation yellowing progression",
+          "x_axis": "UV dose (kWh/m²)",
+          "y_axis": "ΔE (color change)"
+        },
+        {
+          "plot_type": "Chamber environmental conditions",
+          "x_axis": "Time (hours)",
+          "y_axis": "UV irradiance / Temperature / Humidity"
+        }
+      ],
+      "export_formats": ["PNG", "SVG", "PDF"]
+    },
+    "report_generation": {
+      "template": "IEC 61215 Outdoor Exposure Test Report Template",
+      "sections": [
+        "Executive summary with pass/fail determination",
+        "Sample identification and design details",
+        "Test equipment and calibration",
+        "Test procedure summary (UV dose, duration, cycle)",
+        "Environmental conditions log (UV dose accumulation)",
+        "Interim inspection findings (time-series degradation)",
+        "Final visual inspection with photographs",
+        "Encapsulation yellowing analysis (ΔE)",
+        "Delamination assessment",
+        "Electrical characterization results (degradation curves)",
+        "Power degradation rate and lifetime prediction",
+        "Failure mode analysis",
+        "Statistical analysis (if multiple samples)",
+        "Conclusions and recommendations",
+        "Warranty validation and field performance prediction"
+      ],
+      "automated_generation": "Python + Jinja2 templates + Matplotlib",
+      "review_cycle": "Technical review → Materials engineer review → QA review → Final approval"
+    }
+  },
+  "quality_control": {
+    "pre_test_qc": {
+      "checklist": [
+        {
+          "item": "Weathering chamber calibration current",
+          "acceptance": "Within 3 months (xenon lamp systems require frequent calibration)"
+        },
+        {
+          "item": "Xenon lamp condition",
+          "acceptance": "Lamp hours < manufacturer maximum (typically 1500-2000 hours)"
+        },
+        {
+          "item": "UV radiometer calibrated",
+          "acceptance": "Traceable to NIST, calibration within 12 months"
+        },
+        {
+          "item": "Spectral distribution verified",
+          "acceptance": "Matches CIE Solar D65 or AM 1.5 Global within tolerance"
+        },
+        {
+          "item": "Black panel thermometer verified",
+          "acceptance": "±1°C accuracy"
+        },
+        {
+          "item": "Module baseline characterization complete",
+          "acceptance": "Electrical, visual, and color measurement data logged"
+        }
+      ],
+      "approver": "Test Engineer + Materials Engineer"
+    },
+    "in_test_monitoring": {
+      "daily_checks": [
+        {
+          "item": "UV irradiance verification",
+          "frequency": "Daily",
+          "method": "Handheld radiometer reading",
+          "action_if_deviation": "Adjust lamp power or replace lamp if aging"
+        },
+        {
+          "item": "Black panel temperature",
+          "frequency": "Daily review of logged data",
+          "action_if_deviation": "Adjust chamber temperature control"
+        },
+        {
+          "item": "Data logging system operational",
+          "frequency": "Daily",
+          "action_if_failure": "Investigate DAQ, ensure no data loss"
+        }
+      ],
+      "weekly_checks": [
+        {
+          "item": "Visual inspection of modules through chamber window",
+          "frequency": "Weekly",
+          "observation": "Yellowing progression, any visible delamination"
+        },
+        {
+          "item": "Xenon lamp condition",
+          "frequency": "Weekly",
+          "action_if_aged": "Schedule lamp replacement"
+        }
+      ],
+      "interim_inspections": [
+        {
+          "item": "Electrical characterization and visual inspection",
+          "frequency": "Every 15 kWh/m² or monthly",
+          "note": "See Step 8 in test sequence"
+        }
+      ]
+    },
+    "post_test_qc": {
+      "data_review": [
+        {
+          "item": "Target UV dose achieved (±5%)",
+          "reviewer": "Test Engineer"
+        },
+        {
+          "item": "Environmental conditions within specification throughout test",
+          "reviewer": "Test Engineer"
+        },
+        {
+          "item": "Interim inspection data complete and consistent",
+          "reviewer": "Test Engineer + Materials Engineer"
+        },
+        {
+          "item": "Final visual and electrical characterization complete",
+          "reviewer": "Test Engineer"
+        },
+        {
+          "item": "Degradation rate calculations verified",
+          "reviewer": "QA Engineer"
+        }
+      ],
+      "report_review": {
+        "technical_review": "Senior Test Engineer",
+        "materials_review": "Materials Engineer (encapsulation expert)",
+        "qa_review": "QA Manager",
+        "final_approval": "Technical Director"
+      }
+    }
+  },
+  "non_conformance_management": {
+    "potential_non_conformances": [
+      {
+        "nc_type": "UV irradiance out of tolerance (> ±10%)",
+        "severity": "Major",
+        "corrective_action": "Investigate lamp condition, adjust power supply, may require test extension to reach target UV dose",
+        "documentation": "NC log + radiometer verification"
+      },
+      {
+        "nc_type": "Black panel temperature out of tolerance (> ±5°C for > 10% of test duration)",
+        "severity": "Major",
+        "corrective_action": "Investigate chamber control, may affect acceleration factor and lifetime prediction",
+        "documentation": "NC report + temperature analysis"
+      },
+      {
+        "nc_type": "Xenon lamp failure during test",
+        "severity": "Critical",
+        "corrective_action": "Replace lamp, note test interruption, continue test to reach target UV dose",
+        "documentation": "NC report + lamp replacement record + UV dose verification"
+      },
+      {
+        "nc_type": "Data acquisition failure (> 5% data loss)",
+        "severity": "Major",
+        "corrective_action": "Investigate DAQ, may require test extension if UV dose not properly tracked",
+        "documentation": "NC report + IT investigation"
+      },
+      {
+        "nc_type": "Severe encapsulation yellowing (ΔE > 15)",
+        "severity": "Critical (IEC 61215 failure)",
+        "corrective_action": "Module fails outdoor exposure test, investigate encapsulant material quality",
+        "documentation": "Failure analysis report + material analysis"
+      },
+      {
+        "nc_type": "Delamination > 5% area",
+        "severity": "Critical (IEC 61215 failure)",
+        "corrective_action": "Module fails test, investigate adhesion and lamination process",
+        "documentation": "Failure analysis report + cross-section analysis"
+      },
+      {
+        "nc_type": "Excessive power degradation (> acceptance threshold)",
+        "severity": "Critical",
+        "corrective_action": "Module fails test, investigate root cause (yellowing, delamination, cell degradation)",
+        "documentation": "Failure analysis report + EL imaging + material analysis"
+      }
+    ],
+    "nc_workflow": {
+      "detection": "Real-time monitoring or interim/post-test analysis",
+      "documentation": "NC form PVTP-NC-001",
+      "investigation": "Root cause analysis within 5 business days",
+      "corrective_action": "Per NC management procedure QP-008",
+      "verification": "QA verification of corrective action effectiveness",
+      "closure": "QA Manager approval"
+    }
+  },
+  "traceability": {
+    "sample_traceability": {
+      "required_information": [
+        "Sample ID",
+        "Manufacturer, model, serial number",
+        "Cell technology",
+        "Encapsulation material (EVA, POE, etc.)",
+        "Back sheet type",
+        "Manufacturing date and batch"
+      ],
+      "chain_of_custody": "Receipt through test completion"
+    },
+    "test_execution_traceability": {
+      "operator_id": "Recorded for each test phase",
+      "equipment_id": "Chamber SN + xenon lamp ID + calibration status",
+      "environmental_data": "Continuous 5-minute logging",
+      "test_start_end_times": "ISO8601 timestamps",
+      "interim_inspection_dates": "Logged with cumulative UV dose at each inspection"
+    },
+    "calibration_traceability": {
+      "weathering_chamber": {
+        "calibration_certificate": "Traceable to NIST",
+        "parameters_calibrated": "UV irradiance, spectral distribution, temperature uniformity",
+        "next_calibration_due": "Verified before test"
+      },
+      "uv_radiometer": {
+        "calibration_certificate": "NIST-traceable",
+        "calibration_date": "Within 12 months",
+        "wavelength": "340 nm (UV-A)"
+      },
+      "spectroradiometer": {
+        "calibration_certificate": "NIST-traceable",
+        "calibration_date": "Within 12 months"
+      }
+    },
+    "data_traceability": {
+      "raw_data_files": "Timestamped with sample ID and cumulative UV dose",
+      "interim_inspection_records": "Linked to UV dose at time of inspection",
+      "analysis_scripts": "Version controlled (Git repository)",
+      "report_generation_date": "Documented in report footer"
+    },
+    "compliance_mapping": {
+      "iec_61215_requirements": [
+        {
+          "requirement": "MQT 13 - UV preconditioning 15 kWh/m², 60°C ±5°C",
+          "evidence": "Environmental data log showing 15 kWh/m² UV dose at 60°C",
+          "location": "Section 8 of test report"
+        },
+        {
+          "requirement": "MQT 12 - Outdoor exposure 60 kWh/m², 55°C ±5°C",
+          "evidence": "Environmental data log showing 60 kWh/m² UV dose at 55°C",
+          "location": "Section 8 of test report"
+        },
+        {
+          "requirement": "MQT 12/13 - ΔE < 15, delamination < 5% area",
+          "evidence": "Color measurement and visual inspection report",
+          "location": "Section 9 of test report"
+        }
+      ]
+    }
+  },
+  "safety_considerations": {
+    "hazards": [
+      {
+        "hazard": "UV radiation exposure (xenon arc lamp)",
+        "risk_level": "High",
+        "health_effects": "Skin burns, eye damage (similar to arc welding flash)",
+        "mitigation": [
+          "Xenon arc enclosed in chamber with interlocks",
+          "UV-blocking observation window",
+          "Warning signs on chamber",
+          "Automatic lamp shutdown when chamber opened",
+          "UV-blocking safety glasses if lamp visible during maintenance"
+        ]
+      },
+      {
+        "hazard": "High temperature surfaces inside chamber",
+        "risk_level": "Medium",
+        "mitigation": "Allow cooldown before accessing chamber, heat-resistant gloves"
+      },
+      {
+        "hazard": "Electrical shock from modules",
+        "risk_level": "Medium",
+        "mitigation": "Ensure modules disconnected during handling, insulated tools"
+      },
+      {
+        "hazard": "Xenon lamp explosion (if mishandled)",
+        "risk_level": "Low",
+        "mitigation": "Follow manufacturer lamp replacement procedures, use protective face shield during lamp service"
+      }
+    ],
+    "ppe_requirements": [
+      "UV-blocking safety glasses (when chamber opened or during lamp maintenance)",
+      "Heat-resistant gloves (when accessing hot chamber)",
+      "Lab coat",
+      "Safety shoes",
+      "Face shield (during xenon lamp replacement)"
+    ],
+    "emergency_procedures": {
+      "uv_exposure": "Seek medical attention for eye or skin exposure, document incident",
+      "lamp_failure": "Do not open chamber until lamp cooled, follow manufacturer emergency procedures",
+      "equipment_malfunction": "E-stop, isolate power, notify supervisor and maintenance"
+    }
+  },
+  "training_requirements": {
+    "required_training": [
+      {
+        "course": "IEC 61215 UV and Outdoor Exposure Testing",
+        "frequency": "Initial + when procedure updated",
+        "provider": "Senior Test Engineer"
+      },
+      {
+        "course": "Xenon Arc Weathering Chamber Operation and Safety",
+        "frequency": "Initial + biennial refresher",
+        "provider": "Equipment manufacturer or certified trainer",
+        "content": [
+          "Xenon lamp safety and handling",
+          "UV radiation hazards",
+          "Chamber operation and cycle programming",
+          "Radiometer calibration and verification",
+          "Preventive maintenance"
+        ]
+      },
+      {
+        "course": "UV Radiation Safety",
+        "frequency": "Annual",
+        "provider": "Safety Department"
+      },
+      {
+        "course": "Material Degradation Analysis",
+        "frequency": "Initial (for analysts)",
+        "provider": "Materials Engineer"
+      }
+    ],
+    "competency_verification": {
+      "method": "Practical demonstration + written assessment",
+      "assessment_areas": [
+        "Chamber setup and cycle programming",
+        "UV dose monitoring and verification",
+        "Interim inspection procedures",
+        "Degradation data analysis",
+        "UV safety procedures"
+      ],
+      "passing_score": "≥ 90%",
+      "requalification": "Every 2 years"
+    }
+  },
+  "references": {
+    "standards": [
+      {
+        "document": "IEC 61215-2:2021",
+        "title": "Terrestrial photovoltaic (PV) modules - Design qualification and type approval - Part 2: Test procedures"
+      },
+      {
+        "document": "IEC 61730-2:2016",
+        "title": "Photovoltaic (PV) module safety qualification - Part 2: Requirements for testing"
+      },
+      {
+        "document": "ASTM G154-16",
+        "title": "Standard Practice for Operating Fluorescent Ultraviolet (UV) Lamp Apparatus for Exposure of Nonmetallic Materials"
+      },
+      {
+        "document": "ASTM G155-21",
+        "title": "Standard Practice for Operating Xenon Arc Lamp Apparatus for Exposure of Materials"
+      },
+      {
+        "document": "ISO 4892-2:2013",
+        "title": "Plastics - Methods of exposure to laboratory light sources - Part 2: Xenon-arc lamps"
+      }
+    ],
+    "internal_documents": [
+      {
+        "document": "SOP-ENV-005",
+        "title": "Xenon Arc Weathering Chamber Operation Procedure"
+      },
+      {
+        "document": "SOP-MAT-001",
+        "title": "Encapsulation Degradation Analysis Procedure"
+      },
+      {
+        "document": "QP-008",
+        "title": "Non-Conformance Management Procedure"
+      },
+      {
+        "document": "SOP-SAFE-004",
+        "title": "UV Radiation Safety Procedure"
+      }
+    ]
+  },
+  "revision_history": [
+    {
+      "version": "1.0",
+      "date": "2025-11-12",
+      "author": "PV Testing Laboratory",
+      "changes": "Initial protocol creation for outdoor exposure and accelerated weathering testing",
+      "approved_by": "Quality Director"
+    }
+  ]
+}

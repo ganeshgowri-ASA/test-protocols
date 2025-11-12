@@ -1,0 +1,847 @@
+{
+  "protocol_metadata": {
+    "protocol_id": "PVTP-038",
+    "version": "1.0",
+    "title": "Snow Load Test",
+    "description": "Static snow load testing for PV modules to verify structural integrity under heavy snow accumulation",
+    "test_type": "environmental_mechanical_load",
+    "created_date": "2025-11-12",
+    "last_modified": "2025-11-12",
+    "author": "PV Testing Laboratory",
+    "status": "active",
+    "compliance_standards": [
+      {
+        "standard_id": "IEC 61215",
+        "version": "4.0",
+        "section": "MQT 17",
+        "title": "Mechanical Load Test - Snow Load (optional)",
+        "note": "Uses static load similar to MQT 16 but front surface only"
+      },
+      {
+        "standard_id": "IEC 61730",
+        "version": "2.0",
+        "section": "MST 24",
+        "title": "Mechanical Stress Test"
+      },
+      {
+        "standard_id": "ASCE 7",
+        "version": "2022",
+        "section": "Chapter 7",
+        "title": "Snow Loads"
+      },
+      {
+        "standard_id": "UL 1703",
+        "version": "2022",
+        "section": "36",
+        "title": "Snow Load Test"
+      }
+    ],
+    "related_protocols": ["PVTP-037"],
+    "approval_status": {
+      "reviewed_by": "Structural Test Engineer",
+      "approved_by": "Quality Director",
+      "approval_date": "2025-11-12"
+    }
+  },
+  "test_objectives": {
+    "primary_objective": "Verify PV module structural integrity under simulated snow load conditions",
+    "secondary_objectives": [
+      "Assess module frame strength under sustained static load",
+      "Evaluate glass flexural strength under snow accumulation",
+      "Measure creep and long-term deflection under sustained load",
+      "Verify electrical performance after extended load exposure",
+      "Validate suitability for installations in snowy climates"
+    ],
+    "acceptance_criteria": {
+      "visual_inspection": "No cracks, permanent deformation, or major visual defects",
+      "electrical_performance": "Power degradation ≤ 5% after load test",
+      "insulation_resistance": "≥ 40 MΩ post-test",
+      "safety": "Pass dielectric withstand test",
+      "structural": "Permanent deformation < 1% of module dimension",
+      "load_duration": "Withstand specified load for minimum 1 hour (or longer for enhanced testing)"
+    },
+    "snow_load_design_values": {
+      "standard_load_5400Pa": {
+        "description": "Typical design snow load per IEC 61215 and UL 1703",
+        "equivalent_snow_depth": "Approximately 1.08 m (assuming 500 kg/m³ snow density)",
+        "note": "Represents severe snow accumulation in mountainous regions"
+      },
+      "custom_loads": {
+        "note": "Can be customized based on site-specific requirements (e.g., 7200 Pa for extreme climates)"
+      }
+    }
+  },
+  "test_equipment": {
+    "mechanical_load_simulator": {
+      "manufacturer": "Erichsen or equivalent",
+      "model": "Model 483 Mechanical Load Test System",
+      "serial_number": "To be recorded",
+      "specifications": {
+        "load_application_method": "Uniform pressure via pneumatic chamber or distributed weights",
+        "pressure_range": {
+          "min": 0,
+          "max": 10000,
+          "unit": "Pa",
+          "control_accuracy": "±100 Pa"
+        },
+        "load_duration_capability": "Sustained load up to 24 hours",
+        "chamber_size": "Accommodates modules up to 2.5m × 1.5m",
+        "load_uniformity": "±5% across module surface"
+      },
+      "calibration": {
+        "frequency": "Semi-annual",
+        "last_calibration_date": "2025-07-01",
+        "next_calibration_date": "2026-01-01",
+        "calibration_certificate": "CAL-MECH-2025-H2-001",
+        "traceable_to": "NIST"
+      }
+    },
+    "alternative_load_method": {
+      "description": "Distributed sandbags or weight plates",
+      "application": "For long-duration tests or when pressure chamber unavailable",
+      "load_calculation": "Total weight = Load (Pa) × Module area (m²) / 9.81",
+      "distribution": "Uniform weight distribution via support grid",
+      "note": "Less precise than pneumatic chamber but acceptable for static load testing"
+    },
+    "mounting_frame": {
+      "description": "Test fixture simulating field mounting",
+      "design": "Clamping per IEC 61215 (edges supported)",
+      "clamping_width": "≥ 10% of module edge length",
+      "rigidity": "Fixture deflection < 2% of module deflection under load",
+      "material": "Aluminum or steel frame"
+    },
+    "measurement_instruments": {
+      "pressure_transducers": {
+        "quantity": 4,
+        "range": "0-10000 Pa",
+        "accuracy": "±20 Pa or ±0.5% of reading",
+        "purpose": "Monitor pressure uniformity (if pneumatic method)"
+      },
+      "displacement_sensors": {
+        "type": "Laser triangulation or LVDT",
+        "quantity": 5,
+        "range": "0-100 mm",
+        "accuracy": "±0.1 mm",
+        "purpose": "Measure module deflection during sustained load (track creep)"
+      },
+      "load_cells": {
+        "quantity": 4,
+        "range": "0-2000 kg",
+        "accuracy": "±0.5% of full scale",
+        "purpose": "If using weight method, verify total applied load"
+      },
+      "iv_curve_tracer": {
+        "model": "PVE PV Analyzer 1500V",
+        "accuracy": "±0.5%",
+        "purpose": "Pre/post electrical characterization"
+      },
+      "insulation_tester": {
+        "model": "Fluke 1550C",
+        "range": "250V - 5kV",
+        "purpose": "Insulation resistance measurement"
+      },
+      "thermocouples": {
+        "quantity": 3,
+        "type": "Type K",
+        "purpose": "Monitor module temperature during extended load test"
+      }
+    }
+  },
+  "test_sequence": {
+    "pre_test_phase": {
+      "duration": "2-4 hours",
+      "steps": [
+        {
+          "step_number": 1,
+          "action": "Visual inspection and documentation",
+          "parameters": {
+            "inspection_areas": [
+              "Module frame (straightness, no pre-existing deformation)",
+              "Glass surface (no cracks or chips)",
+              "Back sheet integrity",
+              "Junction box mounting",
+              "Module edges and corners"
+            ],
+            "photography": "High-resolution images from multiple angles"
+          },
+          "acceptance": "No pre-existing damage or deformation"
+        },
+        {
+          "step_number": 2,
+          "action": "Dimensional measurement",
+          "parameters": {
+            "measurements": [
+              "Module planarity (flatness) - measure bow/twist using straightedge",
+              "Frame dimensions (length, width, depth)",
+              "Diagonal measurements (check squareness)"
+            ],
+            "instruments": "Calipers, straightedge, feeler gauges",
+            "documentation": "Record baseline dimensions for post-test comparison"
+          }
+        },
+        {
+          "step_number": 3,
+          "action": "Electrical characterization (baseline)",
+          "parameters": {
+            "measurements": ["Voc", "Isc", "Pmax", "Vmp", "Imp", "FF"],
+            "irradiance": "1000 W/m²",
+            "module_temperature": "25°C ±2°C",
+            "spectrum": "AM 1.5G"
+          },
+          "data_logging": {
+            "file_name": "baseline_iv_curve.csv",
+            "parameters_logged": ["voltage", "current", "power", "temperature", "irradiance"]
+          }
+        },
+        {
+          "step_number": 4,
+          "action": "Insulation resistance test (initial)",
+          "parameters": {
+            "test_voltage": "1000V DC",
+            "duration": "60 seconds",
+            "min_resistance": "40 MΩ"
+          }
+        },
+        {
+          "step_number": 5,
+          "action": "Module mounting in test fixture",
+          "parameters": {
+            "mounting_method": "Per IEC 61215 (clamps at module edges)",
+            "clamping_force": "Typical field installation torque",
+            "support_points": "All four edges for framed modules",
+            "orientation": "Horizontal, front glass facing up (load applied to front surface)"
+          }
+        },
+        {
+          "step_number": 6,
+          "action": "Instrumentation installation",
+          "parameters": {
+            "pressure_transducers": "4 locations (center, 3 near edges) if pneumatic load",
+            "displacement_sensors": "5 locations (center + 4 quadrants)",
+            "thermocouples": "3 locations (front, back, ambient)",
+            "data_acquisition": "Connect to logging system, verify signals"
+          }
+        }
+      ]
+    },
+    "snow_load_test_phase": {
+      "duration": "1-24 hours (depending on test specification)",
+      "test_options": {
+        "option_1_short_duration": {
+          "description": "IEC 61215 MQT 17 style (similar to MQT 16 but front load only)",
+          "load_sequence": "3 cycles at 2400 Pa, 3 cycles at 5400 Pa",
+          "cycle_duration": "10 seconds hold per cycle",
+          "total_duration": "Approximately 10-15 minutes"
+        },
+        "option_2_sustained_load": {
+          "description": "Extended snow load test with creep monitoring",
+          "load_sequence": "Ramp to 5400 Pa, hold for 1-24 hours",
+          "monitoring": "Continuous deflection monitoring to assess creep",
+          "total_duration": "1-24 hours as specified"
+        }
+      },
+      "steps": [
+        {
+          "step_number": 7,
+          "action": "Apply snow load (Option 1: Cyclic loading per IEC 61215)",
+          "parameters": {
+            "test_sequence": [
+              "Ramp to +2400 Pa over 10 seconds",
+              "Hold 2400 Pa for 10 seconds",
+              "Release to 0 Pa over 10 seconds",
+              "Repeat for 3 cycles",
+              "Ramp to +5400 Pa over 10 seconds",
+              "Hold 5400 Pa for 10 seconds",
+              "Release to 0 Pa over 10 seconds",
+              "Repeat for 3 cycles"
+            ],
+            "pressure_control_tolerance": "±100 Pa",
+            "monitoring": "Continuous pressure, deflection, temperature logging"
+          },
+          "data_logging": {
+            "parameters": [
+              "timestamp",
+              "cycle_number",
+              "applied_pressure",
+              "pressure_uniformity",
+              "center_deflection",
+              "edge_deflection_4_locations",
+              "module_temperature_front",
+              "module_temperature_back",
+              "ambient_temperature"
+            ],
+            "sampling_rate": "10 Hz during cyclic loading"
+          }
+        },
+        {
+          "step_number": 8,
+          "action": "Apply snow load (Option 2: Sustained load with creep monitoring)",
+          "parameters": {
+            "test_sequence": [
+              "Ramp to +5400 Pa over 30 seconds",
+              "Hold 5400 Pa for specified duration (1-24 hours)",
+              "Monitor deflection continuously to assess creep",
+              "Release to 0 Pa over 30 seconds"
+            ],
+            "pressure_control_tolerance": "±100 Pa",
+            "creep_monitoring": "Measure deflection increase over time under constant load"
+          },
+          "data_logging": {
+            "parameters": [
+              "timestamp",
+              "elapsed_time_hours",
+              "applied_pressure",
+              "center_deflection",
+              "edge_deflection",
+              "module_temperature",
+              "ambient_temperature"
+            ],
+            "sampling_rate": "1 Hz for first 10 minutes, then 0.1 Hz (every 10 seconds) thereafter"
+          }
+        },
+        {
+          "step_number": 9,
+          "action": "Inspection during load (if sustained load test)",
+          "parameters": {
+            "timing": "At 1 hour, 6 hours, 12 hours, 24 hours (if applicable)",
+            "inspection": [
+              "Visual inspection through observation window (if available)",
+              "Check for audible cracking sounds",
+              "Monitor deflection for accelerating creep (warning of imminent failure)"
+            ],
+            "action_if_failure_imminent": "Abort test, document failure mode"
+          }
+        },
+        {
+          "step_number": 10,
+          "action": "Post-load visual inspection",
+          "parameters": {
+            "timing": "Immediately after load release",
+            "inspection": [
+              "Check glass for cracks (including edge inspection)",
+              "Verify frame integrity (no permanent bending or cracking)",
+              "Inspect junction box mounting (no detachment)",
+              "Check for delamination or bubbling",
+              "Measure permanent deformation (if any)"
+            ],
+            "photography": "Comprehensive post-load documentation"
+          }
+        }
+      ]
+    },
+    "post_test_phase": {
+      "duration": "2-4 hours",
+      "steps": [
+        {
+          "step_number": 11,
+          "action": "Dimensional measurement (post-test)",
+          "parameters": {
+            "measurements": [
+              "Module planarity (compare to baseline)",
+              "Frame dimensions",
+              "Diagonal measurements"
+            ],
+            "acceptance": "Permanent deformation < 1% of module dimension"
+          }
+        },
+        {
+          "step_number": 12,
+          "action": "Detailed visual inspection",
+          "parameters": {
+            "inspection_method": "Microscopic examination of glass, frame, and seals",
+            "defect_classification": "Per IEC 61215 Section 7.1",
+            "documentation": "High-resolution photographs of any defects"
+          }
+        },
+        {
+          "step_number": 13,
+          "action": "Electrical characterization (post-test)",
+          "parameters": {
+            "measurements": ["Voc", "Isc", "Pmax", "Vmp", "Imp", "FF"],
+            "irradiance": "1000 W/m²",
+            "module_temperature": "25°C ±2°C",
+            "spectrum": "AM 1.5G"
+          },
+          "data_logging": {
+            "file_name": "post_test_iv_curve.csv",
+            "parameters_logged": ["voltage", "current", "power", "temperature", "irradiance"]
+          }
+        },
+        {
+          "step_number": 14,
+          "action": "Insulation resistance test (post-test)",
+          "parameters": {
+            "test_voltage": "1000V DC",
+            "duration": "60 seconds",
+            "min_resistance": "40 MΩ"
+          }
+        },
+        {
+          "step_number": 15,
+          "action": "Dielectric withstand test (post-test)",
+          "parameters": {
+            "test_voltage": "1000V + 2×Voc_max",
+            "duration": "60 seconds",
+            "acceptance": "No breakdown"
+          }
+        },
+        {
+          "step_number": 16,
+          "action": "Performance degradation and pass/fail determination",
+          "parameters": {
+            "degradation_calculation": "Δ% = 100 × (Pmax_pre - Pmax_post) / Pmax_pre",
+            "acceptance": "≤ 5% degradation",
+            "structural_acceptance": "No cracks, permanent deformation < 1%",
+            "combined_assessment": "Electrical + structural + visual criteria"
+          }
+        }
+      ]
+    }
+  },
+  "data_logging": {
+    "logging_system": {
+      "software": "LabVIEW 2023 + NI CompactDAQ",
+      "database": "PostgreSQL 15.0",
+      "backup_frequency": "Real-time to redundant server"
+    },
+    "mechanical_test_data": {
+      "sampling_rate": "10 Hz for cyclic loading, 0.1 Hz for sustained load",
+      "parameters": [
+        {
+          "name": "timestamp",
+          "unit": "ISO8601",
+          "type": "datetime"
+        },
+        {
+          "name": "test_mode",
+          "unit": "text",
+          "type": "enum",
+          "values": ["cyclic_2400Pa", "cyclic_5400Pa", "sustained_5400Pa"]
+        },
+        {
+          "name": "cycle_number",
+          "unit": "count",
+          "type": "integer",
+          "note": "For cyclic loading only"
+        },
+        {
+          "name": "elapsed_time",
+          "unit": "hours",
+          "type": "float",
+          "note": "For sustained loading"
+        },
+        {
+          "name": "applied_pressure",
+          "unit": "Pa",
+          "accuracy": "±20 Pa",
+          "type": "float"
+        },
+        {
+          "name": "pressure_sensor_readings",
+          "unit": "Pa",
+          "type": "array of floats",
+          "note": "4 sensors for uniformity check"
+        },
+        {
+          "name": "deflection_center",
+          "unit": "mm",
+          "accuracy": "±0.1 mm",
+          "type": "float"
+        },
+        {
+          "name": "deflection_edges",
+          "unit": "mm",
+          "accuracy": "±0.1 mm",
+          "type": "array of floats",
+          "note": "4 edge locations"
+        },
+        {
+          "name": "module_temperature_front",
+          "unit": "°C",
+          "accuracy": "±0.5°C",
+          "type": "float"
+        },
+        {
+          "name": "module_temperature_back",
+          "unit": "°C",
+          "accuracy": "±0.5°C",
+          "type": "float"
+        },
+        {
+          "name": "ambient_temperature",
+          "unit": "°C",
+          "accuracy": "±0.5°C",
+          "type": "float"
+        }
+      ],
+      "file_format": "CSV",
+      "file_naming": "PVTP-038_{sample_id}_{date}_snow_load_data.csv"
+    },
+    "electrical_characterization_data": {
+      "sampling_rate": "Pre-test and post-test",
+      "parameters": [
+        {
+          "name": "Voc",
+          "unit": "V",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "Isc",
+          "unit": "A",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "Pmax",
+          "unit": "W",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "FF",
+          "unit": "ratio",
+          "accuracy": "±1%"
+        }
+      ],
+      "file_format": "CSV",
+      "file_naming": "PVTP-038_{sample_id}_{date}_{pre_post}_iv_data.csv"
+    },
+    "quality_checks": {
+      "real_time_validation": [
+        {
+          "parameter": "applied_pressure",
+          "check_type": "range",
+          "target_2400Pa": {"min": 2300, "max": 2500},
+          "target_5400Pa": {"min": 5300, "max": 5500},
+          "action_on_failure": "Alarm, adjust pressure controller"
+        },
+        {
+          "parameter": "pressure_uniformity",
+          "check_type": "coefficient_of_variation",
+          "max_cv": "10%",
+          "action_on_failure": "Check for air leaks"
+        },
+        {
+          "parameter": "deflection_rate",
+          "check_type": "threshold",
+          "max_rate": "5 mm/hour (for sustained load - indicates accelerating creep)",
+          "action_on_failure": "Warning - potential impending failure"
+        }
+      ]
+    },
+    "retention_policy": {
+      "raw_mechanical_data": "10 years",
+      "electrical_characterization": "Permanent",
+      "photographs": "10 years",
+      "test_reports": "Permanent"
+    }
+  },
+  "analysis_and_reporting": {
+    "time_series_analysis": {
+      "deflection_behavior": {
+        "metrics": [
+          "Maximum deflection vs. applied load",
+          "Elastic recovery (deflection returns to zero after load release)",
+          "Creep behavior (deflection increase over time under constant load)"
+        ],
+        "visualization": [
+          "Load vs. deflection curve",
+          "Deflection vs. time (for sustained load test)",
+          "Creep rate analysis (mm/hour vs. time)"
+        ]
+      },
+      "creep_analysis": {
+        "description": "For sustained load tests, assess time-dependent deformation",
+        "primary_creep": "Initial rapid deflection increase (first minutes/hours)",
+        "secondary_creep": "Steady-state deflection rate",
+        "tertiary_creep": "Accelerating deflection (warning of imminent failure)",
+        "acceptance": "No tertiary creep observed, secondary creep rate < 5 mm/hour"
+      }
+    },
+    "baseline_comparison": {
+      "electrical_parameters": {
+        "comparison_metrics": [
+          {
+            "parameter": "Pmax",
+            "calculation": "Δ% = 100 × (Pmax_post - Pmax_pre) / Pmax_pre",
+            "threshold": "≤ 5%",
+            "criticality": "Critical"
+          }
+        ],
+        "visualization": [
+          "Pre/post IV curve overlay",
+          "Power degradation bar chart"
+        ]
+      },
+      "dimensional_comparison": {
+        "metrics": [
+          "Permanent deformation (bow/twist)",
+          "Frame dimensional changes"
+        ],
+        "acceptance": "< 1% of module dimension"
+      }
+    },
+    "degradation_modeling": {
+      "snow_load_field_correlation": {
+        "approach": "Test load represents worst-case snow accumulation",
+        "field_validation": "5400 Pa ≈ 1.08 m snow depth (severe mountainous conditions)",
+        "design_margin": "Modules passing 5400 Pa test have safety factor for field installations"
+      },
+      "failure_mode_analysis": {
+        "categories": [
+          "Glass fracture (tensile stress on bottom surface)",
+          "Frame permanent deformation",
+          "Delamination (stress concentration at edges)",
+          "Cell cracking (excessive flexure)",
+          "Junction box detachment (load-induced stress)"
+        ],
+        "severity_rating": "Critical / Major / Minor"
+      }
+    },
+    "statistical_analysis": {
+      "sample_size_requirements": {
+        "minimum_per_design": 2,
+        "recommended": 5
+      }
+    },
+    "visualization_requirements": {
+      "automated_plots": [
+        {
+          "plot_type": "Load-deflection curve",
+          "x_axis": "Applied pressure (Pa)",
+          "y_axis": "Center deflection (mm)"
+        },
+        {
+          "plot_type": "Deflection vs. time (sustained load)",
+          "x_axis": "Time (hours)",
+          "y_axis": "Center deflection (mm)"
+        },
+        {
+          "plot_type": "Creep rate analysis",
+          "x_axis": "Time (hours)",
+          "y_axis": "Deflection rate (mm/hour)"
+        }
+      ],
+      "export_formats": ["PNG", "SVG", "PDF"]
+    },
+    "report_generation": {
+      "template": "Snow Load Test Report Template",
+      "sections": [
+        "Executive summary with pass/fail determination",
+        "Sample identification",
+        "Test equipment and calibration",
+        "Test procedure summary (cyclic or sustained load)",
+        "Load-deflection analysis",
+        "Creep analysis (if sustained load)",
+        "Visual inspection results",
+        "Electrical characterization results",
+        "Conclusions and recommendations",
+        "Suitability for snowy climates"
+      ],
+      "automated_generation": "Python + Jinja2 templates",
+      "review_cycle": "Technical → Structural → QA → Final approval"
+    }
+  },
+  "quality_control": {
+    "pre_test_qc": {
+      "checklist": [
+        {
+          "item": "Mechanical load system calibration current",
+          "acceptance": "Within 6 months"
+        },
+        {
+          "item": "Pressure sensors verified",
+          "acceptance": "±20 Pa accuracy"
+        },
+        {
+          "item": "Displacement sensors calibrated",
+          "acceptance": "±0.1 mm accuracy"
+        },
+        {
+          "item": "Module baseline characterization complete",
+          "acceptance": "All data logged"
+        }
+      ],
+      "approver": "Test Engineer"
+    },
+    "in_test_monitoring": {
+      "monitored_parameters": [
+        {
+          "parameter": "applied_pressure",
+          "frequency": "Continuous",
+          "action_if_out_of_spec": "Adjust controller"
+        },
+        {
+          "parameter": "deflection",
+          "frequency": "Continuous",
+          "action_if_excessive": "Pause test if deflection > safety threshold"
+        }
+      ]
+    },
+    "post_test_qc": {
+      "data_review": [
+        {
+          "item": "All load cycles completed with valid data",
+          "reviewer": "Test Engineer"
+        },
+        {
+          "item": "Pressure control within tolerance",
+          "reviewer": "Test Engineer"
+        },
+        {
+          "item": "Deflection measurements consistent",
+          "reviewer": "Structural Engineer"
+        }
+      ],
+      "report_review": {
+        "technical_review": "Senior Test Engineer",
+        "structural_review": "Structural Engineer",
+        "qa_review": "QA Manager",
+        "final_approval": "Technical Director"
+      }
+    }
+  },
+  "non_conformance_management": {
+    "potential_non_conformances": [
+      {
+        "nc_type": "Pressure out of tolerance (> ±100 Pa)",
+        "severity": "Major",
+        "corrective_action": "Repeat affected cycle",
+        "documentation": "NC log"
+      },
+      {
+        "nc_type": "Glass fracture during test",
+        "severity": "Critical",
+        "corrective_action": "Module fails test, failure analysis required",
+        "documentation": "Failure analysis report"
+      },
+      {
+        "nc_type": "Permanent deformation > 1%",
+        "severity": "Critical",
+        "corrective_action": "Module fails test",
+        "documentation": "Failure analysis report"
+      },
+      {
+        "nc_type": "Power degradation > 5%",
+        "severity": "Critical",
+        "corrective_action": "Module fails test",
+        "documentation": "Failure analysis report"
+      }
+    ],
+    "nc_workflow": {
+      "detection": "Real-time during test or post-test analysis",
+      "documentation": "NC form PVTP-NC-001",
+      "investigation": "Root cause analysis within 5 business days",
+      "corrective_action": "Per QP-008",
+      "verification": "QA verification",
+      "closure": "QA Manager approval"
+    }
+  },
+  "traceability": {
+    "sample_traceability": {
+      "required_information": [
+        "Sample ID",
+        "Manufacturer, model, serial number",
+        "Module dimensions",
+        "Frame material",
+        "Glass thickness",
+        "Manufacturing date"
+      ]
+    },
+    "test_execution_traceability": {
+      "operator_id": "Recorded",
+      "equipment_id": "Load system SN + calibration status",
+      "test_fixture_id": "Fixture ID",
+      "mechanical_data": "Continuous logging",
+      "test_start_end_times": "ISO8601 timestamps"
+    },
+    "calibration_traceability": {
+      "mechanical_load_system": {
+        "calibration_certificate": "Traceable to NIST",
+        "next_calibration_due": "Verified before test"
+      }
+    },
+    "compliance_mapping": {
+      "iec_61215_requirements": [
+        {
+          "requirement": "MQT 17 - Snow load test (if specified)",
+          "evidence": "Mechanical test data log",
+          "location": "Section 8 of test report"
+        }
+      ]
+    }
+  },
+  "safety_considerations": {
+    "hazards": [
+      {
+        "hazard": "Module structural failure (glass breakage, frame collapse)",
+        "risk_level": "High",
+        "mitigation": [
+          "Safety shields around test fixture",
+          "Real-time deflection monitoring with emergency stop",
+          "Personnel clear of test area during loading"
+        ]
+      }
+    ],
+    "ppe_requirements": [
+      "Safety glasses",
+      "Cut-resistant gloves (when handling damaged modules)",
+      "Safety shoes"
+    ],
+    "emergency_procedures": {
+      "module_failure": "E-stop, release pressure, isolate area"
+    }
+  },
+  "training_requirements": {
+    "required_training": [
+      {
+        "course": "Snow Load Testing (IEC 61215 MQT 17)",
+        "frequency": "Initial + when procedure updated",
+        "provider": "Senior Test Engineer"
+      },
+      {
+        "course": "Mechanical Load System Operation",
+        "frequency": "Initial + annual refresher",
+        "provider": "Equipment manufacturer"
+      }
+    ],
+    "competency_verification": {
+      "method": "Practical demonstration + written assessment",
+      "passing_score": "≥ 90%",
+      "requalification": "Every 2 years"
+    }
+  },
+  "references": {
+    "standards": [
+      {
+        "document": "IEC 61215-2:2021",
+        "title": "Terrestrial photovoltaic (PV) modules - Design qualification and type approval - Part 2: Test procedures"
+      },
+      {
+        "document": "ASCE 7-22",
+        "title": "Minimum Design Loads for Buildings and Other Structures"
+      },
+      {
+        "document": "UL 1703:2022",
+        "title": "Standard for Flat-Plate Photovoltaic Modules and Panels"
+      }
+    ],
+    "internal_documents": [
+      {
+        "document": "SOP-MECH-001",
+        "title": "Mechanical Load Test System Operation Procedure"
+      },
+      {
+        "document": "QP-008",
+        "title": "Non-Conformance Management Procedure"
+      }
+    ]
+  },
+  "revision_history": [
+    {
+      "version": "1.0",
+      "date": "2025-11-12",
+      "author": "PV Testing Laboratory",
+      "changes": "Initial protocol creation for snow load testing",
+      "approved_by": "Quality Director"
+    }
+  ]
+}

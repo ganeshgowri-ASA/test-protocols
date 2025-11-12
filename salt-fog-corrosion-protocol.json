@@ -1,0 +1,359 @@
+{
+  "metadata": {
+    "protocol_id": "SFCORR-2024-001",
+    "name": "Salt Fog Corrosion Test",
+    "version": "1.0.0",
+    "created_date": "2024-11-12",
+    "created_by": "Materials Engineering Team",
+    "description": "ASTM B117 salt fog corrosion test for evaluating PV module frame and hardware corrosion resistance",
+    "compliance_standards": [
+      {
+        "standard": "ASTM B117",
+        "section": "5.1",
+        "requirement": "Salt Fog Test"
+      },
+      {
+        "standard": "IEC 61215",
+        "section": "10.2.3",
+        "requirement": "Salt Mist Corrosion"
+      }
+    ]
+  },
+  "objectives": {
+    "primary": "Evaluate corrosion resistance of frame and hardware materials",
+    "success_criteria": {
+      "visual_inspection": "No active corrosion on critical components",
+      "mass_loss": "<5% from baseline"
+    }
+  },
+  "test_chamber_integration": {
+    "chamber_type": "Salt Fog Chamber",
+    "chamber_id": "SFOG-001",
+    "chamber_model": "Weiss Umwelttechnik WCL-1000",
+    "specifications": {
+      "temperature_range": {
+        "nominal_celsius": 35,
+        "tolerance_celsius": 1
+      },
+      "relative_humidity": {
+        "target_rh_percent": 95,
+        "tolerance_rh_percent": 2
+      },
+      "salt_solution": {
+        "type": "Sodium Chloride",
+        "concentration_percent": 5,
+        "ph_range": [6.5, 7.5]
+      },
+      "fog_collection_rate": {
+        "ml_per_80_cm2_per_day": "1.0 to 2.0"
+      }
+    },
+    "sensors": [
+      {
+        "sensor_id": "SALT-TEMP-001",
+        "type": "Temperature Probe",
+        "accuracy_celsius": 0.5,
+        "location": "Chamber saturation tower"
+      },
+      {
+        "sensor_id": "SALT-HUM-001",
+        "type": "Humidity Probe",
+        "accuracy_rh_percent": 2,
+        "location": "Chamber test area"
+      },
+      {
+        "sensor_id": "SALT-FOG-001",
+        "type": "Fog Collection Gauge",
+        "unit": "ml",
+        "collection_area_cm2": 80
+      }
+    ],
+    "pre_test_requirements": [
+      "Sample surface cleaned with deionized water and dried",
+      "Baseline mass measurement recorded",
+      "Sample orientation verified for proper salt fog exposure",
+      "Chamber salt solution prepared 24 hours prior"
+    ]
+  },
+  "test_sequence": [
+    {
+      "step_id": 1,
+      "name": "Chamber Conditioning",
+      "duration_minutes": 240,
+      "description": "Pre-condition chamber and stabilize salt solution",
+      "conditions": {
+        "temperature_celsius": 35,
+        "humidity_rh_percent": 95
+      },
+      "logging_interval_seconds": 600,
+      "qc_checks": [
+        {
+          "check_id": "QC-1.1",
+          "parameter": "fog_collection_rate",
+          "target": "1.0 to 2.0 ml/80cm2/day",
+          "method": "Collect and measure in gauge for 24 hours"
+        }
+      ]
+    },
+    {
+      "step_id": 2,
+      "name": "Main Salt Fog Exposure",
+      "duration_hours": 500,
+      "description": "Continuous salt fog exposure per ASTM B117",
+      "conditions": {
+        "temperature_celsius": 35,
+        "humidity_rh_percent": 95,
+        "continuous_fog": true
+      },
+      "logging_interval_seconds": 3600,
+      "intermediate_inspections": [
+        {
+          "inspection_id": "INS-250h",
+          "schedule_hours": 250,
+          "activities": [
+            "Visual inspection for corrosion initiation",
+            "Photographic documentation",
+            "Continue test without interruption"
+          ]
+        },
+        {
+          "inspection_id": "INS-500h",
+          "schedule_hours": 500,
+          "activities": [
+            "Final visual inspection",
+            "Remove samples from chamber",
+            "Rinse with deionized water",
+            "Dry samples"
+          ]
+        }
+      ]
+    }
+  ],
+  "data_logging": {
+    "parameters": [
+      {
+        "parameter_id": "salt_fog_temp",
+        "parameter_name": "Chamber Temperature",
+        "source": "temperature_sensor",
+        "unit": "Celsius",
+        "sampling_interval_seconds": 3600,
+        "quality_checks": [
+          {
+            "check": "range_validation",
+            "valid_range": [33, 37]
+          },
+          {
+            "check": "compliance_check",
+            "target_range": [34, 36],
+            "tolerance_violations_allowed": 5
+          }
+        ]
+      },
+      {
+        "parameter_id": "salt_fog_humidity",
+        "parameter_name": "Chamber Humidity",
+        "source": "humidity_sensor",
+        "unit": "Percent",
+        "sampling_interval_seconds": 3600,
+        "quality_checks": [
+          {
+            "check": "range_validation",
+            "valid_range": [85, 100]
+          }
+        ]
+      },
+      {
+        "parameter_id": "fog_collection_daily",
+        "parameter_name": "Daily Fog Collection Rate",
+        "source": "collection_gauge",
+        "unit": "ml/80cm2/day",
+        "sampling_interval_seconds": 86400,
+        "quality_checks": [
+          {
+            "check": "range_validation",
+            "valid_range": [0.8, 2.2]
+          }
+        ]
+      },
+      {
+        "parameter_id": "test_hours_elapsed",
+        "parameter_name": "Test Hours Elapsed",
+        "source": "test_controller",
+        "unit": "Hours",
+        "data_type": "float",
+        "sampling_interval_seconds": 3600
+      }
+    ],
+    "storage": {
+      "format": "CSV",
+      "location": "/data/salt_fog_tests/SFCORR-2024-001/{test_run_id}/environmental_data.csv"
+    }
+  },
+  "analysis": {
+    "charts": [
+      {
+        "chart_id": "salt_fog_temp_trend",
+        "title": "Temperature During Salt Fog Test",
+        "type": "line",
+        "x_axis": {
+          "parameter": "test_hours_elapsed",
+          "unit": "Hours"
+        },
+        "y_axis": {
+          "parameter": "salt_fog_temp",
+          "unit": "Celsius"
+        },
+        "reference_lines": [
+          {
+            "value": 35,
+            "label": "Target 35°C"
+          },
+          {
+            "value": 34,
+            "label": "Min Spec"
+          },
+          {
+            "value": 36,
+            "label": "Max Spec"
+          }
+        ]
+      },
+      {
+        "chart_id": "fog_collection_tracking",
+        "title": "Fog Collection Rate",
+        "type": "line",
+        "x_axis": {
+          "parameter": "test_days_elapsed",
+          "unit": "Days"
+        },
+        "y_axis": {
+          "parameter": "fog_collection_daily",
+          "unit": "ml/80cm2/day"
+        }
+      }
+    ],
+    "statistics": [
+      {
+        "stat_id": "temperature_compliance",
+        "title": "Temperature Compliance",
+        "parameters": ["salt_fog_temp"],
+        "calculations": [
+          "mean",
+          "std_dev",
+          "time_within_spec_percent",
+          "specification_violations"
+        ]
+      },
+      {
+        "stat_id": "fog_rate_analysis",
+        "title": "Fog Collection Analysis",
+        "parameters": ["fog_collection_daily"],
+        "calculations": [
+          "mean",
+          "min",
+          "max",
+          "trend"
+        ]
+      }
+    ]
+  },
+  "quality_control": {
+    "pre_test_checks": [
+      {
+        "check_id": "QC-Pre-SFOG-1",
+        "description": "Verify salt solution concentration",
+        "requirement": "5% NaCl ±0.5%",
+        "method": "Conductivity measurement",
+        "pass_fail": true
+      },
+      {
+        "check_id": "QC-Pre-SFOG-2",
+        "description": "Verify sample baseline mass",
+        "requirement": "Record on test record sheet",
+        "method": "Analytical balance (0.1mg precision)",
+        "pass_fail": true
+      }
+    ],
+    "in_test_checks": [
+      {
+        "check_id": "QC-In-SFOG-1",
+        "description": "Temperature maintenance",
+        "parameter": "salt_fog_temp",
+        "target": "35°C",
+        "tolerance_celsius": 1,
+        "check_frequency_hours": 24
+      },
+      {
+        "check_id": "QC-In-SFOG-2",
+        "description": "Fog collection rate",
+        "parameter": "fog_collection_daily",
+        "target_ml_per_80cm2_per_day": 1.5,
+        "tolerance_ml": 0.5,
+        "check_frequency_days": 7
+      }
+    ],
+    "post_test_checks": [
+      {
+        "check_id": "QC-Post-SFOG-1",
+        "description": "Final mass measurement",
+        "requirement": "Mass loss <5% or document corrosion evidence"
+      },
+      {
+        "check_id": "QC-Post-SFOG-2",
+        "description": "Visual corrosion assessment",
+        "requirement": "Detailed photographic documentation",
+        "categories": [
+          "No corrosion",
+          "Surface oxidation only",
+          "Localized pitting",
+          "Extensive corrosion"
+        ]
+      }
+    ]
+  },
+  "traceability": {
+    "sample_tracking": {
+      "sample_id_requirements": [
+        "Frame material lot number",
+        "Hardware batch number",
+        "Sample processing date"
+      ]
+    },
+    "compliance_mapping": [
+      {
+        "standard": "ASTM B117",
+        "requirement": "Salt fog test at 35°C ±1°C",
+        "test_sequence_step": 2,
+        "evidence": "environmental_data.csv, temperature_logs"
+      },
+      {
+        "standard": "ASTM B117",
+        "requirement": "Relative humidity 95% ±2%",
+        "test_sequence_step": 2,
+        "evidence": "environmental_data.csv"
+      },
+      {
+        "standard": "ASTM B117",
+        "requirement": "Fog collection rate 1-2 ml/80cm2/day",
+        "test_sequence_step": 2,
+        "evidence": "fog_collection_data.csv, daily_measurements.log"
+      }
+    ]
+  },
+  "integration": {
+    "lims_integration": {
+      "enabled": true,
+      "export_format": "JSON",
+      "fields_to_export": [
+        "protocol_id",
+        "test_run_id",
+        "sample_id",
+        "baseline_mass_g",
+        "final_mass_g",
+        "mass_loss_percent",
+        "corrosion_rating",
+        "pass_fail_status"
+      ]
+    }
+  }
+}

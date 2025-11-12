@@ -1,0 +1,1128 @@
+{
+  "protocol_metadata": {
+    "protocol_id": "PVTP-033",
+    "version": "1.0",
+    "title": "Salt Mist/Marine Corrosion Test (IEC 61701)",
+    "description": "Corrosion resistance test for PV modules exposed to salt mist environments, simulating coastal/marine installations",
+    "test_type": "environmental_corrosion",
+    "created_date": "2025-11-12",
+    "last_modified": "2025-11-12",
+    "author": "PV Testing Laboratory",
+    "status": "active",
+    "compliance_standards": [
+      {
+        "standard_id": "IEC 61701",
+        "version": "2020",
+        "edition": "3.0",
+        "title": "Photovoltaic (PV) modules - Salt mist corrosion testing",
+        "requirements": [
+          "Severity level 6 (Marine): 96 spray cycles",
+          "5% NaCl solution, pH 6.5-7.2",
+          "Temperature: 35°C during spray, 20°C during dry",
+          "Power degradation ≤ 5%, no corrosion of functional parts"
+        ]
+      },
+      {
+        "standard_id": "IEC 61215",
+        "version": "4.0",
+        "section": "MQT 21",
+        "title": "Salt Mist Corrosion Test"
+      },
+      {
+        "standard_id": "ASTM B117",
+        "version": "2019",
+        "title": "Standard Practice for Operating Salt Spray (Fog) Apparatus"
+      }
+    ],
+    "related_protocols": ["PVTP-034", "PVTP-039"],
+    "approval_status": {
+      "reviewed_by": "Corrosion Testing Specialist",
+      "approved_by": "Quality Director",
+      "approval_date": "2025-11-12"
+    }
+  },
+  "test_objectives": {
+    "primary_objective": "Evaluate PV module resistance to salt mist corrosion per IEC 61701 Severity Level 6",
+    "secondary_objectives": [
+      "Assess corrosion resistance of frame, fasteners, and electrical connections",
+      "Evaluate encapsulation material resistance to salt penetration",
+      "Measure electrical performance degradation after exposure",
+      "Identify corrosion-induced failure modes",
+      "Validate suitability for marine/coastal installations"
+    ],
+    "acceptance_criteria": {
+      "visual_inspection": "No corrosion on functional parts, minor corrosion on non-functional surfaces acceptable",
+      "electrical_performance": "Power degradation ≤ 5% from baseline",
+      "insulation_resistance": "≥ 40 MΩ after cleaning and drying",
+      "safety": "Pass dielectric withstand test",
+      "corrosion_rating": "Per ISO 4628 (severity ≤ Ri 2 for critical components)"
+    },
+    "test_severity_levels": {
+      "selected_level": 6,
+      "description": "Marine - Severe corrosive environment near coastline",
+      "spray_cycles": 96,
+      "total_duration": "48 days (1152 hours)"
+    }
+  },
+  "test_equipment": {
+    "salt_fog_chamber": {
+      "manufacturer": "Q-Lab Corporation",
+      "model": "Q-FOG SSP-1100",
+      "serial_number": "To be recorded",
+      "specifications": {
+        "chamber_volume": {
+          "value": 1100,
+          "unit": "liters"
+        },
+        "temperature_range": {
+          "min": 15,
+          "max": 50,
+          "unit": "°C",
+          "control_accuracy": "±1°C"
+        },
+        "humidity_control": {
+          "range": "85-100%",
+          "accuracy": "±5%"
+        },
+        "spray_system": "Compressed air atomizing nozzles",
+        "solution_collection_rate": {
+          "target": "1.5 mL/h",
+          "tolerance": "±0.5 mL/h",
+          "measurement": "Per 80 cm² collection area"
+        }
+      },
+      "calibration": {
+        "frequency": "Semi-annual",
+        "last_calibration_date": "2025-09-01",
+        "next_calibration_date": "2026-03-01",
+        "calibration_certificate": "CAL-SFC-2025-H2-001",
+        "traceable_to": "NIST"
+      }
+    },
+    "salt_solution_preparation": {
+      "salt_specification": {
+        "type": "Sodium chloride (NaCl)",
+        "purity": "≥ 99.5%",
+        "impurities": "< 0.1% sodium iodide, < 0.3% total impurities"
+      },
+      "water_specification": {
+        "type": "Deionized or distilled water",
+        "conductivity": "≤ 20 μS/cm at 25°C",
+        "pH": "6.0-7.0"
+      },
+      "solution_concentration": {
+        "target": "5% ±0.1%",
+        "preparation": "50 g NaCl per 1000 mL water",
+        "mixing": "Dissolve completely before use"
+      },
+      "solution_monitoring": {
+        "ph_measurement": {
+          "target_range": "6.5-7.2",
+          "frequency": "Daily",
+          "instrument": "Calibrated pH meter"
+        },
+        "specific_gravity": {
+          "target": "1.0255-1.0400 at 25°C",
+          "frequency": "Weekly",
+          "instrument": "Hydrometer or density meter"
+        }
+      }
+    },
+    "measurement_instruments": {
+      "iv_curve_tracer": {
+        "model": "PVE PV Analyzer 1500V",
+        "accuracy": "±0.5%",
+        "purpose": "Pre/post electrical characterization"
+      },
+      "insulation_tester": {
+        "model": "Fluke 1550C",
+        "range": "250V - 5kV",
+        "purpose": "Insulation resistance measurement"
+      },
+      "ph_meter": {
+        "model": "Mettler Toledo SevenCompact S210",
+        "accuracy": "±0.01 pH",
+        "calibration_frequency": "Weekly with pH 4.0, 7.0, 10.0 buffers"
+      },
+      "thermohygrometer": {
+        "model": "Vaisala HMT330",
+        "temperature_accuracy": "±0.2°C",
+        "humidity_accuracy": "±1.0% RH",
+        "purpose": "Chamber environmental monitoring"
+      },
+      "microscope": {
+        "model": "Olympus SZ61",
+        "magnification": "6.7-45x",
+        "purpose": "Corrosion visual inspection"
+      }
+    }
+  },
+  "test_sequence": {
+    "pre_test_phase": {
+      "duration": "4-8 hours",
+      "steps": [
+        {
+          "step_number": 1,
+          "action": "Visual inspection and documentation",
+          "parameters": {
+            "inspection_areas": [
+              "Frame and fasteners",
+              "Junction box and cables",
+              "Encapsulation edges",
+              "Glass surface",
+              "Back sheet",
+              "Labels and markings"
+            ],
+            "documentation": "High-resolution photographs (macro images of metal parts)"
+          },
+          "acceptance": "No pre-existing corrosion or damage"
+        },
+        {
+          "step_number": 2,
+          "action": "Electrical characterization (baseline)",
+          "parameters": {
+            "measurements": ["Voc", "Isc", "Pmax", "Vmp", "Imp", "FF"],
+            "irradiance": "1000 W/m²",
+            "module_temperature": "25°C ±2°C",
+            "spectrum": "AM 1.5G"
+          },
+          "data_logging": {
+            "file_name": "baseline_iv_curve.csv",
+            "parameters_logged": ["voltage", "current", "power", "temperature", "irradiance"]
+          }
+        },
+        {
+          "step_number": 3,
+          "action": "Insulation resistance test (initial)",
+          "parameters": {
+            "test_voltage": "1000V DC",
+            "duration": "60 seconds",
+            "min_resistance": "40 MΩ"
+          }
+        },
+        {
+          "step_number": 4,
+          "action": "Dielectric withstand test (initial)",
+          "parameters": {
+            "test_voltage": "Calculated per IEC 61215 (1000V + 2×Voc_max)",
+            "duration": "60 seconds",
+            "acceptance": "No breakdown or flashover"
+          }
+        },
+        {
+          "step_number": 5,
+          "action": "Module cleaning and preparation",
+          "parameters": {
+            "cleaning_method": "Soft cloth with deionized water",
+            "drying": "Air dry at room temperature",
+            "handling": "Clean gloves to avoid contamination"
+          }
+        },
+        {
+          "step_number": 6,
+          "action": "Chamber preparation and verification",
+          "parameters": {
+            "chamber_cleaning": "Remove residue from previous tests",
+            "solution_preparation": "Fresh 5% NaCl solution, pH verified",
+            "spray_rate_verification": "1.5 ±0.5 mL/h per 80 cm²",
+            "temperature_verification": "35°C ±1°C during spray phase"
+          }
+        }
+      ]
+    },
+    "exposure_test_phase": {
+      "duration": "48 days (1152 hours)",
+      "test_cycles": 96,
+      "cycle_structure": {
+        "spray_phase": {
+          "duration": "1 hour",
+          "temperature": "35°C ±1°C",
+          "relative_humidity": "≥ 95%",
+          "spray_rate": "1.5 ±0.5 mL/h per 80 cm²",
+          "module_orientation": "45° from horizontal, sprayed surface facing up"
+        },
+        "dry_storage_phase": {
+          "duration": "11 hours",
+          "temperature": "20°C ±5°C",
+          "relative_humidity": "50% ±20%",
+          "module_position": "Same as spray phase (no movement)"
+        }
+      },
+      "steps": [
+        {
+          "step_number": 7,
+          "action": "Module installation in chamber",
+          "parameters": {
+            "mounting_angle": "45° ±5° from horizontal",
+            "orientation": "Front glass facing spray",
+            "support": "Non-conductive support racks",
+            "spacing": "Minimum 100 mm between modules for spray coverage",
+            "electrical_connection": "Cables protected from direct spray, junction box exposed"
+          }
+        },
+        {
+          "step_number": 8,
+          "action": "Execute spray cycle (repeat 96 times)",
+          "parameters": {
+            "spray_duration": "1 hour",
+            "chamber_temperature": "35°C ±1°C",
+            "solution_flow": "Continuous atomized spray",
+            "monitoring": "Temperature and spray rate logged every 5 minutes"
+          },
+          "data_logging": {
+            "parameters": [
+              "cycle_number",
+              "timestamp",
+              "chamber_temperature",
+              "chamber_humidity",
+              "spray_rate",
+              "solution_pH",
+              "solution_specific_gravity"
+            ],
+            "frequency": "Every 5 minutes during spray, hourly during dry phase"
+          }
+        },
+        {
+          "step_number": 9,
+          "action": "Dry storage phase (repeat 96 times)",
+          "parameters": {
+            "duration": "11 hours",
+            "storage_temperature": "20°C ±5°C",
+            "relative_humidity": "50% ±20%",
+            "module_position": "No movement from spray position"
+          }
+        },
+        {
+          "step_number": 10,
+          "action": "Interim inspection (at 24, 48, and 72 cycles)",
+          "parameters": {
+            "visual_inspection": "Check for visible corrosion, no touching",
+            "photography": "Document any changes",
+            "spray_rate_verification": "Verify collection rate",
+            "solution_quality_check": "pH and specific gravity measurement",
+            "action_if_deviation": "Adjust chamber parameters or replace solution"
+          }
+        }
+      ]
+    },
+    "post_test_phase": {
+      "duration": "2-3 days",
+      "steps": [
+        {
+          "step_number": 11,
+          "action": "Module removal and initial inspection",
+          "parameters": {
+            "timing": "Immediately after final cycle",
+            "handling": "Careful removal to avoid salt deposit disturbance",
+            "initial_photography": "Document as-removed condition"
+          }
+        },
+        {
+          "step_number": 12,
+          "action": "Module cleaning procedure",
+          "parameters": {
+            "first_rinse": "Gentle spray with deionized water (≤ 35°C)",
+            "rinse_duration": "5 minutes minimum",
+            "second_rinse": "Immersion in deionized water for 10 minutes",
+            "final_rinse": "Deionized water spray to remove all salt residue",
+            "drying": "Air dry at 20°C ±5°C for 24 hours minimum"
+          }
+        },
+        {
+          "step_number": 13,
+          "action": "Visual inspection and corrosion assessment",
+          "parameters": {
+            "inspection_areas": [
+              "Frame and fasteners (functional parts)",
+              "Junction box and terminals",
+              "Cable glands and seals",
+              "Grounding points",
+              "Labels and markings",
+              "Glass edges and encapsulation"
+            ],
+            "corrosion_rating": "Per ISO 4628-3 (Ri rating: 0-5 scale)",
+            "photography": "High-resolution macro images of all corroded areas",
+            "acceptance_functional_parts": "Ri ≤ 2 (< 0.5% corroded area)",
+            "acceptance_non_functional": "Ri ≤ 4 (< 5% corroded area)"
+          }
+        },
+        {
+          "step_number": 14,
+          "action": "Electrical characterization (post-test)",
+          "parameters": {
+            "wait_time": "Minimum 24 hours after cleaning and drying",
+            "measurements": ["Voc", "Isc", "Pmax", "Vmp", "Imp", "FF"],
+            "irradiance": "1000 W/m²",
+            "module_temperature": "25°C ±2°C",
+            "spectrum": "AM 1.5G"
+          },
+          "data_logging": {
+            "file_name": "post_test_iv_curve.csv",
+            "parameters_logged": ["voltage", "current", "power", "temperature", "irradiance"]
+          }
+        },
+        {
+          "step_number": 15,
+          "action": "Insulation resistance test (post-test)",
+          "parameters": {
+            "test_voltage": "1000V DC",
+            "duration": "60 seconds",
+            "min_resistance": "40 MΩ"
+          }
+        },
+        {
+          "step_number": 16,
+          "action": "Dielectric withstand test (post-test)",
+          "parameters": {
+            "test_voltage": "1000V + 2×Voc_max",
+            "duration": "60 seconds",
+            "acceptance": "No breakdown or flashover"
+          }
+        },
+        {
+          "step_number": 17,
+          "action": "Power degradation and pass/fail determination",
+          "parameters": {
+            "degradation_calculation": "Δ% = 100 × (Pmax_pre - Pmax_post) / Pmax_pre",
+            "acceptance": "≤ 5% degradation",
+            "combined_assessment": "Electrical + visual + insulation results"
+          }
+        }
+      ]
+    }
+  },
+  "data_logging": {
+    "logging_system": {
+      "software": "LabVIEW 2023 + Environmental Chamber Control",
+      "database": "PostgreSQL 15.0",
+      "backup_frequency": "Daily incremental, weekly full backup"
+    },
+    "environmental_data": {
+      "sampling_rate": "5 minutes during spray, 15 minutes during dry phase",
+      "parameters": [
+        {
+          "name": "cycle_number",
+          "unit": "count",
+          "type": "integer",
+          "valid_range": "1-96"
+        },
+        {
+          "name": "timestamp",
+          "unit": "ISO8601",
+          "type": "datetime"
+        },
+        {
+          "name": "chamber_temperature",
+          "unit": "°C",
+          "accuracy": "±0.2°C",
+          "type": "float",
+          "valid_range_spray": "34-36°C",
+          "valid_range_dry": "15-25°C"
+        },
+        {
+          "name": "chamber_humidity",
+          "unit": "%",
+          "accuracy": "±1.0%",
+          "type": "float",
+          "valid_range_spray": "95-100%",
+          "valid_range_dry": "30-70%"
+        },
+        {
+          "name": "spray_collection_rate",
+          "unit": "mL/h per 80cm²",
+          "accuracy": "±0.1 mL/h",
+          "type": "float",
+          "valid_range": "1.0-2.0"
+        },
+        {
+          "name": "solution_pH",
+          "unit": "pH",
+          "accuracy": "±0.01",
+          "type": "float",
+          "valid_range": "6.5-7.2"
+        },
+        {
+          "name": "solution_specific_gravity",
+          "unit": "g/cm³",
+          "accuracy": "±0.001",
+          "type": "float",
+          "valid_range": "1.0255-1.0400"
+        },
+        {
+          "name": "cycle_phase",
+          "unit": "text",
+          "type": "enum",
+          "values": ["spray", "dry_storage"]
+        }
+      ],
+      "file_format": "CSV",
+      "file_naming": "PVTP-033_{sample_id}_{date}_environmental_log.csv"
+    },
+    "electrical_characterization_data": {
+      "sampling_rate": "Pre-test and post-test",
+      "parameters": [
+        {
+          "name": "open_circuit_voltage",
+          "symbol": "Voc",
+          "unit": "V",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "short_circuit_current",
+          "symbol": "Isc",
+          "unit": "A",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "maximum_power",
+          "symbol": "Pmax",
+          "unit": "W",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "voltage_at_max_power",
+          "symbol": "Vmp",
+          "unit": "V",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "current_at_max_power",
+          "symbol": "Imp",
+          "unit": "A",
+          "accuracy": "±0.5%"
+        },
+        {
+          "name": "fill_factor",
+          "symbol": "FF",
+          "unit": "ratio",
+          "accuracy": "±1%"
+        },
+        {
+          "name": "series_resistance",
+          "symbol": "Rs",
+          "unit": "Ω",
+          "accuracy": "±5%"
+        },
+        {
+          "name": "shunt_resistance",
+          "symbol": "Rsh",
+          "unit": "Ω",
+          "accuracy": "±10%"
+        }
+      ],
+      "file_format": "CSV",
+      "file_naming": "PVTP-033_{sample_id}_{date}_{pre_post}_iv_data.csv"
+    },
+    "corrosion_inspection_data": {
+      "parameters": [
+        {
+          "name": "component_id",
+          "description": "Frame, junction box, fastener, etc.",
+          "type": "string"
+        },
+        {
+          "name": "corrosion_type",
+          "description": "Red rust, white corrosion, pitting, etc.",
+          "type": "string"
+        },
+        {
+          "name": "iso_4628_rating",
+          "description": "Ri 0-5 scale",
+          "type": "integer",
+          "valid_range": "0-5"
+        },
+        {
+          "name": "corroded_area_percentage",
+          "description": "Estimated % of component surface corroded",
+          "unit": "%",
+          "type": "float"
+        },
+        {
+          "name": "functional_impact",
+          "description": "Critical/Major/Minor/None",
+          "type": "enum"
+        },
+        {
+          "name": "photo_reference",
+          "description": "File name of detailed photograph",
+          "type": "string"
+        }
+      ],
+      "file_format": "CSV",
+      "file_naming": "PVTP-033_{sample_id}_{date}_corrosion_assessment.csv"
+    },
+    "quality_checks": {
+      "real_time_validation": [
+        {
+          "parameter": "chamber_temperature",
+          "check_type": "range",
+          "spray_phase": {"min": 34.0, "max": 36.0},
+          "dry_phase": {"min": 15.0, "max": 25.0},
+          "action_on_failure": "Alarm, log deviation, adjust chamber controller"
+        },
+        {
+          "parameter": "spray_collection_rate",
+          "check_type": "range",
+          "min_value": 1.0,
+          "max_value": 2.0,
+          "action_on_failure": "Check nozzles, adjust air pressure, replace solution"
+        },
+        {
+          "parameter": "solution_pH",
+          "check_type": "range",
+          "min_value": 6.5,
+          "max_value": 7.2,
+          "action_on_failure": "Replace solution, investigate pH drift cause"
+        }
+      ],
+      "data_completeness": {
+        "required_fields": [
+          "cycle_number",
+          "timestamp",
+          "chamber_temperature",
+          "chamber_humidity",
+          "cycle_phase"
+        ],
+        "action_on_missing": "Flag cycle as incomplete, investigate data acquisition issue"
+      }
+    },
+    "retention_policy": {
+      "raw_environmental_data": "10 years",
+      "electrical_characterization": "Permanent",
+      "corrosion_inspection_records": "Permanent",
+      "photographs": "10 years",
+      "test_reports": "Permanent"
+    }
+  },
+  "analysis_and_reporting": {
+    "time_series_analysis": {
+      "chamber_stability_assessment": {
+        "metrics": [
+          "Temperature stability (mean, std dev, excursions)",
+          "Humidity stability during spray phase",
+          "Spray rate consistency across 96 cycles",
+          "Solution pH drift over test duration"
+        ],
+        "visualization": [
+          "Temperature profile over 48 days",
+          "Spray rate control chart with control limits",
+          "pH trend analysis",
+          "Humidity profile during spray cycles"
+        ]
+      },
+      "cycle_by_cycle_analysis": {
+        "tracking": "Any parameter deviations per cycle",
+        "statistical_summary": "Cycle-to-cycle variability metrics"
+      }
+    },
+    "baseline_comparison": {
+      "electrical_parameters": {
+        "comparison_metrics": [
+          {
+            "parameter": "Pmax",
+            "calculation": "Δ% = 100 × (Pmax_post - Pmax_pre) / Pmax_pre",
+            "threshold": "≤ 5%",
+            "criticality": "Critical - Test failure if exceeded"
+          },
+          {
+            "parameter": "Voc",
+            "calculation": "Δ% = 100 × (Voc_post - Voc_pre) / Voc_pre",
+            "threshold": "≤ 2%",
+            "criticality": "Warning indicator"
+          },
+          {
+            "parameter": "Isc",
+            "calculation": "Δ% = 100 × (Isc_post - Isc_pre) / Isc_pre",
+            "threshold": "≤ 2%",
+            "criticality": "Warning indicator"
+          },
+          {
+            "parameter": "FF",
+            "calculation": "ΔFF = FF_post - FF_pre",
+            "threshold": "≤ 3%",
+            "criticality": "Indicates series resistance increase"
+          },
+          {
+            "parameter": "Rs",
+            "calculation": "Δ% = 100 × (Rs_post - Rs_pre) / Rs_pre",
+            "threshold": "Monitor",
+            "criticality": "Indicates contact/interconnect corrosion"
+          }
+        ],
+        "visualization": [
+          "Pre/post IV curve overlay",
+          "Parameter change waterfall chart",
+          "Fill factor degradation analysis"
+        ]
+      },
+      "visual_inspection": {
+        "comparison": "Before/after photographs (side-by-side)",
+        "corrosion_mapping": "Component-level corrosion distribution",
+        "severity_classification": "ISO 4628-3 Ri ratings"
+      }
+    },
+    "degradation_modeling": {
+      "corrosion_kinetics": {
+        "approach": "Time-weighted exposure modeling",
+        "total_spray_time": "96 hours cumulative salt spray",
+        "total_dry_time": "1056 hours cumulative at ambient",
+        "effective_exposure": "Equivalent to X years coastal environment (site-specific correlation)"
+      },
+      "corrosion_mechanism_analysis": {
+        "factors": [
+          "Material composition (aluminum alloy, stainless steel grade)",
+          "Surface treatment (anodization, coating quality)",
+          "Galvanic coupling effects",
+          "Crevice corrosion susceptibility",
+          "Environmental stress cracking"
+        ],
+        "outputs": [
+          "Dominant corrosion mechanism identification",
+          "Predicted field lifetime in marine environment",
+          "Design improvement recommendations"
+        ]
+      },
+      "electrical_degradation_correlation": {
+        "analysis": "Correlation between corrosion severity and electrical loss",
+        "parameters": [
+          "Corrosion rating vs. Pmax degradation",
+          "Rs increase vs. junction box/interconnect corrosion",
+          "Rsh decrease vs. encapsulation edge corrosion"
+        ]
+      },
+      "failure_mode_analysis": {
+        "categories": [
+          "Frame corrosion (cosmetic vs. structural)",
+          "Fastener/hardware corrosion",
+          "Junction box terminal corrosion",
+          "Cable gland seal degradation",
+          "Grounding lug corrosion",
+          "Edge delamination due to moisture ingress",
+          "Label/marking degradation"
+        ],
+        "severity_rating": "Critical / Major / Minor",
+        "root_cause_investigation": "For all critical and major failures"
+      }
+    },
+    "statistical_analysis": {
+      "sample_size_requirements": {
+        "minimum_per_design": 2,
+        "recommended_for_validation": 4,
+        "statistical_confidence": "95%"
+      },
+      "pass_rate_calculation": {
+        "formula": "Pass rate (%) = 100 × (Passed samples / Total samples)",
+        "target": "≥ 100% for marine environment rating"
+      },
+      "measurement_uncertainty": {
+        "Pmax_uncertainty": "±2%",
+        "temperature_uncertainty": "±0.5°C",
+        "pH_uncertainty": "±0.02 pH units"
+      }
+    },
+    "visualization_requirements": {
+      "automated_plots": [
+        {
+          "plot_type": "IV curve overlay (pre vs. post)",
+          "x_axis": "Voltage (V)",
+          "y_axis": "Current (A)"
+        },
+        {
+          "plot_type": "Power degradation bar chart",
+          "x_axis": "Sample ID",
+          "y_axis": "Power degradation (%)",
+          "threshold_line": "5% limit"
+        },
+        {
+          "plot_type": "Chamber temperature time series",
+          "x_axis": "Time (hours)",
+          "y_axis": "Temperature (°C)",
+          "annotations": "Spray/dry phase markers"
+        },
+        {
+          "plot_type": "Corrosion severity heat map",
+          "visualization": "Module schematic with color-coded corrosion ratings"
+        },
+        {
+          "plot_type": "Spray rate control chart",
+          "x_axis": "Cycle number",
+          "y_axis": "Collection rate (mL/h)",
+          "control_limits": "1.0-2.0 mL/h boundaries"
+        }
+      ],
+      "export_formats": ["PNG", "SVG", "PDF"]
+    },
+    "report_generation": {
+      "template": "IEC 61701 Test Report Template v3.0",
+      "sections": [
+        "Executive summary with pass/fail determination",
+        "Sample identification and description",
+        "Test equipment and calibration status",
+        "Test procedure summary",
+        "Environmental conditions log (all 96 cycles)",
+        "Interim inspection findings",
+        "Post-test visual inspection with photographs",
+        "Corrosion assessment per ISO 4628-3",
+        "Electrical characterization results (pre/post comparison)",
+        "Power degradation analysis",
+        "Insulation and dielectric test results",
+        "Deviations from procedure",
+        "Conclusions and recommendations",
+        "Suitability for marine/coastal installation"
+      ],
+      "automated_generation": "Python + Jinja2 templates + LaTeX",
+      "review_cycle": "Technical review → QA review → Final approval"
+    }
+  },
+  "quality_control": {
+    "pre_test_qc": {
+      "checklist": [
+        {
+          "item": "Salt fog chamber calibration current",
+          "acceptance": "Within 6 months, certificate on file"
+        },
+        {
+          "item": "Temperature and humidity sensors verified",
+          "acceptance": "Within ±0.5°C and ±2% RH of reference"
+        },
+        {
+          "item": "Spray rate collection verification",
+          "acceptance": "1.5 ±0.5 mL/h per 80 cm²"
+        },
+        {
+          "item": "Salt solution prepared correctly",
+          "acceptance": "5.0% ±0.1%, pH 6.5-7.2, SG 1.0255-1.0400"
+        },
+        {
+          "item": "Module baseline characterization complete",
+          "acceptance": "All electrical and visual data logged"
+        },
+        {
+          "item": "Data acquisition system functional",
+          "acceptance": "Test data logging and storage verified"
+        }
+      ],
+      "approver": "Test Engineer + QA Engineer"
+    },
+    "in_test_monitoring": {
+      "daily_checks": [
+        {
+          "item": "Chamber temperature stability",
+          "frequency": "Every test day",
+          "action_if_deviation": "Adjust controller, log deviation"
+        },
+        {
+          "item": "Solution level and spray function",
+          "frequency": "Every test day",
+          "action_if_deviation": "Refill solution reservoir, check nozzles"
+        },
+        {
+          "item": "Data logging system operational",
+          "frequency": "Every test day",
+          "action_if_deviation": "Investigate data acquisition failure immediately"
+        }
+      ],
+      "weekly_checks": [
+        {
+          "item": "Solution pH and specific gravity",
+          "frequency": "Weekly",
+          "action_if_out_of_spec": "Replace solution, investigate cause"
+        },
+        {
+          "item": "Spray rate verification",
+          "frequency": "Weekly",
+          "action_if_out_of_spec": "Adjust air pressure, clean/replace nozzles"
+        },
+        {
+          "item": "Visual module inspection (non-contact)",
+          "frequency": "At cycles 24, 48, 72",
+          "action_if_severe_corrosion": "Document, continue test (unless safety concern)"
+        }
+      ]
+    },
+    "post_test_qc": {
+      "data_review": [
+        {
+          "item": "All 96 cycles completed with valid data",
+          "reviewer": "Test Engineer"
+        },
+        {
+          "item": "Chamber parameters within specification throughout test",
+          "reviewer": "Test Engineer"
+        },
+        {
+          "item": "Pre/post electrical data complete and analyzed",
+          "reviewer": "Test Engineer"
+        },
+        {
+          "item": "Corrosion assessment documented with photographs",
+          "reviewer": "Corrosion Specialist"
+        },
+        {
+          "item": "Power degradation calculation verified",
+          "reviewer": "QA Engineer"
+        }
+      ],
+      "report_review": {
+        "technical_review": "Senior Test Engineer",
+        "corrosion_assessment_review": "Materials Engineer",
+        "qa_review": "QA Manager",
+        "final_approval": "Technical Director"
+      }
+    }
+  },
+  "non_conformance_management": {
+    "potential_non_conformances": [
+      {
+        "nc_type": "Chamber temperature excursion",
+        "severity": "Major if > 3°C, Minor if 1-3°C",
+        "corrective_action": "Evaluate impact, may require cycle extension",
+        "documentation": "NC log + chamber maintenance record"
+      },
+      {
+        "nc_type": "Spray rate out of specification",
+        "severity": "Major",
+        "corrective_action": "Investigate cause, may require test restart",
+        "documentation": "NC report + spray system verification"
+      },
+      {
+        "nc_type": "Solution pH out of range",
+        "severity": "Major",
+        "corrective_action": "Replace solution, extend test if discovered late",
+        "documentation": "NC report + solution preparation records"
+      },
+      {
+        "nc_type": "Data acquisition failure (> 1 cycle of data lost)",
+        "severity": "Critical",
+        "corrective_action": "Investigate, potentially invalidate affected cycles",
+        "documentation": "NC report + IT investigation report"
+      },
+      {
+        "nc_type": "Power degradation > 5%",
+        "severity": "Critical",
+        "corrective_action": "Module fails IEC 61701, full failure analysis",
+        "documentation": "Failure analysis report"
+      },
+      {
+        "nc_type": "Functional part corrosion Ri > 2",
+        "severity": "Critical",
+        "corrective_action": "Module fails test, materials investigation",
+        "documentation": "Failure analysis report + metallurgical analysis"
+      },
+      {
+        "nc_type": "Insulation resistance failure post-test",
+        "severity": "Critical",
+        "corrective_action": "Safety failure, investigate moisture ingress",
+        "documentation": "Safety failure report + design review"
+      }
+    ],
+    "nc_workflow": {
+      "detection": "Real-time monitoring or post-test analysis",
+      "documentation": "NC form PVTP-NC-001",
+      "investigation": "Root cause analysis within 5 business days",
+      "corrective_action": "Per NC management procedure QP-008",
+      "verification": "QA verification of effectiveness",
+      "closure": "QA Manager approval required"
+    }
+  },
+  "traceability": {
+    "sample_traceability": {
+      "required_information": [
+        "Sample ID (unique identifier)",
+        "Manufacturer, model, serial number",
+        "Manufacturing date and batch",
+        "Receipt date and condition",
+        "Pre-test storage conditions",
+        "Frame material specification",
+        "Hardware material specification"
+      ],
+      "chain_of_custody": "Documented from receipt through post-test storage"
+    },
+    "test_execution_traceability": {
+      "operator_id": "Recorded for each test phase",
+      "equipment_id": "Chamber serial number + calibration status",
+      "solution_batch": "Preparation date, salt lot number, pH verification",
+      "environmental_data": "Continuous logging throughout 48 days",
+      "test_start_end_times": "ISO8601 timestamps"
+    },
+    "calibration_traceability": {
+      "salt_fog_chamber": {
+        "calibration_certificate": "Traceable to NIST",
+        "sensors_calibrated": "Temperature, humidity, spray collection",
+        "next_calibration_due": "Verified before test start"
+      },
+      "measurement_instruments": {
+        "iv_curve_tracer": "Annual calibration to NIST-traceable reference cells",
+        "insulation_tester": "Annual calibration certificate",
+        "ph_meter": "Weekly calibration to NIST-traceable buffer solutions"
+      }
+    },
+    "data_traceability": {
+      "raw_data_files": "Timestamped file names with sample ID",
+      "data_processing_scripts": "Version controlled (Git repository)",
+      "analysis_software_version": "Logged in metadata and report footer",
+      "report_generation_date": "Documented in report"
+    },
+    "compliance_mapping": {
+      "iec_61701_requirements": [
+        {
+          "requirement": "Section 5.2 - Severity level 6 (96 cycles)",
+          "evidence": "Test log showing 96 completed cycles",
+          "location": "Section 8.1 of test report"
+        },
+        {
+          "requirement": "Section 5.3 - Salt solution 5% NaCl, pH 6.5-7.2",
+          "evidence": "Solution preparation and monitoring records",
+          "location": "Section 7.2 of test report"
+        },
+        {
+          "requirement": "Section 5.4 - Spray rate 1.5 ±0.5 mL/h",
+          "evidence": "Spray rate verification log",
+          "location": "Section 7.3 of test report"
+        },
+        {
+          "requirement": "Section 6 - No corrosion on functional parts",
+          "evidence": "Corrosion assessment per ISO 4628-3",
+          "location": "Section 9.1 of test report"
+        },
+        {
+          "requirement": "Section 6 - Power degradation ≤ 5%",
+          "evidence": "Pre/post IV curves and degradation calculation",
+          "location": "Section 9.2 of test report"
+        }
+      ]
+    }
+  },
+  "safety_considerations": {
+    "hazards": [
+      {
+        "hazard": "Corrosive salt solution",
+        "risk_level": "Medium",
+        "mitigation": "Chemical-resistant gloves, safety glasses, avoid skin/eye contact"
+      },
+      {
+        "hazard": "High temperature chamber surfaces",
+        "risk_level": "Medium",
+        "mitigation": "Allow cooling before access, use heat-resistant gloves"
+      },
+      {
+        "hazard": "Electrical shock from modules",
+        "risk_level": "Medium",
+        "mitigation": "Ensure modules disconnected, use insulated tools, follow LOTO"
+      },
+      {
+        "hazard": "Slip hazard from salt solution spills",
+        "risk_level": "Low",
+        "mitigation": "Clean spills immediately, use absorbent materials"
+      },
+      {
+        "hazard": "Inhalation of salt aerosol",
+        "risk_level": "Low",
+        "mitigation": "Adequate ventilation, avoid breathing spray directly"
+      }
+    ],
+    "ppe_requirements": [
+      "Safety glasses (chemical splash rated)",
+      "Chemical-resistant gloves (nitrile or neoprene)",
+      "Lab coat or chemical-resistant apron",
+      "Safety shoes (slip-resistant)",
+      "Face shield (when preparing solution or accessing chamber during operation)"
+    ],
+    "emergency_procedures": {
+      "chemical_exposure": "Rinse with water for 15 minutes, seek medical attention",
+      "equipment_malfunction": "E-stop, isolate power, notify supervisor and maintenance",
+      "module_fire": "Activate fire suppression, evacuate, call emergency services"
+    }
+  },
+  "training_requirements": {
+    "required_training": [
+      {
+        "course": "IEC 61701 Salt Mist Corrosion Testing",
+        "frequency": "Initial + when procedure updated",
+        "provider": "Senior Test Engineer"
+      },
+      {
+        "course": "Salt Fog Chamber Operation and Maintenance",
+        "frequency": "Initial + annual refresher",
+        "provider": "Equipment manufacturer or certified trainer"
+      },
+      {
+        "course": "Corrosion Assessment per ISO 4628",
+        "frequency": "Initial + biennial",
+        "provider": "Corrosion Specialist"
+      },
+      {
+        "course": "Chemical Safety and Handling",
+        "frequency": "Annual",
+        "provider": "Safety Department"
+      },
+      {
+        "course": "Laboratory Safety and PPE",
+        "frequency": "Annual",
+        "provider": "Safety Department"
+      }
+    ],
+    "competency_verification": {
+      "method": "Practical demonstration + written assessment",
+      "assessment_areas": [
+        "Solution preparation and quality verification",
+        "Chamber setup and cycle programming",
+        "Corrosion severity rating",
+        "Data review and analysis"
+      ],
+      "passing_score": "≥ 90%",
+      "requalification": "Every 2 years"
+    }
+  },
+  "references": {
+    "standards": [
+      {
+        "document": "IEC 61701:2020",
+        "title": "Photovoltaic (PV) modules - Salt mist corrosion testing"
+      },
+      {
+        "document": "IEC 61215-2:2021",
+        "title": "Terrestrial photovoltaic (PV) modules - Design qualification and type approval - Part 2: Test procedures"
+      },
+      {
+        "document": "ISO 4628-3:2016",
+        "title": "Paints and varnishes - Evaluation of degradation of coatings - Designation of quantity and size of defects, and of intensity of uniform changes in appearance - Part 3: Assessment of degree of rusting"
+      },
+      {
+        "document": "ASTM B117-19",
+        "title": "Standard Practice for Operating Salt Spray (Fog) Apparatus"
+      },
+      {
+        "document": "ASTM G1-03(2017)",
+        "title": "Standard Practice for Preparing, Cleaning, and Evaluating Corrosion Test Specimens"
+      }
+    ],
+    "internal_documents": [
+      {
+        "document": "SOP-ENV-002",
+        "title": "Salt Fog Chamber Operation Procedure"
+      },
+      {
+        "document": "SOP-CORR-001",
+        "title": "Corrosion Assessment and Rating Procedure"
+      },
+      {
+        "document": "QP-008",
+        "title": "Non-Conformance Management Procedure"
+      },
+      {
+        "document": "SOP-CHEM-001",
+        "title": "Chemical Preparation and Handling Procedure"
+      }
+    ]
+  },
+  "revision_history": [
+    {
+      "version": "1.0",
+      "date": "2025-11-12",
+      "author": "PV Testing Laboratory",
+      "changes": "Initial protocol creation based on IEC 61701:2020",
+      "approved_by": "Quality Director"
+    }
+  ]
+}

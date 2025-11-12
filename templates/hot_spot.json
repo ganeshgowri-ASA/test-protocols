@@ -1,0 +1,827 @@
+{
+  "protocol_id": "PVTP-008-HS",
+  "protocol_name": "Hot-Spot Endurance Test",
+  "version": "1.0.0",
+  "effective_date": "2025-01-01",
+  "revision_history": [
+    {
+      "version": "1.0.0",
+      "date": "2025-01-01",
+      "author": "Test Engineering Team",
+      "changes": "Initial protocol release based on IEC 61215-2:2016 MQT 09"
+    }
+  ],
+
+  "standards_compliance": {
+    "primary_standard": "IEC 61215-2:2016",
+    "test_sequence": "MQT 09 - Hot-Spot Endurance Test",
+    "related_standards": [
+      "IEC 61730-2:2016 MST 23 - Hot-spot endurance",
+      "UL 1703:2021 - Hot-spot testing",
+      "IEC 62790:2014 - Junction boxes for PV modules"
+    ],
+    "accreditation_requirements": [
+      "ISO/IEC 17025",
+      "Solar simulator Class A or better",
+      "Calibrated thermal imaging camera"
+    ]
+  },
+
+  "protocol_metadata": {
+    "category": "Environmental Testing",
+    "subcategory": "Thermal Stress",
+    "test_type": "Endurance",
+    "duration_estimate": "5-8 hours",
+    "complexity_level": "Medium-High",
+    "equipment_requirements": [
+      "Solar simulator (≥1000 W/m²)",
+      "Shading materials (opaque, heat-resistant)",
+      "Thermal imaging camera (resolution ≥320×240, sensitivity <0.1°C)",
+      "Contact temperature sensors (Type K thermocouples)",
+      "DC power supply or electronic load",
+      "Current and voltage meters (accuracy ±1%)",
+      "Hot-spot detection algorithms"
+    ],
+    "sample_requirements": {
+      "quantity": "2 modules (1 for test, 1 for control)",
+      "conditioning": "Pre-test at STC, identify cells for shading",
+      "traceability": "Serial number, cell matrix map, baseline thermal image"
+    }
+  },
+
+  "protocol_inputs": {
+    "irradiance_specification": {
+      "value": 1000,
+      "unit": "W/m²",
+      "tolerance": "+0/-10%",
+      "spectral_match": "Class A per IEC 60904-9",
+      "spatial_uniformity": "±2% over module area",
+      "temporal_stability": "±2% during exposure"
+    },
+    "shading_pattern": {
+      "standard_test": {
+        "method": "Opaque shadow over single cell",
+        "cell_selection": "Center cell of substring (typical position)",
+        "shadow_coverage": "100% of one cell",
+        "shadow_material": "Aluminized polyester or equivalent (non-flammable)",
+        "attachment": "Secure to glass surface without damaging module"
+      },
+      "alternative_patterns": {
+        "partial_shading": {
+          "coverage": "50% of cell area",
+          "purpose": "Simulate partial shading scenarios"
+        },
+        "multi_cell_shading": {
+          "coverage": "Multiple cells in one substring",
+          "purpose": "Worst-case hot-spot scenario"
+        },
+        "string_shading": {
+          "coverage": "Entire substring",
+          "purpose": "Verify bypass diode activation"
+        }
+      }
+    },
+    "test_duration": {
+      "standard": {
+        "value": 1,
+        "unit": "hour",
+        "condition": "Continuous exposure at 1000 W/m²"
+      },
+      "extended": {
+        "value": 5,
+        "unit": "hours",
+        "purpose": "Enhanced durability verification",
+        "cycles": "May be divided into 5 × 1-hour exposures"
+      }
+    },
+    "electrical_configuration": {
+      "operating_condition": {
+        "primary": "Short-circuit condition (Isc)",
+        "alternative": "Maximum power point tracking",
+        "justification": "Isc produces maximum current through shaded cell, worst-case for hot-spot"
+      },
+      "current_measurement": {
+        "parameter": "String current through bypass diode",
+        "purpose": "Verify diode activation during shading",
+        "monitoring": "Continuous during test"
+      }
+    }
+  },
+
+  "thermal_imaging": {
+    "camera_specifications": {
+      "resolution": {
+        "minimum": "320 × 240 pixels",
+        "preferred": "640 × 480 pixels or higher",
+        "purpose": "Resolve individual cell hot spots"
+      },
+      "thermal_sensitivity": {
+        "value": 0.1,
+        "unit": "°C",
+        "note": "NETD (Noise Equivalent Temperature Difference)"
+      },
+      "temperature_range": {
+        "minimum": -20,
+        "maximum": 350,
+        "unit": "°C",
+        "calibration": "Full range calibrated to NIST standards"
+      },
+      "spectral_range": {
+        "value": "7.5-14 µm",
+        "note": "Long-wave infrared (LWIR)"
+      }
+    },
+    "measurement_parameters": {
+      "max_temperature": {
+        "location": "Hottest point on module surface",
+        "monitoring": "Continuous during exposure",
+        "threshold_alarm": "Set at 85°C for immediate investigation",
+        "acceptance_limit": "< 105°C for EVA encapsulant modules"
+      },
+      "hotspot_location": {
+        "identification": "Cell coordinates in module matrix",
+        "documentation": "Overlay thermal image on module diagram",
+        "verification": "Must correlate with shaded cell position"
+      },
+      "thermal_distribution": {
+        "spatial_map": "Full module thermal image every 15 minutes",
+        "temperature_profile": "Line scan across shaded and adjacent cells",
+        "gradient_analysis": "Temperature difference between hot spot and surroundings"
+      }
+    },
+    "imaging_setup": {
+      "camera_position": {
+        "distance": "1-3 meters from module surface",
+        "angle": "Perpendicular to module plane (±10°)",
+        "field_of_view": "Entire module or focused region of interest"
+      },
+      "environmental_corrections": {
+        "emissivity": {
+          "glass_surface": 0.90,
+          "backsheet": 0.85,
+          "frame": 0.30,
+          "note": "Set emissivity based on measurement surface"
+        },
+        "reflected_temperature": "Measure ambient reflected temperature, input to camera",
+        "atmospheric_correction": "Account for distance and humidity (camera software)"
+      },
+      "calibration_verification": {
+        "method": "Blackbody reference source",
+        "frequency": "Before each test series",
+        "acceptance": "±2°C or ±2% of reading, whichever is greater"
+      }
+    },
+    "data_acquisition": {
+      "temporal_resolution": "One image per minute during critical periods",
+      "file_format": "Radiometric TIFF or camera-native format (preserves temperature data)",
+      "post_processing": "Temperature extraction using camera software or Python analysis"
+    }
+  },
+
+  "test_procedure": {
+    "pre_test_preparation": [
+      {
+        "step": 1,
+        "action": "Visual inspection",
+        "details": "Document module condition, existing defects",
+        "acceptance": "No damage that would confound hot-spot test"
+      },
+      {
+        "step": 2,
+        "action": "Baseline I-V characterization",
+        "details": "Measure at STC without shading",
+        "parameters": ["Pmax", "Voc", "Isc", "FF"],
+        "purpose": "Establish pre-test performance"
+      },
+      {
+        "step": 3,
+        "action": "Baseline thermal imaging",
+        "details": "Image module under full illumination at Isc, no shading",
+        "purpose": "Identify any pre-existing thermal anomalies",
+        "acceptance": "Temperature variation < 10°C across all cells"
+      },
+      {
+        "step": 4,
+        "action": "Bypass diode verification",
+        "details": "Use diode test function or forward-bias test",
+        "acceptance": "All bypass diodes functional, Vf = 0.5-0.7 V at rated current"
+      },
+      {
+        "step": 5,
+        "action": "Cell selection for shading",
+        "details": "Identify center cell of each substring",
+        "documentation": "Mark cell coordinates on module diagram"
+      },
+      {
+        "step": 6,
+        "action": "Apply shading material",
+        "details": "Attach opaque shadow to selected cell(s)",
+        "verification": "100% coverage, secure attachment, no air gaps"
+      }
+    ],
+
+    "test_execution": [
+      {
+        "step": 1,
+        "action": "Module positioning",
+        "details": "Mount module in simulator test plane",
+        "requirements": [
+          "Module at normal incidence to light source",
+          "Shaded cell visible to thermal camera",
+          "Electrical connections to short-circuit or load"
+        ]
+      },
+      {
+        "step": 2,
+        "action": "Simulator stabilization",
+        "details": "Turn on simulator, verify irradiance and uniformity",
+        "verification": "1000 ± 20 W/m² across module area",
+        "stabilization_time": "5 minutes"
+      },
+      {
+        "step": 3,
+        "action": "Initial thermal image",
+        "details": "Capture thermal image at t=0 (just after illumination)",
+        "purpose": "Baseline for thermal transient"
+      },
+      {
+        "step": 4,
+        "action": "Apply electrical load",
+        "details": "Configure module to short-circuit condition",
+        "monitoring": "Measure and log Isc continuously",
+        "verification": "Isc should match baseline (shading affects voltage, not Isc for parallel strings)"
+      },
+      {
+        "step": 5,
+        "action": "Continuous thermal monitoring",
+        "details": "Acquire thermal images at 1-minute intervals for first 15 min, then 15-min intervals",
+        "real_time_display": "Live view of hot-spot temperature",
+        "alarm_threshold": "85°C triggers notification, 105°C triggers emergency shutdown"
+      },
+      {
+        "step": 6,
+        "action": "Exposure duration",
+        "details": "Maintain illumination for 1 hour (or extended duration per test plan)",
+        "monitoring": [
+          "Hot-spot temperature (continuous)",
+          "Module current and voltage",
+          "Ambient temperature",
+          "Visual inspection for smoke, arcing, or failure"
+        ]
+      },
+      {
+        "step": 7,
+        "action": "Emergency stop criteria",
+        "details": "Immediately shut down if:",
+        "conditions": [
+          "Temperature exceeds 105°C",
+          "Visible smoke or arcing",
+          "Odor of burning materials",
+          "Rapid temperature rise (>10°C per minute)"
+        ]
+      },
+      {
+        "step": 8,
+        "action": "Test completion",
+        "details": "After exposure duration, turn off simulator",
+        "final_image": "Capture thermal image at end of exposure",
+        "cooldown": "Allow module to cool for 30 minutes before handling"
+      }
+    ],
+
+    "post_test_evaluation": [
+      {
+        "step": 1,
+        "action": "Visual inspection",
+        "details": "Examine module for damage caused by hot-spot",
+        "focus_areas": [
+          "Discoloration or melting of encapsulant at hot-spot location",
+          "Solder bond integrity",
+          "Backsheet damage (bubbles, delamination, charring)",
+          "Cell cracking"
+        ],
+        "documentation": "High-resolution photos of any damage"
+      },
+      {
+        "step": 2,
+        "action": "Remove shading material",
+        "details": "Carefully remove shadow, inspect for residue or adhesive damage",
+        "cleaning": "Clean glass surface with isopropyl alcohol if needed"
+      },
+      {
+        "step": 3,
+        "action": "Final I-V characterization",
+        "details": "Measure at STC without shading",
+        "comparison": "Compare to baseline, calculate power degradation"
+      },
+      {
+        "step": 4,
+        "action": "Post-test thermal imaging",
+        "details": "Image module under full illumination at Isc, no shading",
+        "comparison": "Compare to baseline thermal image, identify permanent thermal anomalies"
+      },
+      {
+        "step": 5,
+        "action": "Bypass diode re-test",
+        "details": "Verify diode functionality after thermal stress",
+        "acceptance": "All diodes still functional, no change in Vf"
+      },
+      {
+        "step": 6,
+        "action": "Wet leakage current test",
+        "details": "Per IEC 61215-2 MQT 01, if hot-spot test is part of full sequence",
+        "purpose": "Verify no insulation damage from hot-spot"
+      }
+    ]
+  },
+
+  "acceptance_criteria": {
+    "thermal_limits": {
+      "maximum_temperature": {
+        "value": 105,
+        "unit": "°C",
+        "note": "For EVA-encapsulated modules; other materials may have different limits",
+        "consequence": "Exceeding this limit may cause permanent encapsulant degradation"
+      },
+      "temperature_stability": {
+        "condition": "Hot-spot temperature must stabilize (change < 2°C per 10 min)",
+        "timeframe": "Within 30 minutes of illumination",
+        "reason": "Indicates thermal equilibrium; runaway heating is a failure"
+      }
+    },
+    "electrical_performance": {
+      "power_degradation": {
+        "maximum_allowed": 5,
+        "unit": "%",
+        "calculation": "100 × (Pmax_initial - Pmax_final) / Pmax_initial"
+      },
+      "current_continuity": {
+        "condition": "Module must deliver current throughout test",
+        "failure_mode": "Open-circuit during test indicates catastrophic cell failure"
+      }
+    },
+    "visual_inspection": {
+      "no_major_defects": [
+        "No broken cells",
+        "No melted or charred encapsulant",
+        "No backsheet perforation or severe bubbling",
+        "No open solder bonds"
+      ],
+      "minor_defects_acceptable": [
+        "Slight discoloration of encapsulant at hot-spot (< 2 cm²)",
+        "Small bubbles (< 3 mm diameter) if no performance degradation"
+      ]
+    },
+    "bypass_diode_function": {
+      "activation": "Bypass diode for shaded substring must activate during test",
+      "verification": "Measure voltage across substring; should be ~ -Vf (0.5-0.7 V) when diode conducting",
+      "post_test": "Diode must remain functional after thermal stress"
+    }
+  },
+
+  "data_outputs": {
+    "primary_results": {
+      "max_temperature_recorded": {
+        "value": "Peak temperature in °C during test",
+        "location": "Cell coordinates",
+        "time": "Elapsed time when peak occurred"
+      },
+      "temperature_vs_time": {
+        "description": "Time series of hot-spot temperature",
+        "sampling": "1-minute intervals",
+        "format": "CSV or array"
+      },
+      "thermal_images": {
+        "quantity": "Typically 10-20 images per test",
+        "critical_images": [
+          "Baseline (before shading)",
+          "Initial (t=0 with shading)",
+          "Peak temperature (maximum observed)",
+          "Steady-state (end of 1-hour exposure)",
+          "Post-test (after shadow removal)"
+        ],
+        "format": "Radiometric TIFF with temperature scale"
+      },
+      "performance_retention": {
+        "pmax_change": "Percentage change in maximum power",
+        "isc_change": "Change in short-circuit current",
+        "voc_change": "Change in open-circuit voltage"
+      }
+    },
+    "hot_spot_detection_metrics": {
+      "hot_spot_area": {
+        "definition": "Contiguous region with T > (T_avg + 20°C)",
+        "unit": "cm² or number of cells",
+        "calculation": "Image processing algorithm"
+      },
+      "temperature_gradient": {
+        "definition": "Max temperature - average module temperature",
+        "unit": "°C",
+        "typical_values": "30-70°C depending on shading severity"
+      },
+      "thermal_distribution_map": {
+        "description": "2D temperature map of entire module",
+        "resolution": "Limited by camera pixel resolution",
+        "visualization": "False-color image with temperature scale"
+      }
+    },
+    "bypass_diode_data": {
+      "activation_time": "Time from illumination to diode conduction",
+      "diode_current": "Current through bypass diode during test",
+      "diode_voltage": "Voltage drop across diode (Vf)",
+      "power_dissipation": "Vf × I (watts dissipated in diode)"
+    }
+  },
+
+  "quality_control": {
+    "calibration_requirements": {
+      "thermal_camera": {
+        "frequency": "Annual or after any impact/repair",
+        "standard": "NIST-traceable blackbody calibrator",
+        "acceptance": "±2°C or ±2% of reading",
+        "verification": "Before each test series with reference source"
+      },
+      "solar_simulator": {
+        "frequency": "Quarterly",
+        "standard": "Reference cell calibrated at accredited lab",
+        "parameters": ["Spectral match", "Spatial uniformity", "Temporal stability"],
+        "acceptance": "Class A per IEC 60904-9"
+      },
+      "contact_thermocouples": {
+        "frequency": "Annual",
+        "standard": "NIST-traceable RTD reference",
+        "method": "Dry-well calibrator or ice-water bath",
+        "acceptance": "±0.5°C"
+      },
+      "current_voltage_meters": {
+        "frequency": "Annual",
+        "standard": "NIST-traceable calibrator",
+        "acceptance": "±1% of reading"
+      }
+    },
+    "measurement_uncertainty": {
+      "thermal_camera": {
+        "expanded_uncertainty": "±3°C",
+        "confidence_level": "95% (k=2)",
+        "contributors": [
+          "Camera calibration: ±2°C",
+          "Emissivity uncertainty: ±1.5°C",
+          "Atmospheric attenuation: ±0.5°C",
+          "Reflected temperature: ±1°C"
+        ]
+      },
+      "irradiance": {
+        "expanded_uncertainty": "±3%",
+        "reference": "Pyranometer or reference cell calibration"
+      },
+      "power_measurement": {
+        "expanded_uncertainty": "±3%",
+        "contributors": "Current (±1%), voltage (±1%), simulator (±3%)"
+      }
+    },
+    "repeatability_testing": {
+      "method": "Test same module twice with 24-hour interval",
+      "frequency": "Quarterly or 1 in 10 tests",
+      "acceptance": "Peak temperature within ±5°C between tests",
+      "action_if_failed": "Investigate setup variability, check calibrations"
+    },
+    "control_module": {
+      "purpose": "Monitor test consistency over time",
+      "frequency": "Test control module every 3 months",
+      "parameters": "Peak hot-spot temperature under standard shading",
+      "control_limits": "±10% of historical average",
+      "trending": "Plot results on control chart, investigate any drift"
+    }
+  },
+
+  "hot_spot_detection_algorithms": {
+    "image_processing": {
+      "background_subtraction": {
+        "method": "Subtract baseline thermal image from test image",
+        "purpose": "Isolate temperature rise due to hot-spot",
+        "implementation": "ΔT(x,y) = T_test(x,y) - T_baseline(x,y)"
+      },
+      "thresholding": {
+        "method": "Define hot-spot as pixels exceeding threshold",
+        "threshold_definition": "T > (mean + 2×std_dev) or T > 85°C absolute",
+        "output": "Binary mask of hot-spot region"
+      },
+      "blob_detection": {
+        "method": "Identify connected regions of hot pixels",
+        "parameters": "Minimum area (e.g., > 10 cm²)",
+        "output": "Hot-spot coordinates, area, peak temperature"
+      }
+    },
+    "temporal_analysis": {
+      "temperature_transient": {
+        "model": "Exponential rise: T(t) = T_final × (1 - exp(-t/τ))",
+        "parameters": ["T_final (steady-state)", "τ (time constant)"],
+        "purpose": "Characterize thermal dynamics, predict long-term behavior"
+      },
+      "stability_detection": {
+        "method": "Calculate dT/dt over 10-minute window",
+        "threshold": "|dT/dt| < 0.2°C/min indicates stability",
+        "output": "Time to steady-state"
+      }
+    },
+    "statistical_analysis": {
+      "temperature_histogram": {
+        "method": "Distribution of pixel temperatures",
+        "visualization": "Histogram with normal distribution overlay",
+        "anomaly_detection": "Hot-spot appears as right-tail outlier"
+      },
+      "spatial_autocorrelation": {
+        "method": "Identify clustering of hot pixels",
+        "purpose": "Distinguish localized hot-spot from global heating",
+        "metric": "Moran's I or similar spatial statistic"
+      }
+    }
+  },
+
+  "maintenance": {
+    "solar_simulator": {
+      "lamp_replacement": {
+        "trigger": "Irradiance drops below 95% of rated or spectral match degrades",
+        "procedure": "Replace lamps per manufacturer instructions, re-calibrate",
+        "frequency": "Typically every 1000-2000 hours"
+      },
+      "reflector_cleaning": {
+        "frequency": "Monthly or as needed",
+        "method": "Dry compressed air or manufacturer-approved cleaner",
+        "verification": "Measure uniformity after cleaning"
+      }
+    },
+    "thermal_camera": {
+      "lens_cleaning": {
+        "frequency": "Before each test",
+        "method": "Lens tissue and isopropyl alcohol (or manufacturer-approved cleaner)",
+        "caution": "Avoid scratching germanium lens"
+      },
+      "detector_calibration": {
+        "frequency": "Monthly",
+        "method": "Internal calibration routine (shutter-based NUC)",
+        "verification": "Image uniform-temperature blackbody, check for artifacts"
+      },
+      "firmware_updates": {
+        "frequency": "As released by manufacturer",
+        "procedure": "Follow manufacturer update protocol, verify calibration after update"
+      }
+    },
+    "shading_materials": {
+      "inspection": {
+        "frequency": "Before each test",
+        "checks": "No tears, holes, or degradation; opaque to light",
+        "replacement": "If damaged or after 10 uses"
+      }
+    }
+  },
+
+  "preventive_maintenance_schedule": {
+    "before_each_test": [
+      "Clean thermal camera lens",
+      "Verify simulator irradiance and uniformity",
+      "Check shading material condition",
+      "Calibrate reference cell zero offset"
+    ],
+    "weekly_tasks": [
+      "Review test data for anomalies",
+      "Clean simulator reflectors (if dusty)",
+      "Verify thermal camera detector calibration"
+    ],
+    "monthly_tasks": [
+      "Full thermal camera calibration with blackbody",
+      "Simulator spatial uniformity mapping",
+      "Review control module data on control chart"
+    ],
+    "quarterly_tasks": [
+      "Solar simulator full calibration (spectral match, uniformity, stability)",
+      "Repeatability test on control module",
+      "Review and update hot-spot detection algorithms if needed"
+    ],
+    "annual_tasks": [
+      "Thermal camera recalibration at accredited laboratory or by manufacturer",
+      "Contact thermocouple calibration",
+      "Current/voltage meter calibration",
+      "Comprehensive equipment performance review"
+    ]
+  },
+
+  "non_conformance_handling": {
+    "excessive_temperature": {
+      "condition": "Hot-spot temperature > 105°C",
+      "immediate_action": [
+        "Emergency shutdown: turn off simulator immediately",
+        "Allow module to cool, do not touch",
+        "Photograph module state",
+        "Document peak temperature, time, and conditions"
+      ],
+      "investigation": [
+        "Inspect module for damage (melting, charring, cell cracks)",
+        "Review test setup: was shading pattern correct? Irradiance level?",
+        "Check bypass diode: did it fail to activate?",
+        "Perform failure analysis if module damaged"
+      ],
+      "reporting": "Non-conformance report to engineering and quality teams, notify module manufacturer"
+    },
+    "bypass_diode_failure": {
+      "condition": "Diode does not activate (substring voltage not at -Vf) or diode open/short",
+      "detection": "Voltage measurement during test or pre-test diode check",
+      "immediate_action": [
+        "Do not proceed with hot-spot test if diode non-functional",
+        "Document diode failure mode (open, short, high resistance)",
+        "Remove module from test sequence"
+      ],
+      "investigation": "Determine if diode failure is manufacturing defect or induced by prior test",
+      "corrective_action": "Replace module or repair junction box (if allowed by test plan)"
+    },
+    "simulator_failure": {
+      "condition": "Loss of illumination or irradiance drops >10% during test",
+      "immediate_action": [
+        "Note time of failure and test duration completed",
+        "Allow module to cool",
+        "Inspect simulator: lamp failure? Power supply issue?"
+      ],
+      "test_validity": [
+        "If failure occurred after >90% of test duration: may accept test as valid with documented justification",
+        "If failure early in test: repeat test after simulator repair"
+      ]
+    },
+    "thermal_camera_malfunction": {
+      "condition": "Camera displays error, frozen image, or obviously incorrect temperatures",
+      "immediate_action": [
+        "Continue test if contact thermocouples are available as backup",
+        "Document camera malfunction",
+        "Restart camera or replace with backup unit"
+      ],
+      "data_recovery": "If camera stores data internally, attempt to recover after test; otherwise rely on contact sensor data"
+    },
+    "module_catastrophic_failure": {
+      "condition": "Cell cracking, solder bond failure, arcing, or fire during test",
+      "immediate_action": [
+        "EMERGENCY SHUTDOWN - turn off simulator immediately",
+        "Evacuate area if fire or toxic fumes",
+        "Use CO₂ or dry chemical extinguisher if safe to do so (do not use water on electrical fire)",
+        "Isolate module electrically"
+      ],
+      "investigation": "Full root cause analysis including forensic examination",
+      "reporting": "Immediate notification to safety officer, engineering manager, and module manufacturer"
+    }
+  },
+
+  "data_traceability": {
+    "test_record_package": {
+      "required_documents": [
+        "Test plan with module ID, shading pattern, and acceptance criteria",
+        "Pre-test inspection report with photos",
+        "Baseline I-V curve and thermal image",
+        "Bypass diode pre-test results",
+        "Solar simulator calibration certificate",
+        "Thermal camera calibration certificate",
+        "Complete thermal image sequence (radiometric files)",
+        "Temperature vs. time data log",
+        "Electrical data (current, voltage) during test",
+        "Post-test inspection report with photos",
+        "Final I-V curve and thermal image",
+        "Bypass diode post-test results",
+        "Test report with pass/fail determination"
+      ],
+      "retention_period": "10 years per ISO/IEC 17025",
+      "format": "Electronic with digital signatures, redundant backup"
+    },
+    "thermal_data_management": {
+      "file_naming": "ModuleID_Date_TimeStamp_ImageSequence.tiff",
+      "metadata": "Embed emissivity, distance, ambient temp in EXIF or sidecar file",
+      "archiving": "Store radiometric originals plus exported PNG for quick review",
+      "access": "Secure database with role-based permissions"
+    },
+    "chain_of_custody": {
+      "tracking": "Barcode scan at each transfer",
+      "log_entries": "Date/time, module S/N, personnel, location, condition notes"
+    },
+    "data_integrity": {
+      "checksums": "SHA-256 for all image files and data logs",
+      "audit_trail": "Database logs all access and modifications",
+      "backup": "Daily automated backup to offsite storage"
+    }
+  },
+
+  "health_safety_environment": {
+    "hazards": [
+      {
+        "hazard": "High-intensity light from solar simulator",
+        "risk": "Eye damage, skin burns",
+        "controls": [
+          "Interlocks prevent exposure when personnel in test area",
+          "UV-blocking safety glasses if entering simulator area",
+          "Warning signs and lights",
+          "Minimize time in illuminated area"
+        ]
+      },
+      {
+        "hazard": "High temperature from hot-spot",
+        "risk": "Burns if touching module during/after test",
+        "controls": [
+          "Allow 30-minute cooldown before handling",
+          "Thermal gloves if must handle warm module",
+          "Warning signs on hot equipment"
+        ]
+      },
+      {
+        "hazard": "Electrical shock",
+        "risk": "Shock from module voltage (up to 1000 V DC)",
+        "controls": [
+          "Insulated tools and test leads",
+          "Non-contact voltage testing before handling",
+          "Trained personnel only",
+          "Lockout/tagout for maintenance"
+        ]
+      },
+      {
+        "hazard": "Fire risk from module failure",
+        "risk": "Fire if hot-spot causes ignition",
+        "controls": [
+          "Fire extinguishers (CO₂ or dry chemical) readily available",
+          "Emergency shutdown accessible",
+          "Continuous monitoring during test",
+          "Test area free of flammable materials",
+          "Smoke detectors and alarm system"
+        ]
+      }
+    ],
+    "required_ppe": [
+      "Safety glasses (UV protection if near simulator)",
+      "Thermal gloves (for handling modules)",
+      "ESD wrist strap (when handling electronics)",
+      "Lab coat (to protect clothing)"
+    ],
+    "emergency_procedures": {
+      "fire": "Activate alarm, evacuate, call fire department, use extinguisher only if safe",
+      "electrical_shock": "Do not touch victim if energized, shut off power, call for medical help, administer CPR if trained",
+      "equipment_failure": "Emergency stop button, evacuate if unsafe, notify supervisor"
+    }
+  },
+
+  "training_requirements": {
+    "personnel_qualifications": [
+      "Test technician: High school diploma + 6 months PV testing experience",
+      "Test engineer: BS in engineering/physics + 2 years PV experience",
+      "All personnel: Thermal imaging certification (Level 1 thermographer) preferred"
+    ],
+    "required_training": [
+      "IEC 61215 test sequence overview",
+      "Solar simulator operation and safety",
+      "Thermal camera operation and interpretation",
+      "Hot-spot physics and failure modes",
+      "Emergency response procedures"
+    ],
+    "competency_assessment": {
+      "initial": "Shadow experienced technician for 2 tests, perform 1 test under supervision",
+      "ongoing": "Annual refresher on safety and equipment updates",
+      "documentation": "Training records in personnel files"
+    }
+  },
+
+  "references_and_resources": {
+    "standards_documents": [
+      "IEC 61215-2:2016 - Terrestrial PV modules - Design qualification and type approval - Part 2: Test procedures",
+      "IEC 61730-2:2016 - PV module safety qualification - Part 2: Requirements for testing",
+      "UL 1703:2021 - Flat-Plate Photovoltaic Modules and Panels",
+      "IEC 62790:2014 - Junction boxes for photovoltaic modules - Safety requirements and tests"
+    ],
+    "technical_references": [
+      "IEC 60904-9:2020 - PV devices - Part 9: Solar simulator performance requirements",
+      "ASTM E1862 - Standard Test Methods for Measuring and Compensating for Reflected Temperature Using Infrared Imaging Radiometers",
+      "NREL Technical Report: Hot-Spot Testing of PV Modules"
+    ],
+    "equipment_manuals": [
+      "Solar simulator operation manual",
+      "Thermal imaging camera user guide and analysis software manual",
+      "Junction box and bypass diode specifications"
+    ]
+  },
+
+  "notes_and_best_practices": {
+    "test_optimization": [
+      "Always perform baseline thermal imaging to identify pre-existing anomalies",
+      "Use high-resolution thermal camera (640×480 or better) to resolve individual cell hot spots",
+      "Mount camera on tripod for consistent framing across image sequence",
+      "Test multiple shading patterns (single cell, partial, multi-cell) to characterize worst-case"
+    ],
+    "common_pitfalls": [
+      "Incorrect emissivity setting on thermal camera (use 0.90 for glass, not default 0.95)",
+      "Reflected temperature not accounted for (simulator lamps reflect off glass, causing false high readings)",
+      "Shading material not opaque or not secured (allows light leakage, invalidates test)",
+      "Bypass diode not verified before test (non-functional diode leads to excessive hot-spot)"
+    ],
+    "troubleshooting": {
+      "lower_than_expected_temperature": "Check shading is 100% (light leakage cools hot-spot), verify bypass diode activated (if not, less reverse current through shaded cell)",
+      "runaway_heating": "Bypass diode may have failed; immediately shut down to prevent module damage",
+      "non_uniform_temperature_across_module": "Check simulator uniformity, ensure module is planar and perpendicular to light"
+    },
+    "advanced_analysis": {
+      "thermal_time_constant": "Fit temperature vs. time to exponential model; τ indicates thermal mass and heat dissipation",
+      "diode_power_dissipation": "Calculate from I × Vf; typical 5-15 W; excessive dissipation may overheat junction box",
+      "correlation_with_field_failures": "Compare lab hot-spot signatures to field-failed modules to validate test severity"
+    }
+  }
+}

@@ -1,0 +1,835 @@
+{
+  "protocol_id": "PVTP-009-BD",
+  "protocol_name": "Bypass Diode Thermal Test",
+  "version": "1.0.0",
+  "effective_date": "2025-01-01",
+  "revision_history": [
+    {
+      "version": "1.0.0",
+      "date": "2025-01-01",
+      "author": "Test Engineering Team",
+      "changes": "Initial protocol release based on IEC 61215-2:2016 MQT 18"
+    }
+  ],
+
+  "standards_compliance": {
+    "primary_standard": "IEC 61215-2:2016",
+    "test_sequence": "MQT 18 - Bypass Diode Thermal Test",
+    "related_standards": [
+      "IEC 62790:2014 - Junction boxes for PV modules",
+      "IEC 61730-2:2016 MST 37 - Diode reverse overload",
+      "UL 1703:2021 - Bypass diode requirements"
+    ],
+    "accreditation_requirements": [
+      "ISO/IEC 17025",
+      "Calibrated current source",
+      "Calibrated temperature measurement"
+    ]
+  },
+
+  "protocol_metadata": {
+    "category": "Component Testing",
+    "subcategory": "Electrical Protection",
+    "test_type": "Thermal Stress",
+    "duration_estimate": "200-300 hours (including thermal cycles)",
+    "complexity_level": "Medium",
+    "equipment_requirements": [
+      "DC current source (0-15 A, adjustable)",
+      "Precision voltmeter (±0.01 V)",
+      "Temperature sensors (Type K thermocouples or RTDs)",
+      "Thermal chamber (-40°C to +85°C)",
+      "Curve tracer or parametric analyzer",
+      "Thermal imaging camera (optional)"
+    ],
+    "sample_requirements": {
+      "quantity": "Complete module with junction box and bypass diodes",
+      "alternative": "Junction box assembly removed from module",
+      "traceability": "Module S/N, junction box S/N, diode manufacturer and part number"
+    }
+  },
+
+  "protocol_inputs": {
+    "test_current": {
+      "determination": {
+        "method": "125% of module short-circuit current (Isc) at STC",
+        "justification": "Represents worst-case reverse current through diode under shading conditions",
+        "typical_values": "10-13.5 A for 60-cell modules, 11-15 A for 72-cell modules"
+      },
+      "current_source_specifications": {
+        "accuracy": "±2% of setpoint",
+        "stability": "±1% over test duration",
+        "ripple": "<5% peak-to-peak",
+        "control": "Constant current mode"
+      }
+    },
+    "reverse_voltage_measurement": {
+      "parameter": "Voltage drop across diode in forward conduction (Vf)",
+      "typical_range": "0.4-0.8 V depending on diode type and current",
+      "measurement_method": "Four-wire (Kelvin) connection to eliminate lead resistance",
+      "accuracy_required": "±0.01 V or ±2%, whichever is greater"
+    },
+    "thermal_cycles": {
+      "purpose": "Verify diode reliability under thermal stress",
+      "cycle_definition": {
+        "high_temperature": {
+          "value": 85,
+          "unit": "°C",
+          "tolerance": "±2°C",
+          "duration": "2 hours minimum at temperature"
+        },
+        "low_temperature": {
+          "value": -40,
+          "unit": "°C",
+          "tolerance": "±2°C",
+          "duration": "2 hours minimum at temperature"
+        },
+        "transition_rate": {
+          "maximum": "100°C per hour",
+          "note": "Avoid thermal shock; some standards specify slower rates"
+        }
+      },
+      "number_of_cycles": {
+        "standard": 200,
+        "note": "Per IEC 61215-2 MQT 18",
+        "total_duration": "Approximately 7-10 days depending on chamber capabilities"
+      },
+      "electrical_bias_during_cycling": {
+        "option_1": "No electrical bias (thermal stress only)",
+        "option_2": "Continuous forward bias at test current",
+        "option_3": "Bias applied at temperature extremes only",
+        "selection": "Typically option 1 for MQT 18; option 2 for enhanced testing"
+      }
+    }
+  },
+
+  "diode_performance_characterization": {
+    "forward_voltage": {
+      "measurement_conditions": {
+        "current": "Module Isc × 1.25 (test current)",
+        "temperature": "25°C ± 5°C (ambient)",
+        "measurement_points": "Before test, after 50/100/150/200 cycles, after final conditioning"
+      },
+      "acceptance_criteria": {
+        "initial_range": "0.4-0.8 V (typical for Schottky diodes)",
+        "maximum_shift": "+0.1 V over test",
+        "note": "Increasing Vf indicates diode degradation or increased resistance"
+      },
+      "calculation": "Vf = V_measured - (I × R_leads) where R_leads determined by calibration"
+    },
+    "reverse_leakage_current": {
+      "measurement_conditions": {
+        "voltage": "Apply reverse voltage equal to module Voc at STC",
+        "typical_voltage": "40-50 V for 60-cell modules",
+        "temperature": "25°C and 85°C",
+        "duration": "Apply voltage for 60 seconds, measure final current"
+      },
+      "acceptance_criteria": {
+        "at_25C": {
+          "maximum": "1 mA",
+          "note": "High leakage indicates diode damage or poor quality"
+        },
+        "at_85C": {
+          "maximum": "10 mA",
+          "note": "Leakage increases with temperature; 10× increase is typical"
+        }
+      },
+      "safety_note": "Use current-limited power supply to prevent damage if diode fails short"
+    },
+    "thermal_resistance": {
+      "definition": "Temperature rise per watt of power dissipated",
+      "measurement_method": {
+        "step_1": "Apply test current through diode in forward bias",
+        "step_2": "Measure Vf and junction box temperature after thermal equilibrium (30 min)",
+        "step_3": "Calculate power dissipation: P = Vf × I",
+        "step_4": "Measure ambient temperature",
+        "step_5": "Calculate thermal resistance: Rth = (T_junction_box - T_ambient) / P"
+      },
+      "units": "°C/W",
+      "typical_values": "5-15 °C/W depending on junction box design and heat sinking",
+      "acceptance": "Junction box temperature < 85°C at test current in 25°C ambient",
+      "note": "High thermal resistance indicates poor heat dissipation; may lead to diode overheating in field"
+    },
+    "i_v_characteristic_curve": {
+      "measurement_equipment": "Curve tracer or parametric analyzer",
+      "forward_sweep": {
+        "voltage_range": "0 to 1.5 V",
+        "current_limit": "2 × Isc (safety margin)",
+        "points": "Minimum 50 points for smooth curve"
+      },
+      "reverse_sweep": {
+        "voltage_range": "0 to -Voc",
+        "current_limit": "10 mA (to detect leakage without damage)",
+        "points": "Minimum 20 points"
+      },
+      "temperature_sweep": "Measure curves at -40°C, 25°C, 85°C to characterize temperature dependence",
+      "parameters_extracted": [
+        "Forward voltage at test current (Vf)",
+        "Reverse breakdown voltage (if applicable)",
+        "Reverse leakage at -Voc",
+        "Dynamic resistance (dV/dI in forward region)",
+        "Ideality factor (n) from log(I) vs V plot"
+      ]
+    }
+  },
+
+  "test_procedure": {
+    "pre_test_preparation": [
+      {
+        "step": 1,
+        "action": "Module/junction box identification",
+        "details": "Record module S/N, junction box S/N, diode manufacturer and part number",
+        "documentation": "Photograph junction box interior showing diode placement"
+      },
+      {
+        "step": 2,
+        "action": "Visual inspection",
+        "details": "Inspect junction box for damage, corrosion, poor solder joints",
+        "acceptance": "No visible defects"
+      },
+      {
+        "step": 3,
+        "action": "Diode identification and mapping",
+        "details": "Identify which diode protects which substring (typically 3 diodes for 60-cell module)",
+        "method": "Use multimeter in diode test mode or apply forward bias and measure substring voltage",
+        "documentation": "Create diode-to-substring mapping diagram"
+      },
+      {
+        "step": 4,
+        "action": "Baseline I-V curve measurement",
+        "details": "Measure forward and reverse I-V curves for each diode at 25°C",
+        "purpose": "Establish pre-test characteristics"
+      },
+      {
+        "step": 5,
+        "action": "Baseline Vf measurement",
+        "details": "Apply test current (1.25 × Isc), measure Vf for each diode",
+        "note": "Record temperature at time of measurement"
+      },
+      {
+        "step": 6,
+        "action": "Reverse leakage test",
+        "details": "Apply reverse voltage equal to Voc, measure leakage current at 25°C and 85°C",
+        "acceptance": "< 1 mA at 25°C, < 10 mA at 85°C"
+      },
+      {
+        "step": 7,
+        "action": "Thermal resistance measurement",
+        "details": "Apply test current, measure junction box temperature rise",
+        "acceptance": "Junction box temperature < 85°C in 25°C ambient"
+      },
+      {
+        "step": 8,
+        "action": "Test setup preparation",
+        "details": [
+          "Connect current source to diode terminals (forward bias)",
+          "Four-wire voltage measurement across diode",
+          "Attach thermocouple to junction box near diode",
+          "If thermal cycling: place module/junction box in thermal chamber"
+        ]
+      }
+    ],
+
+    "thermal_cycling_test": [
+      {
+        "step": 1,
+        "action": "Chamber programming",
+        "details": "Program thermal chamber for 200 cycles: -40°C to +85°C",
+        "profile": [
+          "Ramp from ambient to -40°C (typically 1-2 hours)",
+          "Hold at -40°C for 2 hours",
+          "Ramp to +85°C (typically 2-3 hours)",
+          "Hold at +85°C for 2 hours",
+          "Repeat 200 times"
+        ],
+        "total_duration": "Approximately 7-10 days"
+      },
+      {
+        "step": 2,
+        "action": "Chamber verification",
+        "details": "Verify chamber can achieve temperature extremes and transitions",
+        "acceptance": "Temperature stability ±2°C at extremes"
+      },
+      {
+        "step": 3,
+        "action": "Module placement",
+        "details": "Place module or junction box in chamber, route electrical leads through chamber port",
+        "considerations": "Avoid mechanical stress on wires; ensure module is secured against vibration"
+      },
+      {
+        "step": 4,
+        "action": "Data logging setup",
+        "details": "Connect temperature sensors to data logger, verify recording",
+        "parameters": "Chamber temperature, junction box temperature (if applicable)",
+        "frequency": "1-minute intervals"
+      },
+      {
+        "step": 5,
+        "action": "Commence cycling",
+        "details": "Start thermal chamber program",
+        "monitoring": "Automated with alarm notifications for out-of-range temperatures"
+      },
+      {
+        "step": 6,
+        "action": "Interim inspections",
+        "details": "At cycles 50, 100, 150: pause chamber, allow module to equilibrate to 25°C, perform Vf and I-V measurements",
+        "purpose": "Track diode degradation over cycles",
+        "duration": "Each inspection adds ~4 hours to test (cooldown, measurement, restart)"
+      },
+      {
+        "step": 7,
+        "action": "Cycle completion",
+        "details": "After 200 cycles, end chamber at room temperature",
+        "stabilization": "Allow 24 hours for module to stabilize before final measurements"
+      }
+    ],
+
+    "current_stress_test": [
+      {
+        "step": 1,
+        "action": "Test current application",
+        "details": "Apply 1.25 × Isc in forward bias through each diode",
+        "duration": "1 hour per diode (can test all diodes simultaneously if equipment allows)",
+        "monitoring": "Measure Vf and junction box temperature continuously"
+      },
+      {
+        "step": 2,
+        "action": "Thermal equilibrium",
+        "details": "Continue current until junction box temperature stabilizes (typically 30-60 minutes)",
+        "definition": "Stable = temperature change < 1°C over 15 minutes"
+      },
+      {
+        "step": 3,
+        "action": "Performance verification",
+        "details": "Record final Vf and junction box temperature",
+        "acceptance": [
+          "Vf < 0.9 V (no excessive increase)",
+          "Junction box temperature < 85°C",
+          "No odor, smoke, or visible damage"
+        ]
+      }
+    ],
+
+    "post_test_evaluation": [
+      {
+        "step": 1,
+        "action": "Visual inspection",
+        "details": "Inspect junction box and diodes for physical damage",
+        "defects_to_check": [
+          "Discoloration or charring of PCB",
+          "Melted solder or components",
+          "Cracked diode packages",
+          "Corrosion or oxidation"
+        ],
+        "documentation": "High-resolution photos"
+      },
+      {
+        "step": 2,
+        "action": "Final I-V curve measurement",
+        "details": "Measure forward and reverse I-V curves at 25°C",
+        "comparison": "Overlay with baseline curves to assess degradation"
+      },
+      {
+        "step": 3,
+        "action": "Final Vf measurement",
+        "details": "Apply test current, measure Vf for each diode",
+        "acceptance": "Vf increase < 0.1 V compared to baseline"
+      },
+      {
+        "step": 4,
+        "action": "Final reverse leakage test",
+        "details": "Apply reverse voltage, measure leakage at 25°C and 85°C",
+        "acceptance": "Leakage increase < 2× baseline (still within < 10 mA at 85°C)"
+      },
+      {
+        "step": 5,
+        "action": "Thermal resistance re-measurement",
+        "details": "Apply test current, measure junction box temperature rise",
+        "comparison": "Should be within 20% of baseline; significant increase indicates degraded thermal interface"
+      },
+      {
+        "step": 6,
+        "action": "Functional test in module",
+        "details": "If diodes still in module: perform hot-spot test or reverse-bias test to verify diode activates",
+        "acceptance": "Diode conducts when substring is shaded, protecting cells from excessive reverse bias"
+      }
+    ]
+  },
+
+  "acceptance_criteria": {
+    "forward_voltage": {
+      "initial_requirement": {
+        "typical": "0.4-0.8 V at test current",
+        "maximum": "0.9 V",
+        "note": "Depends on diode type (Schottky typically 0.4-0.6 V, PN junction 0.6-0.8 V)"
+      },
+      "post_test_requirement": {
+        "maximum_increase": "0.1 V compared to baseline",
+        "absolute_maximum": "0.9 V",
+        "rationale": "Excessive Vf increase indicates degradation, increased power dissipation, and potential overheating in field"
+      }
+    },
+    "reverse_leakage_current": {
+      "at_25C": {
+        "initial_maximum": "1 mA at -Voc",
+        "post_test_maximum": "2 mA at -Voc (or 2× baseline)"
+      },
+      "at_85C": {
+        "initial_maximum": "10 mA at -Voc",
+        "post_test_maximum": "20 mA at -Voc (or 2× baseline)"
+      },
+      "note": "High leakage indicates diode damage or poor quality; may not protect cells adequately"
+    },
+    "thermal_performance": {
+      "junction_box_temperature": {
+        "maximum": "85°C at test current in 25°C ambient",
+        "consequence": "Exceeding 85°C may degrade junction box components (potting compound, cable insulation)"
+      },
+      "thermal_resistance": {
+        "typical": "5-15 °C/W",
+        "maximum_increase": "20% over baseline",
+        "note": "Increasing thermal resistance indicates degraded thermal interface or damaged heat sink"
+      }
+    },
+    "visual_inspection": {
+      "no_major_defects": [
+        "No cracked or damaged diode packages",
+        "No charred or discolored PCB",
+        "No melted solder joints",
+        "No delamination of potting compound"
+      ],
+      "minor_defects_acceptable": [
+        "Slight discoloration of potting compound (if no electrical degradation)"
+      ]
+    },
+    "functional_test": {
+      "diode_activation": "Diode must conduct when forward-biased (substring shaded)",
+      "protection": "Cell reverse voltage must not exceed breakdown when diode active"
+    }
+  },
+
+  "data_outputs": {
+    "primary_results": {
+      "forward_voltage_data": {
+        "parameters": "Vf at test current",
+        "measurement_points": "Baseline, after 50/100/150/200 cycles, post-test",
+        "format": "Table with diode ID, cycle number, Vf, temperature",
+        "visualization": "Vf vs. cycle number plot"
+      },
+      "reverse_leakage_data": {
+        "parameters": "Leakage current at -Voc",
+        "temperatures": "25°C and 85°C",
+        "measurement_points": "Baseline, post-test",
+        "format": "Table with diode ID, temperature, leakage current"
+      },
+      "thermal_resistance_data": {
+        "parameters": "Junction box temperature, ambient temperature, power dissipation, Rth",
+        "measurement_points": "Baseline, post-test",
+        "calculation": "Rth = (T_junction_box - T_ambient) / (Vf × I)"
+      },
+      "i_v_curves": {
+        "data": "Current vs. voltage arrays",
+        "conditions": "Baseline and post-test at 25°C",
+        "format": "CSV or arrays with metadata",
+        "visualization": "Overlay plots showing forward and reverse characteristics"
+      }
+    },
+    "time_series_data": {
+      "thermal_cycling_log": {
+        "columns": [
+          "Timestamp",
+          "Cycle_number",
+          "Chamber_temperature_C",
+          "Junction_box_temperature_C (if monitored)"
+        ],
+        "frequency": "1-minute intervals",
+        "format": "CSV with ISO 8601 timestamps",
+        "size": "Approximately 200,000 rows for 200 cycles"
+      },
+      "current_stress_log": {
+        "columns": [
+          "Timestamp",
+          "Diode_ID",
+          "Current_A",
+          "Voltage_V",
+          "Junction_box_temperature_C"
+        ],
+        "frequency": "1-second intervals during 1-hour stress test",
+        "purpose": "Track thermal transient and voltage stability"
+      }
+    },
+    "images": {
+      "junction_box_photos": "Before and after high-resolution images",
+      "diode_close_ups": "Macro photography of diode packages",
+      "thermal_images": "If thermal camera used: images during current stress test"
+    }
+  },
+
+  "quality_control": {
+    "calibration_requirements": {
+      "current_source": {
+        "frequency": "Annual",
+        "standard": "NIST-traceable current shunt or calibrated ammeter",
+        "acceptance": "±2% of setpoint",
+        "verification": "Before each test series with calibrated ammeter"
+      },
+      "voltmeter": {
+        "frequency": "Annual",
+        "standard": "NIST-traceable voltage reference",
+        "acceptance": "±0.01 V or ±0.5%, whichever is greater",
+        "method": "Calibrate against precision voltage source"
+      },
+      "temperature_sensors": {
+        "frequency": "Annual",
+        "standard": "NIST-traceable RTD or thermocouple reference",
+        "acceptance": "±0.5°C",
+        "method": "Dry-well calibrator or ice-water bath"
+      },
+      "thermal_chamber": {
+        "frequency": "Annual",
+        "verification": "Temperature accuracy and uniformity across chamber volume",
+        "acceptance": "±2°C at extremes, uniformity ±3°C",
+        "method": "Multi-point temperature mapping with calibrated sensors"
+      }
+    },
+    "measurement_uncertainty": {
+      "forward_voltage": {
+        "expanded_uncertainty": "±0.02 V",
+        "confidence_level": "95% (k=2)",
+        "contributors": [
+          "Voltmeter accuracy: ±0.01 V",
+          "Lead resistance uncertainty: ±0.005 V",
+          "Temperature coefficient: ±0.005 V",
+          "Noise and drift: ±0.005 V"
+        ]
+      },
+      "current": {
+        "expanded_uncertainty": "±3%",
+        "contributors": "Current source accuracy (±2%), measurement accuracy (±1%)"
+      },
+      "temperature": {
+        "expanded_uncertainty": "±1.5°C",
+        "contributors": "Sensor accuracy (±0.5°C), chamber uniformity (±1.0°C)"
+      },
+      "thermal_resistance": {
+        "expanded_uncertainty": "±25%",
+        "note": "High uncertainty due to compound uncertainties in temperature and power",
+        "contributors": "Temperature (±1.5°C), voltage (±0.02 V), current (±3%)"
+      }
+    },
+    "repeatability_testing": {
+      "method": "Test 3 diodes from same module or batch",
+      "frequency": "1 in 10 tests or quarterly",
+      "acceptance": "Standard deviation of Vf < 0.05 V, leakage < 50% RSD",
+      "action_if_failed": "Investigate setup, diode batch variation, or measurement technique"
+    },
+    "control_diode": {
+      "purpose": "Monitor test consistency over time",
+      "method": "Maintain set of reference diodes, test quarterly",
+      "parameters": "Vf and leakage current",
+      "control_limits": "Vf within ±0.05 V of historical average",
+      "trending": "Plot on control chart, investigate any drift"
+    }
+  },
+
+  "maintenance": {
+    "current_source": {
+      "daily_checks": "Verify output current with calibrated meter before use",
+      "monthly_cleaning": "Remove dust from ventilation ports",
+      "annual_service": "Calibration by manufacturer or accredited lab"
+    },
+    "thermal_chamber": {
+      "weekly_tasks": [
+        "Check door seals for damage",
+        "Verify circulation fans operate",
+        "Drain condensate (if applicable)"
+      ],
+      "monthly_tasks": [
+        "Clean interior surfaces",
+        "Check refrigerant levels (if applicable)",
+        "Test emergency shutdown"
+      ],
+      "quarterly_tasks": [
+        "Temperature uniformity verification",
+        "Calibrate chamber sensors"
+      ],
+      "annual_tasks": [
+        "Full performance qualification",
+        "Service by manufacturer (refrigeration system, controls)"
+      ]
+    },
+    "measurement_equipment": {
+      "before_each_use": [
+        "Zero voltage and current meters",
+        "Verify lead resistance (should be < 0.05 Ω for four-wire measurement)",
+        "Check thermocouple connections"
+      ]
+    }
+  },
+
+  "preventive_maintenance_schedule": {
+    "before_each_test": [
+      "Calibrate current source against reference",
+      "Verify voltmeter zero and span",
+      "Check thermocouple response (ice-water bath or known reference)",
+      "Inspect test leads for damage"
+    ],
+    "weekly_tasks": [
+      "Review thermal chamber performance logs",
+      "Clean chamber interior if dusty"
+    ],
+    "monthly_tasks": [
+      "Test control diode (reference diode with known characteristics)",
+      "Verify thermal chamber uniformity",
+      "Review test data for anomalies or trends"
+    ],
+    "quarterly_tasks": [
+      "Repeatability test on multiple diodes from same batch",
+      "Full thermal chamber qualification"
+    ],
+    "annual_tasks": [
+      "Current source calibration at accredited lab",
+      "Voltmeter calibration",
+      "Temperature sensor calibration",
+      "Thermal chamber performance qualification and service"
+    ]
+  },
+
+  "non_conformance_handling": {
+    "diode_failure_during_test": {
+      "condition": "Diode fails short-circuit or open-circuit during thermal cycling or current stress",
+      "detection": "Voltage measurement shows 0 V (short) or very high (open)",
+      "immediate_action": [
+        "Stop current application if short (to prevent damage to current source)",
+        "Document failure mode, cycle number, and temperature at failure",
+        "Photograph failed diode"
+      ],
+      "investigation": [
+        "Remove diode from junction box for forensic analysis",
+        "Cross-section diode to identify failure mechanism (bond wire lift-off, die crack, etc.)",
+        "Review diode manufacturer quality records"
+      ],
+      "corrective_action": "Report to module manufacturer; may require diode design change or vendor change"
+    },
+    "thermal_chamber_failure": {
+      "condition": "Chamber unable to reach temperature extremes or maintain stability",
+      "immediate_action": [
+        "Pause test and document current cycle number",
+        "Investigate cause (refrigeration failure, controller malfunction, door seal leak)",
+        "Repair chamber"
+      ],
+      "test_validity": [
+        "If failure occurred after >90% of cycles complete: may accept test with documented justification",
+        "If failure early: restart test after repair"
+      ]
+    },
+    "excessive_vf_increase": {
+      "condition": "Vf increases >0.1 V during test",
+      "investigation": [
+        "Check for poor contact at diode terminals (high resistance)",
+        "Verify test current was not excessive",
+        "Inspect diode for physical damage",
+        "Measure I-V curve to characterize degradation"
+      ],
+      "reporting": "Non-conformance report; module fails test"
+    },
+    "high_reverse_leakage": {
+      "condition": "Reverse leakage >10 mA at 25°C or >20 mA at 85°C post-test",
+      "investigation": [
+        "Verify measurement setup (correct polarity, voltage level)",
+        "Check for diode damage during test",
+        "Review thermal cycling profile (excessive temperature or rate?)"
+      ],
+      "corrective_action": "Module fails test; report to manufacturer"
+    },
+    "junction_box_overheating": {
+      "condition": "Junction box temperature >85°C during current stress test",
+      "immediate_action": [
+        "Reduce current or stop test to prevent damage",
+        "Document temperature and conditions",
+        "Allow cooldown"
+      ],
+      "investigation": [
+        "Check thermal resistance calculation (may indicate poor heat sink design)",
+        "Verify ambient temperature was 25°C",
+        "Inspect for blocked ventilation or poor thermal interface"
+      ],
+      "corrective_action": "Report to module manufacturer; junction box design may need improvement"
+    }
+  },
+
+  "data_traceability": {
+    "test_record_package": {
+      "required_documents": [
+        "Test plan with module ID, diode specifications, and test parameters",
+        "Pre-test inspection report with junction box photos",
+        "Baseline I-V curves for all diodes",
+        "Baseline Vf, leakage, and thermal resistance data",
+        "Equipment calibration certificates",
+        "Thermal cycling log (200 cycles of temperature data)",
+        "Interim measurement data (at cycles 50, 100, 150)",
+        "Current stress test data log",
+        "Post-test I-V curves",
+        "Final Vf, leakage, and thermal resistance data",
+        "Post-test inspection report with photos",
+        "Test report with pass/fail determination"
+      ],
+      "retention_period": "10 years per ISO/IEC 17025",
+      "format": "Electronic with digital signatures, redundant backup"
+    },
+    "diode_traceability": {
+      "information_required": [
+        "Diode manufacturer and part number",
+        "Date code or lot code",
+        "Junction box manufacturer and model",
+        "Module serial number",
+        "Substring assignment (which diode protects which cells)"
+      ],
+      "purpose": "Enable traceability in case of field failures or recalls"
+    },
+    "data_integrity": {
+      "automated_logging": "Direct digital acquisition from instruments, no manual entry",
+      "checksums": "SHA-256 for all data files",
+      "audit_trail": "Database logs all access and modifications with timestamps and user IDs",
+      "backup": "Daily automated backup to offsite storage"
+    },
+    "chain_of_custody": {
+      "tracking": "Barcode scan at each module transfer",
+      "log_entries": "Date/time, module S/N, personnel, location, condition notes"
+    }
+  },
+
+  "health_safety_environment": {
+    "hazards": [
+      {
+        "hazard": "Electrical shock from high current",
+        "risk": "Shock or burns from 10-15 A current",
+        "controls": [
+          "Insulated test leads and connectors",
+          "Current source with overload protection",
+          "Only qualified personnel perform electrical connections",
+          "Verify connections before energizing",
+          "Lockout/tagout for maintenance"
+        ]
+      },
+      {
+        "hazard": "Electrical shock from high voltage (reverse bias test)",
+        "risk": "Shock from up to 1000 V DC during reverse leakage test",
+        "controls": [
+          "Current-limited power supply (max 10 mA)",
+          "Insulated probes and test leads",
+          "Non-contact voltage verification before handling",
+          "Work on insulated surface",
+          "One-hand rule when probing live circuits"
+        ]
+      },
+      {
+        "hazard": "Extreme temperatures in thermal chamber",
+        "risk": "Frostbite from -40°C or burns from +85°C",
+        "controls": [
+          "Do not reach into chamber during operation",
+          "Allow chamber to return to ambient before accessing",
+          "Thermal gloves if must handle cold/hot items",
+          "Chamber door interlocks"
+        ]
+      },
+      {
+        "hazard": "Hot junction box during current stress test",
+        "risk": "Burns from junction box at 85°C",
+        "controls": [
+          "Do not touch junction box during test",
+          "Warning labels on test setup",
+          "Allow cooldown before handling",
+          "Thermal gloves if must handle"
+        ]
+      }
+    ],
+    "required_ppe": [
+      "Safety glasses",
+      "Insulated gloves (for electrical work)",
+      "Thermal gloves (for handling cold/hot items)",
+      "ESD wrist strap (when handling sensitive electronics)"
+    ],
+    "environmental_considerations": {
+      "energy_consumption": "Thermal chamber consumes significant power (typically 5-10 kW) for extended period",
+      "refrigerant": "Chambers may contain HFC refrigerants; prevent leaks, service per EPA regulations"
+    }
+  },
+
+  "training_requirements": {
+    "personnel_qualifications": [
+      "Test technician: High school diploma + electronics/electrical training",
+      "Test engineer: BS in electrical engineering or physics + 1 year experience",
+      "All personnel: High-current and high-voltage electrical safety training"
+    ],
+    "required_training": [
+      "IEC 61215 bypass diode test requirements",
+      "Electrical safety (NFPA 70E or equivalent)",
+      "Curve tracer or parametric analyzer operation",
+      "Thermal chamber operation and safety",
+      "Diode physics and failure modes"
+    ],
+    "competency_assessment": {
+      "initial": "Shadow experienced technician for 2 tests, perform 1 test under supervision",
+      "ongoing": "Annual electrical safety refresher",
+      "documentation": "Training records in personnel files"
+    }
+  },
+
+  "references_and_resources": {
+    "standards_documents": [
+      "IEC 61215-2:2016 - Terrestrial PV modules - Design qualification and type approval - Part 2: Test procedures",
+      "IEC 62790:2014 - Junction boxes for photovoltaic modules - Safety requirements and tests",
+      "IEC 61730-2:2016 - PV module safety qualification - Part 2: Requirements for testing",
+      "UL 1703:2021 - Flat-Plate Photovoltaic Modules and Panels"
+    ],
+    "technical_references": [
+      "Semiconductor diode datasheets (Schottky vs. PN junction characteristics)",
+      "IEC 60747 series - Semiconductor devices",
+      "Application notes on bypass diode selection and thermal management"
+    ],
+    "equipment_manuals": [
+      "DC current source operation manual",
+      "Curve tracer or parametric analyzer user guide",
+      "Thermal chamber operation manual"
+    ]
+  },
+
+  "notes_and_best_practices": {
+    "test_optimization": [
+      "Use four-wire (Kelvin) measurement to eliminate lead resistance errors in Vf measurement",
+      "Test all diodes in module (typically 3) to identify batch variation or single-diode failures",
+      "Perform interim measurements during thermal cycling to track degradation kinetics",
+      "Use thermal imaging during current stress test to identify hot spots in junction box"
+    ],
+    "common_pitfalls": [
+      "Two-wire measurement includes lead resistance, overestimating Vf by 0.05-0.1 V",
+      "Not allowing sufficient time for thermal equilibrium during current stress test (need 30-60 min)",
+      "Applying excessive reverse voltage during leakage test, damaging diode",
+      "Forgetting to account for temperature coefficient of Vf (approximately -2 mV/°C)"
+    ],
+    "diode_selection_guidance": {
+      "schottky_diodes": {
+        "advantages": "Low Vf (0.4-0.6 V), fast switching, low power dissipation",
+        "disadvantages": "Higher reverse leakage, lower reverse voltage rating",
+        "typical_use": "Standard PV modules"
+      },
+      "pn_junction_diodes": {
+        "advantages": "Low reverse leakage, high reverse voltage capability",
+        "disadvantages": "Higher Vf (0.6-0.8 V), more power dissipation, slower switching",
+        "typical_use": "High-voltage modules or where low leakage is critical"
+      }
+    },
+    "troubleshooting": {
+      "vf_reading_too_high": "Check for poor contact, use four-wire measurement, verify current level",
+      "vf_varies_between_measurements": "Allow longer stabilization time, control temperature, check connections",
+      "high_reverse_leakage": "Verify polarity, check for diode damage, ensure temperature is stable",
+      "junction_box_overheating": "Improve ventilation, check thermal interface, consider heat sink or potting compound with better thermal conductivity"
+    },
+    "advanced_analysis": {
+      "ideality_factor": "Plot ln(I) vs V in forward region; slope = q/(nkT) gives ideality factor n (1 for ideal diode, 1.5-2 for real diodes)",
+      "temperature_coefficient": "Measure Vf at multiple temperatures; typical coefficient is -2 mV/°C for Schottky diodes",
+      "aging_acceleration": "Arrhenius model can predict field lifetime from accelerated thermal cycling",
+      "correlation_with_field_failures": "Compare lab failure modes to field-failed modules to validate test severity and acceptance criteria"
+    }
+  }
+}

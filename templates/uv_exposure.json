@@ -1,0 +1,689 @@
+{
+  "protocol_id": "PVTP-007-UV",
+  "protocol_name": "UV Exposure Test",
+  "version": "1.0.0",
+  "effective_date": "2025-01-01",
+  "revision_history": [
+    {
+      "version": "1.0.0",
+      "date": "2025-01-01",
+      "author": "Test Engineering Team",
+      "changes": "Initial protocol release based on IEC 61215-2:2016 MQT 10"
+    }
+  ],
+
+  "standards_compliance": {
+    "primary_standard": "IEC 61215-2:2016",
+    "test_sequence": "MQT 10 - UV Preconditioning Test",
+    "related_standards": [
+      "IEC 61730-2:2016",
+      "ISO 9806:2017",
+      "ASTM G173-03"
+    ],
+    "accreditation_requirements": [
+      "ISO/IEC 17025",
+      "Laboratory UV chamber calibration certificate"
+    ]
+  },
+
+  "protocol_metadata": {
+    "category": "Environmental Testing",
+    "subcategory": "Optical Degradation",
+    "test_type": "Accelerated Aging",
+    "duration_estimate": "1000-4000 hours",
+    "complexity_level": "High",
+    "equipment_requirements": [
+      "UV chamber with UVA fluorescent lamps",
+      "Spectroradiometer (280-400 nm)",
+      "Pyranometer (0.6 W/m²/nm @ 340 nm)",
+      "Temperature monitoring system",
+      "UV dose integration system"
+    ],
+    "sample_requirements": {
+      "quantity": "1 module per test condition",
+      "conditioning": "Pre-test at STC, document baseline performance",
+      "traceability": "Serial number, manufacturing date, initial Pmax"
+    }
+  },
+
+  "protocol_inputs": {
+    "uv_dose_options": {
+      "standard_dose": {
+        "value": 15,
+        "unit": "kWh/m²",
+        "wavelength_range": "280-400 nm",
+        "equivalent_to": "Approximately 1 year outdoor exposure",
+        "application": "Standard module qualification"
+      },
+      "extended_dose": {
+        "value": 60,
+        "unit": "kWh/m²",
+        "wavelength_range": "280-400 nm",
+        "equivalent_to": "Approximately 4 years outdoor exposure",
+        "application": "Enhanced durability testing"
+      }
+    },
+    "irradiance_specification": {
+      "spectral_irradiance": {
+        "value": 0.6,
+        "unit": "W/m²/nm",
+        "wavelength": "340 nm",
+        "tolerance": "±10%",
+        "measurement_method": "Spectroradiometer calibrated to NIST standards"
+      },
+      "total_uv_irradiance": {
+        "minimum": 40,
+        "typical": 60,
+        "maximum": 80,
+        "unit": "W/m²",
+        "wavelength_range": "280-400 nm"
+      }
+    },
+    "temperature_control": {
+      "chamber_temperature": {
+        "setpoint": 60,
+        "tolerance": 5,
+        "unit": "°C",
+        "measurement_location": "Module backsheet surface",
+        "monitoring_interval": "1 minute",
+        "control_method": "PID closed-loop"
+      },
+      "uniformity_requirement": {
+        "spatial_variation": "±2°C within test plane",
+        "verification_interval": "Quarterly"
+      }
+    },
+    "exposure_schedule": {
+      "daily_hours": {
+        "minimum": 8,
+        "typical": 12,
+        "maximum": 24,
+        "unit": "hours/day"
+      },
+      "lamp_warmup": "30 minutes before measurement",
+      "maintenance_window": "Weekly, 4 hours"
+    }
+  },
+
+  "exposure_tracking": {
+    "cumulative_dose": {
+      "measurement": "Continuous integration via calibrated UV sensor",
+      "recording_interval": "15 minutes",
+      "calculation": "∫(E_UV * dt) where E_UV is spectral irradiance",
+      "verification": "Daily cross-check with secondary sensor",
+      "target_tolerance": "±5% of target dose"
+    },
+    "daily_hours_log": {
+      "parameters": [
+        "Start time",
+        "End time",
+        "Total exposure hours",
+        "Average irradiance",
+        "Dose accumulated",
+        "Chamber temperature (min/avg/max)",
+        "Any interruptions or anomalies"
+      ],
+      "format": "Digital log with automated timestamping",
+      "review_frequency": "Daily by test technician"
+    },
+    "spectrum_verification": {
+      "frequency": "Monthly or after lamp replacement",
+      "wavelength_range": "280-400 nm",
+      "resolution": "1 nm",
+      "acceptance_criteria": {
+        "peak_wavelength": "340 ± 5 nm",
+        "spectral_distribution": "Must match reference spectrum within 15%",
+        "UVA_to_UVB_ratio": "95:5 ± 2%"
+      },
+      "calibration_reference": "NIST-traceable spectral irradiance standard"
+    },
+    "spatial_uniformity": {
+      "verification_method": "9-point grid measurement",
+      "frequency": "Quarterly",
+      "acceptance": "All points within ±10% of average irradiance"
+    }
+  },
+
+  "test_procedure": {
+    "pre_test_preparation": [
+      {
+        "step": 1,
+        "action": "Visual inspection",
+        "details": "Document any existing defects, discoloration, or damage",
+        "acceptance": "Module must be free of manufacturing defects"
+      },
+      {
+        "step": 2,
+        "action": "Baseline electrical characterization",
+        "details": "Measure I-V curve at STC (1000 W/m², 25°C, AM1.5G)",
+        "parameters": ["Pmax", "Voc", "Isc", "FF", "Vmp", "Imp"],
+        "documentation": "Store reference curve and all parameters"
+      },
+      {
+        "step": 3,
+        "action": "Electroluminescence (EL) imaging",
+        "details": "Baseline EL image to identify existing cell defects",
+        "settings": "Forward bias at Isc, high-resolution camera"
+      },
+      {
+        "step": 4,
+        "action": "UV chamber preparation",
+        "details": "Verify chamber cleanliness, lamp hours, calibration status",
+        "requirements": "All calibrations current, lamps < 2000 hours"
+      },
+      {
+        "step": 5,
+        "action": "Sensor calibration verification",
+        "details": "Compare working standards to reference sensor",
+        "tolerance": "Within 3% of reference"
+      }
+    ],
+
+    "test_execution": [
+      {
+        "step": 1,
+        "action": "Module positioning",
+        "details": "Mount module in test plane with front surface facing lamps",
+        "requirements": [
+          "Module secured to prevent movement",
+          "Temperature sensor attached to backsheet center",
+          "UV sensor positioned adjacent to module"
+        ]
+      },
+      {
+        "step": 2,
+        "action": "Chamber stabilization",
+        "details": "Start lamps and allow 30-minute warmup",
+        "verification": "Irradiance stable within ±5% for 15 minutes"
+      },
+      {
+        "step": 3,
+        "action": "Commence UV exposure",
+        "details": "Begin dose integration and data logging",
+        "monitoring": "Automated system logs irradiance, temperature, dose every 15 min"
+      },
+      {
+        "step": 4,
+        "action": "Daily inspection",
+        "details": "Visual check through chamber window for obvious changes",
+        "documentation": "Log any observed changes (yellowing, delamination, etc.)"
+      },
+      {
+        "step": 5,
+        "action": "Weekly maintenance",
+        "details": "Clean chamber windows, verify lamp operation, check cooling system",
+        "duration": "Maximum 4 hours (pause exposure during maintenance)"
+      },
+      {
+        "step": 6,
+        "action": "Interim measurements (optional)",
+        "details": "At 25%, 50%, 75% dose completion: remove module, measure STC performance",
+        "purpose": "Track degradation kinetics"
+      },
+      {
+        "step": 7,
+        "action": "Exposure completion",
+        "details": "Stop exposure when target dose achieved within ±5%",
+        "verification": "Cross-check dose from primary and secondary sensors"
+      }
+    ],
+
+    "post_test_evaluation": [
+      {
+        "step": 1,
+        "action": "Stabilization period",
+        "details": "Allow module to cool and stabilize for 24 hours",
+        "conditions": "Room temperature, dark conditions"
+      },
+      {
+        "step": 2,
+        "action": "Visual inspection",
+        "details": "Document all changes: discoloration, delamination, bubbles, corrosion",
+        "method": "High-resolution photography, comparison to baseline"
+      },
+      {
+        "step": 3,
+        "action": "Final electrical characterization",
+        "details": "Measure I-V curve at STC",
+        "comparison": "Calculate percentage change in Pmax, Voc, Isc, FF"
+      },
+      {
+        "step": 4,
+        "action": "Post-test EL imaging",
+        "details": "Compare to baseline EL, identify new defects or propagation",
+        "analysis": "Quantify dark area percentage, cell cracking"
+      },
+      {
+        "step": 5,
+        "action": "Wet leakage current test",
+        "details": "Per IEC 61215-2 MQT 01, measure ground leakage",
+        "acceptance": "< 1000 µA for Class II modules"
+      }
+    ]
+  },
+
+  "acceptance_criteria": {
+    "electrical_performance": {
+      "power_degradation": {
+        "maximum_allowed": 5,
+        "unit": "%",
+        "calculation": "100 × (Pmax_initial - Pmax_final) / Pmax_initial",
+        "severity": "Critical failure if exceeded"
+      },
+      "fill_factor": {
+        "minimum_retained": 95,
+        "unit": "%",
+        "note": "Relative to initial value"
+      }
+    },
+    "visual_inspection": {
+      "major_defects": [
+        "No broken cells",
+        "No open solder bonds",
+        "No significant delamination (> 10% of cell area)",
+        "No bubbles in encapsulant (> 5 mm diameter)"
+      ],
+      "minor_defects_acceptable": [
+        "Slight encapsulant yellowing (quantified by colorimetry)",
+        "Edge seal discoloration < 5 mm from frame"
+      ]
+    },
+    "safety": {
+      "wet_leakage_current": {
+        "limit": 1000,
+        "unit": "µA",
+        "test_voltage": "1.2 × Voc + 500 V"
+      },
+      "insulation_resistance": {
+        "minimum": 400,
+        "unit": "MΩ·m²",
+        "test_voltage": "1000 V DC"
+      }
+    }
+  },
+
+  "data_outputs": {
+    "primary_results": {
+      "uv_dose_received": {
+        "value": "Cumulative dose in kWh/m²",
+        "accuracy": "±5%",
+        "traceability": "Calibrated UV sensor serial number and calibration date"
+      },
+      "performance_retention": {
+        "pmax_change": "Percentage change in maximum power",
+        "voc_change": "Percentage change in open-circuit voltage",
+        "isc_change": "Percentage change in short-circuit current",
+        "ff_change": "Percentage change in fill factor"
+      }
+    },
+    "time_series_data": {
+      "exposure_log": {
+        "columns": [
+          "Timestamp",
+          "Elapsed_hours",
+          "Cumulative_dose_kWh_m2",
+          "Instantaneous_irradiance_W_m2",
+          "Chamber_temperature_C",
+          "Module_backsheet_temperature_C"
+        ],
+        "frequency": "15-minute intervals",
+        "format": "CSV with ISO 8601 timestamps"
+      }
+    },
+    "spectral_data": {
+      "wavelength_range": "280-400 nm",
+      "data_points": "Irradiance at 1 nm resolution",
+      "measurement_dates": "Initial + monthly + final"
+    },
+    "imagery": {
+      "visual_photos": "Before, during (weekly), after high-resolution images",
+      "EL_images": "Before and after, 16-bit grayscale",
+      "thermal_images": "If hot spots develop during testing"
+    }
+  },
+
+  "quality_control": {
+    "calibration_requirements": {
+      "uv_sensors": {
+        "frequency": "Annual",
+        "standard": "NIST-traceable spectral irradiance standard",
+        "acceptance": "Within 5% of reference",
+        "responsible": "Calibration laboratory or equipment manufacturer"
+      },
+      "temperature_sensors": {
+        "frequency": "Annual",
+        "standard": "NIST-traceable RTD or thermocouple reference",
+        "acceptance": "Within 0.5°C of reference",
+        "method": "Dry-well calibrator"
+      },
+      "solar_simulator": {
+        "frequency": "Quarterly",
+        "standard": "Reference cell calibrated at accredited laboratory",
+        "acceptance": "Spectral match, non-uniformity, temporal instability per IEC 60904-9"
+      }
+    },
+    "measurement_uncertainty": {
+      "uv_dose": {
+        "expanded_uncertainty": "±7%",
+        "confidence_level": "95% (k=2)",
+        "contributors": [
+          "Sensor calibration uncertainty: ±5%",
+          "Spatial non-uniformity: ±3%",
+          "Temporal stability: ±2%",
+          "Data acquisition: ±1%"
+        ]
+      },
+      "temperature": {
+        "expanded_uncertainty": "±1.0°C",
+        "confidence_level": "95% (k=2)"
+      },
+      "power_measurement": {
+        "expanded_uncertainty": "±3%",
+        "confidence_level": "95% (k=2)",
+        "reference": "ISO/IEC 17025 accredited laboratory"
+      }
+    },
+    "control_charts": {
+      "chamber_irradiance": {
+        "parameter": "Daily average irradiance",
+        "control_limits": "±10% of target",
+        "action": "Investigate if out of limits for 2 consecutive days"
+      },
+      "reference_module": {
+        "parameter": "Monthly STC power measurement of control module",
+        "control_limits": "±2% of historical average",
+        "action": "Recalibrate if trending or out of limits"
+      }
+    },
+    "inter_laboratory_comparison": {
+      "frequency": "Biennial",
+      "method": "Round-robin test with other IEC 17025 labs",
+      "acceptance": "Results within expanded uncertainty of consensus value"
+    }
+  },
+
+  "maintenance": {
+    "uv_chamber": {
+      "lamp_replacement": {
+        "trigger": "Every 2000 hours or when irradiance drops below 90% of initial",
+        "procedure": [
+          "Power down chamber and allow 30-minute cooldown",
+          "Remove and dispose of old lamps per hazardous waste protocol",
+          "Install new lamps (record serial numbers and installation date)",
+          "Run chamber for 100-hour burn-in before testing modules",
+          "Verify spectral distribution and irradiance uniformity"
+        ],
+        "documentation": "Log lamp S/N, date, burn-in hours"
+      },
+      "window_cleaning": {
+        "frequency": "Weekly during active testing",
+        "method": "Isopropyl alcohol and lint-free cloth",
+        "verification": "Visual inspection for smudges or deposits"
+      },
+      "filter_replacement": {
+        "frequency": "Quarterly",
+        "components": "HVAC filters in chamber air circulation system",
+        "purpose": "Prevent dust accumulation on modules and sensors"
+      },
+      "cooling_system": {
+        "frequency": "Monthly",
+        "checks": [
+          "Verify fan operation",
+          "Check coolant levels (if liquid-cooled)",
+          "Inspect for leaks or corrosion"
+        ]
+      }
+    },
+    "measurement_equipment": {
+      "sensor_cleaning": {
+        "frequency": "Weekly",
+        "method": "Dry compressed air or soft brush",
+        "caution": "Avoid touching sensor dome"
+      },
+      "electrical_test_equipment": {
+        "frequency": "Before each use",
+        "checks": "Verify reference cell short-circuit current, zero offsets"
+      }
+    }
+  },
+
+  "preventive_maintenance_schedule": {
+    "daily_tasks": [
+      "Visual inspection of chamber operation",
+      "Review data logs for anomalies",
+      "Verify automated data acquisition"
+    ],
+    "weekly_tasks": [
+      "Clean chamber windows",
+      "Sensor verification with reference",
+      "Review cumulative dose progress",
+      "Visual module inspection"
+    ],
+    "monthly_tasks": [
+      "Spectral verification measurement",
+      "Spatial uniformity check (9-point grid)",
+      "Temperature sensor verification",
+      "Reference module STC measurement",
+      "Cooling system inspection"
+    ],
+    "quarterly_tasks": [
+      "Full chamber calibration with NIST-traceable standards",
+      "HVAC filter replacement",
+      "Control chart review and trending analysis"
+    ],
+    "annual_tasks": [
+      "UV sensor recalibration at accredited laboratory",
+      "Temperature sensor recalibration",
+      "Solar simulator calibration",
+      "Preventive maintenance by equipment manufacturer"
+    ]
+  },
+
+  "non_conformance_handling": {
+    "irradiance_out_of_specification": {
+      "condition": "Measured irradiance < 90% or > 110% of target",
+      "immediate_action": [
+        "Pause test and document current dose",
+        "Investigate cause (lamp aging, power supply, sensor drift)",
+        "If sensor drift: verify with secondary sensor",
+        "If lamp aging: replace lamps and resume after burn-in",
+        "If power supply issue: repair before resuming"
+      ],
+      "dose_correction": "May continue test if corrected quickly; document interruption duration"
+    },
+    "temperature_excursion": {
+      "condition": "Temperature < 55°C or > 65°C for > 30 minutes",
+      "immediate_action": [
+        "Document time and magnitude of excursion",
+        "Check cooling system and chamber seals",
+        "If module temperature > 70°C: halt test, allow cooldown, inspect for damage"
+      ],
+      "impact_assessment": "Minor excursions (< 4 hours) may be acceptable with documented justification"
+    },
+    "power_failure": {
+      "condition": "Loss of AC power to chamber",
+      "immediate_action": [
+        "Automated UPS maintains data logging",
+        "Document outage duration and cumulative dose at failure",
+        "After power restoration: verify lamp function and re-stabilize chamber",
+        "Resume test if < 24-hour interruption"
+      ],
+      "test_validity": "Valid if total interruptions < 5% of exposure time"
+    },
+    "module_failure_during_test": {
+      "condition": "Visible damage, arcing, or catastrophic degradation",
+      "immediate_action": [
+        "Immediately stop test and isolate module",
+        "Photograph and document failure mode",
+        "Perform root cause analysis",
+        "Report to engineering team and module manufacturer"
+      ],
+      "investigation": "Full forensic analysis including cross-sectioning if needed"
+    },
+    "calibration_out_of_tolerance": {
+      "condition": "Annual calibration shows sensor drift > 10%",
+      "immediate_action": [
+        "Do not use sensor until recalibrated",
+        "Review all tests performed since last calibration",
+        "Assess impact on historical data (may require uncertainty expansion)"
+      ],
+      "corrective_action": "Increase calibration frequency if recurring issue"
+    }
+  },
+
+  "data_traceability": {
+    "test_record_package": {
+      "required_documents": [
+        "Test plan with module identification and target dose",
+        "Pre-test inspection report with photos",
+        "Baseline I-V curve and EL image",
+        "UV chamber calibration certificate",
+        "Sensor calibration certificates",
+        "Complete exposure log (15-min intervals)",
+        "Spectral verification reports",
+        "Maintenance logs during test",
+        "Any non-conformance reports",
+        "Post-test inspection report with photos",
+        "Final I-V curve and EL image",
+        "Wet leakage current test results",
+        "Test report summarizing results and pass/fail determination"
+      ],
+      "retention_period": "10 years minimum per ISO/IEC 17025",
+      "format": "Electronic with digital signatures, backup to redundant storage"
+    },
+    "chain_of_custody": {
+      "module_tracking": "Barcode or RFID scan at every transfer",
+      "log_entries": [
+        "Date/time",
+        "Module serial number",
+        "Transfer from/to (personnel names)",
+        "Location",
+        "Purpose of transfer",
+        "Condition notes"
+      ]
+    },
+    "data_integrity": {
+      "automated_logging": "Direct digital acquisition, no manual transcription",
+      "checksums": "MD5 or SHA-256 for all electronic data files",
+      "audit_trail": "Write-once database with timestamped entries",
+      "access_control": "Role-based permissions, all access logged"
+    },
+    "reporting": {
+      "internal_report": {
+        "audience": "Engineering and quality teams",
+        "content": "Detailed results, uncertainty analysis, raw data plots",
+        "format": "PDF with embedded Excel data sheets"
+      },
+      "customer_report": {
+        "audience": "Module manufacturer or certification body",
+        "content": "Executive summary, pass/fail statement, key plots",
+        "format": "IEC 61215-2 standard test report template"
+      },
+      "regulatory_submission": {
+        "audience": "Certification agencies (TÜV, UL, etc.)",
+        "content": "Full test record package with chain of custody",
+        "format": "As specified by certification body"
+      }
+    }
+  },
+
+  "health_safety_environment": {
+    "hazards": [
+      {
+        "hazard": "UV radiation exposure",
+        "risk": "Skin burns, eye damage",
+        "controls": [
+          "Chamber interlocks prevent door opening when lamps energized",
+          "UV-blocking viewing windows",
+          "Warning signs on chamber",
+          "Training on UV safety for all personnel"
+        ]
+      },
+      {
+        "hazard": "High temperature surfaces",
+        "risk": "Burns",
+        "controls": [
+          "Allow cooldown before accessing chamber",
+          "Thermal gloves available",
+          "Warning labels"
+        ]
+      },
+      {
+        "hazard": "Electrical shock (module testing)",
+        "risk": "Shock, electrocution",
+        "controls": [
+          "Insulated tools and PPE",
+          "Lockout/tagout for maintenance",
+          "Ground fault protection"
+        ]
+      },
+      {
+        "hazard": "Mercury in UV lamps",
+        "risk": "Toxic exposure if broken",
+        "controls": [
+          "Handle lamps carefully",
+          "Mercury spill kit available",
+          "Dispose per hazardous waste regulations"
+        ]
+      }
+    ],
+    "required_ppe": [
+      "Safety glasses with UV protection when accessing chamber",
+      "Thermal gloves for handling warm modules",
+      "ESD wrist strap when handling electronics"
+    ],
+    "environmental_considerations": {
+      "lamp_disposal": "Recycle or dispose as universal waste per EPA guidelines",
+      "energy_consumption": "Typical 10-20 kW for extended periods; schedule tests to optimize energy use"
+    }
+  },
+
+  "training_requirements": {
+    "personnel_qualifications": [
+      "Test technician: High school diploma + 6 months lab experience",
+      "Test engineer: BS in engineering or physics + 2 years PV testing experience",
+      "All personnel: IEC 61215 test sequence training"
+    ],
+    "competency_assessment": {
+      "initial": "Shadow experienced technician for 3 tests, then perform 1 test under supervision",
+      "ongoing": "Annual refresher on UV safety and calibration procedures",
+      "documentation": "Training records in personnel files"
+    }
+  },
+
+  "references_and_resources": {
+    "standards_documents": [
+      "IEC 61215-2:2016 - Terrestrial PV modules - Design qualification and type approval - Part 2: Test procedures",
+      "IEC 61730-2:2016 - PV module safety qualification - Part 2: Requirements for testing",
+      "ISO 9806:2017 - Solar energy - Solar thermal collectors - Test methods"
+    ],
+    "technical_guidance": [
+      "ASTM G173-03 - Standard Tables for Reference Solar Spectral Irradiances",
+      "IEC 60904-9:2020 - Solar simulator performance requirements",
+      "NREL UV Chamber Best Practices Guide"
+    ],
+    "equipment_manuals": [
+      "UV chamber operation and maintenance manual",
+      "Spectroradiometer user guide",
+      "Solar simulator operation manual"
+    ]
+  },
+
+  "notes_and_best_practices": {
+    "test_optimization": [
+      "Schedule multiple modules in chamber simultaneously if space allows (verify uniformity across all positions)",
+      "Perform interim measurements to track degradation kinetics (valuable for failure analysis)",
+      "Maintain detailed logs - UV testing is long duration and small details matter"
+    ],
+    "common_pitfalls": [
+      "Failing to account for lamp aging over test duration - verify irradiance weekly",
+      "Inadequate temperature control leading to thermal stress beyond UV effects",
+      "Contamination of module surface (dust, fingerprints) affecting UV transmission"
+    ],
+    "troubleshooting": {
+      "irradiance_drift": "Check lamp hours, clean reflectors, verify power supply voltage",
+      "temperature_instability": "Check cooling fans, clean air filters, verify ambient conditions",
+      "sensor_reading_errors": "Check for condensation on sensor, verify wiring, compare to backup sensor"
+    }
+  }
+}

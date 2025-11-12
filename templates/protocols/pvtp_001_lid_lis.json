@@ -1,0 +1,69 @@
+{
+  "protocol_metadata": {
+    "protocol_id": "PVTP-001",
+    "protocol_name": "LID/LIS Testing - Light Induced Degradation/Stabilization",
+    "version": "1.0.0",
+    "category": "electrical",
+    "standard_reference": "IEC 61215-2 MQT 20",
+    "description": "Testing for light-induced degradation and stabilization effects in photovoltaic modules",
+    "tags": ["LID", "LIS", "degradation", "stabilization", "electrical"]
+  },
+  "general_data": {
+    "fields": [
+      {"name": "test_date", "type": "date", "required": true},
+      {"name": "operator", "type": "string", "required": true},
+      {"name": "equipment_id", "type": "string", "required": true},
+      {"name": "sample_id", "type": "string", "required": true},
+      {"name": "ambient_temp", "type": "number", "unit": "°C"},
+      {"name": "ambient_humidity", "type": "number", "unit": "%"}
+    ]
+  },
+  "protocol_inputs": {
+    "fields": [
+      {"name": "initial_pmax", "type": "number", "unit": "W", "required": true},
+      {"name": "initial_voc", "type": "number", "unit": "V", "required": true},
+      {"name": "initial_isc", "type": "number", "unit": "A", "required": true},
+      {"name": "initial_ff", "type": "number", "unit": "", "required": true},
+      {"name": "irradiance", "type": "number", "unit": "W/m²", "default": 1000},
+      {"name": "module_temp", "type": "number", "unit": "°C", "default": 60},
+      {"name": "exposure_hours", "type": "number", "unit": "hours", "default": 48},
+      {"name": "module_technology", "type": "select", "options": ["mono-PERC", "poly", "HJT", "TOPCon", "thin-film"]}
+    ]
+  },
+  "live_readings": {
+    "measurement_types": [
+      {
+        "type": "iv_measurement",
+        "frequency": "periodic",
+        "fields": [
+          {"name": "timestamp", "type": "datetime"},
+          {"name": "hours_exposed", "type": "number"},
+          {"name": "pmax", "type": "number", "unit": "W"},
+          {"name": "voc", "type": "number", "unit": "V"},
+          {"name": "isc", "type": "number", "unit": "A"},
+          {"name": "ff", "type": "number"}
+        ]
+      }
+    ]
+  },
+  "analysis": {
+    "calculations": [
+      {"name": "power_degradation_pct", "formula": "((initial_pmax - final_pmax) / initial_pmax) * 100"},
+      {"name": "stabilization_rate", "formula": "power_change_per_hour"},
+      {"name": "lid_magnitude", "formula": "max_degradation_observed"}
+    ],
+    "pass_fail_criteria": {
+      "IEC_61215": {"max_degradation_pct": 5.0},
+      "IEC_61730": {"max_degradation_pct": 8.0}
+    }
+  },
+  "quality_control": {
+    "checkpoints": [
+      {"id": "QC-001", "name": "Equipment calibration verified", "stage": "before_test"},
+      {"id": "QC-002", "name": "Initial measurements at STC", "stage": "before_test"},
+      {"id": "QC-003", "name": "Light source uniformity verified", "stage": "during_test"},
+      {"id": "QC-004", "name": "Temperature monitoring active", "stage": "during_test"},
+      {"id": "QC-005", "name": "Final measurements at STC", "stage": "after_test"}
+    ]
+  }
+}

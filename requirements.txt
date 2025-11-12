@@ -1,0 +1,16 @@
+# LID/LIS Protocol Requirements
+
+# Core framework
+streamlit>=1.28.0
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Visualization
+plotly>=5.17.0
+
+# Data handling
+python-dateutil>=2.8.0
+
+# Optional: for enhanced functionality
+openpyxl>=3.1.0  # Excel export
+pillow>=10.0.0   # Image handling

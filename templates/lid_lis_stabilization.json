@@ -1,0 +1,640 @@
+{
+  "protocol_metadata": {
+    "id": "PVTP-001-LID-LIS",
+    "name": "Light Induced Degradation (LID) and Light & Elevated Temperature Induced Stabilization (LIS) Protocol",
+    "version": "1.0",
+    "category": "Performance & Reliability Testing",
+    "standards": [
+      "IEC 61215",
+      "IEC 61730"
+    ],
+    "description": "Protocol for testing light-induced degradation and stabilization of photovoltaic modules under controlled irradiance and temperature conditions",
+    "test_type": "LID/LIS",
+    "revision_date": "2025-11-12"
+  },
+  "general_data": {
+    "test_lab": {
+      "type": "string",
+      "required": true,
+      "description": "Name of testing laboratory"
+    },
+    "project_name": {
+      "type": "string",
+      "required": true,
+      "description": "Project identification name"
+    },
+    "client": {
+      "type": "string",
+      "required": true,
+      "description": "Client/customer name"
+    },
+    "test_date": {
+      "type": "date",
+      "required": true,
+      "description": "Test start date"
+    },
+    "test_completion_date": {
+      "type": "date",
+      "required": false,
+      "description": "Test completion date"
+    },
+    "operator": {
+      "type": "string",
+      "required": true,
+      "description": "Test operator name"
+    },
+    "equipment_ids": {
+      "type": "array",
+      "required": true,
+      "description": "List of equipment IDs used in test",
+      "items": {
+        "solar_simulator": "string",
+        "data_logger": "string",
+        "temperature_sensors": "string",
+        "irradiance_sensor": "string",
+        "iv_tracer": "string"
+      }
+    }
+  },
+  "sample_information": {
+    "module_type": {
+      "type": "string",
+      "required": true,
+      "description": "Type of PV module (mono-Si, poly-Si, PERC, etc.)",
+      "options": ["mono-Si", "poly-Si", "PERC", "HJT", "TOPCon", "CdTe", "CIGS", "Other"]
+    },
+    "manufacturer": {
+      "type": "string",
+      "required": true,
+      "description": "Module manufacturer name"
+    },
+    "model": {
+      "type": "string",
+      "required": true,
+      "description": "Module model number"
+    },
+    "serial_numbers": {
+      "type": "array",
+      "required": true,
+      "description": "Serial numbers of modules under test",
+      "items": "string"
+    },
+    "quantity": {
+      "type": "integer",
+      "required": true,
+      "description": "Number of modules tested",
+      "min": 1
+    },
+    "nameplate_power": {
+      "type": "number",
+      "required": true,
+      "description": "Nameplate power rating (W)",
+      "unit": "W",
+      "min": 0
+    },
+    "cell_technology": {
+      "type": "string",
+      "required": false,
+      "description": "Cell technology details"
+    },
+    "dimensions": {
+      "type": "object",
+      "required": false,
+      "properties": {
+        "length": {"type": "number", "unit": "mm"},
+        "width": {"type": "number", "unit": "mm"},
+        "thickness": {"type": "number", "unit": "mm"}
+      }
+    }
+  },
+  "pre_test_inspection": {
+    "visual_defects": {
+      "type": "array",
+      "required": true,
+      "description": "Visual inspection findings before test",
+      "items": {
+        "module_id": "string",
+        "defect_type": "string",
+        "severity": "string",
+        "location": "string",
+        "photo_reference": "string"
+      }
+    },
+    "el_imaging": {
+      "type": "array",
+      "required": false,
+      "description": "Electroluminescence imaging results",
+      "items": {
+        "module_id": "string",
+        "image_reference": "string",
+        "anomalies": "string",
+        "rating": "string"
+      }
+    },
+    "flash_test_power": {
+      "type": "array",
+      "required": true,
+      "description": "Initial flash test power measurements",
+      "items": {
+        "module_id": "string",
+        "pmax": {"type": "number", "unit": "W"},
+        "voc": {"type": "number", "unit": "V"},
+        "isc": {"type": "number", "unit": "A"},
+        "vmp": {"type": "number", "unit": "V"},
+        "imp": {"type": "number", "unit": "A"},
+        "ff": {"type": "number", "unit": "%"}
+      }
+    },
+    "insulation_resistance": {
+      "type": "array",
+      "required": false,
+      "description": "Pre-test insulation resistance measurements",
+      "items": {
+        "module_id": "string",
+        "resistance": {"type": "number", "unit": "MΩ"}
+      }
+    }
+  },
+  "protocol_inputs": {
+    "irradiance_level": {
+      "type": "number",
+      "required": true,
+      "description": "Target irradiance level",
+      "unit": "W/m²",
+      "default": 1000,
+      "min": 800,
+      "max": 1200
+    },
+    "temperature": {
+      "type": "number",
+      "required": true,
+      "description": "Target module temperature",
+      "unit": "°C",
+      "default": 60,
+      "min": 50,
+      "max": 75
+    },
+    "duration_hours": {
+      "type": "number",
+      "required": true,
+      "description": "Total test duration",
+      "unit": "hours",
+      "default": 200,
+      "min": 100,
+      "max": 500
+    },
+    "stabilization_criteria": {
+      "type": "string",
+      "required": true,
+      "description": "Criteria for stabilization",
+      "default": "power_degradation < 2%"
+    },
+    "measurement_intervals": {
+      "type": "array",
+      "required": true,
+      "description": "Time points for measurements (hours)",
+      "unit": "hours",
+      "default": [0, 24, 48, 96, 144, 200],
+      "items": "number"
+    },
+    "tolerance_irradiance": {
+      "type": "number",
+      "required": false,
+      "description": "Acceptable irradiance tolerance",
+      "unit": "%",
+      "default": 5
+    },
+    "tolerance_temperature": {
+      "type": "number",
+      "required": false,
+      "description": "Acceptable temperature tolerance",
+      "unit": "°C",
+      "default": 2
+    },
+    "stabilization_window": {
+      "type": "number",
+      "required": false,
+      "description": "Time window for stabilization check",
+      "unit": "hours",
+      "default": 48
+    }
+  },
+  "live_readings": {
+    "type": "array",
+    "required": true,
+    "description": "Time-series data collected during test",
+    "items": {
+      "timestamp": {
+        "type": "datetime",
+        "required": true,
+        "description": "Measurement timestamp"
+      },
+      "elapsed_hours": {
+        "type": "number",
+        "required": true,
+        "description": "Elapsed time from test start",
+        "unit": "hours"
+      },
+      "irradiance": {
+        "type": "number",
+        "required": true,
+        "description": "Measured irradiance",
+        "unit": "W/m²"
+      },
+      "module_temp": {
+        "type": "number",
+        "required": true,
+        "description": "Module temperature",
+        "unit": "°C"
+      },
+      "ambient_temp": {
+        "type": "number",
+        "required": false,
+        "description": "Ambient temperature",
+        "unit": "°C"
+      },
+      "module_id": {
+        "type": "string",
+        "required": true,
+        "description": "Module identifier"
+      },
+      "pmax": {
+        "type": "number",
+        "required": true,
+        "description": "Maximum power",
+        "unit": "W"
+      },
+      "voc": {
+        "type": "number",
+        "required": true,
+        "description": "Open circuit voltage",
+        "unit": "V"
+      },
+      "isc": {
+        "type": "number",
+        "required": true,
+        "description": "Short circuit current",
+        "unit": "A"
+      },
+      "vmp": {
+        "type": "number",
+        "required": false,
+        "description": "Voltage at maximum power",
+        "unit": "V"
+      },
+      "imp": {
+        "type": "number",
+        "required": false,
+        "description": "Current at maximum power",
+        "unit": "A"
+      },
+      "ff": {
+        "type": "number",
+        "required": true,
+        "description": "Fill factor",
+        "unit": "%"
+      },
+      "notes": {
+        "type": "string",
+        "required": false,
+        "description": "Observation notes"
+      }
+    }
+  },
+  "analysis": {
+    "module_results": {
+      "type": "array",
+      "required": true,
+      "description": "Analysis results per module",
+      "items": {
+        "module_id": "string",
+        "initial_power": {
+          "type": "number",
+          "description": "Initial measured power",
+          "unit": "W"
+        },
+        "final_power": {
+          "type": "number",
+          "description": "Final measured power",
+          "unit": "W"
+        },
+        "minimum_power": {
+          "type": "number",
+          "description": "Minimum power during test",
+          "unit": "W"
+        },
+        "degradation_percentage": {
+          "type": "number",
+          "description": "Power degradation from initial",
+          "unit": "%"
+        },
+        "recovery_percentage": {
+          "type": "number",
+          "description": "Power recovery from minimum",
+          "unit": "%"
+        },
+        "stabilization_achieved": {
+          "type": "boolean",
+          "description": "Whether stabilization criteria met"
+        },
+        "stabilization_time": {
+          "type": "number",
+          "description": "Time to reach stabilization",
+          "unit": "hours"
+        },
+        "pass_fail": {
+          "type": "string",
+          "description": "Overall test result",
+          "options": ["PASS", "FAIL", "CONDITIONAL"]
+        }
+      }
+    },
+    "pass_fail_criteria": {
+      "degradation_limit": {
+        "type": "number",
+        "description": "Maximum allowed degradation",
+        "unit": "%",
+        "default": 2
+      },
+      "stabilization_required": {
+        "type": "boolean",
+        "description": "Whether stabilization is required",
+        "default": true
+      },
+      "min_stabilization_power": {
+        "type": "number",
+        "description": "Minimum acceptable stabilized power",
+        "unit": "%",
+        "default": 98
+      }
+    },
+    "statistics": {
+      "average_degradation": {
+        "type": "number",
+        "description": "Average degradation across all modules",
+        "unit": "%"
+      },
+      "std_deviation": {
+        "type": "number",
+        "description": "Standard deviation of degradation",
+        "unit": "%"
+      },
+      "modules_passed": {
+        "type": "integer",
+        "description": "Number of modules that passed"
+      },
+      "modules_failed": {
+        "type": "integer",
+        "description": "Number of modules that failed"
+      },
+      "pass_rate": {
+        "type": "number",
+        "description": "Percentage of modules passed",
+        "unit": "%"
+      }
+    }
+  },
+  "charts": {
+    "type": "array",
+    "required": true,
+    "description": "Charts to be generated",
+    "items": [
+      {
+        "chart_id": "power_vs_time",
+        "chart_type": "line",
+        "title": "Power Output vs. Time",
+        "x_axis": "elapsed_hours",
+        "y_axis": "pmax",
+        "description": "Power degradation and recovery over test duration"
+      },
+      {
+        "chart_id": "degradation_trend",
+        "chart_type": "line",
+        "title": "Degradation Percentage vs. Time",
+        "x_axis": "elapsed_hours",
+        "y_axis": "degradation_percentage",
+        "description": "Degradation trend for all modules"
+      },
+      {
+        "chart_id": "temp_profile",
+        "chart_type": "line",
+        "title": "Temperature Profile",
+        "x_axis": "elapsed_hours",
+        "y_axis": "module_temp",
+        "description": "Module temperature throughout test"
+      },
+      {
+        "chart_id": "irradiance_profile",
+        "chart_type": "line",
+        "title": "Irradiance Profile",
+        "x_axis": "elapsed_hours",
+        "y_axis": "irradiance",
+        "description": "Irradiance level throughout test"
+      },
+      {
+        "chart_id": "ff_vs_time",
+        "chart_type": "line",
+        "title": "Fill Factor vs. Time",
+        "x_axis": "elapsed_hours",
+        "y_axis": "ff",
+        "description": "Fill factor changes over time"
+      },
+      {
+        "chart_id": "voc_isc_trend",
+        "chart_type": "scatter",
+        "title": "Voc and Isc Trends",
+        "x_axis": "elapsed_hours",
+        "y_axis": ["voc", "isc"],
+        "description": "Voltage and current parameter trends"
+      }
+    ]
+  },
+  "quality_control": {
+    "calibration_status": {
+      "type": "array",
+      "required": true,
+      "description": "Calibration status of equipment",
+      "items": {
+        "equipment_id": "string",
+        "calibration_date": "date",
+        "calibration_due": "date",
+        "certificate_number": "string",
+        "status": "string"
+      }
+    },
+    "uncertainty": {
+      "type": "object",
+      "required": true,
+      "description": "Measurement uncertainty",
+      "properties": {
+        "power": {"type": "number", "unit": "%"},
+        "irradiance": {"type": "number", "unit": "%"},
+        "temperature": {"type": "number", "unit": "°C"},
+        "voltage": {"type": "number", "unit": "%"},
+        "current": {"type": "number", "unit": "%"}
+      }
+    },
+    "deviations": {
+      "type": "array",
+      "required": false,
+      "description": "Deviations from protocol",
+      "items": {
+        "deviation_id": "string",
+        "timestamp": "datetime",
+        "description": "string",
+        "impact": "string",
+        "resolution": "string"
+      }
+    },
+    "corrective_actions": {
+      "type": "array",
+      "required": false,
+      "description": "Corrective actions taken",
+      "items": {
+        "action_id": "string",
+        "timestamp": "datetime",
+        "issue": "string",
+        "action_taken": "string",
+        "verified_by": "string"
+      }
+    }
+  },
+  "maintenance": {
+    "equipment_maintenance_log": {
+      "type": "array",
+      "required": false,
+      "description": "Maintenance activities during test",
+      "items": {
+        "equipment_id": "string",
+        "maintenance_date": "date",
+        "activity": "string",
+        "performed_by": "string",
+        "next_maintenance": "date"
+      }
+    },
+    "next_calibration_date": {
+      "type": "date",
+      "required": true,
+      "description": "Next calibration due date for equipment"
+    }
+  },
+  "project_management": {
+    "milestone": {
+      "type": "string",
+      "required": false,
+      "description": "Project milestone identifier"
+    },
+    "deadline": {
+      "type": "date",
+      "required": false,
+      "description": "Project deadline"
+    },
+    "assigned_to": {
+      "type": "string",
+      "required": false,
+      "description": "Team member assigned"
+    },
+    "status": {
+      "type": "string",
+      "required": true,
+      "description": "Current test status",
+      "options": ["Not Started", "In Progress", "Completed", "On Hold", "Cancelled"]
+    },
+    "completion_percentage": {
+      "type": "number",
+      "required": false,
+      "description": "Completion percentage",
+      "unit": "%",
+      "min": 0,
+      "max": 100
+    },
+    "budget_code": {
+      "type": "string",
+      "required": false,
+      "description": "Budget/cost center code"
+    }
+  },
+  "nc_register": {
+    "type": "array",
+    "required": false,
+    "description": "Non-conformance register",
+    "items": {
+      "nc_number": {
+        "type": "string",
+        "required": true,
+        "description": "NC identification number"
+      },
+      "description": {
+        "type": "string",
+        "required": true,
+        "description": "Description of non-conformance"
+      },
+      "severity": {
+        "type": "string",
+        "required": true,
+        "description": "Severity level",
+        "options": ["Critical", "Major", "Minor"]
+      },
+      "detected_date": {
+        "type": "date",
+        "required": true,
+        "description": "Date NC was detected"
+      },
+      "detected_by": {
+        "type": "string",
+        "required": true,
+        "description": "Person who detected NC"
+      },
+      "resolution": {
+        "type": "string",
+        "required": false,
+        "description": "Resolution details"
+      },
+      "resolution_date": {
+        "type": "date",
+        "required": false,
+        "description": "Date NC was resolved"
+      },
+      "verified_by": {
+        "type": "string",
+        "required": false,
+        "description": "Person who verified resolution"
+      },
+      "status": {
+        "type": "string",
+        "required": true,
+        "description": "NC status",
+        "options": ["Open", "In Progress", "Resolved", "Closed"]
+      }
+    }
+  },
+  "attachments": {
+    "type": "array",
+    "required": false,
+    "description": "Supporting documents and files",
+    "items": {
+      "file_name": "string",
+      "file_type": "string",
+      "file_path": "string",
+      "description": "string",
+      "upload_date": "date"
+    }
+  },
+  "signatures": {
+    "test_operator": {
+      "name": "string",
+      "date": "date",
+      "signature": "string"
+    },
+    "technical_reviewer": {
+      "name": "string",
+      "date": "date",
+      "signature": "string"
+    },
+    "quality_manager": {
+      "name": "string",
+      "date": "date",
+      "signature": "string"
+    }
+  }
+}

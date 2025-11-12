@@ -1,0 +1,166 @@
+{
+  "execution_id": 12345,
+  "protocol_id": "PVTP-001",
+  "protocol_name": "STC Power Measurement",
+  "sr_number": "SR-2025-0001",
+  "module_serial_number": "AST2025M400001",
+  "operator": {
+    "id": 42,
+    "name": "Alice Engineer",
+    "email": "alice.engineer@testinglab.com",
+    "certification": "IEC 17025 Qualified Technician"
+  },
+  "equipment": {
+    "solar_simulator": {
+      "id": "SIM-001",
+      "manufacturer": "Pasan",
+      "model": "HighLIGHT CL3",
+      "calibration_date": "2025-10-15",
+      "calibration_due": "2026-04-15",
+      "status": "CALIBRATED"
+    },
+    "iv_tracer": {
+      "id": "IVT-001",
+      "manufacturer": "h.a.l.m.",
+      "model": "IV400",
+      "calibration_date": "2025-10-20",
+      "calibration_due": "2026-04-20",
+      "status": "CALIBRATED"
+    },
+    "temperature_sensor": {
+      "id": "TC-001",
+      "type": "Type K Thermocouple",
+      "calibration_date": "2025-09-01",
+      "calibration_due": "2026-03-01",
+      "status": "CALIBRATED"
+    }
+  },
+  "test_conditions": {
+    "irradiance": {
+      "target": 1000,
+      "actual": 999.8,
+      "unit": "W/m²",
+      "tolerance": 2,
+      "compliant": true
+    },
+    "temperature": {
+      "target": 25,
+      "actual": 25.2,
+      "unit": "°C",
+      "tolerance": 2,
+      "compliant": true
+    },
+    "spectrum": "AM1.5G",
+    "ambient_temperature": 23.5,
+    "relative_humidity": 45,
+    "barometric_pressure": 1013.25
+  },
+  "measurements": {
+    "Pmax": {
+      "value": 402.5,
+      "unit": "W",
+      "uncertainty": 1.2,
+      "measurement_time": "2025-11-13T10:15:32Z"
+    },
+    "Voc": {
+      "value": 49.52,
+      "unit": "V",
+      "uncertainty": 0.12,
+      "measurement_time": "2025-11-13T10:15:32Z"
+    },
+    "Isc": {
+      "value": 10.24,
+      "unit": "A",
+      "uncertainty": 0.05,
+      "measurement_time": "2025-11-13T10:15:32Z"
+    },
+    "Vmp": {
+      "value": 41.85,
+      "unit": "V",
+      "uncertainty": 0.10,
+      "measurement_time": "2025-11-13T10:15:32Z"
+    },
+    "Imp": {
+      "value": 9.62,
+      "unit": "A",
+      "uncertainty": 0.04,
+      "measurement_time": "2025-11-13T10:15:32Z"
+    },
+    "Fill_Factor": {
+      "value": 79.45,
+      "unit": "%",
+      "calculation": "(Pmax / (Voc * Isc)) * 100"
+    },
+    "Efficiency": {
+      "value": 20.62,
+      "unit": "%",
+      "module_area": 1.952,
+      "calculation": "(Pmax / (Irradiance * Area)) * 100"
+    }
+  },
+  "iv_curve_data": {
+    "voltage": [0, 5, 10, 15, 20, 25, 30, 35, 40, 41.85, 45, 49.52],
+    "current": [10.24, 10.22, 10.20, 10.18, 10.15, 10.10, 10.02, 9.89, 9.72, 9.62, 8.95, 0],
+    "power": [0, 51.1, 102.0, 152.7, 203.0, 252.5, 300.6, 346.2, 388.8, 402.5, 402.8, 0],
+    "points": 12
+  },
+  "analysis": {
+    "series_resistance": {
+      "value": 0.285,
+      "unit": "Ω"
+    },
+    "shunt_resistance": {
+      "value": 1250,
+      "unit": "Ω"
+    },
+    "diode_ideality_factor": {
+      "value": 1.12
+    }
+  },
+  "pass_fail_criteria": {
+    "nameplate_power": 400,
+    "tolerance": {
+      "min": -3,
+      "max": 5,
+      "unit": "%"
+    },
+    "acceptable_range": {
+      "min": 388,
+      "max": 420,
+      "unit": "W"
+    },
+    "measured_power": 402.5,
+    "deviation": 0.625,
+    "result": "PASS"
+  },
+  "qc_checks": {
+    "iv_curve_smoothness": "PASS",
+    "no_negative_conductance": "PASS",
+    "fill_factor_acceptable": "PASS",
+    "measurement_repeatability": "PASS"
+  },
+  "status": "COMPLETE",
+  "qc_status": "PASS",
+  "start_time": "2025-11-13T10:00:00Z",
+  "end_time": "2025-11-13T10:30:00Z",
+  "duration_minutes": 30,
+  "notes": "Test completed successfully. Module performance exceeds nameplate specification. No anomalies observed during testing.",
+  "reviewed_by": {
+    "id": 15,
+    "name": "Bob Reviewer",
+    "email": "bob.reviewer@testinglab.com",
+    "review_date": "2025-11-13T11:00:00Z"
+  },
+  "attachments": [
+    {
+      "type": "IV_CURVE",
+      "filename": "SR-2025-0001_PVTP-001_IV_Curve.png",
+      "path": "/data/pv_testing/reports/SR-2025-0001/PVTP-001/iv_curve.png"
+    },
+    {
+      "type": "TEST_PHOTO",
+      "filename": "SR-2025-0001_PVTP-001_Setup.jpg",
+      "path": "/data/pv_testing/reports/SR-2025-0001/PVTP-001/setup.jpg"
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "sr_number": "SR-2025-0001",
+  "customer": {
+    "name": "Solar Power International Corp",
+    "contact_person": "Dr. Jane Smith",
+    "email": "jane.smith@solarpowerintl.com",
+    "phone": "+1-555-0123",
+    "address": "123 Solar Drive, Sunnyvale, CA 94086, USA"
+  },
+  "module": {
+    "manufacturer": "ABC Solar Technologies",
+    "model": "AST-M400-72H",
+    "type": "Monocrystalline Silicon",
+    "technology": "PERC Half-Cell",
+    "power_rating": 400,
+    "voltage_voc": 49.5,
+    "voltage_vmp": 41.8,
+    "current_isc": 10.2,
+    "current_imp": 9.7,
+    "dimensions": {
+      "length": 1722,
+      "width": 1134,
+      "thickness": 35,
+      "unit": "mm"
+    },
+    "weight": 22.5,
+    "quantity": 12,
+    "serial_numbers": [
+      "AST2025M400001",
+      "AST2025M400002",
+      "AST2025M400003",
+      "AST2025M400004",
+      "AST2025M400005",
+      "AST2025M400006",
+      "AST2025M400007",
+      "AST2025M400008",
+      "AST2025M400009",
+      "AST2025M400010",
+      "AST2025M400011",
+      "AST2025M400012"
+    ]
+  },
+  "testing": {
+    "standards": [
+      "IEC 61215-1:2021",
+      "IEC 61730-2:2016",
+      "IEC 62804-1:2015"
+    ],
+    "protocols": [
+      "PVTP-001",
+      "PVTP-002",
+      "PVTP-003",
+      "PVTP-010",
+      "PVTP-011",
+      "PVTP-018",
+      "PVTP-019",
+      "PVTP-020",
+      "PVTP-030",
+      "PVTP-038",
+      "PVTP-044",
+      "PVTP-045"
+    ],
+    "priority": "normal",
+    "requested_delivery_date": "2025-12-31",
+    "special_requirements": "Accelerated testing schedule required for new product launch. Prefer completion of STC power measurement within 48 hours of sample receipt."
+  },
+  "status": "PENDING_INSPECTION",
+  "created_at": "2025-11-12T10:00:00Z",
+  "created_by": "system_admin",
+  "assigned_pm": {
+    "id": 5,
+    "name": "John Manager",
+    "email": "john.manager@testinglab.com"
+  },
+  "estimated_completion": "2025-12-15T17:00:00Z",
+  "metadata": {
+    "project_code": "PROJ-2025-001",
+    "purchase_order": "PO-SPI-2025-0078",
+    "shipping_info": {
+      "tracking_number": "1Z999AA10123456784",
+      "carrier": "UPS",
+      "shipped_date": "2025-11-10",
+      "expected_delivery": "2025-11-15"
+    }
+  }
+}

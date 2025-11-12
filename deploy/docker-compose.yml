@@ -1,0 +1,110 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    container_name: pv_testing_db
+    environment:
+      POSTGRES_DB: pv_testing
+      POSTGRES_USER: pv_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-pv_password_change_me}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pv_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: pv_testing_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/docker/Dockerfile
+    container_name: pv_testing_api
+    command: uvicorn pv_testing.api.main:app --host 0.0.0.0 --port 8000
+    environment:
+      DATABASE_URL: postgresql://pv_user:${DB_PASSWORD:-pv_password_change_me}@postgres:5432/pv_testing
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: ${SECRET_KEY:-change_me_in_production}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../:/app
+      - pv_data:/data/pv_testing
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  celery_worker:
+    build:
+      context: ..
+      dockerfile: deploy/docker/Dockerfile
+    container_name: pv_testing_celery
+    command: celery -A pv_testing.tasks worker --loglevel=info
+    environment:
+      DATABASE_URL: postgresql://pv_user:${DB_PASSWORD:-pv_password_change_me}@postgres:5432/pv_testing
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - ../:/app
+      - pv_data:/data/pv_testing
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  streamlit:
+    build:
+      context: ..
+      dockerfile: deploy/docker/Dockerfile
+    container_name: pv_testing_streamlit
+    command: streamlit run streamlit_app.py --server.port 8501 --server.address 0.0.0.0
+    environment:
+      API_URL: http://api:8000
+    ports:
+      - "8501:8501"
+    volumes:
+      - ../:/app
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: pv_testing_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - api
+      - streamlit
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  pv_data:
+
+networks:
+  default:
+    name: pv_testing_network

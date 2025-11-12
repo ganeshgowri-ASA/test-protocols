@@ -1,0 +1,643 @@
+{
+  "metadata": {
+    "protocol_id": "PVTP-011",
+    "protocol_name": "I-V Curve Characterization",
+    "version": "1.0.0",
+    "effective_date": "2025-01-01",
+    "category": "Electrical Performance",
+    "subcategory": "I-V Curve Analysis",
+    "standard_references": [
+      "IEC 60904-1:2020",
+      "IEC 61853-1:2011",
+      "ASTM E1036-15"
+    ],
+    "author": "PV Testing Lab",
+    "approver": null,
+    "approval_date": null,
+    "revision_history": [
+      {
+        "version": "1.0.0",
+        "date": "2025-01-01",
+        "changes": "Initial version",
+        "author": "PV Testing Lab"
+      }
+    ]
+  },
+  "inputs": {
+    "required": {
+      "sample_id": {
+        "type": "string",
+        "label": "Sample ID",
+        "description": "Unique identifier for the PV module",
+        "validation": {
+          "pattern": "^[A-Z0-9-]+$",
+          "min_length": 5,
+          "max_length": 50
+        }
+      },
+      "manufacturer": {
+        "type": "string",
+        "label": "Manufacturer"
+      },
+      "model": {
+        "type": "string",
+        "label": "Model Number"
+      },
+      "serial_number": {
+        "type": "string",
+        "label": "Serial Number"
+      },
+      "technology": {
+        "type": "select",
+        "label": "Cell Technology",
+        "options": [
+          "mono-Si",
+          "multi-Si",
+          "PERC",
+          "HJT",
+          "TOPCon",
+          "CdTe",
+          "CIGS",
+          "a-Si",
+          "Other"
+        ]
+      },
+      "test_date": {
+        "type": "date",
+        "label": "Test Date",
+        "default": "today"
+      },
+      "operator": {
+        "type": "string",
+        "label": "Test Operator"
+      },
+      "test_conditions": {
+        "type": "select",
+        "label": "Test Conditions",
+        "options": [
+          "STC (1000 W/m², 25°C, AM1.5G)",
+          "NOCT",
+          "Custom"
+        ],
+        "default": "STC (1000 W/m², 25°C, AM1.5G)"
+      }
+    },
+    "optional": {
+      "project_id": {
+        "type": "string",
+        "label": "Project ID"
+      },
+      "customer": {
+        "type": "string",
+        "label": "Customer Name"
+      },
+      "cell_count": {
+        "type": "integer",
+        "label": "Number of Cells in Series",
+        "validation": {"min": 1, "max": 200}
+      },
+      "module_area": {
+        "type": "number",
+        "label": "Module Area (m²)",
+        "unit": "m²",
+        "validation": {"min": 0, "max": 10}
+      },
+      "notes": {
+        "type": "text",
+        "label": "Test Notes"
+      }
+    }
+  },
+  "measurements": {
+    "test_conditions": {
+      "label": "Test Conditions",
+      "fields": {
+        "irradiance": {
+          "type": "number",
+          "label": "Irradiance (W/m²)",
+          "unit": "W/m²",
+          "validation": {"min": 0, "max": 1500},
+          "uncertainty": "±2%",
+          "required": true
+        },
+        "module_temperature": {
+          "type": "number",
+          "label": "Module Temperature (°C)",
+          "unit": "°C",
+          "validation": {"min": -40, "max": 90},
+          "uncertainty": "±0.5",
+          "required": true
+        },
+        "ambient_temperature": {
+          "type": "number",
+          "label": "Ambient Temperature (°C)",
+          "unit": "°C",
+          "validation": {"min": -20, "max": 50},
+          "uncertainty": "±0.5"
+        },
+        "wind_speed": {
+          "type": "number",
+          "label": "Wind Speed (m/s)",
+          "unit": "m/s",
+          "validation": {"min": 0, "max": 20}
+        },
+        "spectrum": {
+          "type": "select",
+          "label": "Spectral Distribution",
+          "options": ["AM1.5G", "AM1.5D", "AM0", "Measured", "Other"],
+          "default": "AM1.5G"
+        }
+      }
+    },
+    "iv_curve_data": {
+      "label": "I-V Curve Measurement Data",
+      "description": "Raw I-V curve data points",
+      "fields": {
+        "data_points": {
+          "type": "array",
+          "label": "I-V Data Points",
+          "min_points": 50,
+          "max_points": 5000,
+          "structure": {
+            "voltage": {
+              "type": "number",
+              "unit": "V",
+              "uncertainty": "±0.5%"
+            },
+            "current": {
+              "type": "number",
+              "unit": "A",
+              "uncertainty": "±1%"
+            },
+            "power": {
+              "type": "calculated",
+              "unit": "W",
+              "formula": "voltage * current"
+            }
+          },
+          "validation": {
+            "monotonic_voltage": true,
+            "smooth_curve": true,
+            "no_negative_power": true
+          }
+        },
+        "sweep_direction": {
+          "type": "select",
+          "label": "Voltage Sweep Direction",
+          "options": ["Forward (0→Voc)", "Reverse (Voc→0)", "Bidirectional"],
+          "default": "Reverse (Voc→0)"
+        },
+        "sweep_rate": {
+          "type": "number",
+          "label": "Sweep Rate (V/s)",
+          "unit": "V/s",
+          "validation": {"min": 0.1, "max": 100}
+        },
+        "settling_time": {
+          "type": "number",
+          "label": "Point Settling Time (ms)",
+          "unit": "ms",
+          "validation": {"min": 0, "max": 1000}
+        }
+      }
+    },
+    "reverse_bias_data": {
+      "label": "Reverse Bias Measurement (Optional)",
+      "description": "For shunt resistance characterization",
+      "optional": true,
+      "fields": {
+        "reverse_voltage_max": {
+          "type": "number",
+          "label": "Maximum Reverse Voltage (V)",
+          "unit": "V",
+          "validation": {"min": -50, "max": 0}
+        },
+        "reverse_data_points": {
+          "type": "array",
+          "label": "Reverse I-V Data",
+          "structure": {
+            "voltage": {"type": "number", "unit": "V"},
+            "current": {"type": "number", "unit": "A"}
+          }
+        }
+      }
+    }
+  },
+  "analysis": {
+    "parameter_extraction": {
+      "label": "Automated Parameter Extraction",
+      "description": "Extract key electrical parameters from I-V curve",
+      "methods": {
+        "basic_parameters": {
+          "voc": {
+            "label": "Open Circuit Voltage (Voc)",
+            "unit": "V",
+            "method": "interpolation_at_I=0",
+            "uncertainty_propagation": true
+          },
+          "isc": {
+            "label": "Short Circuit Current (Isc)",
+            "unit": "A",
+            "method": "interpolation_at_V=0",
+            "uncertainty_propagation": true
+          },
+          "pmax": {
+            "label": "Maximum Power (Pmax)",
+            "unit": "W",
+            "method": "maximum_of_P_curve",
+            "uncertainty_propagation": true
+          },
+          "vmpp": {
+            "label": "Voltage at MPP (Vmpp)",
+            "unit": "V",
+            "method": "voltage_at_Pmax",
+            "uncertainty_propagation": true
+          },
+          "impp": {
+            "label": "Current at MPP (Impp)",
+            "unit": "A",
+            "method": "current_at_Pmax",
+            "uncertainty_propagation": true
+          },
+          "fill_factor": {
+            "label": "Fill Factor (FF)",
+            "unit": "",
+            "formula": "(Pmax) / (Voc * Isc)",
+            "validation": {"min": 0.5, "max": 0.9}
+          }
+        },
+        "advanced_parameters": {
+          "series_resistance": {
+            "label": "Series Resistance (Rs)",
+            "unit": "Ω",
+            "method": "slope_near_voc",
+            "description": "Rs = -dV/dI near Voc",
+            "algorithm": "linear_regression",
+            "region": "last_10_percent_current"
+          },
+          "shunt_resistance": {
+            "label": "Shunt Resistance (Rsh)",
+            "unit": "Ω",
+            "method": "slope_near_isc",
+            "description": "Rsh = -dV/dI near Isc",
+            "algorithm": "linear_regression",
+            "region": "first_10_percent_current"
+          },
+          "ideality_factor": {
+            "label": "Diode Ideality Factor (n)",
+            "unit": "",
+            "method": "one_diode_model_fit",
+            "requires_temperature": true
+          },
+          "reverse_saturation_current": {
+            "label": "Reverse Saturation Current (I0)",
+            "unit": "A",
+            "method": "one_diode_model_fit"
+          }
+        },
+        "model_fitting": {
+          "single_diode_model": {
+            "enabled": true,
+            "parameters": ["I_L", "I_0", "Rs", "Rsh", "n"],
+            "optimization_method": "least_squares",
+            "convergence_tolerance": 1e-6,
+            "max_iterations": 1000
+          },
+          "two_diode_model": {
+            "enabled": false,
+            "parameters": ["I_L", "I_01", "I_02", "Rs", "Rsh", "n1", "n2"]
+          }
+        }
+      },
+      "validation": {
+        "rsquared_threshold": 0.999,
+        "residual_analysis": true,
+        "parameter_bounds_check": true
+      }
+    },
+    "curve_quality": {
+      "label": "I-V Curve Quality Assessment",
+      "checks": [
+        {
+          "metric": "smoothness",
+          "method": "second_derivative_analysis",
+          "threshold": 0.05,
+          "severity": "warning"
+        },
+        {
+          "metric": "monotonicity",
+          "method": "check_current_decreasing",
+          "severity": "critical"
+        },
+        {
+          "metric": "noise_level",
+          "method": "standard_deviation_analysis",
+          "threshold": 0.02,
+          "severity": "warning"
+        },
+        {
+          "metric": "outlier_detection",
+          "method": "modified_z_score",
+          "threshold": 3.5,
+          "action": "flag_points"
+        }
+      ]
+    },
+    "performance_metrics": {
+      "label": "Performance Metrics",
+      "fields": {
+        "efficiency": {
+          "label": "Conversion Efficiency",
+          "unit": "%",
+          "formula": "(Pmax / (Irradiance * Area)) * 100",
+          "requires": "module_area"
+        },
+        "specific_yield": {
+          "label": "Specific Yield",
+          "unit": "kWh/kWp",
+          "calculated": true
+        },
+        "temperature_loss": {
+          "label": "Temperature Loss",
+          "unit": "%",
+          "requires": "temperature_coefficient"
+        }
+      }
+    },
+    "comparative_analysis": {
+      "label": "Comparative Analysis",
+      "compare_to": {
+        "nameplate_values": true,
+        "datasheet_values": true,
+        "previous_tests": true,
+        "batch_average": true
+      }
+    }
+  },
+  "charts": {
+    "iv_curve_full": {
+      "type": "line",
+      "title": "Complete I-V Curve",
+      "x_axis": "Voltage (V)",
+      "y_axis": "Current (A)",
+      "series": ["Measured", "Single Diode Model Fit"],
+      "annotations": ["Voc", "Isc", "MPP"],
+      "grid": true,
+      "legend": true
+    },
+    "pv_curve": {
+      "type": "line",
+      "title": "P-V Curve",
+      "x_axis": "Voltage (V)",
+      "y_axis": "Power (W)",
+      "annotations": ["Pmax", "Vmpp"],
+      "grid": true
+    },
+    "resistance_analysis": {
+      "type": "scatter_with_fit",
+      "title": "Series and Shunt Resistance Determination",
+      "subplots": [
+        {
+          "title": "Series Resistance (near Voc)",
+          "x_axis": "Current (A)",
+          "y_axis": "Voltage (V)",
+          "region": "high_voltage"
+        },
+        {
+          "title": "Shunt Resistance (near Isc)",
+          "x_axis": "Current (A)",
+          "y_axis": "Voltage (V)",
+          "region": "low_voltage"
+        }
+      ]
+    },
+    "residual_plot": {
+      "type": "scatter",
+      "title": "Model Fit Residuals",
+      "x_axis": "Voltage (V)",
+      "y_axis": "Residual (A)",
+      "show_zero_line": true
+    },
+    "parameter_comparison": {
+      "type": "bar",
+      "title": "Parameter Comparison",
+      "x_axis": "Parameter",
+      "y_axis": "Value",
+      "series": ["Measured", "Nameplate", "Datasheet"],
+      "parameters": ["Voc", "Isc", "Pmax", "FF"]
+    },
+    "fill_factor_breakdown": {
+      "type": "waterfall",
+      "title": "Fill Factor Loss Analysis",
+      "components": ["Ideal FF", "Rs Losses", "Rsh Losses", "Recombination", "Actual FF"]
+    }
+  },
+  "qc_checks": {
+    "automatic": [
+      {
+        "check_id": "QC-011-001",
+        "parameter": "fill_factor",
+        "condition": "greater_than",
+        "threshold": 0.70,
+        "severity": "warning",
+        "message": "Low fill factor may indicate quality issues"
+      },
+      {
+        "check_id": "QC-011-002",
+        "parameter": "series_resistance",
+        "condition": "less_than",
+        "threshold": 2.0,
+        "unit": "Ω",
+        "severity": "warning",
+        "message": "High series resistance detected"
+      },
+      {
+        "check_id": "QC-011-003",
+        "parameter": "shunt_resistance",
+        "condition": "greater_than",
+        "threshold": 500,
+        "unit": "Ω",
+        "severity": "warning",
+        "message": "Low shunt resistance detected"
+      },
+      {
+        "check_id": "QC-011-004",
+        "parameter": "rsquared",
+        "condition": "greater_than",
+        "threshold": 0.999,
+        "severity": "critical",
+        "message": "Poor model fit quality"
+      },
+      {
+        "check_id": "QC-011-005",
+        "parameter": "data_points",
+        "condition": "count_greater_than",
+        "threshold": 100,
+        "severity": "warning",
+        "message": "Insufficient data points for accurate analysis"
+      }
+    ],
+    "manual": [
+      {
+        "check_id": "QC-011-M01",
+        "description": "Review I-V curve for anomalies",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "check_id": "QC-011-M02",
+        "description": "Verify contact resistance acceptable",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "check_id": "QC-011-M03",
+        "description": "Confirm no shadowing during measurement",
+        "type": "boolean",
+        "required": true
+      }
+    ]
+  },
+  "maintenance": {
+    "equipment": [
+      {
+        "equipment_id": "iv_tracer",
+        "name": "I-V Curve Tracer",
+        "calibration_required": true,
+        "calibration_interval_days": 365,
+        "verification_checks": [
+          "voltage_accuracy",
+          "current_accuracy",
+          "load_linearity"
+        ]
+      },
+      {
+        "equipment_id": "solar_simulator",
+        "name": "Solar Simulator / Light Source",
+        "calibration_required": true,
+        "calibration_interval_days": 365
+      },
+      {
+        "equipment_id": "shunt_resistor",
+        "name": "Precision Shunt Resistor",
+        "calibration_required": true,
+        "calibration_interval_days": 730,
+        "stability_check_days": 90
+      },
+      {
+        "equipment_id": "temperature_sensor",
+        "name": "Module Temperature Sensor",
+        "calibration_required": true,
+        "calibration_interval_days": 365
+      }
+    ],
+    "preventive_maintenance": [
+      {
+        "task": "Clean electrical contacts",
+        "frequency_days": 30,
+        "estimated_time_minutes": 15
+      },
+      {
+        "task": "Check cable integrity and connections",
+        "frequency_days": 90,
+        "estimated_time_minutes": 20
+      },
+      {
+        "task": "Verify data acquisition system timing",
+        "frequency_days": 180,
+        "estimated_time_minutes": 30
+      }
+    ]
+  },
+  "project_management": {
+    "estimated_duration_minutes": 60,
+    "required_personnel": 1,
+    "required_skills": ["pv_testing", "electrical_measurement", "data_analysis"],
+    "safety_requirements": [
+      "Electrical safety training",
+      "PPE: Safety glasses, insulated gloves",
+      "Knowledge of high voltage hazards"
+    ],
+    "dependencies": {
+      "required_protocols": [],
+      "optional_protocols": ["PVTP-010", "PVTP-015"],
+      "blocking_conditions": [
+        "Module not stabilized",
+        "Equipment calibration expired",
+        "Light source not warmed up"
+      ]
+    },
+    "deliverables": [
+      {
+        "type": "test_report",
+        "format": "PDF",
+        "template": "PVTP-011_report_template.html",
+        "includes": ["iv_curves", "extracted_parameters", "model_fit"]
+      },
+      {
+        "type": "data_export",
+        "format": "CSV",
+        "includes": ["raw_iv_data", "fitted_parameters"]
+      },
+      {
+        "type": "data_export",
+        "format": "Excel",
+        "includes": ["summary", "raw_data", "analysis", "charts"]
+      }
+    ],
+    "dashboard_metrics": [
+      "pmax",
+      "fill_factor",
+      "series_resistance",
+      "shunt_resistance",
+      "efficiency"
+    ]
+  },
+  "nonconformance": {
+    "triggers": [
+      {
+        "condition": "fill_factor_below_threshold",
+        "threshold": 0.65,
+        "severity": "major",
+        "nc_category": "performance_degradation"
+      },
+      {
+        "condition": "high_series_resistance",
+        "threshold": 2.0,
+        "severity": "major",
+        "nc_category": "contact_resistance"
+      },
+      {
+        "condition": "low_shunt_resistance",
+        "threshold": 500,
+        "severity": "major",
+        "nc_category": "shunt_path"
+      },
+      {
+        "condition": "poor_curve_quality",
+        "severity": "critical",
+        "nc_category": "measurement_quality"
+      },
+      {
+        "condition": "model_fit_poor",
+        "threshold_rsquared": 0.99,
+        "severity": "major",
+        "nc_category": "data_quality"
+      }
+    ],
+    "workflow": {
+      "auto_create_nc": true,
+      "require_investigation": true,
+      "require_root_cause": true,
+      "require_corrective_action": true,
+      "notification_roles": ["lab_manager", "quality_manager", "engineering"]
+    },
+    "documentation_required": [
+      "anomaly_description",
+      "iv_curve_screenshot",
+      "comparison_to_expected",
+      "root_cause_analysis",
+      "corrective_actions"
+    ]
+  }
+}

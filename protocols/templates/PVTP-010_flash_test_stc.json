@@ -1,0 +1,577 @@
+{
+  "metadata": {
+    "protocol_id": "PVTP-010",
+    "protocol_name": "Flash Test / STC Performance",
+    "version": "1.0.0",
+    "effective_date": "2025-01-01",
+    "category": "Electrical Performance",
+    "subcategory": "STC Performance Testing",
+    "standard_references": [
+      "IEC 61215-2:2021",
+      "IEC 60904-1:2020",
+      "IEC 60904-9:2020"
+    ],
+    "author": "PV Testing Lab",
+    "approver": null,
+    "approval_date": null,
+    "revision_history": [
+      {
+        "version": "1.0.0",
+        "date": "2025-01-01",
+        "changes": "Initial version",
+        "author": "PV Testing Lab"
+      }
+    ]
+  },
+  "inputs": {
+    "required": {
+      "sample_id": {
+        "type": "string",
+        "label": "Sample ID",
+        "description": "Unique identifier for the PV module",
+        "validation": {
+          "pattern": "^[A-Z0-9-]+$",
+          "min_length": 5,
+          "max_length": 50
+        }
+      },
+      "manufacturer": {
+        "type": "string",
+        "label": "Manufacturer",
+        "description": "Module manufacturer name"
+      },
+      "model": {
+        "type": "string",
+        "label": "Model Number",
+        "description": "Module model/type designation"
+      },
+      "serial_number": {
+        "type": "string",
+        "label": "Serial Number",
+        "description": "Module serial number"
+      },
+      "technology": {
+        "type": "select",
+        "label": "Cell Technology",
+        "options": [
+          "mono-Si",
+          "multi-Si",
+          "PERC",
+          "HJT",
+          "TOPCon",
+          "CdTe",
+          "CIGS",
+          "Perovskite",
+          "Other"
+        ]
+      },
+      "rated_power": {
+        "type": "number",
+        "label": "Rated Power (W)",
+        "unit": "W",
+        "validation": {
+          "min": 0,
+          "max": 1000
+        }
+      },
+      "test_date": {
+        "type": "date",
+        "label": "Test Date",
+        "default": "today"
+      },
+      "operator": {
+        "type": "string",
+        "label": "Test Operator",
+        "description": "Name of person conducting test"
+      }
+    },
+    "optional": {
+      "project_id": {
+        "type": "string",
+        "label": "Project ID",
+        "description": "Associated project reference"
+      },
+      "customer": {
+        "type": "string",
+        "label": "Customer Name"
+      },
+      "notes": {
+        "type": "text",
+        "label": "Test Notes",
+        "description": "Additional observations or comments"
+      }
+    }
+  },
+  "measurements": {
+    "pre_test_conditions": {
+      "label": "Pre-Test Conditions",
+      "fields": {
+        "ambient_temp": {
+          "type": "number",
+          "label": "Ambient Temperature (°C)",
+          "unit": "°C",
+          "validation": {"min": 15, "max": 35},
+          "uncertainty": "±0.5"
+        },
+        "humidity": {
+          "type": "number",
+          "label": "Relative Humidity (%)",
+          "unit": "%",
+          "validation": {"min": 20, "max": 80},
+          "uncertainty": "±3"
+        },
+        "stabilization_time": {
+          "type": "number",
+          "label": "Stabilization Time (min)",
+          "unit": "min",
+          "validation": {"min": 0},
+          "default": 30
+        }
+      }
+    },
+    "flash_measurement": {
+      "label": "Flash Measurement (Uncorrected)",
+      "fields": {
+        "irradiance_measured": {
+          "type": "number",
+          "label": "Measured Irradiance (W/m²)",
+          "unit": "W/m²",
+          "validation": {"min": 800, "max": 1200},
+          "uncertainty": "±2%",
+          "required": true
+        },
+        "temperature_measured": {
+          "type": "number",
+          "label": "Module Temperature (°C)",
+          "unit": "°C",
+          "validation": {"min": 15, "max": 45},
+          "uncertainty": "±0.5",
+          "required": true
+        },
+        "voc_measured": {
+          "type": "number",
+          "label": "Open Circuit Voltage (V)",
+          "unit": "V",
+          "validation": {"min": 0},
+          "uncertainty": "±0.5%",
+          "required": true
+        },
+        "isc_measured": {
+          "type": "number",
+          "label": "Short Circuit Current (A)",
+          "unit": "A",
+          "validation": {"min": 0},
+          "uncertainty": "±1%",
+          "required": true
+        },
+        "pmax_measured": {
+          "type": "number",
+          "label": "Maximum Power (W)",
+          "unit": "W",
+          "validation": {"min": 0},
+          "uncertainty": "±3%",
+          "required": true
+        },
+        "vmpp_measured": {
+          "type": "number",
+          "label": "Voltage at MPP (V)",
+          "unit": "V",
+          "validation": {"min": 0},
+          "uncertainty": "±0.5%",
+          "required": true
+        },
+        "impp_measured": {
+          "type": "number",
+          "label": "Current at MPP (A)",
+          "unit": "A",
+          "validation": {"min": 0},
+          "uncertainty": "±1%",
+          "required": true
+        },
+        "ff_measured": {
+          "type": "number",
+          "label": "Fill Factor (calculated)",
+          "unit": "",
+          "validation": {"min": 0, "max": 1},
+          "calculated": true
+        }
+      }
+    },
+    "spectral_mismatch": {
+      "label": "Spectral Mismatch Factor",
+      "fields": {
+        "reference_cell_type": {
+          "type": "select",
+          "label": "Reference Cell Type",
+          "options": ["mono-Si", "multi-Si", "match-to-DUT"]
+        },
+        "mmf": {
+          "type": "number",
+          "label": "Spectral Mismatch Factor (M)",
+          "unit": "",
+          "validation": {"min": 0.9, "max": 1.1},
+          "default": 1.0,
+          "uncertainty": "±1%"
+        }
+      }
+    }
+  },
+  "analysis": {
+    "stc_correction": {
+      "label": "STC Correction Algorithm",
+      "description": "Correct measurements to Standard Test Conditions (25°C, 1000 W/m², AM1.5G)",
+      "methods": {
+        "temperature_correction": {
+          "enabled": true,
+          "algorithm": "IEC 60891:2021 Method 1",
+          "coefficients_required": ["alpha_isc", "beta_voc", "gamma_pmax"],
+          "default_coefficients": {
+            "alpha_isc": 0.0005,
+            "beta_voc": -0.0035,
+            "gamma_pmax": -0.004
+          }
+        },
+        "irradiance_correction": {
+          "enabled": true,
+          "algorithm": "Linear interpolation",
+          "spectral_correction": true
+        }
+      },
+      "outputs": {
+        "voc_stc": {
+          "type": "calculated",
+          "label": "Voc @ STC (V)",
+          "unit": "V",
+          "uncertainty_propagation": true
+        },
+        "isc_stc": {
+          "type": "calculated",
+          "label": "Isc @ STC (A)",
+          "unit": "A",
+          "uncertainty_propagation": true
+        },
+        "pmax_stc": {
+          "type": "calculated",
+          "label": "Pmax @ STC (W)",
+          "unit": "W",
+          "uncertainty_propagation": true
+        },
+        "vmpp_stc": {
+          "type": "calculated",
+          "label": "Vmpp @ STC (V)",
+          "unit": "V",
+          "uncertainty_propagation": true
+        },
+        "impp_stc": {
+          "type": "calculated",
+          "label": "Impp @ STC (A)",
+          "unit": "A",
+          "uncertainty_propagation": true
+        },
+        "ff_stc": {
+          "type": "calculated",
+          "label": "Fill Factor @ STC",
+          "unit": "",
+          "uncertainty_propagation": true
+        },
+        "efficiency_stc": {
+          "type": "calculated",
+          "label": "Efficiency @ STC (%)",
+          "unit": "%",
+          "requires": "module_area"
+        }
+      }
+    },
+    "uncertainty_analysis": {
+      "label": "Measurement Uncertainty Analysis",
+      "confidence_level": 0.95,
+      "method": "GUM (Guide to Uncertainty in Measurement)",
+      "uncertainty_budget": {
+        "irradiance_sensor": {
+          "type": "B",
+          "relative_uncertainty": 0.02,
+          "sensitivity": "direct"
+        },
+        "temperature_sensor": {
+          "type": "B",
+          "relative_uncertainty": 0.01,
+          "sensitivity": "via_coefficient"
+        },
+        "voltage_measurement": {
+          "type": "B",
+          "relative_uncertainty": 0.005,
+          "sensitivity": "direct"
+        },
+        "current_measurement": {
+          "type": "B",
+          "relative_uncertainty": 0.01,
+          "sensitivity": "direct"
+        },
+        "spectral_mismatch": {
+          "type": "B",
+          "relative_uncertainty": 0.01,
+          "sensitivity": "direct"
+        },
+        "non_uniformity": {
+          "type": "B",
+          "relative_uncertainty": 0.01,
+          "sensitivity": "direct"
+        }
+      },
+      "outputs": {
+        "combined_uncertainty_pmax": {
+          "type": "calculated",
+          "label": "Combined Uncertainty (Pmax)",
+          "unit": "%",
+          "coverage_factor": 2
+        },
+        "expanded_uncertainty_pmax": {
+          "type": "calculated",
+          "label": "Expanded Uncertainty (Pmax, k=2)",
+          "unit": "%"
+        }
+      }
+    },
+    "performance_ratio": {
+      "label": "Performance Ratio Analysis",
+      "fields": {
+        "nameplate_power": {
+          "type": "number",
+          "label": "Nameplate Power (W)",
+          "unit": "W",
+          "source": "datasheet"
+        },
+        "performance_ratio": {
+          "type": "calculated",
+          "label": "Performance Ratio (%)",
+          "unit": "%",
+          "formula": "(pmax_stc / nameplate_power) * 100"
+        },
+        "power_deviation": {
+          "type": "calculated",
+          "label": "Power Deviation from Nameplate",
+          "unit": "W",
+          "formula": "pmax_stc - nameplate_power"
+        }
+      }
+    }
+  },
+  "charts": {
+    "iv_curve": {
+      "type": "line",
+      "title": "I-V Curve @ STC",
+      "x_axis": "Voltage (V)",
+      "y_axis": "Current (A)",
+      "series": ["Measured", "STC Corrected"],
+      "annotations": ["Voc", "Isc", "MPP"]
+    },
+    "pv_curve": {
+      "type": "line",
+      "title": "P-V Curve @ STC",
+      "x_axis": "Voltage (V)",
+      "y_axis": "Power (W)",
+      "series": ["Measured", "STC Corrected"],
+      "annotations": ["Pmax"]
+    },
+    "uncertainty_contributors": {
+      "type": "bar",
+      "title": "Uncertainty Budget Contributors",
+      "x_axis": "Uncertainty Source",
+      "y_axis": "Contribution (%)"
+    },
+    "performance_comparison": {
+      "type": "bar",
+      "title": "Performance vs. Nameplate",
+      "x_axis": "Parameter",
+      "y_axis": "Value",
+      "series": ["Measured", "Nameplate", "Tolerance"]
+    }
+  },
+  "qc_checks": {
+    "automatic": [
+      {
+        "check_id": "QC-010-001",
+        "parameter": "pmax_stc",
+        "condition": "within_tolerance",
+        "tolerance": {
+          "nameplate": true,
+          "positive": 0.05,
+          "negative": -0.03
+        },
+        "severity": "critical",
+        "action_on_fail": "flag_for_review"
+      },
+      {
+        "check_id": "QC-010-002",
+        "parameter": "ff_stc",
+        "condition": "greater_than",
+        "threshold": 0.70,
+        "severity": "warning",
+        "action_on_fail": "add_comment"
+      },
+      {
+        "check_id": "QC-010-003",
+        "parameter": "combined_uncertainty_pmax",
+        "condition": "less_than",
+        "threshold": 5.0,
+        "severity": "critical",
+        "action_on_fail": "reject_test"
+      },
+      {
+        "check_id": "QC-010-004",
+        "parameter": "irradiance_measured",
+        "condition": "within_range",
+        "range": [950, 1050],
+        "severity": "warning",
+        "action_on_fail": "verify_calibration"
+      }
+    ],
+    "manual": [
+      {
+        "check_id": "QC-010-M01",
+        "description": "Visual inspection of module condition",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "check_id": "QC-010-M02",
+        "description": "Verify electrical connections secure",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "check_id": "QC-010-M03",
+        "description": "Check for bypass diode functionality",
+        "type": "boolean",
+        "required": false
+      }
+    ]
+  },
+  "maintenance": {
+    "equipment": [
+      {
+        "equipment_id": "solar_simulator",
+        "name": "Solar Simulator",
+        "calibration_required": true,
+        "calibration_interval_days": 365,
+        "last_calibration_field": "simulator_cal_date",
+        "verification_checks": [
+          "irradiance_uniformity",
+          "spectral_match",
+          "temporal_stability"
+        ]
+      },
+      {
+        "equipment_id": "reference_cell",
+        "name": "Reference Cell",
+        "calibration_required": true,
+        "calibration_interval_days": 365,
+        "last_calibration_field": "refcell_cal_date",
+        "traceability_required": true
+      },
+      {
+        "equipment_id": "temperature_sensor",
+        "name": "Temperature Sensor (RTD/TC)",
+        "calibration_required": true,
+        "calibration_interval_days": 365,
+        "last_calibration_field": "temp_sensor_cal_date"
+      },
+      {
+        "equipment_id": "iv_tracer",
+        "name": "I-V Curve Tracer",
+        "calibration_required": true,
+        "calibration_interval_days": 365,
+        "last_calibration_field": "tracer_cal_date"
+      }
+    ],
+    "preventive_maintenance": [
+      {
+        "task": "Clean simulator lamps/LEDs",
+        "frequency_days": 30,
+        "estimated_time_minutes": 30
+      },
+      {
+        "task": "Verify reference cell cleanliness",
+        "frequency_days": 7,
+        "estimated_time_minutes": 10
+      },
+      {
+        "task": "Check electrical contact resistance",
+        "frequency_days": 90,
+        "estimated_time_minutes": 20
+      }
+    ]
+  },
+  "project_management": {
+    "estimated_duration_minutes": 45,
+    "required_personnel": 1,
+    "required_skills": ["pv_testing", "electrical_measurement"],
+    "safety_requirements": [
+      "Electrical safety training",
+      "PPE: Safety glasses, insulated gloves"
+    ],
+    "dependencies": {
+      "required_protocols": [],
+      "optional_protocols": ["PVTP-011"],
+      "blocking_conditions": [
+        "Module not stabilized",
+        "Equipment calibration expired"
+      ]
+    },
+    "deliverables": [
+      {
+        "type": "test_report",
+        "format": "PDF",
+        "template": "PVTP-010_report_template.html"
+      },
+      {
+        "type": "data_export",
+        "format": "Excel",
+        "includes": ["raw_data", "corrected_data", "uncertainty"]
+      },
+      {
+        "type": "certificate",
+        "format": "PDF",
+        "condition": "qc_passed"
+      }
+    ],
+    "dashboard_metrics": [
+      "pmax_stc",
+      "efficiency_stc",
+      "performance_ratio",
+      "combined_uncertainty_pmax"
+    ]
+  },
+  "nonconformance": {
+    "triggers": [
+      {
+        "condition": "qc_check_failed",
+        "severity": "critical",
+        "nc_category": "performance_deviation"
+      },
+      {
+        "condition": "uncertainty_exceeded",
+        "severity": "major",
+        "nc_category": "measurement_quality"
+      },
+      {
+        "condition": "calibration_expired",
+        "severity": "critical",
+        "nc_category": "equipment_compliance"
+      }
+    ],
+    "workflow": {
+      "auto_create_nc": true,
+      "require_investigation": true,
+      "require_root_cause": true,
+      "require_corrective_action": true,
+      "notification_roles": ["lab_manager", "quality_manager"]
+    },
+    "documentation_required": [
+      "deviation_description",
+      "impact_assessment",
+      "corrective_actions",
+      "verification_of_effectiveness"
+    ]
+  }
+}

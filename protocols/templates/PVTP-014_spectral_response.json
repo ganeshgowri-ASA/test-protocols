@@ -1,0 +1,771 @@
+{
+  "metadata": {
+    "protocol_id": "PVTP-014",
+    "protocol_name": "Spectral Response / Quantum Efficiency",
+    "version": "1.0.0",
+    "effective_date": "2025-01-01",
+    "category": "Electrical Performance",
+    "subcategory": "Spectral Characterization",
+    "standard_references": [
+      "IEC 60904-8:2014",
+      "ASTM E1021-15",
+      "ASTM E2236-15"
+    ],
+    "author": "PV Testing Lab",
+    "approver": null,
+    "approval_date": null,
+    "revision_history": [
+      {
+        "version": "1.0.0",
+        "date": "2025-01-01",
+        "changes": "Initial version",
+        "author": "PV Testing Lab"
+      }
+    ]
+  },
+  "inputs": {
+    "required": {
+      "sample_id": {
+        "type": "string",
+        "label": "Sample ID",
+        "description": "Unique identifier for the PV module or cell",
+        "validation": {
+          "pattern": "^[A-Z0-9-]+$",
+          "min_length": 5,
+          "max_length": 50
+        }
+      },
+      "sample_type": {
+        "type": "select",
+        "label": "Sample Type",
+        "options": ["Full Module", "Cell", "Mini-module", "Coupon"],
+        "default": "Full Module"
+      },
+      "manufacturer": {
+        "type": "string",
+        "label": "Manufacturer"
+      },
+      "model": {
+        "type": "string",
+        "label": "Model/Type"
+      },
+      "technology": {
+        "type": "select",
+        "label": "Cell Technology",
+        "options": [
+          "mono-Si",
+          "multi-Si",
+          "PERC",
+          "HJT",
+          "TOPCon",
+          "IBC",
+          "CdTe",
+          "CIGS",
+          "a-Si",
+          "Perovskite",
+          "Multi-junction",
+          "III-V",
+          "Other"
+        ]
+      },
+      "test_date": {
+        "type": "date",
+        "label": "Test Date",
+        "default": "today"
+      },
+      "operator": {
+        "type": "string",
+        "label": "Test Operator"
+      },
+      "measurement_type": {
+        "type": "select",
+        "label": "Measurement Type",
+        "options": [
+          "Spectral Response (SR)",
+          "External Quantum Efficiency (EQE)",
+          "Internal Quantum Efficiency (IQE)",
+          "EQE + IQE",
+          "All"
+        ],
+        "default": "EQE + IQE"
+      }
+    },
+    "optional": {
+      "project_id": {
+        "type": "string",
+        "label": "Project ID"
+      },
+      "customer": {
+        "type": "string",
+        "label": "Customer Name"
+      },
+      "cell_area": {
+        "type": "number",
+        "label": "Active Cell Area (cm²)",
+        "unit": "cm²",
+        "validation": {"min": 0},
+        "description": "Required for accurate quantum efficiency calculation"
+      },
+      "bias_light_required": {
+        "type": "boolean",
+        "label": "Use Bias Light",
+        "default": true,
+        "description": "Apply bias illumination during measurement"
+      },
+      "bias_voltage_required": {
+        "type": "boolean",
+        "label": "Use Bias Voltage",
+        "default": false,
+        "description": "Apply bias voltage during measurement"
+      },
+      "multi_junction": {
+        "type": "boolean",
+        "label": "Multi-Junction Device",
+        "default": false,
+        "description": "Enable multi-junction analysis"
+      },
+      "notes": {
+        "type": "text",
+        "label": "Test Notes"
+      }
+    }
+  },
+  "measurements": {
+    "test_conditions": {
+      "label": "Test Conditions",
+      "fields": {
+        "temperature": {
+          "type": "number",
+          "label": "Sample Temperature (°C)",
+          "unit": "°C",
+          "target": 25.0,
+          "tolerance": 2.0,
+          "uncertainty": "±0.5",
+          "required": true
+        },
+        "bias_light_intensity": {
+          "type": "number",
+          "label": "Bias Light Intensity (suns)",
+          "unit": "suns",
+          "conditional": "bias_light_required == true",
+          "default": 0.1,
+          "validation": {"min": 0, "max": 2}
+        },
+        "bias_light_spectrum": {
+          "type": "select",
+          "label": "Bias Light Spectrum",
+          "options": ["White LED", "Halogen", "Filtered", "None"],
+          "conditional": "bias_light_required == true"
+        },
+        "bias_voltage": {
+          "type": "number",
+          "label": "Bias Voltage (V)",
+          "unit": "V",
+          "conditional": "bias_voltage_required == true"
+        }
+      }
+    },
+    "wavelength_range": {
+      "label": "Wavelength Range Configuration",
+      "fields": {
+        "wavelength_min": {
+          "type": "number",
+          "label": "Minimum Wavelength (nm)",
+          "unit": "nm",
+          "default": 300,
+          "validation": {"min": 250, "max": 2500}
+        },
+        "wavelength_max": {
+          "type": "number",
+          "label": "Maximum Wavelength (nm)",
+          "unit": "nm",
+          "default": 1200,
+          "validation": {"min": 250, "max": 2500}
+        },
+        "wavelength_step": {
+          "type": "number",
+          "label": "Wavelength Step (nm)",
+          "unit": "nm",
+          "default": 10,
+          "validation": {"min": 1, "max": 50}
+        },
+        "measurement_bandwidth": {
+          "type": "number",
+          "label": "Measurement Bandwidth (nm)",
+          "unit": "nm",
+          "default": 10,
+          "validation": {"min": 1, "max": 50}
+        }
+      }
+    },
+    "spectral_response_data": {
+      "label": "Spectral Response Measurements",
+      "type": "array",
+      "description": "Response at each wavelength",
+      "structure": {
+        "wavelength": {
+          "type": "number",
+          "label": "Wavelength (nm)",
+          "unit": "nm",
+          "uncertainty": "±2 nm"
+        },
+        "incident_power": {
+          "type": "number",
+          "label": "Incident Optical Power (W)",
+          "unit": "W",
+          "uncertainty": "±2%",
+          "description": "Calibrated monochromatic light power"
+        },
+        "photocurrent": {
+          "type": "number",
+          "label": "Short-Circuit Current (A)",
+          "unit": "A",
+          "uncertainty": "±1%",
+          "description": "Current generated at this wavelength"
+        },
+        "spectral_response": {
+          "type": "calculated",
+          "label": "Spectral Response (A/W)",
+          "unit": "A/W",
+          "formula": "photocurrent / incident_power"
+        },
+        "external_quantum_efficiency": {
+          "type": "calculated",
+          "label": "EQE (%)",
+          "unit": "%",
+          "formula": "(photocurrent / incident_power) * (h*c / (q*wavelength)) * 100"
+        }
+      }
+    },
+    "reflectance_data": {
+      "label": "Reflectance Measurements",
+      "description": "Required for IQE calculation",
+      "conditional": "measurement_type includes IQE",
+      "type": "array",
+      "structure": {
+        "wavelength": {
+          "type": "number",
+          "label": "Wavelength (nm)",
+          "unit": "nm"
+        },
+        "reflectance": {
+          "type": "number",
+          "label": "Reflectance (%)",
+          "unit": "%",
+          "validation": {"min": 0, "max": 100},
+          "uncertainty": "±2%"
+        }
+      }
+    },
+    "reference_cell_data": {
+      "label": "Reference Cell Calibration",
+      "description": "Calibrated reference photodiode data",
+      "fields": {
+        "reference_cell_id": {
+          "type": "string",
+          "label": "Reference Cell ID"
+        },
+        "calibration_date": {
+          "type": "date",
+          "label": "Last Calibration Date"
+        },
+        "calibration_lab": {
+          "type": "string",
+          "label": "Calibration Laboratory"
+        },
+        "traceability": {
+          "type": "string",
+          "label": "Traceability Chain"
+        }
+      }
+    }
+  },
+  "analysis": {
+    "quantum_efficiency_calculation": {
+      "label": "Quantum Efficiency Calculation",
+      "description": "Calculate EQE and IQE from measurements",
+      "calculations": {
+        "external_quantum_efficiency": {
+          "label": "External Quantum Efficiency (EQE)",
+          "formula": "EQE(λ) = (SR(λ) * h * c) / (q * λ)",
+          "unit": "%",
+          "description": "Fraction of incident photons converted to electrons",
+          "uncertainty_propagation": true
+        },
+        "internal_quantum_efficiency": {
+          "label": "Internal Quantum Efficiency (IQE)",
+          "formula": "IQE(λ) = EQE(λ) / (1 - R(λ))",
+          "unit": "%",
+          "description": "Fraction of absorbed photons converted to electrons",
+          "requires": "reflectance_data",
+          "uncertainty_propagation": true
+        },
+        "collection_efficiency": {
+          "label": "Collection Efficiency",
+          "formula": "η_collection(λ) = IQE(λ) / 100",
+          "description": "Internal carrier collection efficiency"
+        }
+      }
+    },
+    "spectral_response_metrics": {
+      "label": "Spectral Response Metrics",
+      "metrics": {
+        "peak_eqe": {
+          "label": "Peak EQE",
+          "unit": "%",
+          "description": "Maximum EQE value"
+        },
+        "peak_eqe_wavelength": {
+          "label": "Wavelength at Peak EQE",
+          "unit": "nm",
+          "description": "Wavelength where EQE is maximum"
+        },
+        "eqe_at_standard_wavelengths": {
+          "label": "EQE at Standard Wavelengths",
+          "wavelengths": [400, 600, 800, 1000],
+          "unit": "%"
+        },
+        "spectral_range": {
+          "label": "Spectral Response Range",
+          "description": "Wavelength range where EQE > 10%",
+          "unit": "nm"
+        },
+        "band_edge": {
+          "label": "Band Edge Wavelength",
+          "unit": "nm",
+          "method": "EQE drops to 50% of peak"
+        },
+        "blue_response": {
+          "label": "Blue Response (400-500 nm)",
+          "unit": "% (average EQE)",
+          "description": "Average EQE in blue region"
+        },
+        "red_response": {
+          "label": "Red Response (700-900 nm)",
+          "unit": "% (average EQE)",
+          "description": "Average EQE in red region"
+        },
+        "nir_response": {
+          "label": "NIR Response (900-1200 nm)",
+          "unit": "% (average EQE)",
+          "description": "Average EQE in near-infrared region"
+        }
+      }
+    },
+    "short_circuit_current_calculation": {
+      "label": "Integrated Short-Circuit Current",
+      "description": "Calculate Jsc by integrating EQE with reference spectrum",
+      "reference_spectra": ["AM1.5G", "AM1.5D", "AM0"],
+      "formula": "Jsc = q * ∫ EQE(λ) * Φ(λ) dλ",
+      "outputs": {
+        "jsc_am15g": {
+          "label": "Jsc from EQE (AM1.5G)",
+          "unit": "mA/cm²"
+        },
+        "jsc_measured_comparison": {
+          "label": "Comparison to Flash Test Jsc",
+          "unit": "%",
+          "description": "Deviation from actual flash measurement"
+        }
+      }
+    },
+    "loss_analysis": {
+      "label": "Optical and Electrical Loss Analysis",
+      "analyses": {
+        "reflection_loss": {
+          "label": "Reflection Loss",
+          "unit": "%",
+          "calculation": "Average reflectance weighted by spectrum",
+          "requires": "reflectance_data"
+        },
+        "absorption_loss": {
+          "label": "Incomplete Absorption Loss",
+          "description": "Loss due to photons not absorbed"
+        },
+        "recombination_loss": {
+          "label": "Recombination Loss",
+          "unit": "%",
+          "calculation": "100 - IQE",
+          "description": "Loss due to carrier recombination"
+        },
+        "dead_layer_analysis": {
+          "label": "Front Surface Dead Layer",
+          "description": "Estimate dead layer thickness from blue response",
+          "method": "Fit short-wavelength EQE"
+        }
+      }
+    },
+    "bandgap_estimation": {
+      "label": "Bandgap Energy Estimation",
+      "method": "From band edge wavelength",
+      "formula": "Eg = h*c / λ_edge",
+      "unit": "eV",
+      "validation": "Compare with literature values"
+    },
+    "multi_junction_analysis": {
+      "label": "Multi-Junction Cell Analysis",
+      "conditional": "multi_junction == true",
+      "analyses": {
+        "sub_cell_identification": {
+          "description": "Identify spectral response of each sub-cell"
+        },
+        "current_matching": {
+          "description": "Analyze current matching between junctions",
+          "calculation": "Jsc for each junction"
+        },
+        "limiting_junction": {
+          "description": "Identify current-limiting junction"
+        }
+      }
+    },
+    "technology_comparison": {
+      "label": "Technology Comparison",
+      "description": "Compare to typical response for technology",
+      "benchmark_data": true
+    }
+  },
+  "charts": {
+    "eqe_spectrum": {
+      "type": "line",
+      "title": "External Quantum Efficiency Spectrum",
+      "x_axis": "Wavelength (nm)",
+      "y_axis": "EQE (%)",
+      "series": ["Measured EQE"],
+      "annotations": ["Peak EQE", "Band Edge"],
+      "x_range": "auto",
+      "y_range": [0, 100],
+      "grid": true
+    },
+    "iqe_spectrum": {
+      "type": "line",
+      "title": "Internal Quantum Efficiency Spectrum",
+      "x_axis": "Wavelength (nm)",
+      "y_axis": "IQE (%)",
+      "series": ["Measured IQE"],
+      "conditional": "measurement_type includes IQE",
+      "y_range": [0, 100]
+    },
+    "eqe_iqe_comparison": {
+      "type": "line",
+      "title": "EQE vs IQE Comparison",
+      "x_axis": "Wavelength (nm)",
+      "y_axis": "Quantum Efficiency (%)",
+      "series": ["EQE", "IQE"],
+      "conditional": "measurement_type includes IQE"
+    },
+    "spectral_response_curve": {
+      "type": "line",
+      "title": "Spectral Response",
+      "x_axis": "Wavelength (nm)",
+      "y_axis": "Spectral Response (A/W)",
+      "series": ["Measured SR"]
+    },
+    "reflectance_spectrum": {
+      "type": "line",
+      "title": "Reflectance Spectrum",
+      "x_axis": "Wavelength (nm)",
+      "y_axis": "Reflectance (%)",
+      "series": ["Measured Reflectance"],
+      "conditional": "measurement_type includes IQE"
+    },
+    "loss_waterfall": {
+      "type": "waterfall",
+      "title": "Optical and Electrical Losses",
+      "x_axis": "Loss Mechanism",
+      "y_axis": "Current Loss (mA/cm²)",
+      "components": [
+        "Incident Photons",
+        "Reflection Loss",
+        "Transmission Loss",
+        "Recombination Loss",
+        "Collected Current"
+      ]
+    },
+    "integrated_current": {
+      "type": "area",
+      "title": "Integrated Photocurrent Contribution",
+      "x_axis": "Wavelength (nm)",
+      "y_axis": "Photocurrent Density (mA/cm²/nm)",
+      "series": ["EQE × AM1.5G Spectrum"],
+      "cumulative": true
+    },
+    "technology_benchmark": {
+      "type": "line",
+      "title": "EQE Comparison to Technology Benchmark",
+      "x_axis": "Wavelength (nm)",
+      "y_axis": "EQE (%)",
+      "series": ["Measured", "Technology Average", "Best-in-Class"]
+    },
+    "multi_junction_subcells": {
+      "type": "line",
+      "title": "Multi-Junction Sub-Cell EQE",
+      "conditional": "multi_junction == true",
+      "x_axis": "Wavelength (nm)",
+      "y_axis": "EQE (%)",
+      "series": ["Top Cell", "Middle Cell", "Bottom Cell"]
+    },
+    "wavelength_regions": {
+      "type": "grouped_bar",
+      "title": "Average EQE by Spectral Region",
+      "x_axis": "Spectral Region",
+      "y_axis": "Average EQE (%)",
+      "regions": ["UV (300-400)", "Blue (400-500)", "Green (500-600)", "Red (600-700)", "NIR (700-1200)"]
+    }
+  },
+  "qc_checks": {
+    "automatic": [
+      {
+        "check_id": "QC-014-001",
+        "parameter": "peak_eqe",
+        "condition": "greater_than",
+        "threshold": 60,
+        "unit": "%",
+        "severity": "warning",
+        "message": "Low peak EQE may indicate quality issues"
+      },
+      {
+        "check_id": "QC-014-002",
+        "parameter": "data_smoothness",
+        "condition": "noise_level_below",
+        "threshold": 2,
+        "unit": "%",
+        "severity": "warning",
+        "message": "Noisy spectral response data"
+      },
+      {
+        "check_id": "QC-014-003",
+        "parameter": "jsc_deviation",
+        "condition": "within_tolerance",
+        "tolerance": 5,
+        "unit": "%",
+        "severity": "warning",
+        "message": "Integrated Jsc deviates from flash measurement"
+      },
+      {
+        "check_id": "QC-014-004",
+        "parameter": "iqe",
+        "condition": "all_values_less_than",
+        "threshold": 100,
+        "unit": "%",
+        "severity": "critical",
+        "message": "IQE cannot exceed 100%"
+      },
+      {
+        "check_id": "QC-014-005",
+        "parameter": "wavelength_range",
+        "condition": "sufficient_coverage",
+        "min_range": 400,
+        "unit": "nm",
+        "severity": "warning",
+        "message": "Insufficient wavelength range measured"
+      }
+    ],
+    "manual": [
+      {
+        "check_id": "QC-014-M01",
+        "description": "Verify monochromator wavelength calibration",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "check_id": "QC-014-M02",
+        "description": "Check reference cell calibration current",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "check_id": "QC-014-M03",
+        "description": "Confirm bias light stable during measurement",
+        "type": "boolean",
+        "required": false
+      },
+      {
+        "check_id": "QC-014-M04",
+        "description": "Verify sample temperature stability",
+        "type": "boolean",
+        "required": true
+      }
+    ]
+  },
+  "maintenance": {
+    "equipment": [
+      {
+        "equipment_id": "monochromator",
+        "name": "Monochromator",
+        "calibration_required": true,
+        "calibration_interval_days": 365,
+        "verification_checks": [
+          "wavelength_accuracy",
+          "bandwidth_verification",
+          "stray_light_test"
+        ]
+      },
+      {
+        "equipment_id": "light_source",
+        "name": "Xenon/Quartz Halogen Light Source",
+        "calibration_required": false,
+        "maintenance_interval_days": 180,
+        "checks": ["output_stability", "lamp_hours"]
+      },
+      {
+        "equipment_id": "reference_photodiode",
+        "name": "Calibrated Reference Photodiode",
+        "calibration_required": true,
+        "calibration_interval_days": 730,
+        "traceability_required": true,
+        "standard": "NIST or equivalent"
+      },
+      {
+        "equipment_id": "lock_in_amplifier",
+        "name": "Lock-in Amplifier / Current Preamplifier",
+        "calibration_required": true,
+        "calibration_interval_days": 365
+      },
+      {
+        "equipment_id": "chopper",
+        "name": "Optical Chopper",
+        "calibration_required": false,
+        "maintenance_interval_days": 365,
+        "checks": ["frequency_accuracy", "duty_cycle"]
+      },
+      {
+        "equipment_id": "integrating_sphere",
+        "name": "Integrating Sphere (for reflectance)",
+        "calibration_required": true,
+        "calibration_interval_days": 365,
+        "conditional": "measurement_type includes IQE"
+      }
+    ],
+    "preventive_maintenance": [
+      {
+        "task": "Wavelength calibration verification",
+        "frequency_days": 90,
+        "estimated_time_minutes": 30,
+        "method": "Use spectral lamps"
+      },
+      {
+        "task": "Clean optical components",
+        "frequency_days": 30,
+        "estimated_time_minutes": 45
+      },
+      {
+        "task": "Check light source output power",
+        "frequency_days": 30,
+        "estimated_time_minutes": 20
+      },
+      {
+        "task": "Verify reference cell response",
+        "frequency_days": 90,
+        "estimated_time_minutes": 30
+      }
+    ]
+  },
+  "project_management": {
+    "estimated_duration_minutes": 180,
+    "required_personnel": 1,
+    "required_skills": [
+      "spectral_measurement",
+      "optical_characterization",
+      "data_analysis"
+    ],
+    "safety_requirements": [
+      "Laser safety (if applicable)",
+      "UV radiation protection",
+      "PPE: Safety glasses",
+      "Electrical safety training"
+    ],
+    "dependencies": {
+      "required_protocols": [],
+      "optional_protocols": ["PVTP-010", "PVTP-011"],
+      "blocking_conditions": [
+        "Monochromator calibration expired",
+        "Reference cell calibration expired",
+        "Light source not stable"
+      ]
+    },
+    "deliverables": [
+      {
+        "type": "test_report",
+        "format": "PDF",
+        "template": "PVTP-014_report_template.html",
+        "includes": [
+          "eqe_iqe_spectra",
+          "loss_analysis",
+          "integrated_current",
+          "technology_comparison"
+        ]
+      },
+      {
+        "type": "data_export",
+        "format": "CSV",
+        "includes": ["wavelength", "eqe", "iqe", "reflectance"]
+      },
+      {
+        "type": "data_export",
+        "format": "Excel",
+        "includes": [
+          "raw_data",
+          "calculated_parameters",
+          "charts",
+          "analysis_summary"
+        ]
+      }
+    ],
+    "dashboard_metrics": [
+      "peak_eqe",
+      "integrated_jsc",
+      "blue_response",
+      "red_response",
+      "jsc_deviation"
+    ]
+  },
+  "nonconformance": {
+    "triggers": [
+      {
+        "condition": "low_peak_eqe",
+        "threshold": 50,
+        "unit": "%",
+        "severity": "major",
+        "nc_category": "performance_degradation"
+      },
+      {
+        "condition": "iqe_exceeds_100",
+        "severity": "critical",
+        "nc_category": "measurement_error"
+      },
+      {
+        "condition": "poor_blue_response",
+        "threshold": 50,
+        "unit": "% EQE",
+        "severity": "major",
+        "nc_category": "surface_recombination"
+      },
+      {
+        "condition": "jsc_large_deviation",
+        "threshold": 10,
+        "unit": "%",
+        "severity": "major",
+        "nc_category": "measurement_inconsistency"
+      },
+      {
+        "condition": "noisy_data",
+        "severity": "major",
+        "nc_category": "measurement_quality"
+      }
+    ],
+    "workflow": {
+      "auto_create_nc": true,
+      "require_investigation": true,
+      "require_root_cause": true,
+      "require_corrective_action": true,
+      "notification_roles": ["lab_manager", "quality_manager", "engineering"]
+    },
+    "documentation_required": [
+      "spectral_curves",
+      "comparison_to_expected",
+      "equipment_calibration_status",
+      "root_cause_analysis",
+      "corrective_actions"
+    ]
+  }
+}

@@ -1,0 +1,644 @@
+{
+  "metadata": {
+    "protocol_id": "PVTP-012",
+    "protocol_name": "Low Irradiance Performance",
+    "version": "1.0.0",
+    "effective_date": "2025-01-01",
+    "category": "Electrical Performance",
+    "subcategory": "Low Light Performance Testing",
+    "standard_references": [
+      "IEC 61853-1:2011",
+      "IEC 60904-1:2020",
+      "IEC TS 60904-1-2:2019"
+    ],
+    "author": "PV Testing Lab",
+    "approver": null,
+    "approval_date": null,
+    "revision_history": [
+      {
+        "version": "1.0.0",
+        "date": "2025-01-01",
+        "changes": "Initial version",
+        "author": "PV Testing Lab"
+      }
+    ]
+  },
+  "inputs": {
+    "required": {
+      "sample_id": {
+        "type": "string",
+        "label": "Sample ID",
+        "description": "Unique identifier for the PV module",
+        "validation": {
+          "pattern": "^[A-Z0-9-]+$",
+          "min_length": 5,
+          "max_length": 50
+        }
+      },
+      "manufacturer": {
+        "type": "string",
+        "label": "Manufacturer"
+      },
+      "model": {
+        "type": "string",
+        "label": "Model Number"
+      },
+      "serial_number": {
+        "type": "string",
+        "label": "Serial Number"
+      },
+      "technology": {
+        "type": "select",
+        "label": "Cell Technology",
+        "options": [
+          "mono-Si",
+          "multi-Si",
+          "PERC",
+          "HJT",
+          "TOPCon",
+          "CdTe",
+          "CIGS",
+          "a-Si",
+          "Perovskite",
+          "Other"
+        ]
+      },
+      "bifacial": {
+        "type": "boolean",
+        "label": "Bifacial Module",
+        "default": false,
+        "description": "Enable bifacial-specific analysis"
+      },
+      "test_date": {
+        "type": "date",
+        "label": "Test Date",
+        "default": "today"
+      },
+      "operator": {
+        "type": "string",
+        "label": "Test Operator"
+      }
+    },
+    "optional": {
+      "project_id": {
+        "type": "string",
+        "label": "Project ID"
+      },
+      "customer": {
+        "type": "string",
+        "label": "Customer Name"
+      },
+      "bifaciality_factor": {
+        "type": "number",
+        "label": "Bifaciality Factor",
+        "unit": "",
+        "validation": {"min": 0, "max": 1},
+        "description": "Rear/Front power ratio",
+        "conditional": "bifacial == true"
+      },
+      "module_area_front": {
+        "type": "number",
+        "label": "Front Module Area (m²)",
+        "unit": "m²"
+      },
+      "module_area_rear": {
+        "type": "number",
+        "label": "Rear Module Area (m²)",
+        "unit": "m²",
+        "conditional": "bifacial == true"
+      },
+      "notes": {
+        "type": "text",
+        "label": "Test Notes"
+      }
+    }
+  },
+  "measurements": {
+    "test_irradiance_levels": {
+      "label": "Irradiance Test Levels",
+      "description": "Standard low irradiance test points",
+      "levels": [
+        {
+          "level_id": "L1",
+          "target_irradiance": 1000,
+          "unit": "W/m²",
+          "tolerance": 50,
+          "label": "STC Reference (1000 W/m²)"
+        },
+        {
+          "level_id": "L2",
+          "target_irradiance": 800,
+          "unit": "W/m²",
+          "tolerance": 40,
+          "label": "High Light (800 W/m²)"
+        },
+        {
+          "level_id": "L3",
+          "target_irradiance": 500,
+          "unit": "W/m²",
+          "tolerance": 25,
+          "label": "Medium Light (500 W/m²)"
+        },
+        {
+          "level_id": "L4",
+          "target_irradiance": 200,
+          "unit": "W/m²",
+          "tolerance": 10,
+          "label": "Low Light (200 W/m²)"
+        },
+        {
+          "level_id": "L5",
+          "target_irradiance": 100,
+          "unit": "W/m²",
+          "tolerance": 10,
+          "label": "Very Low Light (100 W/m²)",
+          "optional": true
+        }
+      ]
+    },
+    "measurement_sequence": {
+      "label": "Measurement Sequence",
+      "type": "array",
+      "description": "I-V measurements at each irradiance level",
+      "sequence": [
+        {
+          "measurement_id": "M1",
+          "irradiance_level": "L1",
+          "fields": {
+            "irradiance_measured": {
+              "type": "number",
+              "label": "Measured Irradiance (W/m²)",
+              "unit": "W/m²",
+              "uncertainty": "±2%",
+              "required": true
+            },
+            "module_temperature": {
+              "type": "number",
+              "label": "Module Temperature (°C)",
+              "unit": "°C",
+              "target": 25.0,
+              "tolerance": 2.0,
+              "uncertainty": "±0.5",
+              "required": true
+            },
+            "voc": {
+              "type": "number",
+              "label": "Open Circuit Voltage (V)",
+              "unit": "V",
+              "uncertainty": "±0.5%",
+              "required": true
+            },
+            "isc": {
+              "type": "number",
+              "label": "Short Circuit Current (A)",
+              "unit": "A",
+              "uncertainty": "±1%",
+              "required": true
+            },
+            "pmax": {
+              "type": "number",
+              "label": "Maximum Power (W)",
+              "unit": "W",
+              "uncertainty": "±3%",
+              "required": true
+            },
+            "vmpp": {
+              "type": "number",
+              "label": "Voltage at MPP (V)",
+              "unit": "V",
+              "uncertainty": "±0.5%",
+              "required": true
+            },
+            "impp": {
+              "type": "number",
+              "label": "Current at MPP (A)",
+              "unit": "A",
+              "uncertainty": "±1%",
+              "required": true
+            },
+            "fill_factor": {
+              "type": "calculated",
+              "label": "Fill Factor",
+              "formula": "pmax / (voc * isc)"
+            },
+            "iv_curve_data": {
+              "type": "array",
+              "label": "Full I-V Curve Data",
+              "optional": true,
+              "structure": {
+                "voltage": {"type": "number", "unit": "V"},
+                "current": {"type": "number", "unit": "A"}
+              }
+            }
+          }
+        }
+      ]
+    },
+    "bifacial_measurements": {
+      "label": "Bifacial Module Measurements",
+      "conditional": "bifacial == true",
+      "description": "Additional measurements for bifacial modules",
+      "fields": {
+        "rear_irradiance_levels": {
+          "type": "array",
+          "label": "Rear Irradiance Levels",
+          "description": "Test rear side at various irradiance levels",
+          "structure": {
+            "rear_irradiance": {
+              "type": "number",
+              "label": "Rear Irradiance (W/m²)",
+              "unit": "W/m²",
+              "uncertainty": "±2%"
+            },
+            "front_irradiance": {
+              "type": "number",
+              "label": "Front Irradiance (W/m²)",
+              "unit": "W/m²",
+              "uncertainty": "±2%"
+            },
+            "bifacial_gain": {
+              "type": "calculated",
+              "label": "Bifacial Gain (%)",
+              "unit": "%"
+            }
+          }
+        }
+      }
+    }
+  },
+  "analysis": {
+    "low_light_performance": {
+      "label": "Low Light Performance Analysis",
+      "description": "Analyze module behavior at reduced irradiance",
+      "metrics": {
+        "relative_efficiency": {
+          "label": "Relative Efficiency at Low Light",
+          "description": "Efficiency normalized to STC efficiency",
+          "calculation": {
+            "at_800": "efficiency_800 / efficiency_1000",
+            "at_500": "efficiency_500 / efficiency_1000",
+            "at_200": "efficiency_200 / efficiency_1000"
+          },
+          "unit": "",
+          "quality_indicator": "higher_is_better"
+        },
+        "fill_factor_variation": {
+          "label": "Fill Factor Variation with Irradiance",
+          "description": "Track FF changes at different light levels",
+          "analysis": "polynomial_fit",
+          "visualization": "scatter_with_trend"
+        },
+        "linearity_analysis": {
+          "label": "Current-Irradiance Linearity",
+          "description": "Assess Isc linearity with irradiance",
+          "method": "linear_regression",
+          "quality_metric": "r_squared",
+          "expected_r_squared": 0.999
+        },
+        "voltage_variation": {
+          "label": "Voltage Variation with Irradiance",
+          "description": "Analyze Voc logarithmic dependence",
+          "method": "logarithmic_fit",
+          "theory": "Voc ∝ ln(G)"
+        }
+      }
+    },
+    "power_correction": {
+      "label": "Power Correction to STC",
+      "description": "Correct all measurements to STC conditions",
+      "methods": {
+        "temperature_correction": {
+          "enabled": true,
+          "target_temperature": 25.0,
+          "coefficients_required": ["alpha_isc", "beta_voc", "gamma_pmax"]
+        },
+        "irradiance_correction": {
+          "enabled": true,
+          "target_irradiance": 1000,
+          "method": "proportional_scaling",
+          "corrections": {
+            "current": "linear_with_irradiance",
+            "voltage": "logarithmic_with_irradiance",
+            "power": "derived_from_corrected_iv"
+          }
+        }
+      }
+    },
+    "bifacial_analysis": {
+      "label": "Bifacial Performance Analysis",
+      "conditional": "bifacial == true",
+      "metrics": {
+        "bifaciality_factor": {
+          "label": "Measured Bifaciality Factor",
+          "formula": "Pmax_rear / Pmax_front",
+          "measured_at": "STC conditions both sides"
+        },
+        "bifacial_gain": {
+          "label": "Bifacial Gain",
+          "unit": "%",
+          "description": "Additional power from rear irradiance",
+          "scenarios": [
+            {
+              "scenario": "albedo_20",
+              "rear_irradiance_fraction": 0.20,
+              "estimated_gain": "calculated"
+            },
+            {
+              "scenario": "albedo_30",
+              "rear_irradiance_fraction": 0.30,
+              "estimated_gain": "calculated"
+            }
+          ]
+        },
+        "rear_low_light_performance": {
+          "label": "Rear Side Low Light Performance",
+          "description": "Assess rear side performance at low irradiance"
+        }
+      }
+    },
+    "weak_light_response": {
+      "label": "Weak Light Response Factor",
+      "description": "Calculate weak light response factor per IEC 61853-1",
+      "formula": "WLRF = (P_200 / 200) / (P_1000 / 1000)",
+      "interpretation": {
+        "excellent": "> 1.05",
+        "good": "1.00 - 1.05",
+        "average": "0.95 - 1.00",
+        "poor": "< 0.95"
+      }
+    },
+    "series_resistance_impact": {
+      "label": "Series Resistance Impact at Low Light",
+      "description": "Analyze Rs effect on FF at different irradiances",
+      "analysis": "Rs impact decreases at lower currents"
+    },
+    "shunt_resistance_impact": {
+      "label": "Shunt Resistance Impact at Low Light",
+      "description": "Analyze Rsh effect on FF at different irradiances",
+      "analysis": "Rsh impact increases at lower voltages"
+    }
+  },
+  "charts": {
+    "power_vs_irradiance": {
+      "type": "scatter_with_fit",
+      "title": "Power Output vs. Irradiance",
+      "x_axis": "Irradiance (W/m²)",
+      "y_axis": "Power (W)",
+      "series": ["Measured", "Linear Fit", "Expected from Datasheet"],
+      "show_deviation": true
+    },
+    "efficiency_vs_irradiance": {
+      "type": "line",
+      "title": "Efficiency vs. Irradiance",
+      "x_axis": "Irradiance (W/m²)",
+      "y_axis": "Efficiency (%)",
+      "normalized": true,
+      "baseline": "STC efficiency"
+    },
+    "fill_factor_vs_irradiance": {
+      "type": "scatter_with_fit",
+      "title": "Fill Factor vs. Irradiance",
+      "x_axis": "Irradiance (W/m²)",
+      "y_axis": "Fill Factor",
+      "show_trend": true
+    },
+    "current_linearity": {
+      "type": "scatter_with_fit",
+      "title": "Isc Linearity with Irradiance",
+      "x_axis": "Irradiance (W/m²)",
+      "y_axis": "Isc (A)",
+      "fit_type": "linear",
+      "show_r_squared": true,
+      "show_residuals": true
+    },
+    "voltage_logarithmic": {
+      "type": "scatter_with_fit",
+      "title": "Voc vs. ln(Irradiance)",
+      "x_axis": "ln(Irradiance)",
+      "y_axis": "Voc (V)",
+      "fit_type": "linear",
+      "theory_line": true
+    },
+    "iv_curves_comparison": {
+      "type": "multi_line",
+      "title": "I-V Curves at Different Irradiances",
+      "x_axis": "Voltage (V)",
+      "y_axis": "Current (A)",
+      "series": ["1000 W/m²", "800 W/m²", "500 W/m²", "200 W/m²"],
+      "normalized": false
+    },
+    "bifacial_performance": {
+      "type": "grouped_bar",
+      "title": "Bifacial Performance Comparison",
+      "conditional": "bifacial == true",
+      "x_axis": "Irradiance Level",
+      "y_axis": "Power (W)",
+      "series": ["Front Only", "Rear Only", "Combined"]
+    },
+    "weak_light_response_comparison": {
+      "type": "bar",
+      "title": "Weak Light Response Factor",
+      "x_axis": "Technology/Sample",
+      "y_axis": "WLRF",
+      "reference_line": 1.0,
+      "benchmark_data": true
+    }
+  },
+  "qc_checks": {
+    "automatic": [
+      {
+        "check_id": "QC-012-001",
+        "parameter": "current_linearity_r_squared",
+        "condition": "greater_than",
+        "threshold": 0.999,
+        "severity": "critical",
+        "message": "Poor current linearity indicates measurement issues"
+      },
+      {
+        "check_id": "QC-012-002",
+        "parameter": "weak_light_response_factor",
+        "condition": "greater_than",
+        "threshold": 0.90,
+        "severity": "warning",
+        "message": "Poor weak light performance"
+      },
+      {
+        "check_id": "QC-012-003",
+        "parameter": "temperature_stability",
+        "condition": "within_tolerance",
+        "tolerance": 2.0,
+        "unit": "°C",
+        "severity": "warning",
+        "message": "Temperature not stable during measurements"
+      },
+      {
+        "check_id": "QC-012-004",
+        "parameter": "fill_factor_at_200",
+        "condition": "greater_than",
+        "threshold": 0.65,
+        "severity": "warning",
+        "message": "Low fill factor at low irradiance"
+      },
+      {
+        "check_id": "QC-012-005",
+        "parameter": "relative_efficiency_at_200",
+        "condition": "greater_than",
+        "threshold": 0.90,
+        "severity": "info",
+        "message": "Good low light performance maintained"
+      }
+    ],
+    "manual": [
+      {
+        "check_id": "QC-012-M01",
+        "description": "Verify light source uniformity at all levels",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "check_id": "QC-012-M02",
+        "description": "Confirm module temperature stable",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "check_id": "QC-012-M03",
+        "description": "For bifacial: verify no front light spillage to rear",
+        "type": "boolean",
+        "required": false,
+        "conditional": "bifacial == true"
+      }
+    ]
+  },
+  "maintenance": {
+    "equipment": [
+      {
+        "equipment_id": "variable_light_source",
+        "name": "Variable Intensity Light Source",
+        "calibration_required": true,
+        "calibration_interval_days": 365,
+        "verification_checks": [
+          "intensity_control_accuracy",
+          "uniformity_at_all_levels",
+          "spectral_consistency"
+        ]
+      },
+      {
+        "equipment_id": "pyranometer",
+        "name": "Reference Pyranometer/Cell",
+        "calibration_required": true,
+        "calibration_interval_days": 365,
+        "linearity_check_required": true
+      },
+      {
+        "equipment_id": "neutral_density_filters",
+        "name": "ND Filters for Light Reduction",
+        "calibration_required": true,
+        "calibration_interval_days": 730,
+        "transmission_verification": true
+      }
+    ],
+    "preventive_maintenance": [
+      {
+        "task": "Verify light source output at all settings",
+        "frequency_days": 90,
+        "estimated_time_minutes": 45
+      },
+      {
+        "task": "Check ND filter cleanliness and transmission",
+        "frequency_days": 30,
+        "estimated_time_minutes": 20
+      },
+      {
+        "task": "Calibrate reference cell linearity",
+        "frequency_days": 180,
+        "estimated_time_minutes": 60
+      }
+    ]
+  },
+  "project_management": {
+    "estimated_duration_minutes": 90,
+    "required_personnel": 1,
+    "required_skills": ["pv_testing", "electrical_measurement", "low_light_testing"],
+    "safety_requirements": [
+      "Electrical safety training",
+      "PPE: Safety glasses"
+    ],
+    "dependencies": {
+      "required_protocols": [],
+      "optional_protocols": ["PVTP-010", "PVTP-011"],
+      "blocking_conditions": [
+        "Light source not stable at all levels",
+        "Temperature control not working",
+        "Reference cell calibration expired"
+      ]
+    },
+    "deliverables": [
+      {
+        "type": "test_report",
+        "format": "PDF",
+        "template": "PVTP-012_report_template.html",
+        "includes": ["low_light_curves", "wlrf_analysis", "comparative_charts"]
+      },
+      {
+        "type": "data_export",
+        "format": "Excel",
+        "includes": ["all_irradiance_levels", "corrected_data", "analysis_results"]
+      },
+      {
+        "type": "certificate",
+        "format": "PDF",
+        "condition": "qc_passed",
+        "includes": ["weak_light_response_factor"]
+      }
+    ],
+    "dashboard_metrics": [
+      "weak_light_response_factor",
+      "relative_efficiency_at_200",
+      "fill_factor_at_200",
+      "current_linearity_r_squared"
+    ]
+  },
+  "nonconformance": {
+    "triggers": [
+      {
+        "condition": "poor_current_linearity",
+        "threshold_r_squared": 0.995,
+        "severity": "critical",
+        "nc_category": "measurement_quality"
+      },
+      {
+        "condition": "low_wlrf",
+        "threshold": 0.85,
+        "severity": "major",
+        "nc_category": "performance_degradation"
+      },
+      {
+        "condition": "temperature_drift",
+        "threshold": 3.0,
+        "unit": "°C",
+        "severity": "major",
+        "nc_category": "test_conditions"
+      },
+      {
+        "condition": "bifacial_asymmetry",
+        "conditional": "bifacial == true",
+        "severity": "major",
+        "nc_category": "bifacial_performance"
+      }
+    ],
+    "workflow": {
+      "auto_create_nc": true,
+      "require_investigation": true,
+      "require_root_cause": true,
+      "require_corrective_action": true,
+      "notification_roles": ["lab_manager", "quality_manager"]
+    },
+    "documentation_required": [
+      "performance_curves",
+      "comparison_to_specification",
+      "root_cause_analysis",
+      "corrective_actions"
+    ]
+  }
+}

@@ -1,0 +1,532 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Incoming Inspection Protocol",
+  "description": "Comprehensive incoming inspection protocol following LID/LIS framework structure",
+  "type": "object",
+  "required": [
+    "inspection_id",
+    "inspection_date",
+    "service_request_id",
+    "inspector",
+    "sample_receipt",
+    "visual_inspection",
+    "documentation_check",
+    "condition_assessment",
+    "acceptance_decision"
+  ],
+  "properties": {
+    "inspection_id": {
+      "type": "string",
+      "description": "Unique inspection identifier",
+      "pattern": "^II-[0-9]{4}-[0-9]{6}$",
+      "example": "II-2025-000001"
+    },
+    "inspection_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date and time of inspection"
+    },
+    "service_request_id": {
+      "type": "string",
+      "description": "Link to originating service request",
+      "pattern": "^SR-[0-9]{4}-[0-9]{6}$"
+    },
+    "inspector": {
+      "type": "object",
+      "required": ["name", "employee_id", "certification"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Inspector name"
+        },
+        "employee_id": {
+          "type": "string",
+          "description": "Employee/inspector ID"
+        },
+        "certification": {
+          "type": "string",
+          "description": "Inspector certification/qualification"
+        },
+        "signature": {
+          "type": "string",
+          "description": "Digital signature or approval code"
+        }
+      }
+    },
+    "sample_receipt": {
+      "type": "object",
+      "required": ["received_date", "received_by", "quantity_received", "packaging_condition"],
+      "properties": {
+        "received_date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date/time samples received"
+        },
+        "received_by": {
+          "type": "string",
+          "description": "Person who received samples"
+        },
+        "quantity_received": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of samples received"
+        },
+        "quantity_expected": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Expected number of samples from service request"
+        },
+        "quantity_match": {
+          "type": "boolean",
+          "description": "Does received quantity match expected?"
+        },
+        "packaging_condition": {
+          "type": "string",
+          "enum": ["Excellent", "Good", "Fair", "Poor", "Damaged"],
+          "description": "Overall packaging condition"
+        },
+        "shipping_method": {
+          "type": "string",
+          "description": "Method of shipment (courier, hand-delivery, etc.)"
+        },
+        "tracking_number": {
+          "type": "string",
+          "description": "Shipping tracking number"
+        },
+        "temperature_indicator": {
+          "type": "object",
+          "properties": {
+            "present": {
+              "type": "boolean",
+              "description": "Was temperature indicator present?"
+            },
+            "triggered": {
+              "type": "boolean",
+              "description": "Was indicator triggered (if present)?"
+            },
+            "temperature_reading": {
+              "type": "number",
+              "description": "Temperature reading if available"
+            }
+          }
+        }
+      }
+    },
+    "visual_inspection": {
+      "type": "object",
+      "required": ["overall_condition", "checklist"],
+      "properties": {
+        "overall_condition": {
+          "type": "string",
+          "enum": ["Excellent", "Good", "Acceptable", "Marginal", "Unacceptable"],
+          "description": "Overall visual condition assessment"
+        },
+        "checklist": {
+          "type": "array",
+          "description": "Visual inspection checklist items",
+          "items": {
+            "type": "object",
+            "required": ["item", "status", "result"],
+            "properties": {
+              "item": {
+                "type": "string",
+                "description": "Inspection item name"
+              },
+              "status": {
+                "type": "string",
+                "enum": ["Pass", "Fail", "N/A", "See Comments"],
+                "description": "Inspection result"
+              },
+              "result": {
+                "type": "string",
+                "description": "Detailed findings"
+              },
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Photo documentation paths"
+              }
+            }
+          }
+        },
+        "physical_damage": {
+          "type": "object",
+          "properties": {
+            "present": {
+              "type": "boolean",
+              "description": "Physical damage observed?"
+            },
+            "description": {
+              "type": "string",
+              "description": "Description of damage"
+            },
+            "severity": {
+              "type": "string",
+              "enum": ["None", "Minor", "Moderate", "Major", "Critical"]
+            },
+            "location": {
+              "type": "string",
+              "description": "Location of damage on sample"
+            }
+          }
+        },
+        "contamination": {
+          "type": "object",
+          "properties": {
+            "present": {
+              "type": "boolean",
+              "description": "Contamination observed?"
+            },
+            "type": {
+              "type": "string",
+              "description": "Type of contamination"
+            },
+            "severity": {
+              "type": "string",
+              "enum": ["None", "Light", "Moderate", "Heavy"]
+            }
+          }
+        },
+        "labeling": {
+          "type": "object",
+          "properties": {
+            "present": {
+              "type": "boolean",
+              "description": "Labels present and legible?"
+            },
+            "matches_documentation": {
+              "type": "boolean",
+              "description": "Labels match shipping documentation?"
+            },
+            "serial_numbers_visible": {
+              "type": "boolean",
+              "description": "Serial numbers clearly visible?"
+            }
+          }
+        }
+      }
+    },
+    "documentation_check": {
+      "type": "object",
+      "required": ["completeness_status", "required_documents"],
+      "properties": {
+        "completeness_status": {
+          "type": "string",
+          "enum": ["Complete", "Incomplete", "Partially Complete"],
+          "description": "Overall documentation completeness"
+        },
+        "required_documents": {
+          "type": "array",
+          "description": "List of required documents with status",
+          "items": {
+            "type": "object",
+            "required": ["document_name", "required", "received"],
+            "properties": {
+              "document_name": {
+                "type": "string",
+                "description": "Name of required document"
+              },
+              "required": {
+                "type": "boolean",
+                "description": "Is this document required?"
+              },
+              "received": {
+                "type": "boolean",
+                "description": "Was document received?"
+              },
+              "acceptable": {
+                "type": "boolean",
+                "description": "Is document acceptable/complete?"
+              },
+              "notes": {
+                "type": "string",
+                "description": "Notes on document status"
+              }
+            }
+          }
+        },
+        "chain_of_custody": {
+          "type": "object",
+          "properties": {
+            "present": {
+              "type": "boolean"
+            },
+            "complete": {
+              "type": "boolean"
+            },
+            "signed": {
+              "type": "boolean"
+            }
+          }
+        },
+        "material_safety_data_sheet": {
+          "type": "object",
+          "properties": {
+            "present": {
+              "type": "boolean"
+            },
+            "hazardous_materials": {
+              "type": "boolean",
+              "description": "Does sample contain hazardous materials?"
+            },
+            "special_handling_required": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "condition_assessment": {
+      "type": "object",
+      "required": ["ready_for_testing", "overall_rating"],
+      "properties": {
+        "ready_for_testing": {
+          "type": "boolean",
+          "description": "Are samples ready for protocol execution?"
+        },
+        "overall_rating": {
+          "type": "string",
+          "enum": ["Excellent", "Good", "Acceptable", "Marginal", "Unacceptable"],
+          "description": "Overall sample condition rating"
+        },
+        "dimensional_check": {
+          "type": "object",
+          "properties": {
+            "performed": {
+              "type": "boolean"
+            },
+            "within_tolerance": {
+              "type": "boolean"
+            },
+            "measurements": {
+              "type": "object",
+              "properties": {
+                "length": {
+                  "type": "number"
+                },
+                "width": {
+                  "type": "number"
+                },
+                "thickness": {
+                  "type": "number"
+                },
+                "weight": {
+                  "type": "number"
+                },
+                "unit": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "electrical_safety_check": {
+          "type": "object",
+          "properties": {
+            "performed": {
+              "type": "boolean"
+            },
+            "safe": {
+              "type": "boolean"
+            },
+            "findings": {
+              "type": "string"
+            }
+          }
+        },
+        "acclimation_required": {
+          "type": "object",
+          "properties": {
+            "required": {
+              "type": "boolean",
+              "description": "Do samples need environmental acclimation?"
+            },
+            "duration_hours": {
+              "type": "number",
+              "description": "Acclimation duration in hours"
+            },
+            "conditions": {
+              "type": "string",
+              "description": "Acclimation conditions (temperature, humidity)"
+            }
+          }
+        }
+      }
+    },
+    "acceptance_decision": {
+      "type": "object",
+      "required": ["decision", "decision_date", "decision_by"],
+      "properties": {
+        "decision": {
+          "type": "string",
+          "enum": ["Accept", "Accept with Conditions", "Hold", "Reject"],
+          "description": "Final acceptance decision"
+        },
+        "decision_date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date/time of decision"
+        },
+        "decision_by": {
+          "type": "string",
+          "description": "Person making acceptance decision"
+        },
+        "rationale": {
+          "type": "string",
+          "description": "Rationale for decision"
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Conditions if 'Accept with Conditions' selected"
+        },
+        "hold_reason": {
+          "type": "string",
+          "description": "Reason if placed on hold"
+        },
+        "reject_reason": {
+          "type": "string",
+          "description": "Reason if rejected"
+        },
+        "corrective_actions_required": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "responsible_party": {
+                "type": "string"
+              },
+              "due_date": {
+                "type": "string",
+                "format": "date"
+              }
+            }
+          }
+        }
+      }
+    },
+    "storage_location": {
+      "type": "object",
+      "properties": {
+        "facility": {
+          "type": "string",
+          "description": "Storage facility name"
+        },
+        "room": {
+          "type": "string",
+          "description": "Room number/name"
+        },
+        "shelf_location": {
+          "type": "string",
+          "description": "Specific shelf/bin location"
+        },
+        "environmental_conditions": {
+          "type": "object",
+          "properties": {
+            "temperature_celsius": {
+              "type": "number"
+            },
+            "humidity_percent": {
+              "type": "number"
+            },
+            "controlled": {
+              "type": "boolean",
+              "description": "Are conditions controlled/monitored?"
+            }
+          }
+        }
+      }
+    },
+    "workflow_metadata": {
+      "type": "object",
+      "description": "Workflow tracking information",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "Scheduled",
+            "In Progress",
+            "Completed",
+            "On Hold",
+            "Cancelled"
+          ],
+          "default": "Scheduled"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "work_orders_generated": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Work order IDs generated from this inspection"
+        },
+        "next_stage": {
+          "type": "string",
+          "description": "Next workflow stage (Equipment Planning, Protocol Execution, etc.)"
+        }
+      }
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "filename": {
+            "type": "string"
+          },
+          "file_path": {
+            "type": "string"
+          },
+          "file_type": {
+            "type": "string",
+            "enum": ["Photo", "Document", "Video", "Measurement Data", "Other"]
+          },
+          "description": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "description": "Photos, documents, and other attachments"
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "author": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": ["General", "Safety", "Quality", "Documentation", "Other"]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,460 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Equipment Planning & Scheduling",
+  "description": "Comprehensive equipment allocation and scheduling schema for protocol execution",
+  "type": "object",
+  "required": [
+    "planning_id",
+    "work_order_id",
+    "service_request_id",
+    "protocols_to_execute",
+    "equipment_allocation",
+    "schedule"
+  ],
+  "properties": {
+    "planning_id": {
+      "type": "string",
+      "description": "Unique equipment planning identifier",
+      "pattern": "^EP-[0-9]{4}-[0-9]{6}$",
+      "example": "EP-2025-000001"
+    },
+    "work_order_id": {
+      "type": "string",
+      "description": "Associated work order ID",
+      "pattern": "^WO-[0-9]{4}-[0-9]{6}$"
+    },
+    "service_request_id": {
+      "type": "string",
+      "description": "Originating service request ID",
+      "pattern": "^SR-[0-9]{4}-[0-9]{6}$"
+    },
+    "inspection_id": {
+      "type": "string",
+      "description": "Associated inspection ID",
+      "pattern": "^II-[0-9]{4}-[0-9]{6}$"
+    },
+    "protocols_to_execute": {
+      "type": "array",
+      "minItems": 1,
+      "description": "List of protocols requiring equipment allocation",
+      "items": {
+        "type": "object",
+        "required": ["protocol_id", "protocol_name", "equipment_required"],
+        "properties": {
+          "protocol_id": {
+            "type": "string",
+            "description": "Protocol identifier (e.g., IEC-61215-1)"
+          },
+          "protocol_name": {
+            "type": "string",
+            "description": "Full protocol name"
+          },
+          "equipment_required": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of equipment types needed"
+          },
+          "estimated_duration_hours": {
+            "type": "number",
+            "description": "Estimated execution time in hours"
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["Low", "Normal", "High", "Urgent"]
+          }
+        }
+      }
+    },
+    "equipment_allocation": {
+      "type": "array",
+      "description": "Equipment assigned to this work order",
+      "items": {
+        "type": "object",
+        "required": ["equipment_id", "equipment_type", "status"],
+        "properties": {
+          "equipment_id": {
+            "type": "string",
+            "description": "Unique equipment identifier"
+          },
+          "equipment_type": {
+            "type": "string",
+            "enum": [
+              "Solar Simulator",
+              "Thermal Chamber",
+              "Humidity Chamber",
+              "UV Test Chamber",
+              "Mechanical Load Tester",
+              "Pull Tester",
+              "Insulation Tester",
+              "High Potential Tester",
+              "Multimeter",
+              "Oscilloscope",
+              "Data Logger",
+              "Spectrophotometer",
+              "Microscope",
+              "X-Ray Inspection",
+              "EL Tester",
+              "Flash Tester",
+              "Weather Station",
+              "Other"
+            ],
+            "description": "Type of equipment"
+          },
+          "manufacturer": {
+            "type": "string",
+            "description": "Equipment manufacturer"
+          },
+          "model": {
+            "type": "string",
+            "description": "Equipment model number"
+          },
+          "serial_number": {
+            "type": "string",
+            "description": "Equipment serial number"
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "facility": {
+                "type": "string"
+              },
+              "room": {
+                "type": "string"
+              },
+              "lab": {
+                "type": "string"
+              }
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Available",
+              "Reserved",
+              "In Use",
+              "Maintenance",
+              "Calibration",
+              "Out of Service"
+            ],
+            "description": "Current equipment status"
+          },
+          "capabilities": {
+            "type": "object",
+            "description": "Equipment capabilities and specifications",
+            "properties": {
+              "temperature_range": {
+                "type": "object",
+                "properties": {
+                  "min_celsius": {
+                    "type": "number"
+                  },
+                  "max_celsius": {
+                    "type": "number"
+                  }
+                }
+              },
+              "humidity_range": {
+                "type": "object",
+                "properties": {
+                  "min_percent": {
+                    "type": "number"
+                  },
+                  "max_percent": {
+                    "type": "number"
+                  }
+                }
+              },
+              "load_capacity": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  },
+                  "unit": {
+                    "type": "string"
+                  }
+                }
+              },
+              "sample_capacity": {
+                "type": "integer",
+                "description": "Number of samples that can be tested simultaneously"
+              },
+              "accuracy": {
+                "type": "string",
+                "description": "Measurement accuracy specification"
+              }
+            }
+          },
+          "calibration_info": {
+            "type": "object",
+            "properties": {
+              "last_calibration_date": {
+                "type": "string",
+                "format": "date"
+              },
+              "next_calibration_due": {
+                "type": "string",
+                "format": "date"
+              },
+              "calibration_certificate": {
+                "type": "string",
+                "description": "Certificate reference number"
+              },
+              "is_calibrated": {
+                "type": "boolean"
+              }
+            }
+          },
+          "maintenance_info": {
+            "type": "object",
+            "properties": {
+              "last_maintenance_date": {
+                "type": "string",
+                "format": "date"
+              },
+              "next_maintenance_due": {
+                "type": "string",
+                "format": "date"
+              },
+              "maintenance_notes": {
+                "type": "string"
+              }
+            }
+          },
+          "protocol_compatibility": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of protocol IDs this equipment can support"
+          },
+          "allocated_for_protocols": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Protocols this equipment is allocated to for this work order"
+          }
+        }
+      }
+    },
+    "schedule": {
+      "type": "object",
+      "required": ["scheduled_start", "estimated_completion"],
+      "properties": {
+        "scheduled_start": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Scheduled start date/time"
+        },
+        "estimated_completion": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Estimated completion date/time"
+        },
+        "actual_start": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Actual start date/time"
+        },
+        "actual_completion": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Actual completion date/time"
+        },
+        "buffer_time_hours": {
+          "type": "number",
+          "description": "Buffer time added to schedule"
+        },
+        "shift_assignment": {
+          "type": "string",
+          "enum": ["Day Shift", "Night Shift", "Weekend", "24/7"],
+          "description": "Shift during which work is scheduled"
+        },
+        "assigned_technicians": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "technician_id": {
+                "type": "string"
+              },
+              "technician_name": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string",
+                "enum": ["Lead", "Assistant", "Observer"]
+              },
+              "certification": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "Technicians assigned to execute protocols"
+        }
+      }
+    },
+    "resource_optimization": {
+      "type": "object",
+      "description": "Resource allocation optimization details",
+      "properties": {
+        "optimization_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Optimization score (0-100)"
+        },
+        "optimization_method": {
+          "type": "string",
+          "enum": ["Manual", "Auto - First Available", "Auto - Load Balancing", "Auto - Priority Based"],
+          "description": "Method used for allocation"
+        },
+        "conflicts_detected": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "conflict_type": {
+                "type": "string",
+                "enum": ["Equipment Unavailable", "Scheduling Conflict", "Capacity Exceeded", "Calibration Due"]
+              },
+              "description": {
+                "type": "string"
+              },
+              "resolution": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "parallel_execution_opportunities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Protocols that can be executed in parallel"
+        }
+      }
+    },
+    "availability_calendar": {
+      "type": "object",
+      "description": "Equipment availability tracking",
+      "properties": {
+        "reservation_id": {
+          "type": "string",
+          "description": "Unique reservation identifier"
+        },
+        "reserved_from": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "reserved_until": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "reserved_by": {
+          "type": "string"
+        },
+        "reservation_status": {
+          "type": "string",
+          "enum": ["Active", "Completed", "Cancelled", "Modified"]
+        }
+      }
+    },
+    "safety_requirements": {
+      "type": "object",
+      "properties": {
+        "ppe_required": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Personal protective equipment required"
+        },
+        "safety_training_required": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Safety training certifications needed"
+        },
+        "ventilation_required": {
+          "type": "boolean"
+        },
+        "hazardous_materials": {
+          "type": "boolean"
+        },
+        "emergency_procedures": {
+          "type": "string",
+          "description": "Reference to emergency procedures"
+        }
+      }
+    },
+    "workflow_metadata": {
+      "type": "object",
+      "description": "Workflow tracking information",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "Draft",
+            "Pending Approval",
+            "Approved",
+            "Scheduled",
+            "In Progress",
+            "Completed",
+            "On Hold",
+            "Cancelled"
+          ],
+          "default": "Draft"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "created_by": {
+          "type": "string"
+        },
+        "approved_by": {
+          "type": "string"
+        },
+        "approved_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "protocol_execution_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Links to protocol execution records"
+        }
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "author": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

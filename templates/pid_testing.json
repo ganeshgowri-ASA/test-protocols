@@ -1,0 +1,553 @@
+{
+  "protocol_metadata": {
+    "id": "PVTP-006-PID",
+    "name": "Potential Induced Degradation (PID) Testing Protocol",
+    "version": "1.0",
+    "standards": [
+      "IEC 62804-1:2015",
+      "IEC TS 62804-1-1:2020"
+    ],
+    "description": "Accelerated testing for potential induced degradation susceptibility in PV modules",
+    "created_date": "2025-11-12",
+    "last_modified": "2025-11-12",
+    "author": "PV Testing Lab",
+    "status": "active",
+    "safety_classification": "high_voltage",
+    "hazard_level": "electrical_shock_risk"
+  },
+
+  "protocol_inputs": {
+    "test_voltage": {
+      "value": -1000,
+      "unit": "V",
+      "tolerance": "±50 V",
+      "description": "System voltage relative to ground (typically negative for p-type cells)",
+      "polarity_options": ["negative", "positive"],
+      "default_polarity": "negative",
+      "required": true,
+      "safety_note": "HIGH VOLTAGE - Follow lockout/tagout procedures"
+    },
+    "temperature": {
+      "value": 60,
+      "unit": "°C",
+      "tolerance": "±2 °C",
+      "description": "Chamber temperature during test",
+      "range": "50-85",
+      "required": true
+    },
+    "humidity": {
+      "value": 85,
+      "unit": "%RH",
+      "tolerance": "±5 %RH",
+      "description": "Relative humidity during test",
+      "range": "0-95",
+      "required": true
+    },
+    "duration": {
+      "value": 96,
+      "unit": "hours",
+      "description": "Standard test duration per IEC 62804-1",
+      "options": [48, 96, 168],
+      "required": true
+    },
+    "recovery_test": {
+      "enabled": false,
+      "duration": 168,
+      "unit": "hours",
+      "description": "Optional recovery phase (module stored at STC without voltage)",
+      "conditions": "25°C, dark storage",
+      "required": false
+    },
+    "module_specifications": {
+      "model": {"type": "string", "required": true},
+      "serial_number": {"type": "string", "required": true},
+      "technology": {
+        "type": "enum",
+        "options": ["mono-Si p-type", "mono-Si n-type", "poly-Si p-type", "PERC", "HJT", "TOPCon", "thin-film"],
+        "required": true
+      },
+      "rated_power": {"value": null, "unit": "W"},
+      "voc": {"value": null, "unit": "V"},
+      "isc": {"value": null, "unit": "A"},
+      "frame_type": {"type": "string", "options": ["aluminum", "frameless"]}
+    },
+    "grounding_configuration": {
+      "type": "enum",
+      "options": ["negative_pole_grounded", "positive_pole_grounded", "frame_grounded"],
+      "default": "negative_pole_grounded",
+      "description": "System grounding configuration to simulate",
+      "required": true
+    }
+  },
+
+  "test_setup": {
+    "equipment_required": [
+      "Climate chamber (temp & humidity control)",
+      "High voltage power supply (±1500V, 100mA min)",
+      "Voltage monitoring system (±1V accuracy)",
+      "Leakage current measurement (1µA resolution)",
+      "Data acquisition system (1 min sampling)",
+      "Temperature sensors (±0.5°C)",
+      "Humidity sensors (±3% RH)",
+      "Safety interlocks and emergency shutdown",
+      "Ground fault detection",
+      "IV curve tracer or solar simulator"
+    ],
+    "safety_requirements": [
+      "HIGH VOLTAGE WARNING SIGNS posted",
+      "Access restricted to qualified personnel only",
+      "Lockout/tagout procedures implemented",
+      "Insulated barriers around test area",
+      "Emergency power disconnect accessible",
+      "Ground fault circuit interrupter (GFCI)",
+      "Personal protective equipment (PPE): insulated gloves, safety glasses",
+      "Two-person rule for voltage connection/disconnection"
+    ],
+    "module_preparation": [
+      "Visual inspection and documentation",
+      "Baseline IV curve measurement at STC",
+      "Electroluminescence imaging (optional but recommended)",
+      "Insulation resistance test (>40 MΩ)",
+      "Clean module surface",
+      "Verify frame grounding connection",
+      "Apply conductive foil to front surface (if per IEC 62804-1)",
+      "Connect voltage leads with proper polarity"
+    ]
+  },
+
+  "continuous_monitoring": {
+    "sampling_interval": "1 minute",
+    "data_points": [
+      {
+        "parameter": "timestamp",
+        "format": "ISO 8601",
+        "description": "UTC timestamp for each measurement"
+      },
+      {
+        "parameter": "voltage",
+        "unit": "V",
+        "accuracy": "±1 V",
+        "alarm_threshold": "±100 V from setpoint",
+        "critical_threshold": "voltage drop to <500V indicates failure"
+      },
+      {
+        "parameter": "leakage_current",
+        "unit": "mA",
+        "accuracy": "±0.001 mA",
+        "alarm_threshold": ">10 mA",
+        "critical_threshold": ">50 mA (emergency shutdown)",
+        "description": "Current flowing through module to ground"
+      },
+      {
+        "parameter": "temp",
+        "unit": "°C",
+        "accuracy": "±0.5 °C",
+        "alarm_threshold": "±5°C from setpoint",
+        "critical_threshold": ">85°C or <40°C"
+      },
+      {
+        "parameter": "humidity",
+        "unit": "%RH",
+        "accuracy": "±3 %RH",
+        "alarm_threshold": "±10% from setpoint"
+      }
+    ],
+    "alarm_actions": {
+      "voltage_deviation": "Log event, notify operator",
+      "excessive_leakage": "Reduce voltage, investigate",
+      "critical_leakage": "EMERGENCY SHUTDOWN - disconnect voltage immediately",
+      "temperature_deviation": "Adjust chamber, log event",
+      "humidity_deviation": "Adjust chamber, log event"
+    },
+    "data_logging": {
+      "format": "CSV with headers",
+      "backup_frequency": "hourly",
+      "redundancy": "dual logging systems recommended"
+    }
+  },
+
+  "performance_tracking": {
+    "measurement_intervals": [
+      {
+        "interval_hours": 0,
+        "description": "Baseline before voltage application"
+      },
+      {
+        "interval_hours": 24,
+        "description": "After 24 hours of stress"
+      },
+      {
+        "interval_hours": 48,
+        "description": "After 48 hours of stress"
+      },
+      {
+        "interval_hours": 96,
+        "description": "After 96 hours (standard test completion)"
+      },
+      {
+        "interval_hours": 168,
+        "description": "After 168 hours (extended test, if applicable)"
+      }
+    ],
+    "measurement_procedure": [
+      "Remove voltage and wait 15 minutes for module to equilibrate",
+      "Remove module from chamber (or adjust to STC conditions)",
+      "Measure IV curve at STC (1000 W/m², 25°C, AM1.5)",
+      "Calculate Pmax, Voc, Isc, FF",
+      "Optional: Quick EL image",
+      "Return module to chamber within 30 minutes",
+      "Reapply voltage and resume monitoring"
+    ],
+    "electrical_parameters": [
+      {
+        "parameter": "pmax",
+        "unit": "W",
+        "calculation": "Maximum power from IV curve",
+        "tracking": "Record absolute value and % change from baseline"
+      },
+      {
+        "parameter": "degradation_rate",
+        "unit": "%/hour",
+        "calculation": "((Pmax_current - Pmax_baseline) / Pmax_baseline) / hours_elapsed",
+        "description": "Instantaneous degradation rate"
+      },
+      {
+        "parameter": "cumulative_degradation",
+        "unit": "%",
+        "calculation": "((Pmax_current - Pmax_baseline) / Pmax_baseline) × 100"
+      },
+      {
+        "parameter": "voc",
+        "unit": "V",
+        "tracking": "Monitor for PID signature (Voc more stable than Isc)"
+      },
+      {
+        "parameter": "isc",
+        "unit": "A",
+        "tracking": "Monitor for current loss"
+      },
+      {
+        "parameter": "fill_factor",
+        "unit": "%",
+        "calculation": "(Pmax / (Voc × Isc)) × 100",
+        "tracking": "FF degradation indicates shunting"
+      },
+      {
+        "parameter": "series_resistance",
+        "unit": "Ω",
+        "calculation": "From IV curve slope",
+        "optional": true
+      },
+      {
+        "parameter": "shunt_resistance",
+        "unit": "Ω",
+        "calculation": "From IV curve slope near Isc",
+        "optional": true
+      }
+    ],
+    "recovery_tracking": {
+      "enabled": "if recovery_test enabled",
+      "measurements": [
+        "Immediately after stress removal",
+        "After 24h recovery",
+        "After 96h recovery",
+        "After 168h recovery (1 week)"
+      ],
+      "recovery_percentage": {
+        "calculation": "((Pmax_recovery - Pmax_degraded) / (Pmax_baseline - Pmax_degraded)) × 100",
+        "description": "Percentage of power loss recovered"
+      }
+    }
+  },
+
+  "analysis": {
+    "total_degradation": {
+      "calculation": "((Pmax_final - Pmax_baseline) / Pmax_baseline) × 100",
+      "unit": "%",
+      "reporting": "Report as absolute percentage (e.g., -8.5% means 8.5% power loss)"
+    },
+    "pid_susceptibility": {
+      "classification": [
+        {
+          "level": "none",
+          "criteria": "degradation < 2%",
+          "description": "No significant PID observed"
+        },
+        {
+          "level": "low",
+          "criteria": "2% ≤ degradation < 5%",
+          "description": "Minor PID susceptibility"
+        },
+        {
+          "level": "medium",
+          "criteria": "5% ≤ degradation < 10%",
+          "description": "Moderate PID susceptibility"
+        },
+        {
+          "level": "high",
+          "criteria": "degradation ≥ 10%",
+          "description": "Severe PID susceptibility - module fails test"
+        }
+      ],
+      "pass_criteria": "degradation < 5% per IEC 62804-1"
+    },
+    "degradation_kinetics": {
+      "initial_rate": {
+        "calculation": "Degradation rate in first 24 hours",
+        "unit": "%/hour"
+      },
+      "steady_state_rate": {
+        "calculation": "Average degradation rate from 48-96 hours",
+        "unit": "%/hour"
+      },
+      "saturation_behavior": {
+        "description": "Does degradation saturate or continue linearly?",
+        "options": ["linear", "logarithmic", "saturating", "accelerating"]
+      }
+    },
+    "recovery_analysis": {
+      "recoverable_degradation": {
+        "calculation": "Power recovered during recovery phase",
+        "unit": "%"
+      },
+      "permanent_degradation": {
+        "calculation": "Power loss remaining after recovery",
+        "unit": "%"
+      },
+      "recovery_classification": [
+        {
+          "type": "fully_reversible",
+          "criteria": ">90% recovery"
+        },
+        {
+          "type": "partially_reversible",
+          "criteria": "50-90% recovery"
+        },
+        {
+          "type": "irreversible",
+          "criteria": "<50% recovery"
+        }
+      ]
+    },
+    "statistical_analysis": {
+      "if_multiple_modules": [
+        "Calculate mean degradation",
+        "Calculate standard deviation",
+        "Identify outliers",
+        "Determine batch susceptibility"
+      ]
+    }
+  },
+
+  "quality_control": {
+    "equipment_calibration": {
+      "high_voltage_supply": {
+        "frequency": "annually",
+        "standard": "NIST traceable",
+        "accuracy": "±1% of setpoint",
+        "verification": "Monthly voltage check with calibrated meter"
+      },
+      "current_measurement": {
+        "frequency": "annually",
+        "accuracy": "±0.1% of reading",
+        "range": "1µA to 100mA"
+      },
+      "temperature_sensors": {
+        "frequency": "annually",
+        "accuracy": "±0.5°C"
+      },
+      "humidity_sensors": {
+        "frequency": "annually",
+        "accuracy": "±3% RH"
+      },
+      "iv_curve_tracer": {
+        "frequency": "semi-annually",
+        "standard": "IEC 60904-1"
+      }
+    },
+    "chamber_validation": {
+      "spatial_uniformity": {
+        "temperature": "±2°C across module area",
+        "humidity": "±5% RH across module area",
+        "verification_frequency": "quarterly"
+      },
+      "temporal_stability": {
+        "temperature": "±1°C over 24 hours",
+        "humidity": "±3% RH over 24 hours"
+      }
+    },
+    "safety_system_checks": {
+      "frequency": "before each test",
+      "checks": [
+        "Emergency stop function",
+        "Ground fault detection",
+        "Voltage interlock",
+        "Leakage current alarm",
+        "Chamber door interlock"
+      ]
+    },
+    "reference_module": {
+      "requirement": "Test known PID-susceptible module every 6 months",
+      "purpose": "Verify test system capability to detect PID",
+      "acceptance": "Reference module degrades as expected"
+    }
+  },
+
+  "preventive_maintenance": {
+    "daily_checks": [
+      "Chamber temperature & humidity display check",
+      "Voltage supply power-on self-test",
+      "Data logging system operational",
+      "Safety interlock function test"
+    ],
+    "weekly_checks": [
+      "Chamber calibration verification",
+      "Voltage measurement accuracy check",
+      "Leakage current sensor zero check",
+      "Data backup verification"
+    ],
+    "monthly_checks": [
+      "High voltage insulation inspection",
+      "Cable and connector condition",
+      "Chamber seal integrity",
+      "Emergency shutdown drill"
+    ],
+    "annual_maintenance": [
+      "Full equipment calibration",
+      "Chamber decontamination and cleaning",
+      "High voltage safety inspection by qualified electrician",
+      "Data acquisition system software update",
+      "Backup power system test (if applicable)"
+    ]
+  },
+
+  "project_management": {
+    "estimated_duration": {
+      "96h_test": "5-6 days (including setup and characterization)",
+      "with_recovery": "12-14 days",
+      "multiple_modules": "Add 1 day per additional module (if parallel testing)"
+    },
+    "resource_requirements": {
+      "personnel": "1-2 qualified technicians (high voltage certified)",
+      "equipment_time": "Chamber dedicated for full test duration",
+      "facility": "Climate chamber + solar simulator access"
+    },
+    "dependencies": [
+      "High voltage safety training current",
+      "Chamber availability",
+      "Baseline module characterization complete",
+      "Safety inspection passed"
+    ],
+    "milestones": [
+      {
+        "name": "Safety review complete",
+        "criteria": "All safety requirements verified"
+      },
+      {
+        "name": "Module setup complete",
+        "criteria": "Module in chamber, voltage applied, monitoring active"
+      },
+      {
+        "name": "24h checkpoint",
+        "criteria": "First interim measurement complete"
+      },
+      {
+        "name": "Test complete",
+        "criteria": "Full duration reached, final measurement done"
+      },
+      {
+        "name": "Recovery complete",
+        "criteria": "Recovery phase complete (if applicable)"
+      },
+      {
+        "name": "Analysis complete",
+        "criteria": "All calculations and classification done"
+      }
+    ]
+  },
+
+  "nonconformance_management": {
+    "test_failures": [
+      {
+        "condition": "Degradation >5%",
+        "action": "Module fails PID test per IEC 62804-1",
+        "notification": "Quality manager, module manufacturer",
+        "follow_up": "Consider recovery test and/or failure analysis"
+      },
+      {
+        "condition": "Excessive leakage current (>50mA)",
+        "action": "IMMEDIATE SHUTDOWN - potential module breakdown",
+        "notification": "Test supervisor, safety officer",
+        "follow_up": "Inspect module for damage, investigate root cause"
+      },
+      {
+        "condition": "Voltage collapse",
+        "action": "Stop test, inspect connections and module",
+        "notification": "Test supervisor",
+        "follow_up": "Determine if module failure or test setup issue"
+      },
+      {
+        "condition": "Chamber conditions out of spec",
+        "action": "Pause test, correct conditions, document downtime",
+        "notification": "Test supervisor",
+        "follow_up": "Evaluate if test should be restarted or continued"
+      }
+    ],
+    "safety_incidents": {
+      "electrical_shock": "EMERGENCY - Medical attention immediately, secure area",
+      "equipment_damage": "Stop test, do not disturb setup, document thoroughly",
+      "fire_or_smoke": "Activate fire suppression, evacuate, call emergency services"
+    },
+    "investigation_procedure": [
+      "Immediately document incident while fresh",
+      "Preserve evidence (module, data logs, photos)",
+      "Review monitoring data for anomalies",
+      "Interview personnel involved",
+      "Identify root cause (module defect, test error, equipment failure)",
+      "Determine corrective action",
+      "Update procedures if needed",
+      "Document lessons learned"
+    ],
+    "corrective_actions": {
+      "module_design": "Report PID failure to manufacturer/design team",
+      "test_procedure": "Revise procedure to prevent recurrence",
+      "equipment": "Repair, recalibrate, or replace faulty equipment",
+      "safety_improvement": "Implement additional safeguards",
+      "training": "Retrain personnel on proper procedures"
+    },
+    "disposition_options": [
+      "Module failed - return to manufacturer with test report",
+      "Retest - if test validity questioned and module undamaged",
+      "Failure analysis - send to lab for detailed investigation",
+      "Recovery test - attempt to recover module and reassess"
+    ]
+  },
+
+  "reporting": {
+    "required_data": [
+      "Module identification and specifications",
+      "Test parameters (voltage, temp, humidity, duration)",
+      "Complete time-series data (voltage, current, temp, humidity)",
+      "IV curves at all measurement intervals",
+      "Power degradation calculation and classification",
+      "Degradation rate analysis",
+      "Recovery data (if applicable)",
+      "Any anomalies or incidents",
+      "Pass/fail determination with justification",
+      "Safety checklist completion"
+    ],
+    "charts_and_graphs": [
+      "Power vs. time (show degradation trend)",
+      "Leakage current vs. time",
+      "Degradation rate vs. time",
+      "IV curve comparison (baseline vs. stressed)",
+      "Recovery curve (if applicable)",
+      "Temperature and humidity log",
+      "Box plot for multiple modules (if applicable)"
+    ],
+    "report_format": "PDF with embedded data, graphs, and test setup photos",
+    "data_package": "Include raw CSV files with all monitoring data",
+    "retention_period": "10 years minimum (safety and liability)",
+    "distribution": "Customer, quality manager, engineering (as applicable)"
+  }
+}

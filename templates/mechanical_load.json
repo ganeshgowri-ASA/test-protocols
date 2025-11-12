@@ -1,0 +1,430 @@
+{
+  "protocol_metadata": {
+    "id": "PVTP-005-ML",
+    "name": "Mechanical Load Testing Protocol",
+    "version": "1.0",
+    "standards": [
+      "IEC 61215-2:2016 MQT 16",
+      "IEC 61215-2:2016 MQT 17"
+    ],
+    "description": "Static, dynamic, and cyclic mechanical load testing for PV modules",
+    "created_date": "2025-11-12",
+    "last_modified": "2025-11-12",
+    "author": "PV Testing Lab",
+    "status": "active"
+  },
+
+  "test_types": [
+    {
+      "type": "static_load",
+      "description": "Static load test with fixed pressure application",
+      "duration": "1 hour"
+    },
+    {
+      "type": "dynamic_load",
+      "description": "Dynamic load test with varying pressure",
+      "duration": "variable"
+    },
+    {
+      "type": "cyclic_load",
+      "description": "Cyclic load test with repeated pressure cycles",
+      "cycles": [1, 3, 1000]
+    }
+  ],
+
+  "protocol_inputs": {
+    "load_type": {
+      "type": "string",
+      "options": ["uniform", "non-uniform"],
+      "default": "uniform",
+      "description": "Type of load distribution across module surface",
+      "required": true
+    },
+    "pressure": {
+      "positive": {
+        "value": 2400,
+        "unit": "Pa",
+        "tolerance": "±50 Pa",
+        "description": "Front side positive pressure (wind/snow load)"
+      },
+      "negative": {
+        "value": -2400,
+        "unit": "Pa",
+        "tolerance": "±50 Pa",
+        "description": "Back side negative pressure (suction load)"
+      }
+    },
+    "cycles": {
+      "type": "array",
+      "options": [1, 3, 1000],
+      "default": 3,
+      "description": "Number of load cycles to perform",
+      "required": true
+    },
+    "dwell_time": {
+      "value": "1 hour",
+      "min": "30 minutes",
+      "max": "2 hours",
+      "description": "Duration to maintain load at each cycle",
+      "required": true
+    },
+    "module_specifications": {
+      "model": {"type": "string", "required": true},
+      "serial_number": {"type": "string", "required": true},
+      "dimensions": {
+        "length": {"value": null, "unit": "mm"},
+        "width": {"value": null, "unit": "mm"},
+        "thickness": {"value": null, "unit": "mm"}
+      },
+      "rated_power": {"value": null, "unit": "W"}
+    },
+    "environmental_conditions": {
+      "temperature": {
+        "value": null,
+        "unit": "°C",
+        "range": "15-35",
+        "description": "Ambient temperature during test"
+      },
+      "humidity": {
+        "value": null,
+        "unit": "%RH",
+        "range": "20-80",
+        "description": "Relative humidity during test"
+      }
+    }
+  },
+
+  "load_application": {
+    "setup": {
+      "equipment": [
+        "Load frame or pressure chamber",
+        "Pressure sensors (±10 Pa accuracy)",
+        "Deflection measurement system (±0.1 mm accuracy)",
+        "Data acquisition system"
+      ],
+      "mounting": "Module secured per manufacturer specifications"
+    },
+    "measurements": [
+      {
+        "parameter": "load_value",
+        "unit": "Pa",
+        "measurement_points": "continuous",
+        "accuracy": "±10 Pa"
+      },
+      {
+        "parameter": "application_time",
+        "unit": "seconds",
+        "description": "Time to reach target pressure"
+      },
+      {
+        "parameter": "deflection_measurement",
+        "unit": "mm",
+        "measurement_locations": [
+          "center",
+          "quarter_points",
+          "edges"
+        ],
+        "accuracy": "±0.1 mm",
+        "frequency": "every 5 minutes"
+      }
+    ],
+    "procedure": [
+      "Mount module in test fixture",
+      "Install deflection sensors at specified locations",
+      "Verify pressure sensors calibration",
+      "Record baseline measurements (no load)",
+      "Apply load gradually (rate: 100 Pa/s max)",
+      "Maintain target pressure for dwell time",
+      "Record deflection at specified intervals",
+      "Release load gradually",
+      "Wait for module to stabilize (15 min)",
+      "Repeat for specified number of cycles"
+    ]
+  },
+
+  "performance_measurements": {
+    "timing": [
+      {
+        "stage": "baseline",
+        "description": "Before any load application"
+      },
+      {
+        "stage": "after_cycle_1",
+        "description": "After first load cycle"
+      },
+      {
+        "stage": "after_cycle_3",
+        "description": "After third load cycle (if applicable)"
+      },
+      {
+        "stage": "after_all_cycles",
+        "description": "After all cycles completed"
+      },
+      {
+        "stage": "recovery_24h",
+        "description": "24 hours after final cycle"
+      }
+    ],
+    "electrical_parameters": [
+      {
+        "parameter": "pmax",
+        "unit": "W",
+        "measurement_standard": "STC conditions",
+        "acceptance_criteria": "Within ±5% of baseline"
+      },
+      {
+        "parameter": "voc",
+        "unit": "V",
+        "measurement_standard": "STC conditions",
+        "acceptance_criteria": "Within ±2% of baseline"
+      },
+      {
+        "parameter": "isc",
+        "unit": "A",
+        "measurement_standard": "STC conditions",
+        "acceptance_criteria": "Within ±2% of baseline"
+      },
+      {
+        "parameter": "fill_factor",
+        "unit": "%",
+        "calculation": "FF = (Pmax / (Voc × Isc)) × 100"
+      }
+    ],
+    "visual_defects": {
+      "inspection_method": "Visual examination per IEC 61215",
+      "defect_types": [
+        "Cell cracks",
+        "Broken interconnects",
+        "Delamination",
+        "Backsheet damage",
+        "Frame damage",
+        "Junction box damage",
+        "Glass breakage"
+      ],
+      "documentation": "Photograph all defects with scale reference"
+    },
+    "el_imaging": {
+      "description": "Electroluminescence imaging",
+      "timing": ["baseline", "after_all_cycles"],
+      "camera_settings": {
+        "exposure": "auto or manual",
+        "gain": "optimized for signal"
+      },
+      "analysis": [
+        "Cell crack detection",
+        "Interconnect integrity",
+        "Dark areas (inactive regions)",
+        "Micro-cracks"
+      ]
+    }
+  },
+
+  "analysis": {
+    "max_power_change": {
+      "calculation": "((Pmax_final - Pmax_baseline) / Pmax_baseline) × 100",
+      "unit": "%",
+      "acceptance_criteria": "±5%",
+      "fail_threshold": ">5% degradation"
+    },
+    "mechanical_integrity": {
+      "evaluation_criteria": [
+        {
+          "aspect": "no_major_visual_defects",
+          "description": "No cracks, breaks, or delamination visible"
+        },
+        {
+          "aspect": "no_open_circuits",
+          "description": "All electrical connections intact"
+        },
+        {
+          "aspect": "no_ground_faults",
+          "description": "Insulation resistance >40 MΩ"
+        },
+        {
+          "aspect": "max_deflection_limit",
+          "value": "Module dependent",
+          "typical": "<1% of span"
+        }
+      ],
+      "result": {
+        "type": "enum",
+        "values": ["pass", "fail"],
+        "determination": "All criteria must pass"
+      }
+    },
+    "deflection_analysis": {
+      "max_deflection": {
+        "unit": "mm",
+        "location": "record location of maximum deflection"
+      },
+      "permanent_deformation": {
+        "calculation": "Deflection after 24h recovery",
+        "acceptance": "<10% of max deflection"
+      },
+      "deflection_profile": {
+        "description": "Deflection across measurement points",
+        "visualization": "3D surface plot recommended"
+      }
+    }
+  },
+
+  "quality_control": {
+    "equipment_calibration": {
+      "pressure_sensors": {
+        "frequency": "annually",
+        "standard": "NIST traceable",
+        "accuracy": "±10 Pa"
+      },
+      "deflection_sensors": {
+        "frequency": "annually",
+        "standard": "NIST traceable",
+        "accuracy": "±0.1 mm"
+      },
+      "iv_curve_tracer": {
+        "frequency": "semi-annually",
+        "standard": "IEC 60904-1"
+      }
+    },
+    "measurement_uncertainty": {
+      "pressure": "±15 Pa (k=2)",
+      "deflection": "±0.15 mm (k=2)",
+      "power": "±3% (k=2)"
+    },
+    "reference_module": {
+      "requirement": "Test reference module quarterly",
+      "acceptance": "Results within expected range"
+    }
+  },
+
+  "preventive_maintenance": {
+    "daily_checks": [
+      "Visual inspection of load frame",
+      "Pressure sensor zero check",
+      "Data acquisition system function"
+    ],
+    "weekly_checks": [
+      "Load frame alignment",
+      "Deflection sensor calibration check",
+      "Safety system verification"
+    ],
+    "monthly_checks": [
+      "Pressure uniformity verification",
+      "System leak test",
+      "Emergency stop function test"
+    ],
+    "annual_maintenance": [
+      "Full equipment calibration",
+      "Structural integrity inspection",
+      "Hydraulic/pneumatic system service",
+      "Control system software update"
+    ]
+  },
+
+  "project_management": {
+    "estimated_duration": {
+      "1_cycle": "4 hours",
+      "3_cycles": "8 hours",
+      "1000_cycles": "6-8 weeks"
+    },
+    "resource_requirements": {
+      "personnel": "1-2 technicians",
+      "equipment_time": "per test duration",
+      "facility": "Climate controlled lab space"
+    },
+    "dependencies": [
+      "Module pre-conditioning (if required)",
+      "Baseline electrical characterization",
+      "Visual inspection documentation"
+    ],
+    "milestones": [
+      {
+        "name": "Test setup complete",
+        "criteria": "Module mounted, sensors installed"
+      },
+      {
+        "name": "Baseline measurements",
+        "criteria": "All baseline data collected"
+      },
+      {
+        "name": "Load testing complete",
+        "criteria": "All cycles completed"
+      },
+      {
+        "name": "Final characterization",
+        "criteria": "All post-test measurements complete"
+      },
+      {
+        "name": "Data analysis",
+        "criteria": "Results calculated and verified"
+      }
+    ]
+  },
+
+  "nonconformance_management": {
+    "test_failures": [
+      {
+        "condition": "Power degradation >5%",
+        "action": "Document failure, investigate root cause",
+        "notification": "Quality manager, design team"
+      },
+      {
+        "condition": "Visual defects detected",
+        "action": "Photograph, measure, document location",
+        "notification": "Quality manager"
+      },
+      {
+        "condition": "Excessive deflection",
+        "action": "Stop test, evaluate module integrity",
+        "notification": "Test supervisor, safety officer"
+      },
+      {
+        "condition": "Equipment malfunction",
+        "action": "Stop test, document state, do not remove module",
+        "notification": "Maintenance, test supervisor"
+      }
+    ],
+    "investigation_procedure": [
+      "Preserve module and test setup",
+      "Collect all data and logs",
+      "Photograph module condition",
+      "Review test parameters vs. procedure",
+      "Identify root cause",
+      "Determine corrective action",
+      "Document lessons learned"
+    ],
+    "corrective_actions": {
+      "module_design": "Feedback to engineering team",
+      "test_procedure": "Update procedure if needed",
+      "equipment": "Repair or recalibrate",
+      "operator_error": "Retraining required"
+    },
+    "disposition_options": [
+      "Scrap - module failed permanently",
+      "Rework - attempt repair if feasible",
+      "Use as-is - with documented limitations",
+      "Retest - if test validity questioned"
+    ]
+  },
+
+  "reporting": {
+    "required_data": [
+      "Module identification",
+      "Test parameters and conditions",
+      "Deflection measurements (all points, all cycles)",
+      "Electrical performance (all stages)",
+      "Visual inspection results",
+      "EL images (if applicable)",
+      "Environmental conditions log",
+      "Pass/fail determination with justification"
+    ],
+    "charts_and_graphs": [
+      "Power vs. load cycle",
+      "Deflection vs. time for each cycle",
+      "Deflection profile (spatial distribution)",
+      "IV curves (baseline vs. final)",
+      "EL image comparison"
+    ],
+    "report_format": "PDF with embedded data and images",
+    "retention_period": "10 years minimum"
+  }
+}

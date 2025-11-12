@@ -1,0 +1,764 @@
+{
+  "protocol_id": "PVTP-045",
+  "version": "1.0",
+  "title": "Tracker Performance Evaluation",
+  "category": "Field Testing & Monitoring",
+  "description": "Comprehensive protocol for evaluating single-axis and dual-axis solar tracker performance including tracking accuracy, energy gain, mechanical reliability, and control system optimization",
+  "scope": "Outdoor tracker performance testing, tracking accuracy measurement, fixed-tilt comparison, and long-term reliability assessment",
+  "standards": [
+    "IEC 62817:2014 - Solar tracker systems for photovoltaic systems",
+    "IEC 61724-1:2021 - PV system performance monitoring",
+    "IEEE 2848-2022 - Standard for Solar Tracker System Testing",
+    "ASTM E2848-14 - Standard Test Method for Reporting Photovoltaic Non-Concentrator Performance"
+  ],
+
+  "iot_integration": {
+    "enabled": true,
+    "protocols": ["MQTT", "Modbus TCP", "OPC-UA", "RESTful API", "LoRaWAN"],
+    "data_sources": [
+      {
+        "source_id": "tracker_controller",
+        "type": "tracker_control_system",
+        "protocol": "Modbus TCP",
+        "polling_interval_sec": 10,
+        "parameters": ["commanded_angle", "actual_angle", "tracking_mode", "wind_speed", "stow_status", "motor_current", "error_codes"]
+      },
+      {
+        "source_id": "angle_sensors",
+        "type": "precision_inclinometers",
+        "protocol": "MQTT",
+        "polling_interval_sec": 5,
+        "parameters": ["tilt_angle_measured", "azimuth_angle_measured", "sensor_temperature", "calibration_status"]
+      },
+      {
+        "source_id": "tracker_power_monitoring",
+        "type": "electrical_performance",
+        "protocol": "Modbus TCP",
+        "polling_interval_sec": 5,
+        "parameters": ["tracker_dc_power", "tracker_ac_power", "tracker_energy", "string_voltages", "string_currents"]
+      },
+      {
+        "source_id": "fixed_tilt_reference",
+        "type": "comparative_baseline",
+        "protocol": "Modbus TCP",
+        "polling_interval_sec": 5,
+        "parameters": ["fixed_dc_power", "fixed_ac_power", "fixed_energy"]
+      },
+      {
+        "source_id": "sun_position_calculator",
+        "type": "astronomical_reference",
+        "protocol": "RESTful API",
+        "polling_interval_sec": 60,
+        "parameters": ["sun_elevation", "sun_azimuth", "theoretical_tracker_angle", "day_of_year", "solar_noon"]
+      },
+      {
+        "source_id": "weather_station",
+        "type": "meteorological_data",
+        "protocol": "MQTT",
+        "polling_interval_sec": 5,
+        "parameters": ["GHI", "DNI", "DHI", "POA_tracker", "POA_fixed", "wind_speed", "wind_direction", "ambient_temp"]
+      },
+      {
+        "source_id": "mechanical_sensors",
+        "type": "structural_health_monitoring",
+        "protocol": "LoRaWAN",
+        "polling_interval_sec": 60,
+        "parameters": ["vibration", "bearing_temp", "torque", "motor_efficiency", "acoustic_signature"]
+      }
+    ],
+    "data_pipeline": {
+      "ingestion": "MQTT Broker + Apache Kafka",
+      "processing": "Apache Flink for real-time tracking accuracy analysis",
+      "storage": "InfluxDB (time-series) + PostgreSQL (events, alarms)",
+      "analytics": "Python (pvlib for sun position, scikit-learn for predictive maintenance)"
+    }
+  },
+
+  "weather_station_linkage": {
+    "required_sensors": {
+      "irradiance_comprehensive": {
+        "GHI_pyranometer": {
+          "sensor_type": "Class A thermopile",
+          "accuracy": "±2%",
+          "use": "Baseline irradiance and tracking gain calculation"
+        },
+        "DNI_pyrheliometer": {
+          "sensor_type": "First class pyrheliometer",
+          "accuracy": "±1%",
+          "importance": "CRITICAL for tracker performance (trackers maximize DNI capture)",
+          "mounting": "Sun-tracker mounted for direct beam measurement"
+        },
+        "DHI_pyranometer": {
+          "sensor_type": "Pyranometer with shadow band or tracker",
+          "accuracy": "±3%"
+        },
+        "POA_tracker": {
+          "sensor_type": "Reference cell or pyranometer on tracker plane",
+          "mounting": "Co-planar with tracker modules",
+          "quantity": "3-5 distributed across tracker row"
+        },
+        "POA_fixed": {
+          "sensor_type": "Pyranometer on fixed-tilt reference",
+          "mounting": "Same tilt as fixed-tilt baseline system"
+        }
+      },
+      "sun_position_reference": {
+        "GPS_time_source": {
+          "accuracy": "±1 millisecond",
+          "importance": "Precise time for sun position calculation"
+        },
+        "site_coordinates": {
+          "latitude_longitude": "±0.0001° accuracy (±10m)",
+          "elevation": "±5m accuracy",
+          "importance": "Accurate sun position calculation"
+        }
+      },
+      "wind_monitoring": {
+        "wind_speed": {
+          "sensor_type": "Ultrasonic anemometer",
+          "accuracy": "±0.3 m/s",
+          "height": "Tracker height",
+          "importance": "CRITICAL for stow operations and structural loads"
+        },
+        "wind_direction": {
+          "accuracy": "±3°",
+          "use": "Assess directional wind loads on tracker"
+        }
+      },
+      "temperature_sensors": {
+        "ambient_temperature": "PT100, ±0.2°C",
+        "module_temperature_tracker": "PT100 on tracker modules",
+        "module_temperature_fixed": "PT100 on fixed-tilt modules"
+      }
+    },
+    "data_synchronization": {
+      "timestamp_source": "GPS-disciplined NTP server",
+      "sync_accuracy_ms": 50,
+      "importance": "Critical for tracking accuracy assessment",
+      "timezone": "UTC"
+    }
+  },
+
+  "scada_integration": {
+    "enabled": true,
+    "connection_type": "OPC-UA / Modbus TCP / DNP3",
+    "real_time_monitoring": {
+      "plant_level": ["total_tracker_power", "total_fixed_power", "tracking_gain", "wind_speed", "stow_events"],
+      "tracker_row_level": ["row_power", "tracking_angle", "angle_error", "operational_state"],
+      "individual_tracker": ["motor_status", "current_draw", "position_feedback", "fault_status"]
+    },
+    "tracker_control": {
+      "tracking_modes": ["astronomical", "sensor_based", "backtracking", "manual", "stow"],
+      "remote_commands": ["set_angle", "change_mode", "emergency_stow", "reset", "calibrate"],
+      "backtracking_algorithm": {
+        "description": "Avoid inter-row shading in morning/evening",
+        "calculation": "Optimize angle to balance beam irradiance vs shading",
+        "validation": "Monitor power vs theoretical with/without backtracking"
+      }
+    },
+    "alarm_integration": {
+      "critical_alarms": [
+        "Tracking angle error > 5°",
+        "Motor overcurrent",
+        "Wind speed exceeds stow threshold",
+        "Communication loss with tracker",
+        "Structural failure detected"
+      ],
+      "warning_alarms": [
+        "Tracking angle error > 2°",
+        "Motor inefficiency detected",
+        "Approaching wind stow threshold",
+        "Sensor drift detected"
+      ],
+      "notification_channels": ["SCADA_HMI", "email", "SMS", "mobile_app"]
+    }
+  },
+
+  "test_parameters": {
+    "tracker_configurations": {
+      "single_axis_horizontal": {
+        "description": "North-South axis, East-West tracking",
+        "typical_application": "Most common for utility-scale",
+        "test_focus": ["Tracking accuracy", "Backtracking effectiveness", "Energy gain vs fixed"]
+      },
+      "single_axis_tilted": {
+        "description": "Tilted axis (optimized for latitude)",
+        "advantage": "Better winter performance at high latitudes",
+        "test_focus": ["Optimal tilt angle", "Seasonal performance"]
+      },
+      "dual_axis": {
+        "description": "Full azimuth and elevation tracking",
+        "advantage": "Maximum DNI capture",
+        "test_focus": ["Tracking accuracy (2D)", "Energy gain vs single-axis", "Mechanical complexity"]
+      }
+    },
+    "tracking_accuracy_measurement": {
+      "angle_measurement": {
+        "method_1": "Precision inclinometers",
+        "accuracy_required": "±0.1°",
+        "quantity": "Minimum 3 per tracker type"
+      },
+      "method_2": "Sun sensor (4-quadrant photodiode)",
+      "method_3": "Comparison with astronomical calculation",
+      "tracking_error_definition": "Error = Measured_angle - Theoretical_optimal_angle",
+      "acceptable_tracking_error": "±2° for utility-scale, ±0.5° for CPV"
+    },
+    "comparative_testing": {
+      "tracker_vs_fixed_tilt": {
+        "fixed_tilt_angle": "Optimized for site latitude (typically lat ± 15°)",
+        "rated_capacity": "Same nominal power for fair comparison",
+        "mounting": "Adjacent locations, minimal shading differences",
+        "measurement": "Simultaneous power and energy monitoring"
+      },
+      "tracker_vs_tracker": {
+        "different_manufacturers": "Compare reliability, accuracy, energy gain",
+        "different_tracking_algorithms": "Astronomical vs sensor-based vs hybrid"
+      }
+    },
+    "environmental_conditions": {
+      "irradiance": "Full range 0-1500 W/m² (focus on high DNI conditions)",
+      "wind_speed": {
+        "normal_operation": "0-15 m/s",
+        "high_wind_tracking": "15-20 m/s (reduced speed or angle limits)",
+        "stow_threshold": "Typically 20-25 m/s (site and tracker specific)"
+      },
+      "temperature": "-20°C to +50°C (test extreme conditions)",
+      "seasonal_coverage": "Full year minimum for seasonal pattern analysis"
+    }
+  },
+
+  "performance_metrics": {
+    "tracking_accuracy_metrics": {
+      "mean_absolute_tracking_error": {
+        "formula": "MATE = mean(|angle_measured - angle_theoretical|)",
+        "unit": "degrees",
+        "target": "<1° for good tracking system",
+        "frequency": "daily, monthly"
+      },
+      "root_mean_square_error": {
+        "formula": "RMSE = sqrt(mean((angle_measured - angle_theoretical)²))",
+        "unit": "degrees",
+        "interpretation": "Penalizes large errors more than MATE"
+      },
+      "maximum_tracking_error": {
+        "metric": "max(|angle_error|)",
+        "alarm_threshold": ">5° indicates serious issue"
+      },
+      "tracking_accuracy_distribution": {
+        "histogram": "Percentage of time within ±0.5°, ±1°, ±2°, ±5°, >5°",
+        "target": ">95% of time within ±2°"
+      }
+    },
+    "energy_gain_metrics": {
+      "tracking_gain": {
+        "formula": "Tracking_Gain = (E_tracker - E_fixed) / E_fixed × 100%",
+        "typical_range": "15-35% depending on latitude and climate",
+        "factors": ["Latitude", "DNI fraction", "Tracking accuracy", "Backtracking losses"]
+      },
+      "daily_tracking_gain": {
+        "calculation": "Daily energy tracker vs fixed",
+        "seasonal_variation": "Higher gain in summer, lower in winter (for horizontal single-axis)"
+      },
+      "hourly_tracking_gain": {
+        "pattern": "Maximum gain in morning and evening when angle difference is greatest",
+        "visualization": "Heatmap of gain by hour and month"
+      }
+    },
+    "irradiance_capture_metrics": {
+      "POA_tracker_vs_GHI": {
+        "formula": "POA_gain = (POA_tracker / GHI) - 1",
+        "typical": "10-30% more irradiance captured vs horizontal"
+      },
+      "DNI_capture_efficiency": {
+        "formula": "DNI_eff = POA_tracker_beam / DNI",
+        "ideal": "100% (perfect tracking of direct beam)",
+        "typical": "95-99% accounting for tracking error and diffuse"
+      },
+      "backtracking_loss": {
+        "definition": "Energy loss due to backtracking to avoid shading",
+        "calculation": "Compare energy with vs without backtracking during morning/evening",
+        "typical": "2-8% annual energy loss, justified by avoiding larger shading losses"
+      }
+    },
+    "operational_metrics": {
+      "availability": {
+        "formula": "A = (time_tracking_correctly / total_time) × 100%",
+        "target": ">99%",
+        "exclusions": "Scheduled maintenance, grid outages, extreme weather stow events"
+      },
+      "stow_event_frequency": {
+        "metric": "Number of stow events per year",
+        "types": ["Wind stow", "Hail stow", "Snow stow", "Emergency stow"],
+        "analysis": "Energy loss during stow periods"
+      },
+      "motor_energy_consumption": {
+        "formula": "Motor_energy / PV_energy_generated × 100%",
+        "typical": "0.05-0.2% (very small fraction)",
+        "monitoring": "Detect motor inefficiency or mechanical resistance"
+      }
+    },
+    "reliability_metrics": {
+      "mean_time_between_failures": {
+        "formula": "MTBF = total_operating_hours / number_of_failures",
+        "target": ">20,000 hours (2+ years)",
+        "failure_types": ["Motor failure", "Controller failure", "Sensor failure", "Mechanical failure"]
+      },
+      "mean_time_to_repair": {
+        "formula": "MTTR = total_downtime / number_of_repairs",
+        "target": "<4 hours",
+        "importance": "Minimize energy loss from downtime"
+      }
+    }
+  },
+
+  "tracking_algorithms": {
+    "astronomical_tracking": {
+      "description": "Calculate sun position from date, time, location",
+      "algorithm": "Solar Position Algorithm (SPA) - NREL",
+      "inputs": ["Latitude", "Longitude", "Elevation", "Timestamp"],
+      "outputs": ["Sun elevation", "Sun azimuth", "Tracker angle"],
+      "accuracy": "±0.0003° for sun position (errors from mechanical, not calculation)",
+      "advantages": "No sensors needed, works in all weather",
+      "disadvantages": "Requires accurate time and location, no feedback"
+    },
+    "sensor_based_tracking": {
+      "description": "Use sun sensors (photodiodes) to track sun directly",
+      "sensor_type": "4-quadrant photodiode or dual-axis sensors",
+      "control": "Servo control to balance sensor signals",
+      "advantages": "Direct feedback, can compensate for misalignment",
+      "disadvantages": "Doesn't work in cloudy conditions, requires periodic cleaning"
+    },
+    "hybrid_tracking": {
+      "description": "Astronomical tracking with sensor feedback correction",
+      "logic": "Use astronomical as baseline, sensor feedback for fine-tuning when available",
+      "advantages": "Best of both worlds",
+      "implementation": "Most advanced modern trackers"
+    },
+    "backtracking_algorithm": {
+      "purpose": "Avoid inter-row shading in morning and evening",
+      "calculation": "Optimize angle to maximize POA irradiance accounting for shading",
+      "implementation": "When sun elevation is low, reduce tracking angle",
+      "validation": "Compare energy with/without backtracking",
+      "optimization": "Balance beam capture vs shading avoidance"
+    }
+  },
+
+  "long_term_trend_analysis": {
+    "enabled": true,
+    "analysis_methods": {
+      "tracking_accuracy_evolution": {
+        "monthly_MATE": "Track if accuracy degrades over time",
+        "causes": "Mechanical wear, sensor drift, controller issues",
+        "predictive_maintenance": "Forecast when calibration or repairs needed"
+      },
+      "seasonal_tracking_gain": {
+        "analysis": "Gain by month and season",
+        "pattern": "Single-axis horizontal: higher gain in summer, lower in winter",
+        "latitude_dependence": "Gain increases with latitude for single-axis"
+      },
+      "energy_gain_stability": {
+        "trend": "Is tracking gain consistent or decreasing?",
+        "degradation_factors": ["Mechanical wear", "Module soiling differential", "Tracker/fixed degradation rates"]
+      },
+      "failure_rate_analysis": {
+        "infant_mortality": "High failure rate in first months (installation issues)",
+        "random_failures": "Steady state failure rate",
+        "wear_out": "Increased failures after 10-15 years",
+        "visualization": "Bathtub curve for failure rate vs time"
+      }
+    }
+  },
+
+  "predictive_modeling": {
+    "enabled": true,
+    "models": {
+      "tracking_gain_forecasting": {
+        "model": "Physical model based on sun position and weather forecast",
+        "inputs": ["DNI/GHI forecast", "Sun position", "Tracker configuration"],
+        "outputs": ["Expected tracking gain for next 7 days"],
+        "use": "Energy forecasting for grid operations"
+      },
+      "predictive_maintenance": {
+        "motor_failure_prediction": {
+          "features": ["Motor current trend", "Efficiency", "Temperature", "Vibration", "Operating hours"],
+          "algorithm": "Survival analysis or classification (Random Forest, XGBoost)",
+          "output": "Probability of failure in next 30/90 days",
+          "action": "Schedule maintenance before failure"
+        },
+        "tracking_accuracy_drift_prediction": {
+          "method": "Time-series analysis of tracking error",
+          "forecast": "When tracking error will exceed threshold",
+          "action": "Schedule calibration proactively"
+        }
+      },
+      "optimal_tracking_strategy": {
+        "reinforcement_learning": {
+          "objective": "Maximize energy - motor_energy",
+          "state_space": ["Sun position", "Wind speed", "Irradiance components", "Tracker angle"],
+          "action_space": ["Tracking angle setpoint", "Tracking speed"],
+          "reward": "Net energy production",
+          "implementation": "Learn optimal tracking policy including backtracking"
+        }
+      },
+      "stow_decision_optimization": {
+        "model": "Cost-benefit of stow vs continue tracking",
+        "inputs": ["Wind forecast", "Irradiance forecast", "Structural load limits"],
+        "decision": "When to stow (balance energy loss vs structural risk)",
+        "advanced": "Predictive stow before wind gusts (using weather radar)"
+      }
+    }
+  },
+
+  "test_procedure": {
+    "phases": [
+      {
+        "phase": "1_installation_commissioning",
+        "duration": "2-4 weeks",
+        "activities": [
+          "Install tracker system and fixed-tilt reference system",
+          "Install precision angle sensors (inclinometers) on trackers",
+          "Install comprehensive irradiance monitoring (GHI, DNI, DHI, POA tracker, POA fixed)",
+          "Install wind monitoring at tracker height",
+          "Configure tracker controller and data acquisition system",
+          "Perform initial tracker calibration and alignment",
+          "Verify tracking motion and angle accuracy",
+          "Test stow functionality and wind threshold settings"
+        ]
+      },
+      {
+        "phase": "2_baseline_characterization",
+        "duration": "2 weeks",
+        "activities": [
+          "Verify tracking accuracy under clear sky conditions",
+          "Validate sun position calculations against GPS time and coordinates",
+          "Test tracking response to sensor inputs (if sensor-based tracking)",
+          "Measure motor current and power consumption",
+          "Document baseline tracking error distribution",
+          "Verify backtracking algorithm (if applicable)"
+        ]
+      },
+      {
+        "phase": "3_continuous_monitoring",
+        "duration": "12+ months (ongoing)",
+        "activities": [
+          "Continuous tracking angle monitoring (5-second intervals)",
+          "Continuous power monitoring (tracker and fixed-tilt reference)",
+          "Weather data logging (irradiance, wind, temperature)",
+          "Automated tracking error calculation and alarming",
+          "Daily tracking gain calculation",
+          "Stow event logging and analysis",
+          "Motor performance monitoring"
+        ]
+      },
+      {
+        "phase": "4_performance_analysis",
+        "frequency": "monthly",
+        "activities": [
+          "Calculate monthly tracking accuracy statistics (MATE, RMSE)",
+          "Calculate monthly energy gain tracker vs fixed",
+          "Analyze tracking error patterns (time of day, sun angle dependence)",
+          "Evaluate backtracking effectiveness",
+          "Compare measured vs modeled tracker performance",
+          "Assess any degradation in accuracy or gain"
+        ]
+      },
+      {
+        "phase": "5_reliability_assessment",
+        "frequency": "ongoing with quarterly reports",
+        "activities": [
+          "Log all failures, faults, and maintenance events",
+          "Calculate MTBF and MTTR",
+          "Analyze failure modes and root causes",
+          "Predictive maintenance model training and validation",
+          "Identify design or operational improvements"
+        ]
+      },
+      {
+        "phase": "6_annual_evaluation",
+        "frequency": "annual",
+        "activities": [
+          "Comprehensive annual tracking performance review",
+          "Energy gain summary and financial impact",
+          "Tracking accuracy trend analysis",
+          "Reliability and availability assessment",
+          "Predictive model validation and updates",
+          "Recommendations for operations, maintenance, and design improvements"
+        ]
+      }
+    ]
+  },
+
+  "data_analysis": {
+    "automated_calculations": [
+      {
+        "metric": "Instantaneous Tracking Error",
+        "formula": "Error = Angle_measured - Angle_theoretical (from SPA)",
+        "frequency": "real-time (every 5-10 seconds)",
+        "alarm_threshold": "|Error| > 5°"
+      },
+      {
+        "metric": "Daily Mean Absolute Tracking Error",
+        "formula": "MATE_daily = mean(|tracking_error|) for sun elevation > 10°",
+        "frequency": "daily"
+      },
+      {
+        "metric": "Daily Tracking Gain",
+        "formula": "Gain_daily = (E_tracker - E_fixed) / E_fixed × 100%",
+        "frequency": "daily"
+      },
+      {
+        "metric": "POA Irradiance Gain",
+        "formula": "POA_gain = (H_tracker - H_fixed) / H_fixed × 100%",
+        "frequency": "daily, monthly"
+      },
+      {
+        "metric": "Motor Energy Fraction",
+        "formula": "Motor_fraction = E_motor / E_PV_generated × 100%",
+        "frequency": "daily",
+        "typical": "<0.2%"
+      },
+      {
+        "metric": "Availability",
+        "formula": "A = (hours_tracking_correctly / total_daylight_hours) × 100%",
+        "frequency": "monthly",
+        "target": ">99%"
+      }
+    ],
+    "correlation_analysis": {
+      "analyses": [
+        "Tracking error vs sun elevation (errors typically larger at low angles)",
+        "Tracking gain vs DNI fraction (higher DNI → higher gain)",
+        "Tracking accuracy vs wind speed (wind loading affects accuracy)",
+        "Energy gain vs latitude and season",
+        "Motor current vs wind speed (resistance in high wind)",
+        "Failure rate vs environmental stress (temperature, wind cycles)"
+      ]
+    },
+    "backtracking_analysis": {
+      "comparison": "Energy with vs without backtracking (simulation or A/B test)",
+      "optimization": "Tune backtracking parameters for maximum energy",
+      "validation": "Confirm backtracking reduces shading losses more than beam loss"
+    },
+    "data_quality_checks": {
+      "validation_rules": [
+        "Tracking angle within physical limits (e.g., -60° to +60°)",
+        "P_tracker >= P_fixed during high DNI (tracking should outperform fixed)",
+        "Tracking error absolute value < 20° (larger indicates sensor/controller fault)",
+        "Motor current within expected range",
+        "Sun elevation calculated correctly (cross-check with NOAA or pvlib)"
+      ],
+      "outlier_detection": "Z-score > 3 or physically impossible values",
+      "sensor_validation": "Compare independent angle sensors for consistency"
+    }
+  },
+
+  "quality_control": {
+    "qc_checkpoints": [
+      {
+        "checkpoint": "QC-045-01",
+        "description": "Tracker alignment verification",
+        "frequency": "At installation and semi-annually",
+        "acceptance_criteria": "Tracking angle matches sun position within ±1°",
+        "responsible": "Commissioning engineer / Maintenance technician"
+      },
+      {
+        "checkpoint": "QC-045-02",
+        "description": "Angle sensor calibration check",
+        "frequency": "Quarterly",
+        "acceptance_criteria": "Sensor reading matches known angle within ±0.5°",
+        "responsible": "Calibration technician"
+      },
+      {
+        "checkpoint": "QC-045-03",
+        "description": "Tracking accuracy validation",
+        "frequency": "Monthly",
+        "acceptance_criteria": "MATE < 1.5° for the month",
+        "responsible": "Performance engineer"
+      },
+      {
+        "checkpoint": "QC-045-04",
+        "description": "Energy gain verification",
+        "frequency": "Monthly",
+        "acceptance_criteria": "Tracking gain within expected range (model-based)",
+        "responsible": "Performance engineer"
+      },
+      {
+        "checkpoint": "QC-045-05",
+        "description": "Stow functionality test",
+        "frequency": "Quarterly",
+        "acceptance_criteria": "Tracker stows within 2 minutes of command, reaches safe position",
+        "responsible": "Maintenance technician"
+      }
+    ],
+    "calibration_schedule": {
+      "angle_sensors": "Semi-annual verification, annual full calibration",
+      "irradiance_sensors": "Annual calibration",
+      "anemometer": "Annual calibration",
+      "GPS_time_sync": "Continuous automatic synchronization, verify quarterly"
+    }
+  },
+
+  "non_conformance": {
+    "nc_criteria": [
+      {
+        "nc_id": "NC-045-01",
+        "condition": "Tracking error > 5° for more than 10 minutes",
+        "severity": "critical",
+        "action": "Immediate investigation - check controller, sensors, mechanical binding"
+      },
+      {
+        "nc_id": "NC-045-02",
+        "condition": "Tracking gain < expected by >10% for one month",
+        "severity": "major",
+        "action": "Investigate tracking accuracy, compare irradiance capture, check for shading or soiling differences"
+      },
+      {
+        "nc_id": "NC-045-03",
+        "condition": "Tracker fails to stow in high wind",
+        "severity": "critical",
+        "action": "Emergency response - manual stow if possible, inspect for damage, investigate control system failure"
+      },
+      {
+        "nc_id": "NC-045-04",
+        "condition": "Motor overcurrent or overheating",
+        "severity": "major",
+        "action": "Immediate shutdown of affected tracker, inspect for mechanical binding, motor failure, or controller issue"
+      },
+      {
+        "nc_id": "NC-045-05",
+        "condition": "Availability < 98% for one month",
+        "severity": "moderate",
+        "action": "Analyze downtime causes, implement corrective actions, improve maintenance procedures"
+      }
+    ]
+  },
+
+  "preventive_maintenance": {
+    "pm_schedule": [
+      {
+        "pm_id": "PM-045-01",
+        "task": "Visual inspection of tracker mechanical components",
+        "frequency": "monthly",
+        "duration_hours": 2,
+        "checklist": ["Inspect structure for cracks or corrosion", "Check drive system (bearings, gears)", "Inspect motor and controller", "Check cables and connections"]
+      },
+      {
+        "pm_id": "PM-045-02",
+        "task": "Tracker lubrication and torque check",
+        "frequency": "semi-annual",
+        "duration_hours": 4,
+        "checklist": ["Lubricate bearings and drive components", "Check torque tube connection tightness", "Inspect for unusual wear"]
+      },
+      {
+        "pm_id": "PM-045-03",
+        "task": "Tracking accuracy calibration",
+        "frequency": "semi-annual",
+        "duration_hours": 3,
+        "checklist": ["Verify angle sensor readings", "Adjust zero-position if needed", "Validate against sun position", "Update controller offsets"]
+      },
+      {
+        "pm_id": "PM-045-04",
+        "task": "Stow functionality test",
+        "frequency": "quarterly",
+        "duration_hours": 1,
+        "checklist": ["Command emergency stow", "Verify response time", "Check stow position accuracy", "Test automatic un-stow"]
+      },
+      {
+        "pm_id": "PM-045-05",
+        "task": "Controller and sensor maintenance",
+        "frequency": "quarterly",
+        "duration_hours": 2,
+        "checklist": ["Clean sun sensors if applicable", "Check controller firmware version", "Verify communication links", "Review error logs"]
+      }
+    ]
+  },
+
+  "traceability": {
+    "tracker_traceability": {
+      "tracker_id": "Unique identifier per tracker row",
+      "manufacturer_model": "Manufacturer, model, year installed",
+      "installation_records": "Installation date, alignment, calibration, commissioning photos",
+      "maintenance_history": "All maintenance, repairs, calibrations with dates"
+    },
+    "sensor_traceability": {
+      "angle_sensors": "Model, serial number, calibration certificates",
+      "irradiance_sensors": "Type, serial number, calibration dates",
+      "wind_sensors": "Model, serial number, calibration"
+    },
+    "performance_history": {
+      "tracking_accuracy": "Time-series database of all tracking errors",
+      "energy_production": "Tracker vs fixed-tilt energy over time",
+      "events": "All stow events, faults, alarms with timestamps"
+    }
+  },
+
+  "reporting": {
+    "automated_reports": [
+      {
+        "report_type": "Daily Tracker Performance Summary",
+        "frequency": "daily",
+        "recipients": ["O&M team", "Performance engineer"],
+        "content": ["Daily tracking accuracy (MATE)", "Daily energy gain", "Stow events", "Alarms", "Weather summary"]
+      },
+      {
+        "report_type": "Monthly Tracker Analysis",
+        "frequency": "monthly",
+        "recipients": ["Technical team", "Management"],
+        "content": ["Monthly tracking accuracy statistics", "Monthly energy gain vs fixed", "Availability and reliability", "Failure analysis", "Recommendations"]
+      },
+      {
+        "report_type": "Annual Tracker Assessment",
+        "frequency": "annual",
+        "recipients": ["All stakeholders"],
+        "content": ["Full year performance review", "Energy gain and financial impact", "Reliability summary", "Long-term trends", "Design and O&M recommendations"]
+      }
+    ],
+    "dashboard": {
+      "real_time_tracker_dashboard": {
+        "platform": "Grafana / SCADA HMI",
+        "refresh_rate_seconds": 10,
+        "panels": ["Live tracker angles", "Tracking error", "Tracker power vs fixed", "Wind speed", "Stow status"]
+      }
+    }
+  },
+
+  "acceptance_criteria": {
+    "tracking_accuracy": "MATE < 1.5° monthly average",
+    "energy_gain": "Within 90-110% of modeled gain",
+    "availability": ">99%",
+    "data_completeness": ">98%"
+  },
+
+  "integration_apis": {
+    "lims_integration": {
+      "endpoint": "/api/lims/tracker-performance",
+      "data_exchange": ["Tracking accuracy data", "Energy gain results", "Reliability metrics"],
+      "sync_frequency": "daily"
+    },
+    "qms_integration": {
+      "endpoint": "/api/qms/tracker-qc",
+      "data_exchange": ["QC checkpoints", "Calibration records", "NC reports"],
+      "sync_frequency": "real-time"
+    },
+    "project_management": {
+      "endpoint": "/api/pm/tracker-maintenance",
+      "data_exchange": ["PM schedules", "Work orders", "Parts inventory"],
+      "sync_frequency": "daily"
+    }
+  },
+
+  "metadata": {
+    "created_by": "PV Testing Protocol Framework",
+    "created_date": "2025-11-12",
+    "last_modified": "2025-11-12",
+    "version_history": [
+      {
+        "version": "1.0",
+        "date": "2025-11-12",
+        "changes": "Initial protocol with comprehensive tracker performance evaluation, accuracy monitoring, IoT integration, and predictive maintenance"
+      }
+    ],
+    "tags": ["tracker", "single-axis", "dual-axis", "tracking-accuracy", "energy-gain", "backtracking", "reliability"],
+    "related_protocols": ["PVTP-040", "PVTP-042", "PVTP-044"]
+  }
+}

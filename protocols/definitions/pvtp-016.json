@@ -1,0 +1,280 @@
+{
+  "protocolId": "PVTP-016",
+  "protocolName": "Wet Leakage Current Test",
+  "version": "1.0.0",
+  "category": "safety",
+  "standard": {
+    "name": "IEC 61215",
+    "version": "2021",
+    "section": "MQT 15",
+    "requirements": [
+      "Ground continuity verification",
+      "Wet leakage current measurement",
+      "Frame-to-active parts isolation",
+      "Safety class II verification"
+    ]
+  },
+  "deviceUnderTest": {
+    "type": "module",
+    "identification": {
+      "serialNumber": "",
+      "modelNumber": "",
+      "manufacturer": "",
+      "lotNumber": "",
+      "productionDate": ""
+    },
+    "specifications": {
+      "ratedVoltage": {
+        "value": null,
+        "unit": "V"
+      },
+      "moduleArea": {
+        "value": null,
+        "unit": "m²"
+      },
+      "safetyClass": {
+        "value": "II",
+        "options": ["I", "II", "III"]
+      }
+    }
+  },
+  "testParameters": {
+    "testVoltage": {
+      "value": 1000,
+      "unit": "V",
+      "tolerance": 10,
+      "description": "Test voltage = System voltage + 500V"
+    },
+    "testDuration": {
+      "value": 60,
+      "unit": "seconds",
+      "description": "Duration of voltage application"
+    },
+    "waterResistivity": {
+      "min": 4500,
+      "max": 5500,
+      "unit": "Ω·cm",
+      "description": "Resistivity of test solution"
+    },
+    "waterTemperature": {
+      "min": 15,
+      "max": 35,
+      "unit": "°C"
+    },
+    "wettingMethod": {
+      "type": "spray",
+      "coverage": "complete",
+      "duration": 300,
+      "unit": "seconds"
+    },
+    "measurementPoints": [
+      {
+        "point": "frame-to-positive",
+        "description": "Frame to positive terminal"
+      },
+      {
+        "point": "frame-to-negative",
+        "description": "Frame to negative terminal"
+      },
+      {
+        "point": "frame-to-junction-box",
+        "description": "Frame to junction box"
+      }
+    ]
+  },
+  "acceptanceCriteria": {
+    "leakageCurrent": {
+      "max": 1.0,
+      "unit": "mA",
+      "description": "Maximum allowed leakage current per measurement point"
+    },
+    "insulationResistance": {
+      "min": 40,
+      "unit": "MΩ·m²",
+      "description": "Minimum insulation resistance (normalized by area)"
+    }
+  },
+  "safetyInterlocks": [
+    {
+      "interlockId": "SI-016-001",
+      "type": "pre-test",
+      "condition": "equipment.calibration.valid === true",
+      "action": "block",
+      "message": "High voltage equipment must be calibrated within last 12 months",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-016-002",
+      "type": "pre-test",
+      "condition": "operator.qualification.highVoltage === true",
+      "action": "block",
+      "message": "Operator must be qualified for high voltage work",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-016-003",
+      "type": "pre-test",
+      "condition": "device.grounded === true",
+      "action": "block",
+      "message": "Device frame must be properly grounded before test",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-016-004",
+      "type": "pre-test",
+      "condition": "waterResistivity >= 4500 && waterResistivity <= 5500",
+      "action": "block",
+      "message": "Water resistivity out of specification (4500-5500 Ω·cm)",
+      "severity": "high"
+    },
+    {
+      "interlockId": "SI-016-005",
+      "type": "during-test",
+      "condition": "leakageCurrent < 10.0",
+      "action": "emergency-stop",
+      "message": "Excessive leakage current detected - emergency stop activated",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-016-006",
+      "type": "during-test",
+      "condition": "voltage.applied < 1.2 * voltage.target",
+      "action": "emergency-stop",
+      "message": "Overvoltage condition detected",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-016-007",
+      "type": "pre-test",
+      "condition": "enclosure.interlockSwitch.closed === true",
+      "action": "block",
+      "message": "Test chamber door must be closed and locked",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-016-008",
+      "type": "post-test",
+      "condition": "voltage.discharged === true",
+      "action": "block",
+      "message": "Module capacitance must be fully discharged before handling",
+      "severity": "critical"
+    }
+  ],
+  "approvalGates": [
+    {
+      "gateId": "AG-016-001",
+      "stage": "pre-test-review",
+      "role": "qc-inspector",
+      "required": true,
+      "criteria": [
+        "Module visual inspection complete",
+        "No visible damage to frame or enclosure",
+        "Junction box properly sealed",
+        "Test equipment calibration verified"
+      ]
+    },
+    {
+      "gateId": "AG-016-002",
+      "stage": "equipment-calibration",
+      "role": "engineer",
+      "required": true,
+      "criteria": [
+        "High voltage meter calibrated",
+        "Leakage current meter calibrated",
+        "Water resistivity meter calibrated",
+        "Calibration certificates on file"
+      ]
+    },
+    {
+      "gateId": "AG-016-003",
+      "stage": "data-review",
+      "role": "qc-inspector",
+      "required": true,
+      "criteria": [
+        "All measurement points tested",
+        "Data within expected ranges",
+        "No anomalies in current-time curves",
+        "Environmental conditions recorded"
+      ]
+    },
+    {
+      "gateId": "AG-016-004",
+      "stage": "final-approval",
+      "role": "qc-manager",
+      "required": true,
+      "criteria": [
+        "All acceptance criteria met",
+        "Test procedure followed correctly",
+        "Data traceability complete",
+        "Report ready for release"
+      ]
+    }
+  ],
+  "traceability": {
+    "enabled": true,
+    "dataLineage": {
+      "trackRawData": true,
+      "trackCalculations": true,
+      "trackApprovals": true,
+      "trackModifications": true
+    },
+    "auditLog": {
+      "level": "comprehensive",
+      "retention": "25 years"
+    }
+  },
+  "integrations": {
+    "lims": {
+      "enabled": true,
+      "sampleId": "",
+      "testRequestId": ""
+    },
+    "qms": {
+      "enabled": true,
+      "documentId": "QMS-IEC61215-MQT15",
+      "procedureId": "PROC-SAFETY-016"
+    },
+    "pm": {
+      "enabled": true,
+      "projectId": "",
+      "taskId": ""
+    },
+    "nc": {
+      "enabled": true,
+      "autoCreate": true
+    }
+  },
+  "reportGeneration": {
+    "autoGenerate": true,
+    "formats": ["pdf", "excel", "json"],
+    "includeCharts": true,
+    "includeAuditTrail": true,
+    "template": "safety-test-report-template"
+  },
+  "dataCapture": {
+    "timeSeries": {
+      "enabled": true,
+      "parameters": ["voltage", "current", "temperature"],
+      "samplingRate": 1,
+      "unit": "Hz"
+    },
+    "images": {
+      "required": true,
+      "stages": ["pre-test", "wet-condition", "post-test"],
+      "minResolution": "1920x1080"
+    },
+    "environmentalData": {
+      "temperature": true,
+      "humidity": true,
+      "pressure": false
+    }
+  },
+  "metadata": {
+    "createdBy": "system",
+    "createdAt": "2025-01-12T00:00:00Z",
+    "modifiedBy": "system",
+    "modifiedAt": "2025-01-12T00:00:00Z",
+    "status": "active",
+    "tags": ["safety", "electrical", "IEC61215", "certification", "high-voltage"]
+  }
+}

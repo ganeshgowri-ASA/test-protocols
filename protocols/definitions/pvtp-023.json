@@ -1,0 +1,411 @@
+{
+  "protocolId": "PVTP-023",
+  "protocolName": "Terminal Torque Test",
+  "version": "1.0.0",
+  "category": "mechanical",
+  "standard": {
+    "name": "IEC 60947-7-1 / UL 1741",
+    "version": "2011 / 2023",
+    "section": "Terminal Strength",
+    "requirements": [
+      "Terminal mechanical strength",
+      "Screw terminal retention",
+      "No loosening under vibration",
+      "Electrical continuity after torque"
+    ]
+  },
+  "deviceUnderTest": {
+    "type": "module",
+    "identification": {
+      "serialNumber": "",
+      "modelNumber": "",
+      "manufacturer": "",
+      "lotNumber": "",
+      "productionDate": ""
+    },
+    "specifications": {
+      "junctionBoxType": {
+        "value": "",
+        "description": "Junction box model and type"
+      },
+      "terminalType": {
+        "value": "",
+        "options": ["screw-terminal", "spring-cage", "push-in", "ferrule"]
+      },
+      "wireSize": {
+        "min": null,
+        "max": null,
+        "unit": "AWG",
+        "description": "Acceptable wire gauge range"
+      },
+      "terminalCount": {
+        "value": null,
+        "unit": "count"
+      }
+    }
+  },
+  "testParameters": {
+    "installationTorque": {
+      "recommended": {
+        "value": null,
+        "unit": "N·m",
+        "description": "Manufacturer recommended torque"
+      },
+      "minimum": {
+        "value": null,
+        "unit": "N·m"
+      },
+      "maximum": {
+        "value": null,
+        "unit": "N·m"
+      }
+    },
+    "testTorque": {
+      "overTorqueTest": {
+        "value": "1.2 * max_torque",
+        "unit": "N·m",
+        "description": "10-20% over maximum torque"
+      },
+      "repeatability": {
+        "cycles": 10,
+        "description": "10 installation/removal cycles"
+      }
+    },
+    "wirePreparation": {
+      "type": "stranded-copper",
+      "size": {
+        "value": null,
+        "unit": "AWG"
+      },
+      "stripLength": {
+        "value": 10,
+        "unit": "mm"
+      },
+      "ferrule": {
+        "required": false,
+        "description": "Use ferrule if specified by manufacturer"
+      }
+    },
+    "testProcedure": {
+      "steps": [
+        {
+          "step": 1,
+          "action": "Insert prepared wire into terminal"
+        },
+        {
+          "step": 2,
+          "action": "Apply torque gradually using calibrated wrench"
+        },
+        {
+          "step": 3,
+          "action": "Verify torque with torque verification tool"
+        },
+        {
+          "step": 4,
+          "action": "Apply 50N pull force to wire"
+        },
+        {
+          "step": 5,
+          "action": "Check electrical continuity"
+        },
+        {
+          "step": 6,
+          "action": "Remove wire and inspect terminal"
+        },
+        {
+          "step": 7,
+          "action": "Repeat for specified cycles"
+        }
+      ]
+    },
+    "pullTest": {
+      "force": {
+        "value": 50,
+        "unit": "N"
+      },
+      "duration": {
+        "value": 10,
+        "unit": "seconds"
+      },
+      "direction": "axial"
+    }
+  },
+  "acceptanceCriteria": {
+    "terminalIntegrity": {
+      "noStripping": {
+        "required": true,
+        "description": "No thread stripping or damage"
+      },
+      "noDeformation": {
+        "required": true,
+        "description": "No deformation of terminal block"
+      },
+      "screwIntact": {
+        "required": true,
+        "description": "Screw head intact, no rounding"
+      }
+    },
+    "wireRetention": {
+      "noPullout": {
+        "required": true,
+        "description": "Wire must not pull out under 50N force"
+      },
+      "noSlippage": {
+        "max": 0.5,
+        "unit": "mm",
+        "description": "Maximum wire slippage"
+      }
+    },
+    "electricalPerformance": {
+      "contactResistance": {
+        "max": 5,
+        "unit": "mΩ",
+        "description": "Maximum contact resistance"
+      },
+      "continuity": {
+        "required": true,
+        "description": "Electrical continuity maintained"
+      }
+    },
+    "repeatability": {
+      "allCyclesPass": {
+        "required": true,
+        "description": "All 10 cycles must meet criteria"
+      },
+      "noProgressive Damage": {
+        "required": true,
+        "description": "No progressive wear or damage"
+      }
+    }
+  },
+  "safetyInterlocks": [
+    {
+      "interlockId": "SI-023-001",
+      "type": "pre-test",
+      "condition": "equipment.calibration.valid === true",
+      "action": "block",
+      "message": "Torque wrench and measuring equipment must be calibrated",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-023-002",
+      "type": "pre-test",
+      "condition": "device.electricallyIsolated === true",
+      "action": "block",
+      "message": "Module must be electrically isolated before terminal work",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-023-003",
+      "type": "pre-test",
+      "condition": "ppe.gloves === true",
+      "action": "warn",
+      "message": "Wear appropriate gloves to prevent hand injury",
+      "severity": "medium"
+    },
+    {
+      "interlockId": "SI-023-004",
+      "type": "during-test",
+      "condition": "torque < 2.0 * torque.max",
+      "action": "emergency-stop",
+      "message": "Excessive torque applied - risk of terminal damage",
+      "severity": "high"
+    },
+    {
+      "interlockId": "SI-023-005",
+      "type": "during-test",
+      "condition": "wireInsulation.intact === true",
+      "action": "warn",
+      "message": "Wire insulation damaged - check terminal clamp",
+      "severity": "medium"
+    },
+    {
+      "interlockId": "SI-023-006",
+      "type": "post-test",
+      "condition": "terminalInspection.complete === true",
+      "action": "require-approval",
+      "message": "Terminal inspection required after over-torque test",
+      "severity": "high"
+    },
+    {
+      "interlockId": "SI-023-007",
+      "type": "post-test",
+      "condition": "electricalTest.passed === true",
+      "action": "require-approval",
+      "message": "Electrical continuity and resistance must be verified",
+      "severity": "high"
+    }
+  ],
+  "approvalGates": [
+    {
+      "gateId": "AG-023-001",
+      "stage": "pre-test-review",
+      "role": "operator",
+      "required": true,
+      "criteria": [
+        "Manufacturer torque spec obtained",
+        "Appropriate wire size selected",
+        "Junction box condition documented",
+        "Test procedure reviewed"
+      ]
+    },
+    {
+      "gateId": "AG-023-002",
+      "stage": "equipment-calibration",
+      "role": "qc-inspector",
+      "required": true,
+      "criteria": [
+        "Torque wrench calibrated (within 6 months)",
+        "Torque verification tool calibrated",
+        "Pull test equipment calibrated",
+        "Resistance meter verified"
+      ]
+    },
+    {
+      "gateId": "AG-023-003",
+      "stage": "test-execution",
+      "role": "operator",
+      "required": true,
+      "criteria": [
+        "Torque applied correctly",
+        "Pull test performed on each terminal",
+        "All cycles completed",
+        "No visible damage during test"
+      ]
+    },
+    {
+      "gateId": "AG-023-004",
+      "stage": "data-review",
+      "role": "qc-inspector",
+      "required": true,
+      "criteria": [
+        "Torque values within specification",
+        "No wire pullout or slippage",
+        "Contact resistance acceptable",
+        "Terminal integrity maintained"
+      ]
+    },
+    {
+      "gateId": "AG-023-005",
+      "stage": "final-approval",
+      "role": "qc-manager",
+      "required": true,
+      "criteria": [
+        "All acceptance criteria met",
+        "Terminal design adequate",
+        "Installation procedure validated",
+        "Module safe for field installation"
+      ]
+    }
+  ],
+  "traceability": {
+    "enabled": true,
+    "dataLineage": {
+      "trackRawData": true,
+      "trackCalculations": true,
+      "trackApprovals": true,
+      "trackModifications": true
+    },
+    "auditLog": {
+      "level": "comprehensive",
+      "retention": "25 years"
+    }
+  },
+  "integrations": {
+    "lims": {
+      "enabled": true,
+      "sampleId": "",
+      "testRequestId": ""
+    },
+    "qms": {
+      "enabled": true,
+      "documentId": "QMS-IEC60947-TERMINAL",
+      "procedureId": "PROC-MECH-023"
+    },
+    "pm": {
+      "enabled": true,
+      "projectId": "",
+      "taskId": ""
+    },
+    "nc": {
+      "enabled": true,
+      "autoCreate": true
+    }
+  },
+  "reportGeneration": {
+    "autoGenerate": true,
+    "formats": ["pdf", "excel", "json"],
+    "includeCharts": true,
+    "includeAuditTrail": true,
+    "template": "terminal-torque-report-template"
+  },
+  "dataCapture": {
+    "measurements": {
+      "torqueValues": {
+        "enabled": true,
+        "perCycle": true
+      },
+      "pullForce": {
+        "enabled": true,
+        "perTerminal": true
+      },
+      "contactResistance": {
+        "enabled": true,
+        "beforeAfter": true
+      },
+      "displacement": {
+        "enabled": true,
+        "description": "Wire slippage measurement"
+      }
+    },
+    "images": {
+      "required": true,
+      "stages": ["pre-test", "terminal-closeup", "wire-insertion", "post-test", "damage-detail"],
+      "minResolution": "1920x1080",
+      "microscopy": {
+        "recommended": true,
+        "magnification": "10-50x",
+        "purpose": "thread-damage-assessment"
+      }
+    },
+    "environmentalData": {
+      "temperature": true,
+      "humidity": false,
+      "pressure": false
+    }
+  },
+  "calculations": {
+    "appliedTorque": {
+      "formula": "torque_indicated",
+      "unit": "N·m"
+    },
+    "contactResistance": {
+      "formula": "V_measured / I_test",
+      "unit": "mΩ",
+      "testCurrent": 10,
+      "currentUnit": "A"
+    },
+    "retentionForce": {
+      "formula": "max_pull_force_without_slippage",
+      "unit": "N"
+    }
+  },
+  "qualityControl": {
+    "operatorQualification": {
+      "required": true,
+      "training": ["torque-wrench-use", "wire-preparation", "terminal-inspection"]
+    },
+    "toolMaintenance": {
+      "torqueWrenchCalibration": "6 months",
+      "verificationToolCalibration": "12 months"
+    }
+  },
+  "metadata": {
+    "createdBy": "system",
+    "createdAt": "2025-01-12T00:00:00Z",
+    "modifiedBy": "system",
+    "modifiedAt": "2025-01-12T00:00:00Z",
+    "status": "active",
+    "tags": ["mechanical", "IEC60947", "terminal", "torque", "connection", "safety"]
+  }
+}

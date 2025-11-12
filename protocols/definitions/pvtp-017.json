@@ -1,0 +1,297 @@
+{
+  "protocolId": "PVTP-017",
+  "protocolName": "Insulation Resistance Test",
+  "version": "1.0.0",
+  "category": "safety",
+  "standard": {
+    "name": "IEC 61215",
+    "version": "2021",
+    "section": "MST 01",
+    "requirements": [
+      "Dry insulation resistance measurement",
+      "Minimum resistance verification",
+      "Temperature correction applied",
+      "Area normalization"
+    ]
+  },
+  "deviceUnderTest": {
+    "type": "module",
+    "identification": {
+      "serialNumber": "",
+      "modelNumber": "",
+      "manufacturer": "",
+      "lotNumber": "",
+      "productionDate": ""
+    },
+    "specifications": {
+      "ratedVoltage": {
+        "value": null,
+        "unit": "V"
+      },
+      "moduleArea": {
+        "value": null,
+        "unit": "m²"
+      },
+      "technologyType": {
+        "value": "",
+        "options": ["mono-Si", "poly-Si", "thin-film", "HIT", "perovskite"]
+      }
+    }
+  },
+  "testParameters": {
+    "testVoltage": {
+      "value": 500,
+      "unit": "V DC",
+      "tolerance": 5,
+      "description": "Standard insulation test voltage (or 2x Vmax)"
+    },
+    "testDuration": {
+      "value": 60,
+      "unit": "seconds",
+      "description": "Stabilization time before measurement"
+    },
+    "measurementMethod": {
+      "type": "megohm-meter",
+      "standard": "IEC 61557-2"
+    },
+    "temperatureRange": {
+      "min": 15,
+      "max": 35,
+      "unit": "°C",
+      "description": "Acceptable ambient temperature range"
+    },
+    "humidityRange": {
+      "min": 30,
+      "max": 75,
+      "unit": "%RH",
+      "description": "Acceptable relative humidity range"
+    },
+    "measurementPoints": [
+      {
+        "point": "positive-to-frame",
+        "description": "Positive terminal to grounded frame",
+        "polarity": "positive"
+      },
+      {
+        "point": "negative-to-frame",
+        "description": "Negative terminal to grounded frame",
+        "polarity": "negative"
+      },
+      {
+        "point": "shorted-to-frame",
+        "description": "Shorted terminals to frame (combined)",
+        "polarity": "combined"
+      }
+    ],
+    "temperatureCorrection": {
+      "enabled": true,
+      "referenceTemp": 25,
+      "coefficient": 0.5,
+      "description": "Resistance doubles for every 10°C decrease"
+    }
+  },
+  "acceptanceCriteria": {
+    "insulationResistance": {
+      "min": 40,
+      "unit": "MΩ·m²",
+      "description": "Minimum normalized insulation resistance (IEC 61215)"
+    },
+    "alternativeCriteria": {
+      "min": 400,
+      "unit": "MΩ",
+      "description": "Alternative: Minimum absolute resistance for 0.1 m² reference"
+    },
+    "temperatureCorrected": {
+      "min": 40,
+      "unit": "MΩ·m²",
+      "description": "After temperature correction to 25°C"
+    }
+  },
+  "safetyInterlocks": [
+    {
+      "interlockId": "SI-017-001",
+      "type": "pre-test",
+      "condition": "equipment.calibration.valid === true",
+      "action": "block",
+      "message": "Megohm meter must be calibrated within last 12 months",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-017-002",
+      "type": "pre-test",
+      "condition": "device.surface.dry === true",
+      "action": "block",
+      "message": "Module surface must be dry before testing",
+      "severity": "high"
+    },
+    {
+      "interlockId": "SI-017-003",
+      "type": "pre-test",
+      "condition": "device.temperature >= 15 && device.temperature <= 35",
+      "action": "warn",
+      "message": "Device temperature outside optimal range - results may need correction",
+      "severity": "medium"
+    },
+    {
+      "interlockId": "SI-017-004",
+      "type": "pre-test",
+      "condition": "operator.qualification.highVoltage === true",
+      "action": "block",
+      "message": "Operator must be qualified for high voltage measurements",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-017-005",
+      "type": "during-test",
+      "condition": "resistance.reading.stable === true",
+      "action": "warn",
+      "message": "Resistance reading not stabilized - extend test duration",
+      "severity": "medium"
+    },
+    {
+      "interlockId": "SI-017-006",
+      "type": "post-test",
+      "condition": "voltage.discharged === true",
+      "action": "block",
+      "message": "Module must be discharged before disconnection",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-017-007",
+      "type": "during-test",
+      "condition": "leakageCurrent < 0.1",
+      "action": "warn",
+      "message": "Significant leakage current detected - check connections",
+      "severity": "medium"
+    }
+  ],
+  "approvalGates": [
+    {
+      "gateId": "AG-017-001",
+      "stage": "pre-test-review",
+      "role": "operator",
+      "required": true,
+      "criteria": [
+        "Module visually inspected",
+        "Surface clean and dry",
+        "No visible damage to encapsulation",
+        "Environmental conditions within range"
+      ]
+    },
+    {
+      "gateId": "AG-017-002",
+      "stage": "equipment-calibration",
+      "role": "qc-inspector",
+      "required": true,
+      "criteria": [
+        "Megohm meter calibration verified",
+        "Test leads inspected",
+        "Grounding verified",
+        "Calibration certificate on file"
+      ]
+    },
+    {
+      "gateId": "AG-017-003",
+      "stage": "data-review",
+      "role": "qc-inspector",
+      "required": true,
+      "criteria": [
+        "All measurement points completed",
+        "Temperature correction applied if needed",
+        "Area normalization calculated",
+        "Results consistent across polarities"
+      ]
+    },
+    {
+      "gateId": "AG-017-004",
+      "stage": "final-approval",
+      "role": "qc-manager",
+      "required": true,
+      "criteria": [
+        "Acceptance criteria met",
+        "Data traceability complete",
+        "Anomalies documented if present",
+        "Report approved for release"
+      ]
+    }
+  ],
+  "traceability": {
+    "enabled": true,
+    "dataLineage": {
+      "trackRawData": true,
+      "trackCalculations": true,
+      "trackApprovals": true,
+      "trackModifications": true
+    },
+    "auditLog": {
+      "level": "comprehensive",
+      "retention": "25 years"
+    }
+  },
+  "integrations": {
+    "lims": {
+      "enabled": true,
+      "sampleId": "",
+      "testRequestId": ""
+    },
+    "qms": {
+      "enabled": true,
+      "documentId": "QMS-IEC61215-MST01",
+      "procedureId": "PROC-SAFETY-017"
+    },
+    "pm": {
+      "enabled": true,
+      "projectId": "",
+      "taskId": ""
+    },
+    "nc": {
+      "enabled": true,
+      "autoCreate": true
+    }
+  },
+  "reportGeneration": {
+    "autoGenerate": true,
+    "formats": ["pdf", "excel", "json"],
+    "includeCharts": true,
+    "includeAuditTrail": true,
+    "template": "insulation-test-report-template"
+  },
+  "dataCapture": {
+    "timeSeries": {
+      "enabled": true,
+      "parameters": ["resistance", "voltage", "current", "temperature"],
+      "samplingRate": 0.1,
+      "unit": "Hz"
+    },
+    "images": {
+      "required": true,
+      "stages": ["pre-test", "test-setup", "meter-reading"],
+      "minResolution": "1920x1080"
+    },
+    "environmentalData": {
+      "temperature": true,
+      "humidity": true,
+      "pressure": false
+    }
+  },
+  "calculations": {
+    "normalizedResistance": {
+      "formula": "R_measured * A_module",
+      "unit": "MΩ·m²",
+      "description": "Resistance normalized by module area"
+    },
+    "temperatureCorrectedResistance": {
+      "formula": "R_normalized * 2^((25 - T_measured)/10)",
+      "unit": "MΩ·m²",
+      "description": "Temperature-corrected normalized resistance"
+    }
+  },
+  "metadata": {
+    "createdBy": "system",
+    "createdAt": "2025-01-12T00:00:00Z",
+    "modifiedBy": "system",
+    "modifiedAt": "2025-01-12T00:00:00Z",
+    "status": "active",
+    "tags": ["safety", "electrical", "IEC61215", "insulation", "certification"]
+  }
+}

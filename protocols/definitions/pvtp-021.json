@@ -1,0 +1,446 @@
+{
+  "protocolId": "PVTP-021",
+  "protocolName": "Module Safety Qualification (MST 20-35)",
+  "version": "1.0.0",
+  "category": "certification",
+  "standard": {
+    "name": "IEC 61730",
+    "version": "2016",
+    "section": "MST 20-35",
+    "requirements": [
+      "Complete module safety test sequence",
+      "Construction requirements (MST 20-21)",
+      "Material requirements (MST 22-23)",
+      "Electrical safety tests (MST 24-35)",
+      "Safety class verification"
+    ]
+  },
+  "deviceUnderTest": {
+    "type": "module",
+    "identification": {
+      "serialNumber": "",
+      "modelNumber": "",
+      "manufacturer": "",
+      "lotNumber": "",
+      "productionDate": ""
+    },
+    "specifications": {
+      "applicationClass": {
+        "value": "",
+        "options": ["A", "B", "C"],
+        "description": "A: Hazardous voltage, unrestricted access; B: Hazardous voltage, restricted; C: Safe voltage"
+      },
+      "safetyClass": {
+        "value": "",
+        "options": ["I", "II", "III"],
+        "description": "I: Protective earth; II: Double insulation; III: SELV"
+      },
+      "moduleType": {
+        "value": "",
+        "options": ["flat-plate", "concentrator", "thin-film"]
+      }
+    }
+  },
+  "testSequence": {
+    "mst20_construction": {
+      "name": "Construction Requirements",
+      "tests": [
+        {
+          "testId": "MST-20.1",
+          "name": "Module Construction Review",
+          "description": "Visual inspection of module construction"
+        },
+        {
+          "testId": "MST-20.2",
+          "name": "Bypass Diode Thermal Test",
+          "description": "Thermal testing of bypass diodes"
+        },
+        {
+          "testId": "MST-20.3",
+          "name": "Cell Interconnect Integrity",
+          "description": "Mechanical and electrical integrity check"
+        }
+      ]
+    },
+    "mst21_sharp_edges": {
+      "name": "Sharp Edges and Corners",
+      "tests": [
+        {
+          "testId": "MST-21",
+          "name": "Sharp Edge Test",
+          "description": "Check for sharp edges that could cause injury",
+          "method": "tactile-inspection"
+        }
+      ]
+    },
+    "mst22_flammability": {
+      "name": "Flammability Testing",
+      "tests": [
+        {
+          "testId": "MST-22",
+          "name": "Material Flammability",
+          "description": "UL 94 V-0, V-1, V-2, HB classification",
+          "referencedProtocol": "PVTP-020"
+        }
+      ]
+    },
+    "mst23_fire": {
+      "name": "Fire Test",
+      "tests": [
+        {
+          "testId": "MST-23",
+          "name": "Module Fire Test",
+          "description": "Spread of flame test per UL 1703",
+          "referencedProtocol": "PVTP-020"
+        }
+      ]
+    },
+    "mst24_electric_shock": {
+      "name": "Electric Shock Protection",
+      "tests": [
+        {
+          "testId": "MST-24",
+          "name": "Accessible Parts Voltage",
+          "description": "Maximum voltage on accessible parts"
+        },
+        {
+          "testId": "MST-24.1",
+          "name": "Touch Current Measurement",
+          "description": "Touch current limits verification"
+        }
+      ]
+    },
+    "mst25_reverse_current": {
+      "name": "Reverse Current Overload",
+      "tests": [
+        {
+          "testId": "MST-25",
+          "name": "Reverse Current Test",
+          "description": "1.25 x Isc applied for 2 hours",
+          "duration": 7200,
+          "current": "1.25 * Isc"
+        }
+      ]
+    },
+    "mst26_cell_overheating": {
+      "name": "Bypass Diode Thermal Test",
+      "tests": [
+        {
+          "testId": "MST-26",
+          "name": "Cell Overheating Protection",
+          "description": "Bypass diode function under cell shading"
+        }
+      ]
+    },
+    "mst27_enclosure": {
+      "name": "Enclosure Protection",
+      "tests": [
+        {
+          "testId": "MST-27",
+          "name": "Junction Box IP Rating",
+          "description": "IP rating verification (typically IP65+)",
+          "ipRating": "IP65"
+        }
+      ]
+    },
+    "mst28_cable_pull": {
+      "name": "Cable Pull Test",
+      "tests": [
+        {
+          "testId": "MST-28",
+          "name": "Output Cable Pull",
+          "description": "50N pull force for 10 seconds",
+          "referencedProtocol": "PVTP-022"
+        }
+      ]
+    },
+    "mst29_temperature_cycling": {
+      "name": "Temperature Cycling",
+      "tests": [
+        {
+          "testId": "MST-29",
+          "name": "Safety After Temperature Cycling",
+          "description": "Safety verification after 50 temp cycles"
+        }
+      ]
+    },
+    "mst30_damp_heat": {
+      "name": "Damp Heat",
+      "tests": [
+        {
+          "testId": "MST-30",
+          "name": "Safety After Damp Heat",
+          "description": "Safety verification after 1000h damp heat"
+        }
+      ]
+    },
+    "mst31_uv": {
+      "name": "UV Preconditioning",
+      "tests": [
+        {
+          "testId": "MST-31",
+          "name": "Safety After UV",
+          "description": "Safety verification after UV exposure"
+        }
+      ]
+    },
+    "mst32_insulation": {
+      "name": "Insulation Test",
+      "tests": [
+        {
+          "testId": "MST-32",
+          "name": "Dry Insulation Resistance",
+          "description": "Insulation resistance per IEC 61215 MST 01",
+          "referencedProtocol": "PVTP-017"
+        }
+      ]
+    },
+    "mst33_wet_leakage": {
+      "name": "Wet Leakage Current",
+      "tests": [
+        {
+          "testId": "MST-33",
+          "name": "Wet Leakage Current Test",
+          "description": "Leakage current under wet conditions",
+          "referencedProtocol": "PVTP-016"
+        }
+      ]
+    },
+    "mst34_dielectric": {
+      "name": "Dielectric Withstand",
+      "tests": [
+        {
+          "testId": "MST-34",
+          "name": "Hi-Pot Test",
+          "description": "High voltage dielectric withstand test",
+          "referencedProtocol": "PVTP-019"
+        }
+      ]
+    },
+    "mst35_ground": {
+      "name": "Ground Continuity",
+      "tests": [
+        {
+          "testId": "MST-35",
+          "name": "Ground Continuity Test",
+          "description": "Grounding system continuity verification",
+          "referencedProtocol": "PVTP-018"
+        }
+      ]
+    }
+  },
+  "acceptanceCriteria": {
+    "allTestsPassed": {
+      "required": true,
+      "description": "All individual MST tests must pass"
+    },
+    "safetyClassVerified": {
+      "required": true,
+      "description": "Declared safety class confirmed through testing"
+    },
+    "applicationClassVerified": {
+      "required": true,
+      "description": "Declared application class confirmed"
+    },
+    "constructionRequirements": {
+      "required": true,
+      "description": "All construction requirements met per IEC 61730-1"
+    }
+  },
+  "safetyInterlocks": [
+    {
+      "interlockId": "SI-021-001",
+      "type": "pre-test",
+      "condition": "testLab.accreditation.valid === true",
+      "action": "block",
+      "message": "Testing must be conducted in accredited laboratory (ISO 17025)",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-021-002",
+      "type": "pre-test",
+      "condition": "testSequence.approved === true",
+      "action": "block",
+      "message": "Test sequence must be approved by certification body",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-021-003",
+      "type": "pre-test",
+      "condition": "sampleSize >= minimum",
+      "action": "block",
+      "message": "Insufficient test samples for qualification",
+      "severity": "high"
+    },
+    {
+      "interlockId": "SI-021-004",
+      "type": "during-test",
+      "condition": "prerequisiteTests.passed === true",
+      "action": "block",
+      "message": "Prerequisite tests must pass before proceeding",
+      "severity": "high"
+    },
+    {
+      "interlockId": "SI-021-005",
+      "type": "during-test",
+      "condition": "testOrder.sequence === correct",
+      "action": "warn",
+      "message": "Tests should follow standard sequence per IEC 61730-2",
+      "severity": "medium"
+    },
+    {
+      "interlockId": "SI-021-006",
+      "type": "post-test",
+      "condition": "allData.traceability === complete",
+      "action": "block",
+      "message": "Complete traceability required for certification",
+      "severity": "critical"
+    }
+  ],
+  "approvalGates": [
+    {
+      "gateId": "AG-021-001",
+      "stage": "pre-test-review",
+      "role": "engineer",
+      "required": true,
+      "criteria": [
+        "Test plan approved",
+        "Module design review complete",
+        "Bill of materials verified",
+        "Safety class declared"
+      ]
+    },
+    {
+      "gateId": "AG-021-002",
+      "stage": "pre-test-review",
+      "role": "qc-manager",
+      "required": true,
+      "criteria": [
+        "Sufficient samples available",
+        "Test equipment ready",
+        "Personnel qualified",
+        "Schedule approved"
+      ]
+    },
+    {
+      "gateId": "AG-021-003",
+      "stage": "test-execution",
+      "role": "engineer",
+      "required": true,
+      "criteria": [
+        "Each test executed per standard",
+        "Deviations documented",
+        "Data recorded properly",
+        "Failures investigated"
+      ]
+    },
+    {
+      "gateId": "AG-021-004",
+      "stage": "data-review",
+      "role": "qc-manager",
+      "required": true,
+      "criteria": [
+        "All test results reviewed",
+        "Calculations verified",
+        "Compliance confirmed",
+        "Report complete"
+      ]
+    },
+    {
+      "gateId": "AG-021-005",
+      "stage": "final-approval",
+      "role": "qc-manager",
+      "required": true,
+      "criteria": [
+        "Full qualification achieved",
+        "IEC 61730 compliance confirmed",
+        "Certification body submission ready",
+        "Certificate of conformity issued"
+      ]
+    }
+  ],
+  "traceability": {
+    "enabled": true,
+    "dataLineage": {
+      "trackRawData": true,
+      "trackCalculations": true,
+      "trackApprovals": true,
+      "trackModifications": true
+    },
+    "auditLog": {
+      "level": "comprehensive",
+      "retention": "permanent"
+    },
+    "certificationDocuments": {
+      "designReview": true,
+      "bomVerification": true,
+      "testReports": true,
+      "certificateOfConformity": true
+    }
+  },
+  "integrations": {
+    "lims": {
+      "enabled": true,
+      "sampleId": "",
+      "testRequestId": ""
+    },
+    "qms": {
+      "enabled": true,
+      "documentId": "QMS-IEC61730-FULL",
+      "procedureId": "PROC-CERT-021"
+    },
+    "pm": {
+      "enabled": true,
+      "projectId": "",
+      "taskId": ""
+    },
+    "nc": {
+      "enabled": true,
+      "autoCreate": true
+    },
+    "certificationBody": {
+      "enabled": true,
+      "organization": "TUV/UL/CSA/IEC",
+      "witnessing": true,
+      "submitResults": true
+    }
+  },
+  "reportGeneration": {
+    "autoGenerate": true,
+    "formats": ["pdf", "json"],
+    "includeCharts": true,
+    "includeAuditTrail": true,
+    "template": "iec61730-qualification-report-template",
+    "certificationReport": {
+      "enabled": true,
+      "format": "IEC61730-compliant",
+      "includeAllTestReports": true
+    }
+  },
+  "dataCapture": {
+    "testSummary": {
+      "enabled": true,
+      "consolidateResults": true
+    },
+    "images": {
+      "required": true,
+      "stages": ["all-test-stages"],
+      "minResolution": "1920x1080"
+    }
+  },
+  "sampleManagement": {
+    "minimumSamples": 5,
+    "recommendedSamples": 10,
+    "sampleTracking": true,
+    "destructiveTests": ["fire-test", "dielectric-breakdown"],
+    "nonDestructiveTests": ["insulation", "ground-continuity", "wet-leakage"]
+  },
+  "metadata": {
+    "createdBy": "system",
+    "createdAt": "2025-01-12T00:00:00Z",
+    "modifiedBy": "system",
+    "modifiedAt": "2025-01-12T00:00:00Z",
+    "status": "active",
+    "tags": ["certification", "IEC61730", "qualification", "comprehensive", "safety", "critical"]
+  }
+}

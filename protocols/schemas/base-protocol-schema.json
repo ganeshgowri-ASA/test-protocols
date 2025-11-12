@@ -1,0 +1,416 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://pvtesting.org/schemas/base-protocol.json",
+  "title": "Base PV Testing Protocol Schema",
+  "description": "Base schema for all PV testing protocols with safety interlocks, QC integration, and traceability",
+  "type": "object",
+  "required": [
+    "protocolId",
+    "protocolName",
+    "version",
+    "category",
+    "standard",
+    "deviceUnderTest",
+    "testParameters",
+    "safetyInterlocks",
+    "approvalGates",
+    "traceability"
+  ],
+  "properties": {
+    "protocolId": {
+      "type": "string",
+      "pattern": "^PVTP-\\d{3}$",
+      "description": "Unique protocol identifier (e.g., PVTP-016)"
+    },
+    "protocolName": {
+      "type": "string",
+      "description": "Human-readable protocol name"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version (e.g., 1.0.0)"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "electrical",
+        "mechanical",
+        "environmental",
+        "safety",
+        "certification",
+        "performance",
+        "reliability"
+      ],
+      "description": "Protocol category"
+    },
+    "standard": {
+      "type": "object",
+      "required": ["name", "version", "section"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Standard name (e.g., IEC 61215, IEC 61730)"
+        },
+        "version": {
+          "type": "string",
+          "description": "Standard version"
+        },
+        "section": {
+          "type": "string",
+          "description": "Specific section/test (e.g., MQT 15, MST 01)"
+        },
+        "requirements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Specific requirements being tested"
+        }
+      }
+    },
+    "deviceUnderTest": {
+      "type": "object",
+      "required": ["type", "identification"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["module", "cell", "string", "array", "component"],
+          "description": "Type of device being tested"
+        },
+        "identification": {
+          "type": "object",
+          "required": ["serialNumber"],
+          "properties": {
+            "serialNumber": {
+              "type": "string",
+              "description": "Unique device serial number"
+            },
+            "modelNumber": {
+              "type": "string",
+              "description": "Manufacturer model number"
+            },
+            "manufacturer": {
+              "type": "string",
+              "description": "Device manufacturer"
+            },
+            "lotNumber": {
+              "type": "string",
+              "description": "Manufacturing lot/batch number"
+            },
+            "productionDate": {
+              "type": "string",
+              "format": "date",
+              "description": "Production date (ISO 8601)"
+            }
+          }
+        },
+        "specifications": {
+          "type": "object",
+          "description": "Device specifications relevant to test"
+        }
+      }
+    },
+    "testParameters": {
+      "type": "object",
+      "description": "Test-specific parameters (defined in protocol-specific schemas)"
+    },
+    "environmentalConditions": {
+      "type": "object",
+      "properties": {
+        "temperature": {
+          "type": "object",
+          "properties": {
+            "value": {"type": "number"},
+            "unit": {"type": "string", "default": "°C"},
+            "tolerance": {"type": "number"}
+          }
+        },
+        "humidity": {
+          "type": "object",
+          "properties": {
+            "value": {"type": "number"},
+            "unit": {"type": "string", "default": "%RH"},
+            "tolerance": {"type": "number"}
+          }
+        },
+        "pressure": {
+          "type": "object",
+          "properties": {
+            "value": {"type": "number"},
+            "unit": {"type": "string", "default": "kPa"}
+          }
+        }
+      }
+    },
+    "safetyInterlocks": {
+      "type": "array",
+      "description": "Safety interlock checks that must pass before/during test",
+      "items": {
+        "type": "object",
+        "required": ["interlockId", "type", "condition", "action"],
+        "properties": {
+          "interlockId": {
+            "type": "string",
+            "description": "Unique interlock identifier"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "pre-test",
+              "during-test",
+              "post-test",
+              "emergency-stop",
+              "voltage-limit",
+              "current-limit",
+              "temperature-limit",
+              "grounding-check",
+              "equipment-ready",
+              "operator-present"
+            ]
+          },
+          "condition": {
+            "type": "string",
+            "description": "Condition that must be met (boolean expression)"
+          },
+          "action": {
+            "type": "string",
+            "enum": ["block", "warn", "require-approval", "emergency-stop"],
+            "description": "Action if condition fails"
+          },
+          "message": {
+            "type": "string",
+            "description": "Message to display if interlock triggers"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low"],
+            "default": "high"
+          }
+        }
+      }
+    },
+    "approvalGates": {
+      "type": "array",
+      "description": "Approval gates for QC/QA workflow",
+      "items": {
+        "type": "object",
+        "required": ["gateId", "stage", "role"],
+        "properties": {
+          "gateId": {
+            "type": "string",
+            "description": "Unique gate identifier"
+          },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "pre-test-review",
+              "equipment-calibration",
+              "test-execution",
+              "data-review",
+              "final-approval",
+              "report-release"
+            ]
+          },
+          "role": {
+            "type": "string",
+            "enum": ["operator", "qc-inspector", "qc-manager", "pm", "engineer"],
+            "description": "Required approver role"
+          },
+          "required": {
+            "type": "boolean",
+            "default": true,
+            "description": "Is this approval required?"
+          },
+          "criteria": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Approval criteria checklist"
+          }
+        }
+      }
+    },
+    "traceability": {
+      "type": "object",
+      "required": ["enabled", "dataLineage"],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "dataLineage": {
+          "type": "object",
+          "properties": {
+            "trackRawData": {
+              "type": "boolean",
+              "default": true
+            },
+            "trackCalculations": {
+              "type": "boolean",
+              "default": true
+            },
+            "trackApprovals": {
+              "type": "boolean",
+              "default": true
+            },
+            "trackModifications": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        },
+        "auditLog": {
+          "type": "object",
+          "properties": {
+            "level": {
+              "type": "string",
+              "enum": ["minimal", "standard", "comprehensive"],
+              "default": "comprehensive"
+            },
+            "retention": {
+              "type": "string",
+              "description": "Retention period (e.g., '25 years' for module warranty)"
+            }
+          }
+        }
+      }
+    },
+    "integrations": {
+      "type": "object",
+      "properties": {
+        "lims": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean", "default": true},
+            "sampleId": {"type": "string"},
+            "testRequestId": {"type": "string"}
+          }
+        },
+        "qms": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean", "default": true},
+            "documentId": {"type": "string"},
+            "procedureId": {"type": "string"}
+          }
+        },
+        "pm": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean", "default": true},
+            "projectId": {"type": "string"},
+            "taskId": {"type": "string"}
+          }
+        },
+        "nc": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean", "default": true},
+            "autoCreate": {
+              "type": "boolean",
+              "default": true,
+              "description": "Auto-create NC for test failures"
+            }
+          }
+        }
+      }
+    },
+    "reportGeneration": {
+      "type": "object",
+      "properties": {
+        "autoGenerate": {
+          "type": "boolean",
+          "default": true
+        },
+        "formats": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["pdf", "excel", "json", "html"]
+          },
+          "default": ["pdf", "excel"]
+        },
+        "includeCharts": {
+          "type": "boolean",
+          "default": true
+        },
+        "includeAuditTrail": {
+          "type": "boolean",
+          "default": true
+        },
+        "template": {
+          "type": "string",
+          "description": "Report template identifier"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "createdBy": {"type": "string"},
+        "createdAt": {"type": "string", "format": "date-time"},
+        "modifiedBy": {"type": "string"},
+        "modifiedAt": {"type": "string", "format": "date-time"},
+        "status": {
+          "type": "string",
+          "enum": ["draft", "active", "deprecated", "archived"],
+          "default": "active"
+        },
+        "tags": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    }
+  },
+  "definitions": {
+    "measurement": {
+      "type": "object",
+      "required": ["value", "unit"],
+      "properties": {
+        "value": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "uncertainty": {
+          "type": "number",
+          "description": "Measurement uncertainty"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "limit": {
+      "type": "object",
+      "properties": {
+        "min": {"type": "number"},
+        "max": {"type": "number"},
+        "target": {"type": "number"},
+        "unit": {"type": "string"}
+      }
+    },
+    "passFail": {
+      "type": "object",
+      "required": ["result"],
+      "properties": {
+        "result": {
+          "type": "string",
+          "enum": ["pass", "fail", "conditional-pass", "not-tested"]
+        },
+        "criteria": {
+          "type": "string",
+          "description": "Pass/fail criteria"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

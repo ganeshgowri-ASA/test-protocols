@@ -1,0 +1,387 @@
+{
+  "protocolId": "PVTP-020",
+  "protocolName": "Fire Class Testing",
+  "version": "1.0.0",
+  "category": "certification",
+  "standard": {
+    "name": "IEC 61730",
+    "version": "2016",
+    "section": "MST 23.22",
+    "requirements": [
+      "Fire resistance classification",
+      "Spread of flame test",
+      "UL 1703 / IEC 61730-2 compliance",
+      "Class A, B, or C rating determination"
+    ]
+  },
+  "deviceUnderTest": {
+    "type": "module",
+    "identification": {
+      "serialNumber": "",
+      "modelNumber": "",
+      "manufacturer": "",
+      "lotNumber": "",
+      "productionDate": ""
+    },
+    "specifications": {
+      "backsheetMaterial": {
+        "value": "",
+        "description": "Backsheet material composition"
+      },
+      "frameType": {
+        "value": "",
+        "options": ["aluminum", "steel", "frameless", "composite"]
+      },
+      "encapsulant": {
+        "value": "",
+        "options": ["EVA", "POE", "PVB", "TPO", "ionomer"]
+      },
+      "junctionBoxMaterial": {
+        "value": "",
+        "description": "Junction box and cable materials"
+      }
+    }
+  },
+  "testParameters": {
+    "testMethod": {
+      "primary": "UL 1703",
+      "alternative": "IEC 61730-2 Annex D",
+      "description": "Standard spread of flame test"
+    },
+    "testConfiguration": {
+      "mountingAngle": {
+        "value": null,
+        "unit": "degrees",
+        "description": "Mounting angle (typically 20° for roof mount)"
+      },
+      "mountingMethod": {
+        "value": "",
+        "options": ["direct-mount", "standoff", "rack", "ground-mount"]
+      },
+      "deckType": {
+        "value": "",
+        "options": ["plywood", "OSB", "steel", "concrete"],
+        "description": "Roof deck material for test"
+      }
+    },
+    "fireExposure": {
+      "flameType": "Class A",
+      "brandSource": "intermittent",
+      "duration": {
+        "burnPhase": 10,
+        "intermittentPhase": 30,
+        "unit": "minutes"
+      },
+      "gasFlow": {
+        "value": null,
+        "unit": "m³/h",
+        "description": "Gas flow rate for burner"
+      }
+    },
+    "measurements": [
+      {
+        "parameter": "flame-spread",
+        "description": "Maximum flame spread distance"
+      },
+      {
+        "parameter": "flying-brands",
+        "description": "Response to flying brand test"
+      },
+      {
+        "parameter": "deck-penetration",
+        "description": "Deck burn-through assessment"
+      },
+      {
+        "parameter": "afterflame-time",
+        "description": "Duration of afterflame"
+      },
+      {
+        "parameter": "afterglow-time",
+        "description": "Duration of afterglow"
+      }
+    ]
+  },
+  "fireClassCriteria": {
+    "classA": {
+      "flameSpread": {
+        "max": 1.83,
+        "unit": "m",
+        "description": "6 feet maximum"
+      },
+      "flyingBrands": "no-ignition",
+      "deckPenetration": "none",
+      "afterflame": {
+        "max": 2,
+        "unit": "minutes"
+      },
+      "afterglow": {
+        "max": 5,
+        "unit": "minutes"
+      }
+    },
+    "classB": {
+      "flameSpread": {
+        "max": 2.44,
+        "unit": "m",
+        "description": "8 feet maximum"
+      },
+      "flyingBrands": "no-significant-ignition",
+      "deckPenetration": "limited",
+      "afterflame": {
+        "max": 5,
+        "unit": "minutes"
+      },
+      "afterglow": {
+        "max": 10,
+        "unit": "minutes"
+      }
+    },
+    "classC": {
+      "flameSpread": {
+        "max": 3.96,
+        "unit": "m",
+        "description": "13 feet maximum"
+      },
+      "flyingBrands": "limited-ignition",
+      "deckPenetration": "limited",
+      "description": "Basic fire resistance"
+    }
+  },
+  "safetyInterlocks": [
+    {
+      "interlockId": "SI-020-001",
+      "type": "pre-test",
+      "condition": "testFacility.approved === true && testFacility.ventilation.active === true",
+      "action": "block",
+      "message": "Test must be conducted in approved fire testing facility with active ventilation",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-020-002",
+      "type": "pre-test",
+      "condition": "fireSuppressionSystem.armed === true",
+      "action": "block",
+      "message": "Fire suppression system must be armed and ready",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-020-003",
+      "type": "pre-test",
+      "condition": "personnel.trained === true && personnel.firefighting.qualified === true",
+      "action": "block",
+      "message": "Only trained fire test personnel with firefighting certification may conduct test",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-020-004",
+      "type": "pre-test",
+      "condition": "ppe.fireResistant === true",
+      "action": "block",
+      "message": "Fire-resistant PPE required (nomex suit, face shield, gloves)",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-020-005",
+      "type": "pre-test",
+      "condition": "emergencyEvacuation.planned === true",
+      "action": "block",
+      "message": "Emergency evacuation plan must be in place",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-020-006",
+      "type": "during-test",
+      "condition": "flameSpread < 5.0",
+      "action": "emergency-stop",
+      "message": "Excessive flame spread - activate suppression",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-020-007",
+      "type": "during-test",
+      "condition": "toxicGas.level < threshold",
+      "action": "emergency-stop",
+      "message": "Toxic gas levels elevated - evacuate and suppress",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-020-008",
+      "type": "during-test",
+      "condition": "temperature.ambient < 100",
+      "action": "warn",
+      "message": "Excessive ambient temperature - monitor closely",
+      "severity": "high"
+    },
+    {
+      "interlockId": "SI-020-009",
+      "type": "post-test",
+      "condition": "cooldown.complete === true",
+      "action": "block",
+      "message": "Test specimen must cool completely before handling (< 40°C)",
+      "severity": "high"
+    },
+    {
+      "interlockId": "SI-020-010",
+      "type": "post-test",
+      "condition": "fireWatch.duration >= 2",
+      "action": "require-approval",
+      "message": "Fire watch must be maintained for minimum 2 hours post-test",
+      "severity": "high"
+    }
+  ],
+  "approvalGates": [
+    {
+      "gateId": "AG-020-001",
+      "stage": "pre-test-review",
+      "role": "engineer",
+      "required": true,
+      "criteria": [
+        "Test facility approved for fire testing",
+        "Module mounting replicates intended installation",
+        "Deck material appropriate",
+        "Fire class target identified"
+      ]
+    },
+    {
+      "gateId": "AG-020-002",
+      "stage": "equipment-calibration",
+      "role": "qc-inspector",
+      "required": true,
+      "criteria": [
+        "Burner calibrated and tested",
+        "Gas flow meters calibrated",
+        "Temperature sensors verified",
+        "Video recording systems tested"
+      ]
+    },
+    {
+      "gateId": "AG-020-003",
+      "stage": "test-execution",
+      "role": "engineer",
+      "required": true,
+      "criteria": [
+        "Safety briefing completed",
+        "Fire suppression ready",
+        "Personnel positioned safely",
+        "Communication systems tested"
+      ]
+    },
+    {
+      "gateId": "AG-020-004",
+      "stage": "data-review",
+      "role": "engineer",
+      "required": true,
+      "criteria": [
+        "Video footage reviewed",
+        "Measurements recorded",
+        "Fire class determined",
+        "Damage assessment documented"
+      ]
+    },
+    {
+      "gateId": "AG-020-005",
+      "stage": "final-approval",
+      "role": "qc-manager",
+      "required": true,
+      "criteria": [
+        "Fire class rating assigned",
+        "UL/IEC compliance verified",
+        "Certification ready",
+        "Report approved for submission"
+      ]
+    }
+  ],
+  "traceability": {
+    "enabled": true,
+    "dataLineage": {
+      "trackRawData": true,
+      "trackCalculations": true,
+      "trackApprovals": true,
+      "trackModifications": true
+    },
+    "auditLog": {
+      "level": "comprehensive",
+      "retention": "permanent"
+    }
+  },
+  "integrations": {
+    "lims": {
+      "enabled": true,
+      "sampleId": "",
+      "testRequestId": ""
+    },
+    "qms": {
+      "enabled": true,
+      "documentId": "QMS-IEC61730-MST2322",
+      "procedureId": "PROC-FIRE-020"
+    },
+    "pm": {
+      "enabled": true,
+      "projectId": "",
+      "taskId": ""
+    },
+    "nc": {
+      "enabled": true,
+      "autoCreate": true
+    },
+    "certificationBody": {
+      "enabled": true,
+      "submitResults": true,
+      "organization": "UL/TUV/CSA"
+    }
+  },
+  "reportGeneration": {
+    "autoGenerate": true,
+    "formats": ["pdf", "json"],
+    "includeCharts": true,
+    "includeAuditTrail": true,
+    "template": "fire-class-report-template",
+    "certificationReport": {
+      "enabled": true,
+      "format": "UL1703-compliant"
+    }
+  },
+  "dataCapture": {
+    "timeSeries": {
+      "enabled": true,
+      "parameters": ["temperature", "flameSpread", "gasComposition"],
+      "samplingRate": 1,
+      "unit": "Hz"
+    },
+    "images": {
+      "required": true,
+      "stages": ["pre-test", "ignition", "peak-burn", "post-burn"],
+      "minResolution": "1920x1080"
+    },
+    "videoRecording": {
+      "required": true,
+      "cameras": ["overhead", "side-view", "detail"],
+      "frameRate": 30,
+      "duration": "full-test-plus-cooldown",
+      "thermalImaging": true
+    },
+    "environmentalData": {
+      "temperature": true,
+      "humidity": true,
+      "windSpeed": true,
+      "gasComposition": true
+    }
+  },
+  "destructiveTesting": {
+    "isDestructive": true,
+    "moduleRecoverable": false,
+    "sampleSize": {
+      "minimum": 3,
+      "recommended": 5,
+      "description": "Multiple samples required for statistical confidence"
+    }
+  },
+  "metadata": {
+    "createdBy": "system",
+    "createdAt": "2025-01-12T00:00:00Z",
+    "modifiedBy": "system",
+    "modifiedAt": "2025-01-12T00:00:00Z",
+    "status": "active",
+    "tags": ["certification", "fire", "IEC61730", "UL1703", "destructive", "safety", "critical"]
+  }
+}

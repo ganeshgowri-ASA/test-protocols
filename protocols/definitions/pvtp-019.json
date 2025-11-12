@@ -1,0 +1,364 @@
+{
+  "protocolId": "PVTP-019",
+  "protocolName": "Hi-Pot/Dielectric Withstand Test (1000V+500V)",
+  "version": "1.0.0",
+  "category": "safety",
+  "standard": {
+    "name": "IEC 61730",
+    "version": "2016",
+    "section": "MST 23",
+    "requirements": [
+      "Dielectric strength verification",
+      "High voltage withstand test",
+      "No breakdown or flashover",
+      "Insulation system qualification"
+    ]
+  },
+  "deviceUnderTest": {
+    "type": "module",
+    "identification": {
+      "serialNumber": "",
+      "modelNumber": "",
+      "manufacturer": "",
+      "lotNumber": "",
+      "productionDate": ""
+    },
+    "specifications": {
+      "systemVoltage": {
+        "value": null,
+        "unit": "V",
+        "description": "Maximum system voltage"
+      },
+      "ratedVoltage": {
+        "value": null,
+        "unit": "V"
+      },
+      "moduleArea": {
+        "value": null,
+        "unit": "m²"
+      },
+      "insulationClass": {
+        "value": "",
+        "options": ["basic", "supplementary", "double", "reinforced"]
+      }
+    }
+  },
+  "testParameters": {
+    "testVoltageCalculation": {
+      "formula": "V_system + 500V",
+      "minimum": 1000,
+      "unit": "V DC",
+      "description": "Test voltage = System voltage + 500V, minimum 1000V"
+    },
+    "voltageRampUp": {
+      "rate": 100,
+      "unit": "V/s",
+      "description": "Gradual voltage ramp to avoid transients"
+    },
+    "testDuration": {
+      "value": 60,
+      "unit": "seconds",
+      "description": "Duration at full test voltage"
+    },
+    "voltageRampDown": {
+      "rate": 100,
+      "unit": "V/s",
+      "description": "Controlled voltage reduction"
+    },
+    "leakageCurrentMonitoring": {
+      "enabled": true,
+      "samplingRate": 10,
+      "unit": "Hz",
+      "description": "Continuous leakage current monitoring"
+    },
+    "testConfiguration": {
+      "type": "active-to-frame",
+      "description": "Shorted active parts to grounded frame",
+      "alternatives": [
+        "positive-to-frame",
+        "negative-to-frame",
+        "combined-to-frame"
+      ]
+    },
+    "acAlternative": {
+      "enabled": false,
+      "voltage": 707,
+      "unit": "V AC RMS",
+      "frequency": 50,
+      "description": "AC alternative: 0.707 * DC voltage"
+    }
+  },
+  "acceptanceCriteria": {
+    "noBreakdown": {
+      "required": true,
+      "description": "No insulation breakdown or flashover"
+    },
+    "leakageCurrentLimit": {
+      "max": 5.0,
+      "unit": "mA",
+      "description": "Maximum allowable leakage current"
+    },
+    "leakageCurrentStability": {
+      "maxVariation": 20,
+      "unit": "%",
+      "description": "Leakage current must remain stable (< 20% variation)"
+    },
+    "noVisibleDamage": {
+      "required": true,
+      "description": "No charring, discoloration, or physical damage"
+    }
+  },
+  "safetyInterlocks": [
+    {
+      "interlockId": "SI-019-001",
+      "type": "pre-test",
+      "condition": "equipment.calibration.valid === true && equipment.safetyTest.passed === true",
+      "action": "block",
+      "message": "High voltage test equipment must be calibrated and safety tested",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-019-002",
+      "type": "pre-test",
+      "condition": "operator.qualification.highVoltage === true && operator.training.current === true",
+      "action": "block",
+      "message": "Only qualified high-voltage operators may perform hi-pot testing",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-019-003",
+      "type": "pre-test",
+      "condition": "testArea.secured === true && testArea.interlocks.active === true",
+      "action": "block",
+      "message": "Test area must be secured with active safety interlocks",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-019-004",
+      "type": "pre-test",
+      "condition": "device.grounded === true",
+      "action": "block",
+      "message": "Device frame must be properly grounded through test fixture",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-019-005",
+      "type": "pre-test",
+      "condition": "ppe.verified === true",
+      "action": "block",
+      "message": "Personal protective equipment must be verified (gloves, mats, barriers)",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-019-006",
+      "type": "during-test",
+      "condition": "leakageCurrent < 50.0",
+      "action": "emergency-stop",
+      "message": "CRITICAL: Excessive leakage current - immediate shutdown",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-019-007",
+      "type": "during-test",
+      "condition": "voltage.overshoot < 1.1 * voltage.target",
+      "action": "emergency-stop",
+      "message": "Voltage overshoot detected - emergency stop",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-019-008",
+      "type": "during-test",
+      "condition": "arcDetection.triggered === false",
+      "action": "emergency-stop",
+      "message": "ARC DETECTED - Immediate shutdown and investigation required",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-019-009",
+      "type": "during-test",
+      "condition": "doorInterlock.closed === true",
+      "action": "emergency-stop",
+      "message": "Test chamber door opened during test - emergency stop",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-019-010",
+      "type": "post-test",
+      "condition": "voltage.discharged === true && device.capacitance.safe === true",
+      "action": "block",
+      "message": "Module must be fully discharged before handling (5 time constants minimum)",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-019-011",
+      "type": "post-test",
+      "condition": "visualInspection.complete === true",
+      "action": "require-approval",
+      "message": "Visual inspection required for signs of stress or damage",
+      "severity": "high"
+    }
+  ],
+  "approvalGates": [
+    {
+      "gateId": "AG-019-001",
+      "stage": "pre-test-review",
+      "role": "engineer",
+      "required": true,
+      "criteria": [
+        "Test voltage calculated correctly",
+        "Module specifications verified",
+        "Risk assessment completed",
+        "Safety procedures reviewed"
+      ]
+    },
+    {
+      "gateId": "AG-019-002",
+      "stage": "equipment-calibration",
+      "role": "qc-inspector",
+      "required": true,
+      "criteria": [
+        "High voltage source calibrated",
+        "Current/leakage meter calibrated",
+        "Arc detection system tested",
+        "Emergency stop system verified"
+      ]
+    },
+    {
+      "gateId": "AG-019-003",
+      "stage": "test-execution",
+      "role": "qc-inspector",
+      "required": true,
+      "criteria": [
+        "Safety barriers in place",
+        "All interlocks verified",
+        "Qualified operator present",
+        "Emergency procedures reviewed"
+      ]
+    },
+    {
+      "gateId": "AG-019-004",
+      "stage": "data-review",
+      "role": "engineer",
+      "required": true,
+      "criteria": [
+        "Voltage profile recorded",
+        "Leakage current stable",
+        "No breakdown events",
+        "Post-test inspection complete"
+      ]
+    },
+    {
+      "gateId": "AG-019-005",
+      "stage": "final-approval",
+      "role": "qc-manager",
+      "required": true,
+      "criteria": [
+        "All acceptance criteria met",
+        "Safety documentation complete",
+        "No adverse events",
+        "Module safe for next test"
+      ]
+    }
+  ],
+  "traceability": {
+    "enabled": true,
+    "dataLineage": {
+      "trackRawData": true,
+      "trackCalculations": true,
+      "trackApprovals": true,
+      "trackModifications": true
+    },
+    "auditLog": {
+      "level": "comprehensive",
+      "retention": "25 years"
+    }
+  },
+  "integrations": {
+    "lims": {
+      "enabled": true,
+      "sampleId": "",
+      "testRequestId": ""
+    },
+    "qms": {
+      "enabled": true,
+      "documentId": "QMS-IEC61730-MST23",
+      "procedureId": "PROC-SAFETY-019"
+    },
+    "pm": {
+      "enabled": true,
+      "projectId": "",
+      "taskId": ""
+    },
+    "nc": {
+      "enabled": true,
+      "autoCreate": true
+    }
+  },
+  "reportGeneration": {
+    "autoGenerate": true,
+    "formats": ["pdf", "excel", "json"],
+    "includeCharts": true,
+    "includeAuditTrail": true,
+    "template": "hipot-test-report-template"
+  },
+  "dataCapture": {
+    "timeSeries": {
+      "enabled": true,
+      "parameters": ["voltage", "current", "leakageCurrent", "temperature"],
+      "samplingRate": 10,
+      "unit": "Hz"
+    },
+    "images": {
+      "required": true,
+      "stages": ["pre-test", "test-setup", "during-test", "post-test"],
+      "minResolution": "1920x1080"
+    },
+    "environmentalData": {
+      "temperature": true,
+      "humidity": true,
+      "pressure": false
+    },
+    "videoRecording": {
+      "required": true,
+      "duration": "full-test",
+      "purpose": "safety-documentation"
+    }
+  },
+  "emergencyProcedures": {
+    "breakdownDetected": {
+      "actions": [
+        "Immediate voltage shutdown",
+        "Tag device as failed",
+        "Quarantine for investigation",
+        "Document failure mode",
+        "Create NC report"
+      ]
+    },
+    "arcDetected": {
+      "actions": [
+        "Emergency stop activation",
+        "Power isolation",
+        "Fire suppression ready",
+        "Area evacuation if needed",
+        "Incident report required"
+      ]
+    },
+    "operatorExposure": {
+      "actions": [
+        "Immediate shutdown",
+        "Medical attention",
+        "Incident investigation",
+        "Safety system review",
+        "Regulatory notification if required"
+      ]
+    }
+  },
+  "metadata": {
+    "createdBy": "system",
+    "createdAt": "2025-01-12T00:00:00Z",
+    "modifiedBy": "system",
+    "modifiedAt": "2025-01-12T00:00:00Z",
+    "status": "active",
+    "tags": ["safety", "electrical", "IEC61730", "high-voltage", "certification", "critical"]
+  }
+}

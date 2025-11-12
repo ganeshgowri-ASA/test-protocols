@@ -1,0 +1,349 @@
+{
+  "protocolId": "PVTP-022",
+  "protocolName": "Connector/Cable Pull Test",
+  "version": "1.0.0",
+  "category": "mechanical",
+  "standard": {
+    "name": "IEC 61730 / IEC 62852",
+    "version": "2016 / 2014",
+    "section": "MST 28 / Connector Pull Test",
+    "requirements": [
+      "Cable mechanical strength",
+      "Connector retention force",
+      "No damage under mechanical stress",
+      "Electrical continuity after pull"
+    ]
+  },
+  "deviceUnderTest": {
+    "type": "module",
+    "identification": {
+      "serialNumber": "",
+      "modelNumber": "",
+      "manufacturer": "",
+      "lotNumber": "",
+      "productionDate": ""
+    },
+    "specifications": {
+      "cableType": {
+        "value": "",
+        "description": "Cable type and gauge (e.g., 4mm² PV cable)"
+      },
+      "cableLength": {
+        "value": null,
+        "unit": "m"
+      },
+      "connectorType": {
+        "value": "",
+        "options": ["MC4", "MC3", "Amphenol H4", "Staubli MC4-Evo2", "proprietary"]
+      },
+      "numberOfCables": {
+        "value": null,
+        "unit": "count",
+        "description": "Number of output cables (typically 2)"
+      }
+    }
+  },
+  "testParameters": {
+    "cablePullTest": {
+      "force": {
+        "value": 50,
+        "unit": "N",
+        "tolerance": 5,
+        "description": "50N pull force per IEC 61730"
+      },
+      "duration": {
+        "value": 10,
+        "unit": "seconds",
+        "description": "Force application duration"
+      },
+      "direction": "axial",
+      "cycleCount": 1
+    },
+    "connectorPullTest": {
+      "matingForce": {
+        "max": 120,
+        "unit": "N",
+        "description": "Maximum force to mate connectors"
+      },
+      "unmatingForce": {
+        "min": 40,
+        "max": 80,
+        "unit": "N",
+        "description": "Force to separate mated connectors"
+      },
+      "pullToFailure": {
+        "enabled": true,
+        "description": "Optional destructive test to determine failure mode"
+      }
+    },
+    "strainReliefTest": {
+      "bendingForce": {
+        "value": 25,
+        "unit": "N"
+      },
+      "bendingAngle": {
+        "value": 90,
+        "unit": "degrees"
+      },
+      "cycles": 10
+    },
+    "testFixture": {
+      "type": "universal-tensile-tester",
+      "loadCell": {
+        "capacity": 500,
+        "unit": "N",
+        "accuracy": 0.5,
+        "accuracyUnit": "%"
+      },
+      "grippingMethod": "soft-jaws",
+      "dataAcquisition": {
+        "samplingRate": 100,
+        "unit": "Hz"
+      }
+    }
+  },
+  "acceptanceCriteria": {
+    "cablePull": {
+      "noPhysicalDamage": {
+        "required": true,
+        "description": "No visible damage to cable, strain relief, or junction box"
+      },
+      "noElectricalDamage": {
+        "required": true,
+        "description": "Electrical continuity maintained"
+      },
+      "insulationIntegrity": {
+        "min": 40,
+        "unit": "MΩ",
+        "description": "Insulation resistance after test"
+      },
+      "maxDisplacement": {
+        "max": 3,
+        "unit": "mm",
+        "description": "Maximum cable displacement at strain relief"
+      }
+    },
+    "connectorPull": {
+      "retentionForce": {
+        "min": 40,
+        "unit": "N",
+        "description": "Minimum connector retention force"
+      },
+      "contactResistance": {
+        "max": 5,
+        "unit": "mΩ",
+        "description": "Maximum contact resistance after mating cycles"
+      },
+      "lockingMechanism": {
+        "required": true,
+        "description": "Locking mechanism must function properly"
+      }
+    }
+  },
+  "safetyInterlocks": [
+    {
+      "interlockId": "SI-022-001",
+      "type": "pre-test",
+      "condition": "equipment.calibration.valid === true",
+      "action": "block",
+      "message": "Tensile tester must be calibrated within last 12 months",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-022-002",
+      "type": "pre-test",
+      "condition": "device.electricallyIsolated === true",
+      "action": "block",
+      "message": "Module must be electrically isolated before mechanical testing",
+      "severity": "high"
+    },
+    {
+      "interlockId": "SI-022-003",
+      "type": "pre-test",
+      "condition": "fixture.secure === true",
+      "action": "block",
+      "message": "Module must be securely mounted in test fixture",
+      "severity": "high"
+    },
+    {
+      "interlockId": "SI-022-004",
+      "type": "during-test",
+      "condition": "force < 1.5 * force.target",
+      "action": "emergency-stop",
+      "message": "Force overload detected - stop test",
+      "severity": "high"
+    },
+    {
+      "interlockId": "SI-022-005",
+      "type": "during-test",
+      "condition": "displacement < 50",
+      "action": "emergency-stop",
+      "message": "Excessive displacement - cable failure imminent",
+      "severity": "high"
+    },
+    {
+      "interlockId": "SI-022-006",
+      "type": "post-test",
+      "condition": "visualInspection.complete === true",
+      "action": "require-approval",
+      "message": "Visual inspection required after pull test",
+      "severity": "medium"
+    },
+    {
+      "interlockId": "SI-022-007",
+      "type": "post-test",
+      "condition": "electricalTest.passed === true",
+      "action": "require-approval",
+      "message": "Electrical continuity and insulation must be verified",
+      "severity": "high"
+    }
+  ],
+  "approvalGates": [
+    {
+      "gateId": "AG-022-001",
+      "stage": "pre-test-review",
+      "role": "operator",
+      "required": true,
+      "criteria": [
+        "Module properly secured",
+        "Cable routing documented",
+        "Junction box condition noted",
+        "Connector type identified"
+      ]
+    },
+    {
+      "gateId": "AG-022-002",
+      "stage": "equipment-calibration",
+      "role": "qc-inspector",
+      "required": true,
+      "criteria": [
+        "Load cell calibrated",
+        "Displacement sensor calibrated",
+        "Gripping system verified",
+        "Data acquisition tested"
+      ]
+    },
+    {
+      "gateId": "AG-022-003",
+      "stage": "test-execution",
+      "role": "operator",
+      "required": true,
+      "criteria": [
+        "Pull force applied correctly",
+        "Duration met",
+        "No premature failure",
+        "Force-displacement curve recorded"
+      ]
+    },
+    {
+      "gateId": "AG-022-004",
+      "stage": "data-review",
+      "role": "qc-inspector",
+      "required": true,
+      "criteria": [
+        "Force within specification",
+        "No physical damage observed",
+        "Electrical continuity verified",
+        "Insulation resistance acceptable"
+      ]
+    },
+    {
+      "gateId": "AG-022-005",
+      "stage": "final-approval",
+      "role": "qc-manager",
+      "required": true,
+      "criteria": [
+        "All acceptance criteria met",
+        "Cable assembly integrity confirmed",
+        "Connector function verified",
+        "Module safe for continued testing"
+      ]
+    }
+  ],
+  "traceability": {
+    "enabled": true,
+    "dataLineage": {
+      "trackRawData": true,
+      "trackCalculations": true,
+      "trackApprovals": true,
+      "trackModifications": true
+    },
+    "auditLog": {
+      "level": "comprehensive",
+      "retention": "25 years"
+    }
+  },
+  "integrations": {
+    "lims": {
+      "enabled": true,
+      "sampleId": "",
+      "testRequestId": ""
+    },
+    "qms": {
+      "enabled": true,
+      "documentId": "QMS-IEC61730-MST28",
+      "procedureId": "PROC-MECH-022"
+    },
+    "pm": {
+      "enabled": true,
+      "projectId": "",
+      "taskId": ""
+    },
+    "nc": {
+      "enabled": true,
+      "autoCreate": true
+    }
+  },
+  "reportGeneration": {
+    "autoGenerate": true,
+    "formats": ["pdf", "excel", "json"],
+    "includeCharts": true,
+    "includeAuditTrail": true,
+    "template": "cable-pull-test-report-template"
+  },
+  "dataCapture": {
+    "timeSeries": {
+      "enabled": true,
+      "parameters": ["force", "displacement", "time"],
+      "samplingRate": 100,
+      "unit": "Hz"
+    },
+    "images": {
+      "required": true,
+      "stages": ["pre-test", "during-test", "post-test", "damage-detail"],
+      "minResolution": "1920x1080"
+    },
+    "videoRecording": {
+      "recommended": true,
+      "purpose": "failure-mode-analysis"
+    },
+    "environmentalData": {
+      "temperature": true,
+      "humidity": false,
+      "pressure": false
+    }
+  },
+  "calculations": {
+    "maximumForce": {
+      "formula": "max(force_array)",
+      "unit": "N"
+    },
+    "displacement": {
+      "formula": "final_position - initial_position",
+      "unit": "mm"
+    },
+    "stiffness": {
+      "formula": "delta_force / delta_displacement",
+      "unit": "N/mm",
+      "description": "Cable assembly stiffness"
+    }
+  },
+  "metadata": {
+    "createdBy": "system",
+    "createdAt": "2025-01-12T00:00:00Z",
+    "modifiedBy": "system",
+    "modifiedAt": "2025-01-12T00:00:00Z",
+    "status": "active",
+    "tags": ["mechanical", "IEC61730", "cable", "connector", "pull-test", "safety"]
+  }
+}

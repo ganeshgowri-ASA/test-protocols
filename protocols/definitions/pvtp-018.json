@@ -1,0 +1,297 @@
+{
+  "protocolId": "PVTP-018",
+  "protocolName": "Ground Continuity Test",
+  "version": "1.0.0",
+  "category": "safety",
+  "standard": {
+    "name": "IEC 61730",
+    "version": "2016",
+    "section": "MST 50",
+    "requirements": [
+      "Grounding path continuity verification",
+      "Low resistance measurement",
+      "Bond integrity confirmation",
+      "Safety grounding validation"
+    ]
+  },
+  "deviceUnderTest": {
+    "type": "module",
+    "identification": {
+      "serialNumber": "",
+      "modelNumber": "",
+      "manufacturer": "",
+      "lotNumber": "",
+      "productionDate": ""
+    },
+    "specifications": {
+      "frameType": {
+        "value": "",
+        "options": ["aluminum", "steel", "frameless", "composite"]
+      },
+      "groundingPoints": {
+        "value": null,
+        "unit": "count",
+        "description": "Number of designated grounding points"
+      },
+      "mountingHoles": {
+        "value": null,
+        "unit": "count"
+      }
+    }
+  },
+  "testParameters": {
+    "testCurrent": {
+      "value": 10,
+      "unit": "A",
+      "tolerance": 0.5,
+      "description": "Test current for ground continuity (typically 10A)"
+    },
+    "testDuration": {
+      "value": 5,
+      "unit": "seconds",
+      "description": "Duration of current application"
+    },
+    "measurementMethod": {
+      "type": "four-wire",
+      "description": "Kelvin (4-wire) measurement for accuracy"
+    },
+    "testPoints": [
+      {
+        "point": "grounding-hole-to-frame",
+        "description": "Designated grounding hole to frame edge",
+        "distance": "maximum"
+      },
+      {
+        "point": "mounting-holes-to-frame",
+        "description": "Each mounting hole to frame",
+        "testAll": true
+      },
+      {
+        "point": "junction-box-ground-to-frame",
+        "description": "Junction box ground lug to frame",
+        "critical": true
+      },
+      {
+        "point": "frame-corners",
+        "description": "Between frame corners (diagonal)",
+        "purpose": "frame-integrity"
+      }
+    ]
+  },
+  "acceptanceCriteria": {
+    "groundResistance": {
+      "max": 0.1,
+      "unit": "Ω",
+      "description": "Maximum ground path resistance (IEC 61730)"
+    },
+    "alternativeCriteria": {
+      "max": 0.05,
+      "unit": "Ω",
+      "description": "Stricter requirement for Class A applications"
+    },
+    "voltageDropLimit": {
+      "max": 1.0,
+      "unit": "V",
+      "description": "Maximum voltage drop at test current"
+    }
+  },
+  "safetyInterlocks": [
+    {
+      "interlockId": "SI-018-001",
+      "type": "pre-test",
+      "condition": "equipment.calibration.valid === true",
+      "action": "block",
+      "message": "Ground continuity tester must be calibrated within last 12 months",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-018-002",
+      "type": "pre-test",
+      "condition": "device.powerOff === true",
+      "action": "block",
+      "message": "Module must be electrically isolated before ground testing",
+      "severity": "critical"
+    },
+    {
+      "interlockId": "SI-018-003",
+      "type": "pre-test",
+      "condition": "testLeads.resistance < 0.01",
+      "action": "block",
+      "message": "Test lead resistance too high - verify connections",
+      "severity": "high"
+    },
+    {
+      "interlockId": "SI-018-004",
+      "type": "pre-test",
+      "condition": "surfacePrep.complete === true",
+      "action": "warn",
+      "message": "Ensure oxide layer removed from test points",
+      "severity": "medium"
+    },
+    {
+      "interlockId": "SI-018-005",
+      "type": "during-test",
+      "condition": "current.stable === true",
+      "action": "warn",
+      "message": "Test current not stable - check contact pressure",
+      "severity": "medium"
+    },
+    {
+      "interlockId": "SI-018-006",
+      "type": "during-test",
+      "condition": "temperature.rise < 10",
+      "action": "warn",
+      "message": "Excessive heating at test point - check connection",
+      "severity": "high"
+    },
+    {
+      "interlockId": "SI-018-007",
+      "type": "post-test",
+      "condition": "visualInspection.scorching === false",
+      "action": "require-approval",
+      "message": "Signs of scorching detected - investigate high resistance point",
+      "severity": "high"
+    }
+  ],
+  "approvalGates": [
+    {
+      "gateId": "AG-018-001",
+      "stage": "pre-test-review",
+      "role": "operator",
+      "required": true,
+      "criteria": [
+        "Module frame inspected for damage",
+        "Grounding points identified",
+        "Surface preparation complete",
+        "Test equipment ready"
+      ]
+    },
+    {
+      "gateId": "AG-018-002",
+      "stage": "equipment-calibration",
+      "role": "qc-inspector",
+      "required": true,
+      "criteria": [
+        "Continuity tester calibration verified",
+        "Test leads inspected and tested",
+        "Current source verified",
+        "Measurement accuracy confirmed"
+      ]
+    },
+    {
+      "gateId": "AG-018-003",
+      "stage": "test-execution",
+      "role": "operator",
+      "required": true,
+      "criteria": [
+        "All designated test points measured",
+        "Four-wire measurement method used",
+        "Contact resistance minimized",
+        "Readings stable before recording"
+      ]
+    },
+    {
+      "gateId": "AG-018-004",
+      "stage": "data-review",
+      "role": "qc-inspector",
+      "required": true,
+      "criteria": [
+        "All measurements within limits",
+        "No anomalous readings",
+        "Frame integrity verified",
+        "Photos of test setup captured"
+      ]
+    },
+    {
+      "gateId": "AG-018-005",
+      "stage": "final-approval",
+      "role": "qc-manager",
+      "required": true,
+      "criteria": [
+        "Grounding system meets IEC 61730",
+        "All test points passed",
+        "Data traceability complete",
+        "Report ready for release"
+      ]
+    }
+  ],
+  "traceability": {
+    "enabled": true,
+    "dataLineage": {
+      "trackRawData": true,
+      "trackCalculations": true,
+      "trackApprovals": true,
+      "trackModifications": true
+    },
+    "auditLog": {
+      "level": "comprehensive",
+      "retention": "25 years"
+    }
+  },
+  "integrations": {
+    "lims": {
+      "enabled": true,
+      "sampleId": "",
+      "testRequestId": ""
+    },
+    "qms": {
+      "enabled": true,
+      "documentId": "QMS-IEC61730-MST50",
+      "procedureId": "PROC-SAFETY-018"
+    },
+    "pm": {
+      "enabled": true,
+      "projectId": "",
+      "taskId": ""
+    },
+    "nc": {
+      "enabled": true,
+      "autoCreate": true
+    }
+  },
+  "reportGeneration": {
+    "autoGenerate": true,
+    "formats": ["pdf", "excel", "json"],
+    "includeCharts": true,
+    "includeAuditTrail": true,
+    "template": "ground-continuity-report-template"
+  },
+  "dataCapture": {
+    "timeSeries": {
+      "enabled": true,
+      "parameters": ["resistance", "current", "voltage", "temperature"],
+      "samplingRate": 10,
+      "unit": "Hz"
+    },
+    "images": {
+      "required": true,
+      "stages": ["pre-test", "test-point-closeup", "post-test"],
+      "minResolution": "1920x1080"
+    },
+    "environmentalData": {
+      "temperature": true,
+      "humidity": true,
+      "pressure": false
+    }
+  },
+  "calculations": {
+    "resistance": {
+      "formula": "V_measured / I_test",
+      "unit": "Ω",
+      "description": "Resistance from Ohm's law"
+    },
+    "resistanceCorrected": {
+      "formula": "R_measured - R_leads",
+      "unit": "Ω",
+      "description": "Resistance corrected for test lead resistance"
+    }
+  },
+  "metadata": {
+    "createdBy": "system",
+    "createdAt": "2025-01-12T00:00:00Z",
+    "modifiedBy": "system",
+    "modifiedAt": "2025-01-12T00:00:00Z",
+    "status": "active",
+    "tags": ["safety", "electrical", "IEC61730", "grounding", "certification"]
+  }
+}

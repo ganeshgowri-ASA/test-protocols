@@ -1,0 +1,381 @@
+{
+  "protocol_id": "PVTP-030",
+  "version": "1.0.0",
+  "name": "Cell Crack Detection & Analysis",
+  "category": "analysis",
+  "subcategory": "crack_detection",
+  "description": "Specialized protocol for advanced cell crack detection, classification, and impact analysis using multi-modal imaging (EL, Visual, PL) with deep learning crack segmentation and propagation prediction.",
+  "applicable_standards": [
+    "IEC 61215",
+    "IEC 61730",
+    "IEC 60904-13"
+  ],
+  "crack_types": {
+    "categories": [
+      {
+        "type": "single_crack",
+        "description": "Single linear crack through cell",
+        "characteristics": {
+          "count": 1,
+          "orientation": "any",
+          "typical_length": "5-100mm"
+        },
+        "impact": "Depends on location and electrical isolation"
+      },
+      {
+        "type": "multiple_parallel",
+        "description": "Multiple parallel cracks",
+        "characteristics": {
+          "count": "2-5",
+          "orientation": "parallel",
+          "spacing": "variable"
+        },
+        "impact": "Cumulative area isolation, higher power loss"
+      },
+      {
+        "type": "dendritic",
+        "description": "Branching tree-like crack pattern",
+        "characteristics": {
+          "count": "multiple",
+          "orientation": "branching",
+          "origin": "typically corner"
+        },
+        "impact": "Severe, high failure risk"
+      },
+      {
+        "type": "corner_crack",
+        "description": "Cracks originating from corners",
+        "characteristics": {
+          "origin": "corner",
+          "propagation": "diagonal or along edges"
+        },
+        "impact": "Moderate to severe, propagation risk"
+      },
+      {
+        "type": "edge_crack",
+        "description": "Cracks along cell edges",
+        "characteristics": {
+          "location": "within 5mm of edge",
+          "orientation": "parallel to edge"
+        },
+        "impact": "Moderate, may affect busbar contact"
+      },
+      {
+        "type": "inactive_crack",
+        "description": "Crack with complete electrical isolation",
+        "characteristics": {
+          "el_signature": "dark region along crack",
+          "power_impact": "proportional to isolated area"
+        },
+        "impact": "High, direct power loss"
+      }
+    ]
+  },
+  "detection_methodology": {
+    "imaging_modes": [
+      {
+        "mode": "electroluminescence",
+        "advantages": [
+          "Shows electrical impact",
+          "Detects inactive regions",
+          "High contrast for cracks"
+        ],
+        "crack_signature": "Dark lines, reduced intensity regions"
+      },
+      {
+        "mode": "visual_high_res",
+        "advantages": [
+          "Physical crack visualization",
+          "Surface detail",
+          "Complements EL"
+        ],
+        "crack_signature": "Visible fracture lines"
+      },
+      {
+        "mode": "photoluminescence",
+        "advantages": [
+          "Contact-free detection",
+          "Material quality assessment"
+        ],
+        "crack_signature": "Reduced PL intensity along cracks"
+      }
+    ],
+    "multi_modal_fusion": {
+      "enabled": true,
+      "description": "Combine EL, Visual, and PL for comprehensive crack characterization",
+      "fusion_approach": "Deep learning multi-modal feature extraction"
+    }
+  },
+  "ai_ml_crack_detection": {
+    "models": [
+      {
+        "model_id": "crack_segmentation_unet_v3",
+        "type": "semantic_segmentation",
+        "architecture": "U-Net with ResNet50 encoder",
+        "framework": "PyTorch",
+        "input_size": [512, 512],
+        "output": "pixel-wise crack probability map",
+        "performance": {
+          "precision": 0.91,
+          "recall": 0.88,
+          "f1_score": 0.89,
+          "iou": 0.82
+        },
+        "training_data": "50,000+ labeled EL images"
+      },
+      {
+        "model_id": "crack_classifier_efficientnet_v2",
+        "type": "classification",
+        "architecture": "EfficientNet-B4",
+        "framework": "TensorFlow",
+        "input_size": [256, 256],
+        "output_classes": [
+          "no_crack",
+          "single_crack",
+          "multiple_parallel",
+          "dendritic",
+          "corner_crack",
+          "edge_crack"
+        ],
+        "performance": {
+          "accuracy": 0.93,
+          "top3_accuracy": 0.98
+        }
+      },
+      {
+        "model_id": "crack_impact_predictor_v1",
+        "type": "regression",
+        "architecture": "CNN + LSTM",
+        "framework": "PyTorch",
+        "inputs": [
+          "crack_geometry",
+          "crack_location",
+          "crack_type",
+          "el_intensity_map"
+        ],
+        "outputs": [
+          "power_loss_percentage",
+          "propagation_risk_score",
+          "failure_probability"
+        ]
+      }
+    ],
+    "ensemble_strategy": {
+      "enabled": true,
+      "approach": "Segmentation -> Classification -> Impact Prediction",
+      "confidence_threshold": 0.80
+    }
+  },
+  "crack_characterization": {
+    "geometric_features": [
+      {
+        "feature": "crack_length",
+        "unit": "mm",
+        "extraction_method": "skeleton_based_measurement"
+      },
+      {
+        "feature": "crack_width",
+        "unit": "µm",
+        "extraction_method": "perpendicular_profile_analysis",
+        "typical_range": [10, 500]
+      },
+      {
+        "feature": "crack_orientation",
+        "unit": "degrees",
+        "extraction_method": "principal_component_analysis",
+        "reference": "0° = horizontal"
+      },
+      {
+        "feature": "crack_tortuosity",
+        "unit": "dimensionless",
+        "definition": "actual_length / straight_line_distance"
+      },
+      {
+        "feature": "branching_factor",
+        "unit": "count",
+        "description": "Number of crack branches"
+      }
+    ],
+    "electrical_impact_assessment": {
+      "methods": [
+        {
+          "method": "el_intensity_analysis",
+          "description": "Compare EL intensity on both sides of crack",
+          "metric": "intensity_reduction_percentage"
+        },
+        {
+          "method": "isolated_area_calculation",
+          "description": "Calculate electrically isolated cell area",
+          "metric": "isolated_area_percentage"
+        },
+        {
+          "method": "power_loss_estimation",
+          "description": "Estimate power loss from crack",
+          "formula": "P_loss = P_nominal × isolated_area_percentage"
+        }
+      ]
+    }
+  },
+  "severity_classification": {
+    "criteria": [
+      {
+        "severity": "critical",
+        "conditions": {
+          "crack_type": "dendritic OR inactive_crack",
+          "isolated_area": ">30%",
+          "power_loss": ">15%",
+          "propagation_risk": "high"
+        },
+        "action": "Reject module"
+      },
+      {
+        "severity": "severe",
+        "conditions": {
+          "crack_length": ">50mm",
+          "isolated_area": "15-30%",
+          "power_loss": "10-15%",
+          "crack_count": ">3"
+        },
+        "action": "Engineering review, likely reject"
+      },
+      {
+        "severity": "moderate",
+        "conditions": {
+          "crack_length": "25-50mm",
+          "isolated_area": "5-15%",
+          "power_loss": "5-10%",
+          "crack_count": "2-3"
+        },
+        "action": "Document, monitor, may downgrade"
+      },
+      {
+        "severity": "minor",
+        "conditions": {
+          "crack_length": "<25mm",
+          "isolated_area": "<5%",
+          "power_loss": "<5%",
+          "no_propagation_risk": true
+        },
+        "action": "Acceptable, monitor"
+      }
+    ]
+  },
+  "crack_propagation_prediction": {
+    "enabled": true,
+    "ml_model": {
+      "model_id": "crack_propagation_predictor_v1",
+      "type": "time_series_prediction",
+      "inputs": [
+        "initial_crack_geometry",
+        "stress_factors",
+        "environmental_conditions",
+        "historical_data"
+      ],
+      "outputs": [
+        "propagation_likelihood",
+        "estimated_growth_rate",
+        "time_to_failure_prediction"
+      ]
+    },
+    "stress_factors": [
+      "thermal_cycling",
+      "mechanical_load",
+      "humidity",
+      "wind_load"
+    ]
+  },
+  "comparison_analysis": {
+    "temporal_tracking": {
+      "enabled": true,
+      "description": "Track crack evolution over time",
+      "metrics": [
+        "length_increase",
+        "new_crack_formation",
+        "isolated_area_growth",
+        "power_loss_progression"
+      ],
+      "alert_thresholds": {
+        "length_increase": ">20% per year",
+        "new_cracks": "≥1 new crack",
+        "power_loss_increase": ">5% per year"
+      }
+    }
+  },
+  "image_processing_pipeline": {
+    "preprocessing": [
+      {
+        "step": "noise_reduction",
+        "method": "bilateral_filter"
+      },
+      {
+        "step": "contrast_enhancement",
+        "method": "CLAHE"
+      },
+      {
+        "step": "normalization",
+        "method": "histogram_matching"
+      }
+    ],
+    "crack_segmentation": [
+      {
+        "step": "ml_segmentation",
+        "model": "crack_segmentation_unet_v3"
+      },
+      {
+        "step": "post_processing",
+        "operations": [
+          "morphological_opening",
+          "small_object_removal",
+          "gap_closing"
+        ]
+      }
+    ],
+    "feature_extraction": [
+      {
+        "step": "skeletonization",
+        "method": "zhang_suen_thinning"
+      },
+      {
+        "step": "measurement",
+        "features": [
+          "length",
+          "width",
+          "orientation",
+          "branching"
+        ]
+      }
+    ]
+  },
+  "quality_control": {
+    "acceptance_criteria": {
+      "critical_cracks": 0,
+      "severe_cracks": 0,
+      "moderate_cracks": "≤1",
+      "minor_cracks": "≤3",
+      "total_power_loss_from_cracks": "<5%"
+    }
+  },
+  "reporting": {
+    "crack_analysis_report": {
+      "sections": [
+        "crack_inventory",
+        "crack_map_annotated",
+        "severity_classification",
+        "electrical_impact_assessment",
+        "propagation_risk_analysis",
+        "recommendations"
+      ],
+      "visualizations": [
+        "crack_overlay_on_el_image",
+        "severity_heat_map",
+        "isolated_area_diagram",
+        "temporal_comparison"
+      ]
+    }
+  },
+  "integration": {
+    "defect_classification_protocol": "PVTP-029",
+    "el_imaging_protocol": "PVTP-024",
+    "visual_inspection_protocol": "PVTP-026"
+  }
+}

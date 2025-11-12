@@ -1,0 +1,703 @@
+{
+  "protocol_id": "PVTP-025",
+  "version": "1.0.0",
+  "name": "Infrared (IR) Thermography",
+  "category": "imaging",
+  "subcategory": "thermal_imaging",
+  "description": "Advanced IR thermography protocol for detecting hotspots, thermal anomalies, and electrical defects in solar modules under various operating conditions with AI-powered thermal pattern recognition.",
+  "applicable_standards": [
+    "IEC 62446-3",
+    "IEC TS 62446-3",
+    "ASTM E1934",
+    "ASTM E1933",
+    "ISO 9712"
+  ],
+  "revision_history": [
+    {
+      "version": "1.0.0",
+      "date": "2025-11-12",
+      "author": "PV Test Protocol System",
+      "changes": "Initial protocol creation with full AI/ML thermal analysis"
+    }
+  ],
+  "equipment_required": [
+    {
+      "id": "ir_camera",
+      "name": "Thermal Imaging Camera",
+      "type": "LWIR Microbolometer/Cooled Detector",
+      "specifications": {
+        "resolution": "≥320x240 pixels (640x480 preferred)",
+        "thermal_sensitivity": "≤0.05°C @ 30°C",
+        "spectral_range": "7.5-14 µm (LWIR)",
+        "temperature_range": "-20°C to +150°C",
+        "accuracy": "±2°C or ±2%",
+        "frame_rate": "≥30 Hz"
+      },
+      "calibration_required": true,
+      "calibration_interval_days": 365
+    },
+    {
+      "id": "solar_simulator",
+      "name": "Solar Simulator / Natural Sunlight",
+      "type": "Class AAA Solar Simulator or Outdoor",
+      "specifications": {
+        "irradiance": "800-1000 W/m²",
+        "uniformity": "±2%",
+        "spectral_match": "Class A"
+      },
+      "calibration_required": true,
+      "calibration_interval_days": 90
+    },
+    {
+      "id": "pyranometer",
+      "name": "Reference Pyranometer",
+      "type": "Secondary Standard",
+      "specifications": {
+        "response_time": "<5 seconds",
+        "accuracy": "±5 W/m²"
+      },
+      "calibration_required": true,
+      "calibration_interval_days": 365
+    },
+    {
+      "id": "environmental_sensors",
+      "name": "Weather Station",
+      "type": "Multi-sensor System",
+      "specifications": {
+        "measures": ["ambient_temp", "wind_speed", "humidity"],
+        "temp_accuracy": "±0.5°C",
+        "wind_accuracy": "±0.5 m/s"
+      },
+      "calibration_required": true,
+      "calibration_interval_days": 365
+    },
+    {
+      "id": "electrical_load",
+      "name": "Electronic Load / MPPT",
+      "type": "Programmable Electronic Load",
+      "specifications": {
+        "power_range": "0-500W per module",
+        "voltage_range": "0-60V",
+        "current_range": "0-15A"
+      },
+      "calibration_required": true,
+      "calibration_interval_days": 365
+    }
+  ],
+  "test_parameters": {
+    "operating_conditions": {
+      "test_mode": {
+        "type": "select",
+        "options": ["open_circuit", "short_circuit", "maximum_power", "fixed_load", "reverse_bias"],
+        "description": "Module electrical operating condition",
+        "default": "maximum_power",
+        "required": true
+      },
+      "irradiance_level": {
+        "type": "number",
+        "unit": "W/m²",
+        "description": "Required irradiance on module",
+        "default": 1000,
+        "min": 700,
+        "max": 1200,
+        "required": true
+      },
+      "stabilization_time": {
+        "type": "number",
+        "unit": "minutes",
+        "description": "Thermal stabilization duration",
+        "default": 10,
+        "min": 5,
+        "max": 30,
+        "required": true
+      }
+    },
+    "camera_settings": {
+      "emissivity": {
+        "type": "number",
+        "unit": "dimensionless",
+        "description": "Surface emissivity setting",
+        "default": 0.85,
+        "min": 0.80,
+        "max": 0.95,
+        "required": true
+      },
+      "distance_to_target": {
+        "type": "number",
+        "unit": "meters",
+        "description": "Camera distance from module",
+        "default": 3.0,
+        "min": 1.0,
+        "max": 10.0,
+        "required": true
+      },
+      "viewing_angle": {
+        "type": "number",
+        "unit": "degrees",
+        "description": "Camera angle from normal (0° = perpendicular)",
+        "default": 0,
+        "min": 0,
+        "max": 45,
+        "required": true
+      },
+      "integration_time": {
+        "type": "number",
+        "unit": "milliseconds",
+        "description": "Detector integration time",
+        "default": 10,
+        "min": 1,
+        "max": 100,
+        "required": false
+      }
+    },
+    "environmental_monitoring": {
+      "ambient_temperature": {
+        "type": "number",
+        "unit": "°C",
+        "description": "Ambient air temperature",
+        "required": true,
+        "monitored": true
+      },
+      "wind_speed": {
+        "type": "number",
+        "unit": "m/s",
+        "description": "Wind speed at module location",
+        "required": true,
+        "monitored": true,
+        "max_acceptable": 5.0
+      },
+      "relative_humidity": {
+        "type": "number",
+        "unit": "%RH",
+        "description": "Relative humidity",
+        "required": true,
+        "monitored": true
+      }
+    },
+    "thermal_analysis": {
+      "hotspot_threshold": {
+        "type": "number",
+        "unit": "°C",
+        "description": "Temperature difference to classify as hotspot",
+        "default": 10.0,
+        "min": 5.0,
+        "max": 30.0,
+        "required": true
+      },
+      "reference_temperature": {
+        "type": "select",
+        "options": ["module_mean", "coolest_cell", "ambient_corrected"],
+        "description": "Reference for hotspot calculation",
+        "default": "module_mean",
+        "required": true
+      }
+    }
+  },
+  "pre_test_requirements": {
+    "environmental_conditions": {
+      "irradiance": {
+        "min": 800,
+        "max": 1200,
+        "unit": "W/m²",
+        "required": true,
+        "stability": "±50 W/m² for 5 minutes"
+      },
+      "ambient_temperature": {
+        "min": 10,
+        "max": 45,
+        "unit": "°C",
+        "required": true
+      },
+      "wind_speed": {
+        "max": 5,
+        "unit": "m/s",
+        "required": true,
+        "critical": true
+      },
+      "weather": {
+        "conditions": "No precipitation, no fog",
+        "required": true
+      }
+    },
+    "module_preparation": [
+      "Ensure module is clean and dry",
+      "Remove any shading objects",
+      "Orient module toward light source",
+      "Verify electrical connections secure",
+      "Record module serial number and position"
+    ],
+    "camera_preparation": [
+      "Allow camera to stabilize for 5 minutes",
+      "Set correct emissivity for glass/module surface",
+      "Configure reflected temperature compensation",
+      "Verify focus on module surface",
+      "Check atmospheric correction parameters"
+    ],
+    "safety_checks": [
+      "Verify electrical isolation if needed",
+      "Ensure proper grounding",
+      "Check for any damaged components",
+      "Confirm personnel clear of capture area"
+    ]
+  },
+  "measurement_procedure": [
+    {
+      "step": 1,
+      "action": "setup_module",
+      "description": "Position and connect module in test configuration",
+      "parameters": ["module_id", "test_mode", "position"],
+      "duration_seconds": 120,
+      "verification_required": true
+    },
+    {
+      "step": 2,
+      "action": "environmental_check",
+      "description": "Verify environmental conditions meet requirements",
+      "parameters": ["irradiance", "ambient_temp", "wind_speed"],
+      "duration_seconds": 60,
+      "automated": true,
+      "acceptance_criteria": true
+    },
+    {
+      "step": 3,
+      "action": "apply_electrical_load",
+      "description": "Connect and configure electrical load",
+      "parameters": ["test_mode", "load_settings"],
+      "duration_seconds": 30,
+      "automated": true
+    },
+    {
+      "step": 4,
+      "action": "thermal_stabilization",
+      "description": "Wait for thermal equilibrium",
+      "parameters": ["stabilization_time"],
+      "duration_seconds": 600,
+      "automated": true,
+      "monitoring": ["module_temp", "irradiance_stability"]
+    },
+    {
+      "step": 5,
+      "action": "capture_thermal_images",
+      "description": "Capture IR thermography images",
+      "parameters": ["camera_settings", "capture_sequence"],
+      "duration_seconds": 60,
+      "automated": true,
+      "output": ["thermal_images", "radiometric_data", "visual_images"]
+    },
+    {
+      "step": 6,
+      "action": "capture_environmental_data",
+      "description": "Record environmental parameters",
+      "parameters": [],
+      "duration_seconds": 10,
+      "automated": true,
+      "output": ["irradiance", "ambient_temp", "wind_speed", "humidity"]
+    },
+    {
+      "step": 7,
+      "action": "thermal_analysis",
+      "description": "Process thermal images and detect anomalies",
+      "parameters": ["hotspot_threshold", "reference_temperature"],
+      "duration_seconds": 60,
+      "automated": true,
+      "processing": ["temperature_extraction", "hotspot_detection", "pattern_recognition"]
+    },
+    {
+      "step": 8,
+      "action": "ai_thermal_classification",
+      "description": "AI-based thermal defect classification",
+      "parameters": ["classification_model"],
+      "duration_seconds": 30,
+      "automated": true,
+      "ml_model": "thermal_classifier_v2"
+    },
+    {
+      "step": 9,
+      "action": "data_storage",
+      "description": "Store thermal data and results with full traceability",
+      "parameters": ["module_id", "test_conditions"],
+      "duration_seconds": 15,
+      "automated": true
+    }
+  ],
+  "thermal_image_processing": {
+    "corrections": [
+      {
+        "name": "atmospheric_correction",
+        "description": "Correct for atmospheric attenuation",
+        "required": true,
+        "parameters": {
+          "distance": "camera_distance",
+          "humidity": "ambient_humidity",
+          "temperature": "ambient_temperature"
+        }
+      },
+      {
+        "name": "reflected_temperature_compensation",
+        "description": "Compensate for reflected ambient radiation",
+        "required": true,
+        "parameters": {
+          "reflected_temp": "ambient_temperature"
+        }
+      },
+      {
+        "name": "emissivity_correction",
+        "description": "Apply surface emissivity correction",
+        "required": true,
+        "parameters": {
+          "emissivity": 0.85,
+          "surface_type": "glass"
+        }
+      }
+    ],
+    "analysis": [
+      {
+        "name": "temperature_statistics",
+        "description": "Calculate temperature distribution statistics",
+        "metrics": ["mean", "std", "min", "max", "percentiles"]
+      },
+      {
+        "name": "hotspot_detection",
+        "description": "Identify and characterize hotspots",
+        "algorithm": "threshold_based_with_ml",
+        "parameters": {
+          "delta_T_threshold": 10.0,
+          "min_hotspot_size": 25,
+          "reference": "module_mean"
+        }
+      },
+      {
+        "name": "cell_level_analysis",
+        "description": "Individual cell temperature analysis",
+        "features": ["cell_mean_temp", "cell_max_temp", "cell_uniformity"]
+      },
+      {
+        "name": "spatial_gradient_analysis",
+        "description": "Detect abnormal temperature gradients",
+        "method": "sobel_gradient"
+      }
+    ]
+  },
+  "ai_ml_thermal_analysis": {
+    "models": [
+      {
+        "model_id": "thermal_hotspot_detector_v2",
+        "type": "object_detection",
+        "architecture": "YOLOv8-Thermal",
+        "framework": "PyTorch",
+        "input_size": [640, 640],
+        "confidence_threshold": 0.65,
+        "detectable_anomalies": [
+          "bypass_diode_activation",
+          "cell_hotspot",
+          "junction_box_overheat",
+          "string_mismatch",
+          "shading_effect",
+          "cell_failure",
+          "interconnect_resistance"
+        ]
+      },
+      {
+        "model_id": "thermal_segmentation_v1",
+        "type": "semantic_segmentation",
+        "architecture": "DeepLabV3+",
+        "framework": "TensorFlow",
+        "input_size": [512, 512],
+        "output_classes": ["normal", "mild_hotspot", "moderate_hotspot", "severe_hotspot", "junction_box"],
+        "performance_metrics": {
+          "iou": 0.83,
+          "pixel_accuracy": 0.91
+        }
+      },
+      {
+        "model_id": "thermal_severity_classifier_v1",
+        "type": "classification",
+        "architecture": "ResNet50",
+        "framework": "PyTorch",
+        "input_size": [224, 224],
+        "output_classes": ["no_anomaly", "minor", "moderate", "severe", "critical"],
+        "performance_metrics": {
+          "accuracy": 0.88,
+          "f1_score": 0.86
+        }
+      }
+    ],
+    "ensemble_strategy": {
+      "enabled": true,
+      "method": "confidence_weighted",
+      "weights": {
+        "thermal_hotspot_detector_v2": 0.45,
+        "thermal_segmentation_v1": 0.30,
+        "thermal_severity_classifier_v1": 0.25
+      }
+    }
+  },
+  "thermal_defect_classification": {
+    "categories": [
+      {
+        "defect_type": "bypass_diode_activation",
+        "thermal_signature": "Entire cell string ~15-20°C cooler than adjacent strings",
+        "severity_levels": {
+          "minor": {
+            "description": "Partial shading, temporary activation",
+            "criteria": "delta_T = 10-15°C AND duration < 5 min",
+            "action": "Monitor and check shading sources"
+          },
+          "moderate": {
+            "description": "Persistent activation, possible cell damage",
+            "criteria": "delta_T = 15-20°C AND duration > 5 min",
+            "action": "Investigate cause, check for damaged cells"
+          },
+          "severe": {
+            "description": "Complete string bypass, significant power loss",
+            "criteria": "delta_T > 20°C OR multiple strings",
+            "action": "Module investigation required"
+          }
+        }
+      },
+      {
+        "defect_type": "cell_hotspot",
+        "thermal_signature": "Localized high temperature region within single cell",
+        "severity_levels": {
+          "minor": {
+            "description": "Small hotspot, limited temperature rise",
+            "criteria": "delta_T = 10-15°C AND area < 10% of cell",
+            "action": "Monitor, document"
+          },
+          "moderate": {
+            "description": "Significant hotspot, potential degradation",
+            "criteria": "delta_T = 15-25°C OR area 10-30% of cell",
+            "action": "Flag for monitoring, cross-check with EL"
+          },
+          "severe": {
+            "description": "Severe hotspot, safety concern",
+            "criteria": "delta_T > 25°C OR area > 30% of cell",
+            "action": "Immediate investigation, potential safety hazard"
+          }
+        }
+      },
+      {
+        "defect_type": "junction_box_overheat",
+        "thermal_signature": "Elevated temperature at junction box region",
+        "severity_levels": {
+          "minor": {
+            "description": "Slightly elevated temperature",
+            "criteria": "T_jb < 75°C AND delta_T < 20°C",
+            "action": "Acceptable, monitor"
+          },
+          "moderate": {
+            "description": "High junction box temperature",
+            "criteria": "T_jb = 75-85°C OR delta_T = 20-30°C",
+            "action": "Inspect connections, check for high resistance"
+          },
+          "severe": {
+            "description": "Critical overheating, fire risk",
+            "criteria": "T_jb > 85°C OR delta_T > 30°C",
+            "action": "CRITICAL - Disconnect immediately, safety issue"
+          }
+        }
+      },
+      {
+        "defect_type": "string_mismatch",
+        "thermal_signature": "Entire string with elevated temperature",
+        "severity_levels": {
+          "minor": {
+            "description": "Slight temperature difference between strings",
+            "criteria": "delta_T = 5-10°C",
+            "action": "Check for shading or soiling differences"
+          },
+          "moderate": {
+            "description": "Significant string temperature difference",
+            "criteria": "delta_T = 10-20°C",
+            "action": "Investigate electrical mismatch, check IV curves"
+          },
+          "severe": {
+            "description": "Extreme string mismatch",
+            "criteria": "delta_T > 20°C",
+            "action": "Electrical failure likely, immediate investigation"
+          }
+        }
+      }
+    ]
+  },
+  "comparison_analysis": {
+    "enabled": true,
+    "comparison_types": [
+      {
+        "type": "temporal_comparison",
+        "description": "Compare thermal images over time",
+        "metrics": [
+          "hotspot_evolution",
+          "temperature_increase_rate",
+          "new_anomaly_detection"
+        ]
+      },
+      {
+        "type": "electrical_correlation",
+        "description": "Correlate with electrical performance",
+        "metrics": [
+          "power_loss_vs_temperature",
+          "hotspot_impact_on_output"
+        ]
+      },
+      {
+        "type": "el_ir_fusion",
+        "description": "Fuse EL and IR data for comprehensive analysis",
+        "alignment_required": true,
+        "metrics": [
+          "el_defect_thermal_signature",
+          "crack_hotspot_correlation"
+        ]
+      }
+    ]
+  },
+  "quality_control": {
+    "acceptance_criteria": {
+      "max_hotspot_temperature": {
+        "value": 85,
+        "unit": "°C",
+        "description": "Maximum acceptable cell temperature"
+      },
+      "max_delta_T": {
+        "value": 25,
+        "unit": "°C",
+        "description": "Maximum temperature difference from mean"
+      },
+      "junction_box_temperature": {
+        "max": 85,
+        "unit": "°C",
+        "description": "Maximum junction box temperature"
+      },
+      "critical_hotspots": {
+        "max_count": 0,
+        "description": "Zero critical hotspots allowed"
+      },
+      "moderate_hotspots": {
+        "max_count": 2,
+        "description": "Maximum 2 moderate hotspots"
+      }
+    },
+    "automated_grading": {
+      "enabled": true,
+      "grading_scale": {
+        "A": {
+          "description": "Excellent - Uniform temperature distribution",
+          "criteria": "critical_hotspots = 0 AND moderate_hotspots = 0 AND max_delta_T < 10°C"
+        },
+        "B": {
+          "description": "Good - Minor temperature variations",
+          "criteria": "critical_hotspots = 0 AND moderate_hotspots <= 1 AND max_delta_T < 15°C"
+        },
+        "C": {
+          "description": "Acceptable - Some hotspots within limits",
+          "criteria": "critical_hotspots = 0 AND moderate_hotspots <= 2 AND max_delta_T < 25°C"
+        },
+        "D": {
+          "description": "Marginal - Near thermal limits",
+          "criteria": "critical_hotspots = 0 AND (moderate_hotspots <= 3 OR max_delta_T < 30°C)"
+        },
+        "F": {
+          "description": "Fail - Thermal issues exceed limits",
+          "criteria": "critical_hotspots > 0 OR moderate_hotspots > 3 OR max_delta_T > 30°C"
+        }
+      }
+    }
+  },
+  "non_conformance": {
+    "trigger_conditions": [
+      {
+        "condition": "junction_box_temperature > 85°C",
+        "nc_type": "automatic",
+        "severity": "critical",
+        "action": "immediate_shutdown_and_investigation"
+      },
+      {
+        "condition": "cell_hotspot > 85°C",
+        "nc_type": "automatic",
+        "severity": "critical",
+        "action": "safety_investigation_required"
+      },
+      {
+        "condition": "grade_F_result",
+        "nc_type": "automatic",
+        "severity": "major",
+        "action": "engineering_investigation"
+      }
+    ]
+  },
+  "traceability": {
+    "required_metadata": [
+      "module_serial_number",
+      "test_timestamp",
+      "test_operator",
+      "equipment_ids",
+      "irradiance",
+      "ambient_temperature",
+      "wind_speed",
+      "operating_mode",
+      "electrical_parameters"
+    ],
+    "linking": {
+      "el_imaging": {
+        "enabled": true,
+        "correlation_analysis": true
+      },
+      "iv_curve": {
+        "enabled": true,
+        "performance_correlation": true
+      },
+      "project_management": {
+        "enabled": true,
+        "pm_system": "ProjectTracker"
+      },
+      "lims_integration": {
+        "enabled": true,
+        "lims_system": "LabVantage"
+      }
+    }
+  },
+  "reporting": {
+    "automated_report_generation": true,
+    "report_templates": [
+      {
+        "template_id": "ir_summary_report",
+        "format": "PDF",
+        "sections": [
+          "test_metadata",
+          "thermal_image_composite",
+          "hotspot_summary",
+          "temperature_statistics",
+          "grading_result"
+        ]
+      },
+      {
+        "template_id": "ir_detailed_report",
+        "format": "PDF",
+        "sections": [
+          "test_metadata",
+          "environmental_conditions",
+          "thermal_images_annotated",
+          "hotspot_analysis_detailed",
+          "ai_ml_classification_results",
+          "recommendations"
+        ]
+      }
+    ]
+  },
+  "integration": {
+    "streamlit_ui": {
+      "enabled": true,
+      "dashboard_widgets": [
+        "real_time_thermal_preview",
+        "temperature_histogram",
+        "hotspot_counter",
+        "thermal_trend_chart"
+      ]
+    },
+    "api_endpoints": {
+      "start_test": "/api/v1/ir-thermography/start",
+      "get_status": "/api/v1/ir-thermography/status/{test_id}",
+      "get_results": "/api/v1/ir-thermography/results/{test_id}"
+    }
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "protocol_id": "PVTP-027",
+  "version": "1.0.0",
+  "name": "UV Fluorescence Imaging",
+  "category": "imaging",
+  "subcategory": "uv_fluorescence",
+  "description": "UV fluorescence imaging protocol for detecting encapsulant degradation, EVA browning precursors, and contamination through fluorescence emission analysis with AI/ML pattern recognition.",
+  "applicable_standards": [
+    "IEC 61215",
+    "IEC 61730",
+    "ASTM G173"
+  ],
+  "equipment_required": [
+    {
+      "id": "uv_light_source",
+      "name": "UV LED/Lamp Array",
+      "specifications": {
+        "wavelength": "365nm (UVA) or 254nm (UVC)",
+        "power": "≥20W",
+        "uniformity": "±10%",
+        "filter": "Bandpass 365±10nm"
+      }
+    },
+    {
+      "id": "fluorescence_camera",
+      "name": "UV-Sensitive Camera",
+      "specifications": {
+        "resolution": "≥12 MP",
+        "sensor": "Back-illuminated CMOS",
+        "quantum_efficiency_uv": "≥30% @ 400nm",
+        "uv_filter": "Longpass >400nm (blocks excitation)"
+      }
+    },
+    {
+      "id": "dark_chamber",
+      "name": "Light-Tight Enclosure",
+      "specifications": {
+        "ambient_light": "<0.01 lux",
+        "size": "Accommodate full module"
+      }
+    }
+  ],
+  "test_parameters": {
+    "uv_excitation": {
+      "wavelength": {
+        "type": "number",
+        "unit": "nm",
+        "default": 365,
+        "options": [254, 365],
+        "required": true
+      },
+      "exposure_time": {
+        "type": "number",
+        "unit": "seconds",
+        "default": 10,
+        "min": 1,
+        "max": 60
+      },
+      "uv_intensity": {
+        "type": "number",
+        "unit": "W/m²",
+        "default": 100,
+        "min": 50,
+        "max": 500
+      }
+    },
+    "camera_settings": {
+      "exposure": {
+        "type": "number",
+        "unit": "seconds",
+        "default": 5,
+        "min": 0.1,
+        "max": 30
+      },
+      "iso": {
+        "type": "number",
+        "default": 800,
+        "min": 100,
+        "max": 6400
+      }
+    }
+  },
+  "measurement_procedure": [
+    {
+      "step": 1,
+      "action": "setup_darkroom",
+      "description": "Position module in light-tight chamber"
+    },
+    {
+      "step": 2,
+      "action": "uv_illumination",
+      "description": "Apply UV excitation light"
+    },
+    {
+      "step": 3,
+      "action": "capture_fluorescence",
+      "description": "Capture fluorescence emission images"
+    },
+    {
+      "step": 4,
+      "action": "analyze_patterns",
+      "description": "AI/ML analysis of fluorescence patterns"
+    }
+  ],
+  "ai_ml_analysis": {
+    "models": [
+      {
+        "model_id": "uv_degradation_detector_v1",
+        "type": "classification",
+        "detectable_issues": [
+          "eva_browning_precursor",
+          "encapsulant_degradation",
+          "contamination",
+          "uv_damage"
+        ]
+      }
+    ]
+  },
+  "defect_classification": {
+    "eva_degradation": {
+      "indicators": [
+        "increased_fluorescence_intensity",
+        "yellow_green_emission",
+        "pattern_correlation_with_cells"
+      ],
+      "severity_levels": {
+        "minor": "Slight fluorescence increase, <10% intensity change",
+        "moderate": "Noticeable fluorescence, 10-30% intensity change",
+        "severe": "Strong fluorescence, >30% intensity change, visible browning"
+      }
+    }
+  },
+  "quality_control": {
+    "acceptance_criteria": {
+      "fluorescence_uniformity": {
+        "max_cv": 0.2,
+        "description": "Coefficient of variation <20%"
+      },
+      "degradation_indicators": {
+        "max_intensity_increase": 0.3,
+        "description": "Max 30% intensity increase vs baseline"
+      }
+    }
+  },
+  "traceability": {
+    "required_metadata": [
+      "module_serial_number",
+      "uv_wavelength",
+      "exposure_time",
+      "baseline_comparison"
+    ]
+  }
+}

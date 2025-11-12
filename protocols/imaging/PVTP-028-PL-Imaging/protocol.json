@@ -1,0 +1,143 @@
+{
+  "protocol_id": "PVTP-028",
+  "version": "1.0.0",
+  "name": "Photoluminescence (PL) Imaging",
+  "category": "imaging",
+  "subcategory": "photoluminescence",
+  "description": "Contact-free photoluminescence imaging for characterizing silicon wafer quality, detecting defects, and analyzing carrier lifetime without electrical contacts using laser/LED excitation.",
+  "applicable_standards": [
+    "SEMI PV2-0611",
+    "ASTM F28",
+    "IEC 60904-13"
+  ],
+  "equipment_required": [
+    {
+      "id": "excitation_source",
+      "name": "Laser/LED Illumination",
+      "specifications": {
+        "wavelength": "808nm or 940nm",
+        "power": "≥1W",
+        "uniformity": "±5%",
+        "modulation": "Optional for lifetime"
+      }
+    },
+    {
+      "id": "pl_camera",
+      "name": "Silicon CCD/InGaAs Camera",
+      "specifications": {
+        "resolution": "≥1024x1024",
+        "spectral_range": "900-1200nm",
+        "bit_depth": "≥12-bit",
+        "cooling": "Peltier or liquid"
+      }
+    },
+    {
+      "id": "optical_filters",
+      "name": "Bandpass Filter Set",
+      "specifications": {
+        "excitation_filter": "Blocks >850nm",
+        "emission_filter": "Longpass >1000nm"
+      }
+    }
+  ],
+  "test_parameters": {
+    "excitation": {
+      "wavelength": {
+        "type": "number",
+        "unit": "nm",
+        "default": 808,
+        "options": [808, 940],
+        "required": true
+      },
+      "power_density": {
+        "type": "number",
+        "unit": "W/cm²",
+        "default": 0.1,
+        "min": 0.01,
+        "max": 1.0
+      }
+    },
+    "imaging": {
+      "exposure_time": {
+        "type": "number",
+        "unit": "seconds",
+        "default": 1.0,
+        "min": 0.1,
+        "max": 30
+      },
+      "frame_averaging": {
+        "type": "integer",
+        "default": 4,
+        "min": 1,
+        "max": 16
+      }
+    }
+  },
+  "measurement_modes": [
+    {
+      "mode": "steady_state_pl",
+      "description": "Continuous excitation PL imaging",
+      "measures": [
+        "material_quality",
+        "defect_distribution",
+        "doping_uniformity"
+      ]
+    },
+    {
+      "mode": "time_resolved_pl",
+      "description": "Modulated excitation for lifetime mapping",
+      "measures": ["carrier_lifetime", "recombination_centers"]
+    }
+  ],
+  "image_processing": {
+    "corrections": [
+      "dark_frame_subtraction",
+      "flat_field_correction",
+      "excitation_intensity_normalization"
+    ],
+    "analysis": [
+      "lifetime_extraction",
+      "defect_segmentation",
+      "uniformity_assessment"
+    ]
+  },
+  "ai_ml_analysis": {
+    "models": [
+      {
+        "model_id": "pl_defect_detector_v1",
+        "type": "semantic_segmentation",
+        "architecture": "U-Net",
+        "detectable_defects": [
+          "grain_boundaries",
+          "dislocations",
+          "metallic_impurities",
+          "low_lifetime_regions"
+        ]
+      }
+    ]
+  },
+  "quality_metrics": {
+    "average_lifetime": {
+      "unit": "microseconds",
+      "typical_range": [1, 100]
+    },
+    "uniformity": {
+      "metric": "coefficient_of_variation",
+      "target": "<15%"
+    }
+  },
+  "applications": [
+    "Wafer quality assessment before cell processing",
+    "Cell quality after texturing/passivation",
+    "Module-level cell analysis (through glass)",
+    "Research and development material characterization"
+  ],
+  "traceability": {
+    "required_metadata": [
+      "wafer_id",
+      "excitation_wavelength",
+      "power_density",
+      "processing_stage"
+    ]
+  }
+}

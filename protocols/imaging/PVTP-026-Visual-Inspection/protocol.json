@@ -1,0 +1,211 @@
+{
+  "protocol_id": "PVTP-026",
+  "version": "1.0.0",
+  "name": "Visual Inspection Protocol (Cracks, Discoloration, Bubbles)",
+  "category": "imaging",
+  "subcategory": "visual_inspection",
+  "description": "Comprehensive automated visual inspection protocol using high-resolution imaging and computer vision AI/ML for detecting physical defects including cracks, discoloration, bubbles, delamination, and surface anomalies.",
+  "applicable_standards": [
+    "IEC 61215",
+    "IEC 61730",
+    "ASTM E2481",
+    "ISO 9001:2015"
+  ],
+  "equipment_required": [
+    {
+      "id": "inspection_camera",
+      "name": "High-Resolution Visual Camera",
+      "specifications": {
+        "resolution": "≥20 MP",
+        "sensor_size": "Full frame or APS-C",
+        "lens": "Macro capable, 24-70mm equiv",
+        "lighting": "Diffuse LED ring light"
+      }
+    },
+    {
+      "id": "microscope",
+      "name": "Digital Microscope (Optional)",
+      "specifications": {
+        "magnification": "20x-200x",
+        "resolution": "≥5 MP"
+      }
+    }
+  ],
+  "defect_types_detected": [
+    "cell_crack",
+    "glass_crack",
+    "discoloration",
+    "bubbles",
+    "delamination",
+    "scratches",
+    "chips",
+    "soiling",
+    "frame_damage",
+    "junction_box_damage",
+    "label_issues",
+    "connector_damage"
+  ],
+  "ai_ml_detection": {
+    "models": [
+      {
+        "model_id": "visual_defect_detector_v3",
+        "type": "object_detection",
+        "architecture": "YOLOv8",
+        "confidence_threshold": 0.7,
+        "detectable_defects": [
+          "cell_crack",
+          "glass_crack",
+          "discoloration",
+          "bubbles",
+          "delamination",
+          "scratches"
+        ]
+      },
+      {
+        "model_id": "surface_segmentation_v2",
+        "type": "semantic_segmentation",
+        "architecture": "U-Net++",
+        "output_classes": [
+          "clean_surface",
+          "discoloration",
+          "bubble",
+          "crack",
+          "delamination",
+          "foreign_object"
+        ]
+      }
+    ]
+  },
+  "inspection_procedure": [
+    {
+      "step": 1,
+      "zone": "front_surface",
+      "captures": ["full_module", "close_up_cells", "junction_box"],
+      "lighting": "diffuse_white",
+      "defect_focus": [
+        "cell_cracks",
+        "glass_cracks",
+        "discoloration",
+        "bubbles",
+        "scratches"
+      ]
+    },
+    {
+      "step": 2,
+      "zone": "rear_surface",
+      "captures": ["full_module", "junction_box", "connectors"],
+      "lighting": "diffuse_white",
+      "defect_focus": [
+        "backsheet_damage",
+        "delamination",
+        "bubbles",
+        "label_integrity"
+      ]
+    },
+    {
+      "step": 3,
+      "zone": "edges_frame",
+      "captures": ["four_edges", "corners", "frame"],
+      "lighting": "directional",
+      "defect_focus": ["frame_damage", "seal_integrity", "edge_chips"]
+    },
+    {
+      "step": 4,
+      "zone": "detailed_defects",
+      "captures": ["defect_close_ups"],
+      "lighting": "macro_ring_light",
+      "defect_focus": ["detailed_characterization"]
+    }
+  ],
+  "image_processing": {
+    "preprocessing": [
+      "color_correction",
+      "distortion_correction",
+      "white_balance",
+      "sharpening"
+    ],
+    "enhancement": [
+      "contrast_enhancement",
+      "edge_detection",
+      "texture_analysis"
+    ],
+    "analysis": [
+      "ml_defect_detection",
+      "color_space_analysis",
+      "pattern_matching",
+      "size_measurement"
+    ]
+  },
+  "defect_classification": {
+    "cell_crack": {
+      "severity_criteria": {
+        "minor": "Single hairline crack, <25mm, no propagation",
+        "moderate": "Multiple cracks or crack 25-50mm",
+        "severe": "Extensive cracking >50mm or cell isolation"
+      }
+    },
+    "discoloration": {
+      "severity_criteria": {
+        "minor": "Slight yellowing <5% area, ΔE<10",
+        "moderate": "Noticeable discoloration 5-15% area, ΔE 10-20",
+        "severe": "Severe browning >15% area, ΔE>20"
+      }
+    },
+    "bubbles": {
+      "severity_criteria": {
+        "minor": "Few small bubbles <5mm diameter, <5 count",
+        "moderate": "Multiple bubbles 5-10mm or count 5-15",
+        "severe": "Large bubbles >10mm or >15 count or over cells"
+      }
+    }
+  },
+  "quality_control": {
+    "acceptance_criteria": {
+      "critical_defects": {
+        "max_count": 0,
+        "types": ["severe_crack", "extensive_delamination", "safety_issue"]
+      },
+      "major_defects": {
+        "max_count": 2,
+        "types": [
+          "moderate_crack",
+          "moderate_discoloration",
+          "moderate_bubbles"
+        ]
+      },
+      "minor_defects": {
+        "max_count": 5,
+        "types": ["minor_crack", "minor_discoloration", "scratches"]
+      }
+    },
+    "automated_grading": {
+      "A": "No significant visible defects",
+      "B": "Minor defects only, cosmetic",
+      "C": "Some defects within acceptance limits",
+      "D": "Marginal, near rejection",
+      "F": "Reject, exceeds limits"
+    }
+  },
+  "traceability": {
+    "image_storage": {
+      "retention_years": 10,
+      "format": "RAW + JPEG",
+      "metadata_embedded": true
+    },
+    "linking": {
+      "el_imaging": true,
+      "ir_imaging": true,
+      "electrical_testing": true
+    }
+  },
+  "reporting": {
+    "automated_report": true,
+    "includes": [
+      "annotated_images",
+      "defect_map",
+      "severity_summary",
+      "grade",
+      "recommendations"
+    ]
+  }
+}

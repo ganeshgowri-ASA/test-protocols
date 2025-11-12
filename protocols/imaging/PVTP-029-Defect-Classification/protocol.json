@@ -1,0 +1,364 @@
+{
+  "protocol_id": "PVTP-029",
+  "version": "1.0.0",
+  "name": "Defect Classification & Severity Grading",
+  "category": "analysis",
+  "subcategory": "defect_classification",
+  "description": "Unified defect classification and severity grading framework integrating data from all imaging modalities (EL, IR, Visual, UV, PL) with AI/ML-powered decision making and automated quality assessment.",
+  "purpose": "Centralized defect taxonomy and grading system for consistent quality assessment across all test protocols",
+  "defect_taxonomy": {
+    "structural_defects": {
+      "categories": [
+        {
+          "name": "cell_crack",
+          "subtypes": [
+            "single_crack",
+            "multiple_cracks",
+            "dendritic_crack",
+            "corner_crack",
+            "edge_crack"
+          ],
+          "detection_methods": ["EL", "Visual", "PL"],
+          "severity_factors": [
+            "crack_length",
+            "crack_width",
+            "crack_orientation",
+            "electrical_isolation",
+            "impact_on_current_collection"
+          ]
+        },
+        {
+          "name": "glass_breakage",
+          "subtypes": [
+            "surface_crack",
+            "through_crack",
+            "chip",
+            "impact_damage"
+          ],
+          "detection_methods": ["Visual"],
+          "severity_factors": ["size", "depth", "location", "propagation_risk"]
+        },
+        {
+          "name": "delamination",
+          "subtypes": [
+            "cell_encapsulant",
+            "backsheet",
+            "frame_edge",
+            "junction_box"
+          ],
+          "detection_methods": ["Visual", "UV", "IR"],
+          "severity_factors": ["area", "location", "progression_rate"]
+        }
+      ]
+    },
+    "electrical_defects": {
+      "categories": [
+        {
+          "name": "inactive_cell_area",
+          "subtypes": [
+            "partial_cell_failure",
+            "complete_cell_failure",
+            "shunt",
+            "series_resistance"
+          ],
+          "detection_methods": ["EL", "IR", "PL"],
+          "severity_factors": [
+            "affected_area_percentage",
+            "power_loss",
+            "thermal_signature"
+          ]
+        },
+        {
+          "name": "interconnect_failure",
+          "subtypes": [
+            "finger_interruption",
+            "busbar_interruption",
+            "ribbon_detachment",
+            "solder_bond_failure"
+          ],
+          "detection_methods": ["EL", "IR"],
+          "severity_factors": [
+            "number_of_interruptions",
+            "resistance_increase",
+            "hotspot_presence"
+          ]
+        },
+        {
+          "name": "shunt",
+          "subtypes": [
+            "edge_shunt",
+            "junction_shunt",
+            "metallic_contamination"
+          ],
+          "detection_methods": ["EL", "IR"],
+          "severity_factors": [
+            "shunt_resistance",
+            "current_leakage",
+            "temperature_rise",
+            "safety_risk"
+          ]
+        }
+      ]
+    },
+    "thermal_defects": {
+      "categories": [
+        {
+          "name": "hotspot",
+          "subtypes": [
+            "cell_hotspot",
+            "bypass_diode_activation",
+            "junction_box_overheat",
+            "string_mismatch"
+          ],
+          "detection_methods": ["IR"],
+          "severity_factors": [
+            "temperature_delta",
+            "absolute_temperature",
+            "affected_area",
+            "persistence",
+            "safety_threshold"
+          ]
+        }
+      ]
+    },
+    "material_degradation": {
+      "categories": [
+        {
+          "name": "encapsulant_discoloration",
+          "subtypes": ["yellowing", "browning", "bubbles"],
+          "detection_methods": ["Visual", "UV"],
+          "severity_factors": [
+            "color_delta_e",
+            "affected_area",
+            "transmission_loss",
+            "degradation_rate"
+          ]
+        },
+        {
+          "name": "backsheet_degradation",
+          "subtypes": ["chalking", "cracking", "delamination"],
+          "detection_methods": ["Visual"],
+          "severity_factors": ["area", "depth", "insulation_integrity"]
+        }
+      ]
+    }
+  },
+  "severity_grading_system": {
+    "levels": [
+      {
+        "level": "critical",
+        "code": 5,
+        "description": "Immediate safety hazard or complete failure",
+        "criteria": [
+          "Junction box temperature >85°C",
+          "Complete cell string failure",
+          "Severe shunt with fire risk",
+          "Glass breakage compromising safety"
+        ],
+        "action": "Immediate shutdown and quarantine",
+        "nc_automatic": true
+      },
+      {
+        "level": "severe",
+        "code": 4,
+        "description": "Major defect causing significant performance loss",
+        "criteria": [
+          "Power loss >15%",
+          "Hotspot ΔT >25°C",
+          "Extensive cracking affecting multiple cells",
+          "Large inactive area >15% of cell"
+        ],
+        "action": "Reject or downgrade, investigation required",
+        "nc_automatic": true
+      },
+      {
+        "level": "moderate",
+        "code": 3,
+        "description": "Notable defect with measurable impact",
+        "criteria": [
+          "Power loss 5-15%",
+          "Hotspot ΔT 15-25°C",
+          "Multiple cracks or significant single crack",
+          "Inactive area 5-15% of cell"
+        ],
+        "action": "Document, monitor, may require investigation",
+        "nc_automatic": false
+      },
+      {
+        "level": "minor",
+        "code": 2,
+        "description": "Small defect with minimal impact",
+        "criteria": [
+          "Power loss <5%",
+          "Hotspot ΔT 10-15°C",
+          "Single small crack <25mm",
+          "Small inactive area <5%"
+        ],
+        "action": "Acceptable, monitor if persistent",
+        "nc_automatic": false
+      },
+      {
+        "level": "cosmetic",
+        "code": 1,
+        "description": "Visual imperfection, no functional impact",
+        "criteria": [
+          "Minor discoloration",
+          "Small surface scratches",
+          "Label imperfections"
+        ],
+        "action": "Acceptable, no action required",
+        "nc_automatic": false
+      }
+    ]
+  },
+  "multi_modal_fusion": {
+    "description": "Integrate defect data from multiple imaging modalities for comprehensive assessment",
+    "fusion_rules": [
+      {
+        "rule": "el_ir_crack_correlation",
+        "description": "Correlate EL-detected cracks with IR hotspots",
+        "severity_upgrade": "If crack shows thermal signature, upgrade severity by 1 level"
+      },
+      {
+        "rule": "visual_el_discoloration",
+        "description": "Correlate visual discoloration with EL intensity loss",
+        "severity_upgrade": "If discolored area shows EL reduction >10%, upgrade to moderate"
+      },
+      {
+        "rule": "uv_temporal_progression",
+        "description": "Track UV fluorescence changes over time",
+        "severity_upgrade": "If UV intensity increase >30% vs baseline, flag for investigation"
+      }
+    ],
+    "ai_ensemble": {
+      "enabled": true,
+      "method": "weighted_voting",
+      "models": [
+        "el_defect_detector",
+        "ir_anomaly_detector",
+        "visual_defect_detector"
+      ],
+      "confidence_threshold": 0.75
+    }
+  },
+  "grading_logic": {
+    "module_grade_calculation": {
+      "A": {
+        "description": "Excellent",
+        "criteria": {
+          "critical_defects": 0,
+          "severe_defects": 0,
+          "moderate_defects": 0,
+          "minor_defects": "≤2",
+          "power_loss": "<2%"
+        }
+      },
+      "B": {
+        "description": "Good",
+        "criteria": {
+          "critical_defects": 0,
+          "severe_defects": 0,
+          "moderate_defects": "≤1",
+          "minor_defects": "≤5",
+          "power_loss": "<5%"
+        }
+      },
+      "C": {
+        "description": "Acceptable",
+        "criteria": {
+          "critical_defects": 0,
+          "severe_defects": 0,
+          "moderate_defects": "≤2",
+          "minor_defects": "≤8",
+          "power_loss": "<10%"
+        }
+      },
+      "D": {
+        "description": "Marginal",
+        "criteria": {
+          "critical_defects": 0,
+          "severe_defects": "≤1",
+          "moderate_defects": "≤3",
+          "power_loss": "<15%"
+        }
+      },
+      "F": {
+        "description": "Fail",
+        "criteria": {
+          "critical_defects": "≥1",
+          "or_severe_defects": ">1",
+          "or_power_loss": "≥15%"
+        }
+      }
+    }
+  },
+  "automated_decision_making": {
+    "enabled": true,
+    "ml_classifier": {
+      "model_id": "unified_defect_grader_v2",
+      "architecture": "Gradient Boosting + Neural Network",
+      "inputs": [
+        "defect_counts_by_type",
+        "severity_distribution",
+        "spatial_distribution",
+        "electrical_impact",
+        "thermal_impact",
+        "historical_progression"
+      ],
+      "outputs": ["grade", "confidence", "justification", "recommendations"]
+    },
+    "override_capability": {
+      "enabled": true,
+      "requires": "engineer_approval",
+      "audit_trail": true
+    }
+  },
+  "reporting": {
+    "defect_summary_report": {
+      "sections": [
+        "executive_summary",
+        "defect_inventory",
+        "severity_distribution",
+        "multi_modal_analysis",
+        "grade_justification",
+        "recommendations",
+        "trend_analysis"
+      ]
+    }
+  },
+  "database_schema": {
+    "defect_record": {
+      "fields": [
+        "defect_id",
+        "module_serial",
+        "defect_type",
+        "defect_subtype",
+        "severity_level",
+        "detection_method",
+        "detection_timestamp",
+        "location_coordinates",
+        "bounding_box",
+        "area_pixels",
+        "area_mm2",
+        "confidence",
+        "ai_model_version",
+        "quantitative_metrics",
+        "associated_test_ids",
+        "reviewer_id",
+        "review_status",
+        "corrective_action"
+      ]
+    }
+  },
+  "integration": {
+    "qms_integration": {
+      "enabled": true,
+      "auto_nc_creation": ["critical", "severe"],
+      "workflow_triggers": true
+    },
+    "lims_integration": {
+      "enabled": true,
+      "data_sync": "real_time"
+    }
+  }
+}

@@ -1,0 +1,464 @@
+{
+  "protocol_id": "PVTP-031",
+  "version": "1.0.0",
+  "name": "Encapsulant Discoloration Measurement",
+  "category": "analysis",
+  "subcategory": "material_degradation",
+  "description": "Quantitative measurement and analysis of encapsulant discoloration (yellowing and browning) using colorimetric analysis, spectrophotometry, and AI/ML-based degradation prediction with correlation to optical transmission loss and power degradation.",
+  "applicable_standards": [
+    "IEC 61215",
+    "IEC 61730",
+    "ASTM D2244",
+    "ASTM E313",
+    "CIE L*a*b* color space"
+  ],
+  "purpose": "Quantify encapsulant degradation through precise color measurement, correlate with optical and electrical performance, and predict remaining lifetime",
+  "measurement_techniques": {
+    "methods": [
+      {
+        "method": "visual_colorimetry",
+        "description": "High-resolution color photography with calibrated lighting",
+        "equipment": "Color-calibrated camera + D65 illuminant",
+        "color_space": "CIE L*a*b*",
+        "accuracy": "ΔE < 2"
+      },
+      {
+        "method": "spectrophotometry",
+        "description": "Spectral reflectance/transmission measurement",
+        "equipment": "Spectrophotometer 380-780nm",
+        "resolution": "1-10nm",
+        "accuracy": "±0.3nm"
+      },
+      {
+        "method": "uv_fluorescence_correlation",
+        "description": "Correlate UV fluorescence with browning precursors",
+        "equipment": "UV imaging system",
+        "wavelength": "365nm excitation"
+      }
+    ]
+  },
+  "equipment_required": [
+    {
+      "id": "color_camera",
+      "name": "Calibrated Color Camera",
+      "specifications": {
+        "resolution": "≥24 MP",
+        "color_depth": "≥10-bit per channel",
+        "color_profile": "Adobe RGB or ProPhoto RGB",
+        "calibration": "X-Rite ColorChecker"
+      }
+    },
+    {
+      "id": "lighting_system",
+      "name": "Calibrated D65 Illuminant",
+      "specifications": {
+        "cct": "6504K ±200K",
+        "cri": "≥95",
+        "uniformity": "±3%",
+        "diffuse": true
+      }
+    },
+    {
+      "id": "spectrophotometer",
+      "name": "Portable Spectrophotometer",
+      "specifications": {
+        "range": "380-780nm",
+        "resolution": "10nm",
+        "measurement_geometry": "d/8° or 45°/0°"
+      }
+    },
+    {
+      "id": "color_reference",
+      "name": "White Reference Standard",
+      "specifications": {
+        "material": "BaSO4 or equivalent",
+        "reflectance": ">98%",
+        "calibration": "NIST traceable"
+      }
+    }
+  ],
+  "color_measurement": {
+    "color_spaces": [
+      {
+        "name": "CIE_LAB",
+        "description": "Perceptually uniform color space",
+        "components": {
+          "L": "Lightness (0=black, 100=white)",
+          "a": "Red-green axis (-a=green, +a=red)",
+          "b": "Blue-yellow axis (-b=blue, +b=yellow)"
+        },
+        "primary_use": "Color difference calculation (ΔE)"
+      },
+      {
+        "name": "CIE_XYZ",
+        "description": "Device-independent color representation",
+        "use": "Intermediate transformation"
+      },
+      {
+        "name": "Yellowness_Index",
+        "description": "ASTM E313 yellowness index",
+        "formula": "YI = 100 * (1.28 * X - 1.06 * Z) / Y",
+        "interpretation": "Higher values = more yellow"
+      }
+    ],
+    "delta_e_calculation": {
+      "methods": [
+        {
+          "method": "CIE76",
+          "formula": "ΔE*ab = sqrt((ΔL*)² + (Δa*)² + (Δb*)²)",
+          "use": "General color difference"
+        },
+        {
+          "method": "CIE94",
+          "description": "Weighted formula for textile industry",
+          "use": "Improved perceptual uniformity"
+        },
+        {
+          "method": "CIEDE2000",
+          "description": "Most advanced perceptual color difference",
+          "use": "Small color differences"
+        }
+      ],
+      "default_method": "CIEDE2000"
+    }
+  },
+  "discoloration_types": {
+    "categories": [
+      {
+        "type": "yellowing",
+        "description": "Early stage EVA oxidation",
+        "color_signature": {
+          "delta_b": "+5 to +20",
+          "delta_a": "0 to +5",
+          "delta_L": "-2 to -5"
+        },
+        "visual_appearance": "Slight yellow tint",
+        "transmission_loss": "2-5%",
+        "power_loss_correlation": "1-3%"
+      },
+      {
+        "type": "browning_light",
+        "description": "Moderate EVA degradation",
+        "color_signature": {
+          "delta_b": "+20 to +40",
+          "delta_a": "+5 to +15",
+          "delta_L": "-5 to -15"
+        },
+        "visual_appearance": "Noticeable brown tint",
+        "transmission_loss": "5-10%",
+        "power_loss_correlation": "3-7%"
+      },
+      {
+        "type": "browning_severe",
+        "description": "Advanced EVA degradation",
+        "color_signature": {
+          "delta_b": ">+40",
+          "delta_a": ">+15",
+          "delta_L": "<-15"
+        },
+        "visual_appearance": "Dark brown discoloration",
+        "transmission_loss": ">10%",
+        "power_loss_correlation": ">7%"
+      }
+    ]
+  },
+  "measurement_procedure": [
+    {
+      "step": 1,
+      "action": "setup_calibration",
+      "description": "Calibrate camera with ColorChecker and lighting",
+      "verification": "Check white balance and color accuracy"
+    },
+    {
+      "step": 2,
+      "action": "capture_reference",
+      "description": "Measure white reference standard",
+      "purpose": "Establish baseline for calculations"
+    },
+    {
+      "step": 3,
+      "action": "capture_module",
+      "description": "Photograph module front surface",
+      "settings": {
+        "format": "RAW",
+        "white_balance": "D65",
+        "exposure": "optimal for module surface"
+      }
+    },
+    {
+      "step": 4,
+      "action": "spot_measurements",
+      "description": "Take spectrophotometer readings at key locations",
+      "locations": [
+        "center_cells",
+        "edge_cells",
+        "most_discolored_area",
+        "least_discolored_area"
+      ],
+      "readings_per_location": 3
+    },
+    {
+      "step": 5,
+      "action": "image_processing",
+      "description": "Process images to extract color data",
+      "operations": [
+        "color_profile_conversion",
+        "flat_field_correction",
+        "region_segmentation",
+        "color_space_transformation"
+      ]
+    },
+    {
+      "step": 6,
+      "action": "color_analysis",
+      "description": "Calculate color metrics and discoloration parameters"
+    },
+    {
+      "step": 7,
+      "action": "ai_classification",
+      "description": "ML-based discoloration type and severity classification"
+    }
+  ],
+  "image_processing": {
+    "color_correction": [
+      {
+        "step": "raw_conversion",
+        "method": "LibRaw with linear processing"
+      },
+      {
+        "step": "color_profile_application",
+        "profile": "Custom camera profile from ColorChecker"
+      },
+      {
+        "step": "illuminant_correction",
+        "target": "D65 standard illuminant"
+      }
+    ],
+    "segmentation": [
+      {
+        "method": "ml_cell_segmentation",
+        "model": "cell_segmentation_unet",
+        "purpose": "Isolate individual cells for analysis"
+      },
+      {
+        "method": "discoloration_region_detection",
+        "algorithm": "Color clustering + ML",
+        "purpose": "Identify and segment discolored regions"
+      }
+    ],
+    "measurement_extraction": [
+      {
+        "metric": "per_cell_LAB_values",
+        "description": "Average L*a*b* for each cell"
+      },
+      {
+        "metric": "spatial_distribution",
+        "description": "Map of discoloration across module"
+      },
+      {
+        "metric": "delta_e_map",
+        "description": "Pixel-wise ΔE compared to reference"
+      }
+    ]
+  },
+  "ai_ml_analysis": {
+    "models": [
+      {
+        "model_id": "discoloration_classifier_v2",
+        "type": "multi_class_classification",
+        "architecture": "EfficientNet-B2",
+        "input": "Color image patch (224x224)",
+        "output_classes": [
+          "no_discoloration",
+          "yellowing_mild",
+          "yellowing_moderate",
+          "browning_light",
+          "browning_moderate",
+          "browning_severe"
+        ],
+        "performance": {
+          "accuracy": 0.89,
+          "f1_score": 0.87
+        }
+      },
+      {
+        "model_id": "discoloration_progression_predictor_v1",
+        "type": "regression",
+        "architecture": "Gradient Boosting",
+        "inputs": [
+          "current_delta_e",
+          "current_YI",
+          "module_age",
+          "climate_zone",
+          "installation_orientation",
+          "historical_progression"
+        ],
+        "outputs": [
+          "predicted_delta_e_1year",
+          "predicted_delta_e_5years",
+          "estimated_time_to_severe_browning"
+        ]
+      }
+    ]
+  },
+  "severity_classification": {
+    "thresholds": [
+      {
+        "level": "no_discoloration",
+        "criteria": {
+          "delta_e": "<3",
+          "YI": "<10",
+          "transmission_loss": "<2%"
+        },
+        "action": "Normal, no action"
+      },
+      {
+        "level": "minor_yellowing",
+        "criteria": {
+          "delta_e": "3-8",
+          "YI": "10-20",
+          "transmission_loss": "2-5%"
+        },
+        "action": "Monitor, acceptable"
+      },
+      {
+        "level": "moderate_yellowing",
+        "criteria": {
+          "delta_e": "8-15",
+          "YI": "20-35",
+          "transmission_loss": "5-8%"
+        },
+        "action": "Document, monitor progression"
+      },
+      {
+        "level": "light_browning",
+        "criteria": {
+          "delta_e": "15-25",
+          "YI": "35-50",
+          "transmission_loss": "8-12%"
+        },
+        "action": "Investigation recommended"
+      },
+      {
+        "level": "severe_browning",
+        "criteria": {
+          "delta_e": ">25",
+          "YI": ">50",
+          "transmission_loss": ">12%"
+        },
+        "action": "Likely warranty claim, detailed analysis"
+      }
+    ]
+  },
+  "correlation_analysis": {
+    "optical_transmission": {
+      "enabled": true,
+      "method": "Spectrophotometer transmission measurement",
+      "correlation": "Linear regression: Transmission_loss = f(ΔE, YI)"
+    },
+    "power_degradation": {
+      "enabled": true,
+      "data_source": "IV curve measurements",
+      "correlation": "Power_loss = f(ΔE, YI, age)",
+      "typical_correlation": "1% ΔE ≈ 0.3-0.5% power loss"
+    },
+    "el_intensity_correlation": {
+      "enabled": true,
+      "description": "Correlate discolored regions with EL intensity reduction",
+      "image_registration": "Feature-based alignment"
+    }
+  },
+  "spatial_analysis": {
+    "distribution_patterns": [
+      {
+        "pattern": "uniform",
+        "description": "Even discoloration across module",
+        "typical_cause": "Natural aging, uniform UV exposure"
+      },
+      {
+        "pattern": "edge_concentrated",
+        "description": "More discoloration at edges",
+        "typical_cause": "Moisture ingress, edge seal failure"
+      },
+      {
+        "pattern": "cell_localized",
+        "description": "Discoloration concentrated at specific cells",
+        "typical_cause": "Hotspot, local overheating"
+      },
+      {
+        "pattern": "streaking",
+        "description": "Linear discoloration patterns",
+        "typical_cause": "Encapsulant flow during lamination"
+      }
+    ]
+  },
+  "temporal_tracking": {
+    "enabled": true,
+    "description": "Track discoloration progression over time",
+    "recommended_frequency": "Annual or after significant events",
+    "metrics": [
+      "delta_e_progression_rate",
+      "yi_increase_rate",
+      "affected_area_growth",
+      "power_degradation_correlation"
+    ],
+    "alerts": {
+      "rapid_progression": "ΔE increase >5 per year",
+      "accelerating_degradation": "Progression rate increasing",
+      "approaching_threshold": "ΔE within 3 units of warranty limit"
+    }
+  },
+  "quality_control": {
+    "acceptance_criteria": {
+      "new_modules": {
+        "max_delta_e": 3,
+        "max_YI": 10,
+        "uniformity_cv": "<10%"
+      },
+      "field_modules": {
+        "warranty_threshold_delta_e": 20,
+        "critical_threshold_delta_e": 30
+      }
+    }
+  },
+  "reporting": {
+    "discoloration_report": {
+      "sections": [
+        "color_measurement_summary",
+        "discoloration_classification",
+        "spatial_distribution_map",
+        "temporal_progression_analysis",
+        "correlation_with_performance",
+        "lifetime_prediction",
+        "recommendations"
+      ],
+      "visualizations": [
+        "delta_e_heat_map",
+        "yellowness_index_map",
+        "progression_trend_chart",
+        "comparative_images"
+      ]
+    }
+  },
+  "database_integration": {
+    "stored_parameters": [
+      "lab_values_per_cell",
+      "delta_e_values",
+      "yellowness_index",
+      "discoloration_classification",
+      "affected_area_percentage",
+      "transmission_loss_estimate",
+      "power_loss_correlation",
+      "progression_rate"
+    ],
+    "historical_tracking": true,
+    "alert_system": true
+  },
+  "integration": {
+    "visual_inspection_protocol": "PVTP-026",
+    "uv_fluorescence_protocol": "PVTP-027",
+    "defect_classification_protocol": "PVTP-029",
+    "iv_curve_testing": "For power correlation",
+    "transmission_measurement": "For optical loss correlation"
+  }
+}

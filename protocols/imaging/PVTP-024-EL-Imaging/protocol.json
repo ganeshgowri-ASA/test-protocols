@@ -1,0 +1,810 @@
+{
+  "protocol_id": "PVTP-024",
+  "version": "1.0.0",
+  "name": "Electroluminescence (EL) Imaging - Pre/Post Test",
+  "category": "imaging",
+  "subcategory": "electroluminescence",
+  "description": "Comprehensive EL imaging protocol for detecting and analyzing solar cell and module defects through luminescence emission under forward bias current injection. Supports pre-test and post-test comparison analysis.",
+  "applicable_standards": [
+    "IEC 60904-13",
+    "IEC TS 60904-13",
+    "SEMI PV50-0611",
+    "ASTM E2667"
+  ],
+  "revision_history": [
+    {
+      "version": "1.0.0",
+      "date": "2025-11-12",
+      "author": "PV Test Protocol System",
+      "changes": "Initial protocol creation with full AI/ML integration"
+    }
+  ],
+  "equipment_required": [
+    {
+      "id": "el_camera",
+      "name": "EL Camera System",
+      "type": "Silicon CCD/InGaAs Camera",
+      "specifications": {
+        "resolution": "≥1024x1024 pixels",
+        "bit_depth": "≥12-bit",
+        "spectral_range": "900-1200 nm",
+        "cooling": "Required (Peltier or liquid)",
+        "quantum_efficiency": "≥60% @ 1000nm"
+      },
+      "calibration_required": true,
+      "calibration_interval_days": 180
+    },
+    {
+      "id": "current_source",
+      "name": "DC Current Source",
+      "type": "Programmable Power Supply",
+      "specifications": {
+        "current_range": "0-15 A",
+        "voltage_range": "0-50 V",
+        "accuracy": "±0.5%",
+        "stability": "±0.1%"
+      },
+      "calibration_required": true,
+      "calibration_interval_days": 365
+    },
+    {
+      "id": "darkroom",
+      "name": "Dark Room Environment",
+      "type": "Light-Controlled Chamber",
+      "specifications": {
+        "ambient_light": "<0.1 lux",
+        "temperature_control": "25±5°C",
+        "humidity_control": "<60% RH"
+      },
+      "calibration_required": false
+    },
+    {
+      "id": "lens_system",
+      "name": "Optical Lens System",
+      "type": "Fixed/Zoom Lens",
+      "specifications": {
+        "focal_length": "25-50mm",
+        "aperture": "f/1.4-f/2.8",
+        "transmission": ">90% @ 1000nm"
+      },
+      "calibration_required": true,
+      "calibration_interval_days": 365
+    }
+  ],
+  "test_parameters": {
+    "imaging_settings": {
+      "injection_current": {
+        "type": "number",
+        "unit": "A",
+        "description": "Forward bias current (typically 1x Isc)",
+        "default": 9.0,
+        "min": 0.5,
+        "max": 15.0,
+        "required": true,
+        "validation": "Must be within rated module current range"
+      },
+      "exposure_time": {
+        "type": "number",
+        "unit": "seconds",
+        "description": "Camera exposure duration",
+        "default": 5.0,
+        "min": 0.1,
+        "max": 60.0,
+        "required": true
+      },
+      "frame_averaging": {
+        "type": "integer",
+        "unit": "frames",
+        "description": "Number of frames to average for noise reduction",
+        "default": 4,
+        "min": 1,
+        "max": 16,
+        "required": true
+      },
+      "camera_gain": {
+        "type": "number",
+        "unit": "dB",
+        "description": "Camera sensor gain",
+        "default": 0.0,
+        "min": 0.0,
+        "max": 24.0,
+        "required": true
+      },
+      "dark_frame_subtraction": {
+        "type": "boolean",
+        "description": "Enable dark frame subtraction",
+        "default": true,
+        "required": true
+      },
+      "flat_field_correction": {
+        "type": "boolean",
+        "description": "Enable flat-field correction",
+        "default": true,
+        "required": true
+      }
+    },
+    "test_sequence": {
+      "type": "select",
+      "options": ["pre_test", "post_test", "standalone"],
+      "description": "Test sequence position",
+      "default": "pre_test",
+      "required": true
+    },
+    "module_position": {
+      "type": "select",
+      "options": ["horizontal", "vertical", "angled"],
+      "description": "Module orientation during imaging",
+      "default": "horizontal",
+      "required": true
+    },
+    "stabilization_time": {
+      "type": "number",
+      "unit": "seconds",
+      "description": "Current stabilization time before imaging",
+      "default": 30,
+      "min": 10,
+      "max": 300,
+      "required": true
+    }
+  },
+  "pre_test_requirements": {
+    "environmental_conditions": {
+      "temperature": {
+        "value": 25,
+        "tolerance": 5,
+        "unit": "°C",
+        "required": true
+      },
+      "humidity": {
+        "max": 60,
+        "unit": "%RH",
+        "required": true
+      },
+      "ambient_light": {
+        "max": 0.1,
+        "unit": "lux",
+        "required": true,
+        "critical": true
+      }
+    },
+    "module_preparation": [
+      "Clean module surface with approved cleaning solution",
+      "Remove any labels or obstructions from front surface",
+      "Allow module to stabilize at test temperature for 30 minutes",
+      "Verify electrical connections are secure",
+      "Record module serial number and position"
+    ],
+    "camera_preparation": [
+      "Verify camera cooling is operational",
+      "Capture dark frames with same settings as test",
+      "Verify lens focus and alignment",
+      "Check camera sensor temperature stabilization"
+    ],
+    "safety_checks": [
+      "Verify electrical isolation of test setup",
+      "Confirm emergency shutdown system operational",
+      "Ensure personnel safety equipment available",
+      "Verify current source current limit settings"
+    ]
+  },
+  "measurement_procedure": [
+    {
+      "step": 1,
+      "action": "module_positioning",
+      "description": "Position module in imaging fixture with secure electrical contacts",
+      "parameters": ["module_id", "position_coordinates"],
+      "duration_seconds": 60,
+      "verification_required": true
+    },
+    {
+      "step": 2,
+      "action": "dark_frame_capture",
+      "description": "Capture dark frame images with shutter closed or no illumination",
+      "parameters": ["exposure_time", "frame_averaging"],
+      "duration_seconds": 30,
+      "automated": true
+    },
+    {
+      "step": 3,
+      "action": "current_injection",
+      "description": "Apply forward bias current to module",
+      "parameters": ["injection_current"],
+      "duration_seconds": 5,
+      "automated": true,
+      "monitoring": ["current", "voltage", "stability"]
+    },
+    {
+      "step": 4,
+      "action": "stabilization_wait",
+      "description": "Wait for current and luminescence stabilization",
+      "parameters": ["stabilization_time"],
+      "duration_seconds": 30,
+      "automated": true,
+      "monitoring": ["current_stability", "temperature"]
+    },
+    {
+      "step": 5,
+      "action": "el_image_capture",
+      "description": "Capture EL images with specified settings",
+      "parameters": ["exposure_time", "frame_averaging", "camera_gain"],
+      "duration_seconds": 60,
+      "automated": true,
+      "output": ["raw_images", "averaged_image", "metadata"]
+    },
+    {
+      "step": 6,
+      "action": "current_removal",
+      "description": "Safely remove forward bias current",
+      "parameters": [],
+      "duration_seconds": 5,
+      "automated": true
+    },
+    {
+      "step": 7,
+      "action": "image_processing",
+      "description": "Apply corrections and process images",
+      "parameters": ["dark_frame_subtraction", "flat_field_correction"],
+      "duration_seconds": 30,
+      "automated": true,
+      "processing": ["dark_subtraction", "flat_field", "normalization"]
+    },
+    {
+      "step": 8,
+      "action": "defect_detection",
+      "description": "Run AI/ML defect detection algorithms",
+      "parameters": ["detection_sensitivity", "defect_types"],
+      "duration_seconds": 60,
+      "automated": true,
+      "ml_model": "el_defect_detector_v2"
+    },
+    {
+      "step": 9,
+      "action": "data_storage",
+      "description": "Store images and results in database with traceability",
+      "parameters": ["module_id", "test_sequence", "timestamp"],
+      "duration_seconds": 10,
+      "automated": true
+    }
+  ],
+  "image_processing": {
+    "corrections": [
+      {
+        "name": "dark_frame_subtraction",
+        "description": "Subtract dark current noise",
+        "required": true,
+        "parameters": {
+          "method": "pixel_wise_subtraction",
+          "outlier_rejection": true
+        }
+      },
+      {
+        "name": "flat_field_correction",
+        "description": "Correct for lens vignetting and sensor non-uniformity",
+        "required": true,
+        "parameters": {
+          "reference_image": "uniform_illumination",
+          "normalization": "median_based"
+        }
+      },
+      {
+        "name": "intensity_normalization",
+        "description": "Normalize intensity to injection current",
+        "required": true,
+        "parameters": {
+          "method": "current_normalized",
+          "reference_current": 9.0
+        }
+      }
+    ],
+    "enhancements": [
+      {
+        "name": "histogram_equalization",
+        "description": "Enhance contrast for defect visibility",
+        "optional": true,
+        "parameters": {
+          "method": "CLAHE",
+          "clip_limit": 2.0
+        }
+      },
+      {
+        "name": "noise_reduction",
+        "description": "Apply noise reduction filters",
+        "optional": true,
+        "parameters": {
+          "method": "bilateral_filter",
+          "sigma_spatial": 3.0,
+          "sigma_intensity": 50.0
+        }
+      }
+    ],
+    "analysis": [
+      {
+        "name": "defect_segmentation",
+        "description": "Segment defect regions from healthy cells",
+        "algorithm": "ml_semantic_segmentation",
+        "model": "el_segmentation_unet_v2"
+      },
+      {
+        "name": "intensity_distribution",
+        "description": "Analyze EL intensity distribution",
+        "metrics": ["mean", "std", "uniformity", "coefficient_of_variation"]
+      },
+      {
+        "name": "cell_analysis",
+        "description": "Individual cell-level analysis",
+        "features": ["mean_intensity", "dark_areas", "cracks", "shunts"]
+      }
+    ]
+  },
+  "ai_ml_defect_detection": {
+    "models": [
+      {
+        "model_id": "el_defect_detector_v2",
+        "type": "object_detection",
+        "architecture": "YOLOv8",
+        "framework": "PyTorch",
+        "input_size": [1024, 1024],
+        "confidence_threshold": 0.6,
+        "nms_threshold": 0.45,
+        "detectable_defects": [
+          "cell_crack",
+          "finger_interruption",
+          "busbar_interruption",
+          "inactive_area",
+          "shunt",
+          "dark_cell",
+          "corrosion",
+          "solder_bond_failure"
+        ]
+      },
+      {
+        "model_id": "el_segmentation_unet_v2",
+        "type": "semantic_segmentation",
+        "architecture": "U-Net",
+        "framework": "TensorFlow",
+        "input_size": [512, 512],
+        "output_classes": ["background", "healthy_cell", "defect", "crack", "inactive_area"],
+        "performance_metrics": {
+          "iou": 0.87,
+          "pixel_accuracy": 0.94
+        }
+      },
+      {
+        "model_id": "el_severity_classifier_v1",
+        "type": "classification",
+        "architecture": "EfficientNet-B3",
+        "framework": "PyTorch",
+        "input_size": [256, 256],
+        "output_classes": ["no_defect", "minor", "moderate", "severe", "critical"],
+        "performance_metrics": {
+          "accuracy": 0.91,
+          "f1_score": 0.89
+        }
+      }
+    ],
+    "ensemble_strategy": {
+      "enabled": true,
+      "method": "weighted_voting",
+      "weights": {
+        "el_defect_detector_v2": 0.4,
+        "el_segmentation_unet_v2": 0.35,
+        "el_severity_classifier_v1": 0.25
+      }
+    },
+    "post_processing": {
+      "min_defect_area": 100,
+      "min_defect_area_unit": "pixels",
+      "merge_nearby_defects": true,
+      "merge_distance_threshold": 50,
+      "filter_edge_detections": true
+    }
+  },
+  "defect_classification": {
+    "categories": [
+      {
+        "defect_type": "cell_crack",
+        "severity_levels": {
+          "minor": {
+            "description": "Single crack, no impact on cell EL intensity",
+            "criteria": "crack_length < 20mm AND intensity_reduction < 5%",
+            "action": "Monitor"
+          },
+          "moderate": {
+            "description": "Multiple cracks or crack with visible intensity reduction",
+            "criteria": "crack_length 20-50mm OR intensity_reduction 5-15%",
+            "action": "Document and monitor"
+          },
+          "severe": {
+            "description": "Extensive cracking with significant intensity reduction",
+            "criteria": "crack_length > 50mm OR intensity_reduction > 15%",
+            "action": "Module may fail - investigate further"
+          }
+        }
+      },
+      {
+        "defect_type": "finger_interruption",
+        "severity_levels": {
+          "minor": {
+            "description": "Single finger interruption, <10% of cell width",
+            "criteria": "affected_area < 10% AND no_dark_area",
+            "action": "Acceptable"
+          },
+          "moderate": {
+            "description": "Multiple finger interruptions or dark line visible",
+            "criteria": "affected_area 10-25% OR dark_line_visible",
+            "action": "Document"
+          },
+          "severe": {
+            "description": "Extensive finger damage with significant current loss",
+            "criteria": "affected_area > 25% OR multiple_dark_lines",
+            "action": "Reject or downgrade"
+          }
+        }
+      },
+      {
+        "defect_type": "inactive_area",
+        "severity_levels": {
+          "minor": {
+            "description": "Small inactive region, <5% of cell area",
+            "criteria": "inactive_area < 5% AND intensity < 20% of mean",
+            "action": "Monitor"
+          },
+          "moderate": {
+            "description": "Inactive region 5-15% of cell area",
+            "criteria": "inactive_area 5-15%",
+            "action": "Document and assess impact"
+          },
+          "severe": {
+            "description": "Large inactive area or complete cell failure",
+            "criteria": "inactive_area > 15% OR cell_completely_dark",
+            "action": "Module fail - reject"
+          }
+        }
+      },
+      {
+        "defect_type": "shunt",
+        "severity_levels": {
+          "minor": {
+            "description": "Small bright spot, limited current leakage",
+            "criteria": "shunt_area < 1mm² AND intensity < 150% of mean",
+            "action": "Monitor"
+          },
+          "moderate": {
+            "description": "Visible shunt with localized overheating potential",
+            "criteria": "shunt_area 1-5mm² OR intensity 150-200% of mean",
+            "action": "Cross-check with IR imaging"
+          },
+          "severe": {
+            "description": "Large or multiple shunts, safety concern",
+            "criteria": "shunt_area > 5mm² OR intensity > 200% of mean OR multiple_shunts",
+            "action": "Reject - safety hazard"
+          }
+        }
+      }
+    ]
+  },
+  "comparison_analysis": {
+    "enabled": true,
+    "comparison_types": [
+      {
+        "type": "pre_post_test",
+        "description": "Compare pre-test and post-test EL images",
+        "metrics": [
+          "new_defects_detected",
+          "defect_progression",
+          "intensity_change_map",
+          "correlation_coefficient",
+          "structural_similarity_index"
+        ],
+        "alignment": {
+          "method": "feature_based_registration",
+          "algorithm": "SIFT",
+          "tolerance": 5
+        }
+      },
+      {
+        "type": "temporal_analysis",
+        "description": "Track defect evolution over multiple tests",
+        "database_query": "module_serial_number",
+        "metrics": [
+          "defect_growth_rate",
+          "new_defect_formation",
+          "intensity_degradation"
+        ]
+      },
+      {
+        "type": "batch_comparison",
+        "description": "Compare modules within same production batch",
+        "metrics": [
+          "defect_frequency",
+          "typical_defect_patterns",
+          "batch_quality_score"
+        ]
+      }
+    ],
+    "difference_detection": {
+      "method": "ml_change_detection",
+      "model": "siamese_network_v1",
+      "min_difference_threshold": 0.05,
+      "spatial_registration_required": true
+    }
+  },
+  "quality_control": {
+    "acceptance_criteria": {
+      "overall_el_intensity": {
+        "min_relative_intensity": 0.7,
+        "description": "Minimum 70% of expected EL intensity"
+      },
+      "uniformity": {
+        "max_coefficient_variation": 0.15,
+        "description": "Cell-to-cell uniformity within 15%"
+      },
+      "critical_defects": {
+        "max_count": 0,
+        "types": ["severe_crack", "cell_failure", "severe_shunt"],
+        "description": "Zero critical defects allowed"
+      },
+      "major_defects": {
+        "max_count": 2,
+        "types": ["moderate_crack", "finger_interruption", "inactive_area"],
+        "description": "Maximum 2 major defects per module"
+      },
+      "minor_defects": {
+        "max_count": 5,
+        "types": ["minor_crack", "small_inactive_area"],
+        "description": "Maximum 5 minor defects per module"
+      }
+    },
+    "automated_grading": {
+      "enabled": true,
+      "grading_scale": {
+        "A": {
+          "description": "Excellent - No significant defects",
+          "criteria": "critical_defects = 0 AND major_defects = 0 AND minor_defects <= 2"
+        },
+        "B": {
+          "description": "Good - Minor defects only",
+          "criteria": "critical_defects = 0 AND major_defects <= 1 AND minor_defects <= 5"
+        },
+        "C": {
+          "description": "Acceptable - Some defects within limits",
+          "criteria": "critical_defects = 0 AND major_defects <= 2 AND minor_defects <= 8"
+        },
+        "D": {
+          "description": "Marginal - Defects near rejection limits",
+          "criteria": "critical_defects = 0 AND major_defects <= 3"
+        },
+        "F": {
+          "description": "Fail - Exceeds defect limits",
+          "criteria": "critical_defects > 0 OR major_defects > 3"
+        }
+      }
+    },
+    "review_requirements": {
+      "grade_F": {
+        "engineer_review": true,
+        "manager_approval": true,
+        "documentation": "full_report_with_images"
+      },
+      "grade_D": {
+        "engineer_review": true,
+        "documentation": "summary_with_key_images"
+      },
+      "grade_C_and_above": {
+        "auto_approve": true,
+        "documentation": "summary_only"
+      }
+    }
+  },
+  "non_conformance": {
+    "trigger_conditions": [
+      {
+        "condition": "critical_defect_detected",
+        "nc_type": "automatic",
+        "severity": "critical",
+        "action": "immediate_halt_and_quarantine"
+      },
+      {
+        "condition": "grade_F_result",
+        "nc_type": "automatic",
+        "severity": "major",
+        "action": "quarantine_and_investigation"
+      },
+      {
+        "condition": "comparison_shows_degradation > 20%",
+        "nc_type": "automatic",
+        "severity": "major",
+        "action": "investigation_required"
+      },
+      {
+        "condition": "grade_D_result",
+        "nc_type": "flagged",
+        "severity": "minor",
+        "action": "engineering_review"
+      }
+    ],
+    "nc_workflow": {
+      "creation": "automatic",
+      "notification": ["test_engineer", "qa_manager", "production_supervisor"],
+      "investigation_deadline_hours": 24,
+      "resolution_tracking": true,
+      "root_cause_analysis_required": true
+    }
+  },
+  "traceability": {
+    "required_metadata": [
+      "module_serial_number",
+      "module_manufacturer",
+      "module_model",
+      "production_date",
+      "production_batch",
+      "test_sequence_id",
+      "test_timestamp",
+      "test_operator",
+      "test_location",
+      "equipment_ids",
+      "calibration_status"
+    ],
+    "linking": {
+      "pre_post_test": {
+        "link_field": "module_serial_number",
+        "sequence_tracking": true
+      },
+      "project_management": {
+        "enabled": true,
+        "pm_system": "ProjectTracker",
+        "sync_fields": ["project_id", "work_order", "milestone"]
+      },
+      "lims_integration": {
+        "enabled": true,
+        "lims_system": "LabVantage",
+        "sample_id_mapping": "module_serial_number",
+        "auto_sync": true
+      },
+      "qms_integration": {
+        "enabled": true,
+        "qms_system": "ETQ",
+        "document_control": true,
+        "nc_sync": true
+      }
+    },
+    "data_retention": {
+      "raw_images": {
+        "retention_period_years": 10,
+        "storage_location": "archive_nas",
+        "compression": "lossless"
+      },
+      "processed_images": {
+        "retention_period_years": 15,
+        "storage_location": "primary_database"
+      },
+      "analysis_results": {
+        "retention_period_years": 25,
+        "storage_location": "primary_database",
+        "backup_frequency": "daily"
+      },
+      "metadata": {
+        "retention_period_years": 25,
+        "storage_location": "primary_database"
+      }
+    }
+  },
+  "reporting": {
+    "automated_report_generation": true,
+    "report_templates": [
+      {
+        "template_id": "el_summary_report",
+        "format": "PDF",
+        "sections": [
+          "test_metadata",
+          "el_image_preview",
+          "defect_summary",
+          "grading_result",
+          "acceptance_status"
+        ],
+        "auto_generate": true
+      },
+      {
+        "template_id": "el_detailed_report",
+        "format": "PDF",
+        "sections": [
+          "test_metadata",
+          "equipment_calibration",
+          "environmental_conditions",
+          "test_parameters",
+          "el_images_annotated",
+          "defect_analysis_detailed",
+          "comparison_analysis",
+          "ai_ml_detection_results",
+          "grading_justification",
+          "recommendations"
+        ],
+        "auto_generate": false,
+        "generation_trigger": ["grade_D_or_lower", "nc_raised"]
+      },
+      {
+        "template_id": "el_comparison_report",
+        "format": "PDF",
+        "sections": [
+          "test_metadata_pre_post",
+          "side_by_side_images",
+          "difference_map",
+          "defect_progression_analysis",
+          "degradation_metrics",
+          "conclusions"
+        ],
+        "auto_generate": true,
+        "generation_condition": "post_test_completed"
+      }
+    ],
+    "data_export": {
+      "formats": ["JSON", "CSV", "Excel", "XML"],
+      "include_images": true,
+      "image_formats": ["TIFF", "PNG", "JPEG"],
+      "api_access": true
+    }
+  },
+  "maintenance_calibration": {
+    "camera_calibration": {
+      "frequency_days": 180,
+      "procedure": "PVTP-CAL-001",
+      "verification": ["dark_noise_check", "linearity_test", "uniformity_test"]
+    },
+    "current_source_calibration": {
+      "frequency_days": 365,
+      "procedure": "PVTP-CAL-002",
+      "verification": ["current_accuracy", "stability_test"]
+    },
+    "lens_cleaning": {
+      "frequency_days": 30,
+      "procedure": "Check and clean lens surfaces",
+      "verification": ["visual_inspection", "transmission_test"]
+    }
+  },
+  "safety": {
+    "electrical_safety": [
+      "Verify proper grounding of all equipment",
+      "Use insulated tools for electrical connections",
+      "Implement current limiting for protection",
+      "Emergency shutdown button accessible"
+    ],
+    "personnel_safety": [
+      "Dark room exit clearly marked and illuminated",
+      "No direct viewing of EL emission (use camera only)",
+      "Electrical safety training required"
+    ]
+  },
+  "validation": {
+    "protocol_validation": {
+      "status": "validated",
+      "validation_date": "2025-11-12",
+      "validator": "PV Test Engineering Team",
+      "validation_report": "PVTP-024-VAL-R001"
+    },
+    "ai_model_validation": {
+      "test_dataset_size": 5000,
+      "validation_accuracy": 0.91,
+      "false_positive_rate": 0.05,
+      "false_negative_rate": 0.04,
+      "validation_report": "ML-VAL-EL-001"
+    }
+  },
+  "integration": {
+    "streamlit_ui": {
+      "enabled": true,
+      "dashboard_widgets": [
+        "real_time_el_preview",
+        "defect_counter",
+        "grading_meter",
+        "comparison_viewer",
+        "historical_trends"
+      ]
+    },
+    "api_endpoints": {
+      "start_test": "/api/v1/el-imaging/start",
+      "get_status": "/api/v1/el-imaging/status/{test_id}",
+      "get_results": "/api/v1/el-imaging/results/{test_id}",
+      "compare_tests": "/api/v1/el-imaging/compare"
+    }
+  }
+}

@@ -1,0 +1,395 @@
+{
+  "protocol": {
+    "id": "PVTP-049",
+    "version": "1.0.0",
+    "title": "Warranty Claim Testing & Documentation",
+    "category": "Quality Assurance",
+    "subcategory": "Warranty & Failure Analysis",
+    "status": "active",
+    "effective_date": "2025-01-15",
+    "revision_history": [
+      {
+        "version": "1.0.0",
+        "date": "2025-01-15",
+        "author": "PV Testing Lab",
+        "changes": "Initial protocol release"
+      }
+    ],
+    "description": "Comprehensive warranty claim validation protocol including failure analysis, evidence collection, and root cause determination",
+    "purpose": "To provide standardized methodology for evaluating warranty claims, documenting failures, and determining root cause for PV module defects",
+    "scope": "Module failure analysis, evidence preservation, root cause analysis, warranty validation testing",
+    "references": [
+      "IEC 61215",
+      "IEC 61730",
+      "IEC 62790 (Junction box safety)",
+      "ISO 17025",
+      "ASTM E2481 (PV defect analysis)"
+    ]
+  },
+  "test_parameters": {
+    "sample_requirements": {
+      "quantity": {
+        "value": "Variable",
+        "unit": "modules",
+        "notes": "Minimum 1 failed module, preferably 3-5 for statistical analysis"
+      },
+      "selection": "All claimed failed modules from warranty case",
+      "condition": "As-received from field",
+      "documentation": "Photos and field installation data required",
+      "preservation": "Maintain chain of custody"
+    },
+    "environmental_conditions": {
+      "laboratory": {
+        "temperature": {
+          "value": 23,
+          "unit": "°C",
+          "tolerance": 2
+        },
+        "humidity": {
+          "value": 50,
+          "unit": "%RH",
+          "tolerance": 10
+        }
+      },
+      "test_conditions": "Varies by test type"
+    },
+    "test_sequence": [
+      {
+        "step": 1,
+        "name": "Initial Documentation",
+        "activities": [
+          "Photographic documentation (6 sides)",
+          "Serial number recording",
+          "Visual inspection checklist",
+          "Damage mapping",
+          "As-received condition notes"
+        ],
+        "duration": "30 minutes per module"
+      },
+      {
+        "step": 2,
+        "name": "Non-Destructive Testing",
+        "activities": [
+          "Electroluminescence (EL) imaging",
+          "Infrared thermography",
+          "IV curve measurement",
+          "Insulation resistance testing",
+          "Ground continuity test"
+        ],
+        "duration": "2 hours per module"
+      },
+      {
+        "step": 3,
+        "name": "Visual Inspection",
+        "standards": "IEC 61215-2 MQT 01",
+        "magnification": "10x minimum",
+        "areas": [
+          "Cell cracks and microcracks",
+          "Discoloration and browning",
+          "Delamination",
+          "Backsheet damage",
+          "Junction box integrity",
+          "Frame and seal condition"
+        ]
+      },
+      {
+        "step": 4,
+        "name": "Electrical Characterization",
+        "tests": [
+          "Flash test (if possible)",
+          "Dark IV curve",
+          "Bypass diode testing",
+          "String resistance measurement",
+          "Potential induced degradation check"
+        ]
+      },
+      {
+        "step": 5,
+        "name": "Destructive Analysis (if required)",
+        "activities": [
+          "Laminate cross-sectioning",
+          "Cell extraction and testing",
+          "Encapsulant analysis",
+          "Backsheet adhesion testing",
+          "Solder joint inspection",
+          "Chemical analysis (if needed)"
+        ],
+        "authorization": "Requires customer approval"
+      },
+      {
+        "step": 6,
+        "name": "Root Cause Analysis",
+        "methodology": "5-Why analysis, Fishbone diagram",
+        "classification": [
+          "Manufacturing defect",
+          "Material defect",
+          "Design issue",
+          "Installation error",
+          "Environmental damage",
+          "Normal aging"
+        ]
+      },
+      {
+        "step": 7,
+        "name": "Warranty Determination",
+        "criteria": "Based on root cause and warranty terms",
+        "outcomes": ["Valid claim", "Invalid claim", "Partial coverage", "Requires further investigation"]
+      }
+    ]
+  },
+  "acceptance_criteria": {
+    "warranty_validity": {
+      "manufacturing_defect": {
+        "coverage": "Full warranty coverage",
+        "evidence_required": "Defect present at time of manufacture",
+        "exclusions": [
+          "Mechanical damage post-installation",
+          "Improper installation",
+          "Electrical overstress",
+          "Force majeure events"
+        ]
+      },
+      "material_defect": {
+        "coverage": "Full warranty coverage",
+        "evidence_required": "Material non-conformance or premature degradation"
+      },
+      "performance_degradation": {
+        "threshold": "Power output below warranty guarantee",
+        "measurement_uncertainty": "Account for ±3% measurement tolerance",
+        "normalization": "Adjust to STC conditions"
+      }
+    },
+    "failure_modes": {
+      "cell_cracks": {
+        "severity_levels": ["Minor", "Moderate", "Severe"],
+        "warranty_impact": "Based on power loss",
+        "classification": "Manufacturing vs. mechanical stress"
+      },
+      "discoloration": {
+        "types": ["EVA browning", "Cell discoloration", "Backsheet yellowing"],
+        "acceptance": "No warranty claim unless power loss exceeds threshold"
+      },
+      "delamination": {
+        "area_threshold": ">5% of module area",
+        "safety_concern": "Immediate warranty action",
+        "root_cause": "Manufacturing or material defect"
+      },
+      "hotspot": {
+        "temperature_threshold": ">15°C above average",
+        "warranty_action": "Replace if caused by manufacturing defect"
+      },
+      "junction_box_failure": {
+        "types": ["Cable damage", "Diode failure", "Connector issues"],
+        "warranty": "Full coverage for defects"
+      }
+    },
+    "power_output": {
+      "measurement_conditions": "STC or adjusted to STC",
+      "warranty_threshold": "Per manufacturer's warranty terms",
+      "typical": "80% of nameplate at 25 years",
+      "tolerance": "±3% measurement uncertainty"
+    }
+  },
+  "data_collection": {
+    "documentation": [
+      {
+        "type": "photographic",
+        "requirements": "High resolution (≥12 MP), all 6 sides, close-ups of defects",
+        "format": "JPEG or RAW",
+        "storage": "Permanent archive"
+      },
+      {
+        "type": "visual_inspection",
+        "checklist": "Standardized defect checklist",
+        "severity_rating": "1-5 scale per defect type"
+      },
+      {
+        "type": "EL_imaging",
+        "resolution": "≥50 µm/pixel",
+        "current_levels": ["0.1 Isc", "1.0 Isc"],
+        "analysis": "Automated crack detection"
+      },
+      {
+        "type": "IR_thermography",
+        "resolution": "≤100 mK temperature sensitivity",
+        "irradiance": "≥800 W/m²",
+        "conditions": "Outdoor or solar simulator"
+      },
+      {
+        "type": "electrical",
+        "measurements": [
+          "IV curve (full sweep)",
+          "Insulation resistance (≥50 MΩ required)",
+          "Ground continuity (<0.1 Ω required)",
+          "Bypass diode forward voltage"
+        ]
+      }
+    ],
+    "chain_of_custody": {
+      "tracking": "Serial number and case ID",
+      "documentation": "Receipt, storage, testing, disposal",
+      "security": "Controlled access laboratory"
+    },
+    "data_retention": "Minimum 10 years or warranty period + 2 years"
+  },
+  "analysis": {
+    "root_cause_methodology": {
+      "approach": "Systematic failure analysis",
+      "tools": [
+        "5-Why analysis",
+        "Fishbone (Ishikawa) diagram",
+        "Fault tree analysis",
+        "FMEA correlation"
+      ],
+      "evidence_hierarchy": [
+        "Physical evidence (highest)",
+        "Electrical measurements",
+        "Environmental data",
+        "Installation records",
+        "Circumstantial evidence (lowest)"
+      ]
+    },
+    "failure_classification": {
+      "categories": [
+        {
+          "type": "Design Defect",
+          "indicators": ["Systematic failure pattern", "Multiple units affected", "Early life failure"],
+          "warranty_action": "Full coverage"
+        },
+        {
+          "type": "Manufacturing Defect",
+          "indicators": ["Process variation", "Material contamination", "Assembly error"],
+          "warranty_action": "Full coverage"
+        },
+        {
+          "type": "Material Defect",
+          "indicators": ["Premature degradation", "Material property failure", "Supplier issue"],
+          "warranty_action": "Full coverage"
+        },
+        {
+          "type": "Installation Error",
+          "indicators": ["Mechanical damage", "Electrical overstress", "Improper mounting"],
+          "warranty_action": "No coverage"
+        },
+        {
+          "type": "Environmental",
+          "indicators": ["Lightning damage", "Hail damage", "Fire", "Vandalism"],
+          "warranty_action": "No coverage (insurance claim)"
+        },
+        {
+          "type": "Normal Wear",
+          "indicators": ["Age-appropriate degradation", "Within warranty spec"],
+          "warranty_action": "No action required"
+        }
+      ]
+    },
+    "power_loss_correlation": {
+      "method": "Correlate defect type and severity with measured power loss",
+      "statistical_analysis": "If multiple modules available",
+      "modeling": "Predict remaining useful life"
+    },
+    "comparative_analysis": {
+      "baseline": "Compare to new module from same production lot if available",
+      "field_data": "Compare to similar modules in same installation",
+      "degradation_rate": "Calculate actual vs. expected degradation"
+    }
+  },
+  "reporting": {
+    "deliverables": [
+      {
+        "name": "Warranty Claim Investigation Report",
+        "format": "PDF",
+        "sections": [
+          "Executive summary",
+          "Module identification and history",
+          "Visual inspection findings",
+          "Electrical test results",
+          "EL and IR imaging analysis",
+          "Root cause analysis",
+          "Warranty determination",
+          "Recommendations"
+        ],
+        "timeline": "10 business days from receipt"
+      },
+      {
+        "name": "Photographic Evidence Package",
+        "format": "ZIP file",
+        "contents": [
+          "As-received photos",
+          "Detail photos of defects",
+          "EL images",
+          "IR thermography images",
+          "Cross-section images (if applicable)"
+        ]
+      },
+      {
+        "name": "Test Data Package",
+        "format": "Excel + CSV",
+        "contents": [
+          "IV curve data",
+          "Electrical measurements",
+          "Insulation resistance log",
+          "Temperature profile data"
+        ]
+      },
+      {
+        "name": "Chain of Custody Record",
+        "format": "PDF",
+        "signatures": "Required at each transfer point"
+      }
+    ],
+    "charts": [
+      "IV curve comparison (failed vs. specification)",
+      "EL image progression",
+      "IR thermography analysis",
+      "Power degradation timeline",
+      "Defect severity mapping",
+      "Root cause fishbone diagram"
+    ],
+    "warranty_decision": {
+      "valid_claim": "Detailed evidence and replacement authorization",
+      "invalid_claim": "Clear explanation with supporting evidence",
+      "partial_claim": "Prorated coverage calculation",
+      "inconclusive": "Additional testing recommendations"
+    }
+  },
+  "quality_control": {
+    "testing_standards": {
+      "calibration": "All equipment calibrated per ISO 17025",
+      "traceability": "Measurements traceable to national standards",
+      "repeatability": "Multiple measurements for critical parameters"
+    },
+    "evidence_integrity": {
+      "photography": "Timestamped, unedited original files",
+      "data": "Raw data preserved, analysis documented",
+      "samples": "Secure storage, controlled access"
+    },
+    "review_process": {
+      "technical_review": "Senior engineer review required",
+      "peer_review": "Second opinion for borderline cases",
+      "customer_review": "Draft report review opportunity"
+    },
+    "dispute_resolution": {
+      "third_party_testing": "Independent lab verification option",
+      "arbitration": "Per warranty terms",
+      "documentation": "Complete record retention"
+    }
+  },
+  "integration": {
+    "warranty_management": {
+      "case_tracking": "Unique case ID assignment",
+      "status_updates": "Customer portal integration",
+      "automated_notifications": "At key milestones"
+    },
+    "lims": {
+      "sample_logging": "Automatic upon receipt",
+      "test_scheduling": "Workflow automation",
+      "data_capture": "Direct instrument integration"
+    },
+    "document_management": {
+      "template_control": "Version-controlled report templates",
+      "approval_workflow": "Multi-level approval",
+      "secure_storage": "Encrypted archive"
+    }
+  }
+}

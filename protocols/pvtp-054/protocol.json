@@ -1,0 +1,120 @@
+{
+  "protocol": {
+    "id": "PVTP-054",
+    "version": "1.0.0",
+    "title": "End-of-Life & Recycling Assessment",
+    "category": "Sustainability",
+    "subcategory": "Decommissioning & Recycling",
+    "status": "active",
+    "effective_date": "2025-01-15",
+    "revision_history": [{"version": "1.0.0", "date": "2025-01-15", "author": "PV Testing Lab", "changes": "Initial protocol release"}],
+    "description": "Comprehensive assessment of module decommissioning, material recovery potential, environmental impact, and recyclability",
+    "purpose": "To establish decommissioning protocols, evaluate material recovery potential, assess environmental impact, and score recyclability for circular economy integration",
+    "scope": "Decommissioning protocols, material recovery analysis, environmental impact, recyclability scoring",
+    "references": ["IEC TS 62635 (Recycling)", "WEEE Directive 2012/19/EU", "ISO 14040 (LCA)", "PV CYCLE standards", "IEC 62430"]
+  },
+  "test_parameters": {
+    "sample_requirements": {"quantity": {"value": 5, "unit": "modules"}, "condition": "End-of-life modules (20-30 years old preferred)", "variety": "Different technologies if possible"},
+    "decommissioning_protocol": {
+      "safety_assessment": ["Electrical isolation verification", "Structural integrity check", "Hazmat identification"],
+      "dismantling_sequence": ["Junction box removal", "Frame separation", "Glass removal", "Cell extraction", "Encapsulant removal"],
+      "time_tracking": "Document labor hours per step",
+      "tool_requirements": "Standard and specialized tools inventory"
+    },
+    "material_analysis": {
+      "components_to_separate": [
+        {"material": "glass", "target_purity": ">95%", "typical_mass_percent": 70},
+        {"material": "aluminum_frame", "target_purity": ">98%", "typical_mass_percent": 10},
+        {"material": "silicon_cells", "target_purity": ">90%", "typical_mass_percent": 5},
+        {"material": "copper", "target_purity": ">95%", "typical_mass_percent": 1},
+        {"material": "silver", "recovery_rate": ">80%", "typical_mass_percent": 0.1},
+        {"material": "encapsulant_EVA", "typical_mass_percent": 10},
+        {"material": "backsheet", "typical_mass_percent": 3},
+        {"material": "junction_box", "typical_mass_percent": 1}
+      ],
+      "separation_methods": ["Manual", "Thermal", "Chemical", "Mechanical"],
+      "purity_testing": "XRF or chemical analysis for key materials"
+    },
+    "test_sequence": [
+      {"step": 1, "name": "Initial Characterization", "tests": ["Weight measurement", "Dimensional verification", "Photographic documentation", "Residual power test"]},
+      {"step": 2, "name": "Safety Assessment", "tests": ["Insulation resistance", "Ground continuity", "Structural integrity", "Hazardous materials check"]},
+      {"step": 3, "name": "Dismantling & Separation", "process": ["Sequential disassembly", "Material segregation", "Weight recording per material"]},
+      {"step": 4, "name": "Material Recovery Analysis", "tests": ["Purity analysis", "Recovery rate calculation", "Contamination assessment"]},
+      {"step": 5, "name": "Value Assessment", "calculate": ["Material value", "Recovery cost", "Net value"]},
+      {"step": 6, "name": "Environmental Impact", "assess": ["Energy consumption", "Chemical usage", "Waste generation", "Carbon footprint"]}
+    ]
+  },
+  "acceptance_criteria": {
+    "safety": {"electrical_isolation": "0V verified", "hazmat_handling": "Per local regulations", "worker_safety": "PPE and procedures followed"},
+    "material_recovery": {
+      "glass": {"min_recovery": 90, "min_purity": 95, "unit": "%"},
+      "aluminum": {"min_recovery": 95, "min_purity": 98, "unit": "%"},
+      "silicon": {"min_recovery": 80, "min_purity": 90, "unit": "%"},
+      "copper": {"min_recovery": 90, "min_purity": 95, "unit": "%"},
+      "silver": {"min_recovery": 70, "unit": "%", "notes": "Economic driver"}
+    },
+    "process_efficiency": {"time_per_module": {"target": 30, "max": 60, "unit": "minutes"}, "yield": {"min": 85, "unit": "%", "definition": "Recovered mass / input mass"}},
+    "environmental_performance": {"energy_consumption": {"max": 50, "unit": "kWh/module"}, "waste_generation": {"max": 10, "unit": "% of input mass"}, "water_usage": {"max": 100, "unit": "L/module"}}
+  },
+  "data_collection": {
+    "measurements": [
+      {"parameter": "module_weight_total", "unit": "kg", "precision": 0.01},
+      {"parameter": "component_weights", "for_each": "material_type", "unit": "kg"},
+      {"parameter": "material_purity", "method": "XRF or chemical analysis", "unit": "%"},
+      {"parameter": "processing_time", "for_each": "step", "unit": "minutes"},
+      {"parameter": "energy_consumption", "method": "Power meter", "unit": "kWh"},
+      {"parameter": "chemical_usage", "for_each": "chemical", "unit": "L or kg"},
+      {"parameter": "waste_generated", "by_type": true, "unit": "kg"}
+    ],
+    "documentation": ["Before/after photos", "Process flow diagrams", "Material flow analysis", "Cost tracking"]
+  },
+  "analysis": {
+    "mass_balance": {"calculation": "Input mass = Σ(recovered materials) + waste + losses", "target_closure": ">95%"},
+    "recovery_efficiency": {"formula": "Recovered material mass / theoretical material mass * 100"},
+    "economic_analysis": {
+      "material_value": "Based on current commodity prices",
+      "processing_cost": "Labor + energy + chemicals + equipment depreciation",
+      "net_value": "Material value - processing cost",
+      "break_even_scale": "Required throughput for profitability"
+    },
+    "environmental_impact": {
+      "life_cycle_assessment": "ISO 14040 framework",
+      "carbon_footprint": "kg CO2e per module recycled",
+      "resource_conservation": "Primary material offset",
+      "circular_economy_score": "0-100 based on recovery rates and reuse potential"
+    },
+    "recyclability_scoring": {
+      "methodology": "IEC 62430",
+      "factors": ["Material separation ease", "Recovery rates", "Material purity", "Economic viability", "Environmental benefit"],
+      "weighting": [0.25, 0.25, 0.20, 0.15, 0.15],
+      "score_range": "0-100"
+    }
+  },
+  "reporting": {
+    "deliverables": [
+      {
+        "name": "End-of-Life Assessment Report",
+        "sections": ["Executive summary", "Decommissioning protocol", "Material recovery results", "Economic analysis", "Environmental impact assessment", "Recyclability score", "Recommendations"]
+      },
+      {
+        "name": "Material Recovery Certificate",
+        "format": "PDF",
+        "content": ["Module details", "Recovery rates by material", "Purity certifications", "Mass balance"]
+      }
+    ],
+    "charts": ["Material composition pie chart", "Recovery efficiency by material bar chart", "Cost-value comparison", "Process time breakdown", "Environmental impact spider chart", "Recyclability score card"]
+  },
+  "sustainability_metrics": {
+    "circular_economy_indicators": {
+      "material_circularity_index": "0-1 scale per Ellen MacArthur Foundation",
+      "virgin_material_offset": "kg of primary material avoided",
+      "landfill_diversion_rate": "% of module mass recovered",
+      "energy_payback_recycling": "Energy invested in recycling vs manufacturing savings"
+    },
+    "certification_potential": {
+      "cradle_to_cradle": "Material health and reutilization assessment",
+      "pv_cycle_compliance": "EU recycling directive compliance",
+      "extended_producer_responsibility": "Manufacturer responsibility assessment"
+    }
+  }
+}

@@ -1,0 +1,422 @@
+{
+  "protocol": {
+    "id": "PVTP-050",
+    "version": "1.0.0",
+    "title": "Comparative Module Testing (Multi-manufacturer)",
+    "category": "Performance Evaluation",
+    "subcategory": "Benchmarking & Comparison",
+    "status": "active",
+    "effective_date": "2025-01-15",
+    "revision_history": [
+      {
+        "version": "1.0.0",
+        "date": "2025-01-15",
+        "author": "PV Testing Lab",
+        "changes": "Initial protocol release"
+      }
+    ],
+    "description": "Standardized head-to-head performance comparison of PV modules from multiple manufacturers under identical test conditions",
+    "purpose": "To provide objective, statistically-valid comparison of module performance for procurement decisions and technology benchmarking",
+    "scope": "Multi-manufacturer performance comparison, statistical analysis, benchmarking framework, technology assessment",
+    "references": [
+      "IEC 61215",
+      "IEC 61853 series",
+      "ASTM E2236 (PV performance)",
+      "ISO/IEC 17025",
+      "NREL PV testing procedures"
+    ]
+  },
+  "test_parameters": {
+    "sample_requirements": {
+      "manufacturers": {
+        "minimum": 3,
+        "maximum": 10,
+        "notes": "At least 3 manufacturers for meaningful comparison"
+      },
+      "modules_per_manufacturer": {
+        "value": 6,
+        "unit": "modules",
+        "notes": "6 modules per manufacturer for statistical significance"
+      },
+      "selection_criteria": [
+        "Same nominal power rating (±5%)",
+        "Same technology type or mixed for technology comparison",
+        "Recent production (< 6 months old)",
+        "From single production lot per manufacturer"
+      ],
+      "preconditioning": {
+        "light_soaking": "5 kWh/m² at 25°C ±5°C",
+        "stabilization": "24 hours in controlled environment",
+        "verification": "Repeat flash test for stability confirmation"
+      }
+    },
+    "environmental_conditions": {
+      "temperature": {
+        "value": 25,
+        "unit": "°C",
+        "tolerance": 2,
+        "notes": "STC temperature for baseline comparison"
+      },
+      "humidity": {
+        "value": 50,
+        "unit": "%RH",
+        "tolerance": 10
+      },
+      "barometric_pressure": {
+        "value": 101.325,
+        "unit": "kPa",
+        "tolerance": 5,
+        "notes": "Record for altitude correction if needed"
+      }
+    },
+    "test_sequence": [
+      {
+        "step": 1,
+        "name": "Initial Characterization",
+        "duration": "1 day",
+        "tests": [
+          "Visual inspection per IEC 61215",
+          "Dimensional verification",
+          "Weight measurement",
+          "Initial flash test at STC"
+        ]
+      },
+      {
+        "step": 2,
+        "name": "Standard Test Conditions (STC)",
+        "standard": "IEC 60904-1",
+        "repetitions": 3,
+        "conditions": "1000 W/m², 25°C, AM1.5",
+        "measurements": [
+          "Full IV curve (100+ points)",
+          "Pmax, Voc, Isc, Vmpp, Impp, FF",
+          "Module temperature (4 points minimum)",
+          "Irradiance (reference cell)"
+        ]
+      },
+      {
+        "step": 3,
+        "name": "NOCT Testing",
+        "standard": "IEC 61215-2 MQT 01",
+        "conditions": {
+          "irradiance": 800,
+          "ambient_temp": 20,
+          "wind_speed": 1,
+          "mounting": "Open rack"
+        },
+        "duration": "Thermal equilibrium + 15 minutes"
+      },
+      {
+        "step": 4,
+        "name": "Temperature Coefficient Testing",
+        "standard": "IEC 60891",
+        "temperature_points": [15, 25, 50, 75],
+        "irradiance": 1000,
+        "parameters_measured": ["Pmax", "Voc", "Isc"]
+      },
+      {
+        "step": 5,
+        "name": "Low Irradiance Performance",
+        "irradiance_levels": [200, 400, 600, 800, 1000],
+        "temperature": 25,
+        "measurements": "Full IV curve at each level"
+      },
+      {
+        "step": 6,
+        "name": "Spectral Response",
+        "wavelength_range": [300, 1200],
+        "interval": 10,
+        "unit": "nm",
+        "optional": true
+      },
+      {
+        "step": 7,
+        "name": "Angle of Incidence",
+        "angles": [0, 30, 45, 60, 75],
+        "measurement": "Isc ratio",
+        "optional": true
+      },
+      {
+        "step": 8,
+        "name": "Statistical Analysis",
+        "methods": [
+          "ANOVA for mean differences",
+          "Post-hoc pairwise comparisons",
+          "Coefficient of variation",
+          "Performance ranking"
+        ]
+      }
+    ]
+  },
+  "acceptance_criteria": {
+    "data_quality": {
+      "measurement_repeatability": {
+        "pmax": "±1%",
+        "voc": "±0.5%",
+        "isc": "±1%",
+        "notes": "Within-module repeatability"
+      },
+      "module_uniformity": {
+        "coefficient_of_variation": "≤3%",
+        "notes": "Among modules from same manufacturer"
+      }
+    },
+    "statistical_significance": {
+      "minimum_sample_size": 6,
+      "confidence_level": 0.95,
+      "power": 0.80,
+      "effect_size": "5% power difference detectable"
+    },
+    "ranking_criteria": {
+      "stc_power": {
+        "weight": 0.30,
+        "normalization": "Nameplate power"
+      },
+      "low_light_performance": {
+        "weight": 0.20,
+        "metric": "Relative efficiency at 200 W/m²"
+      },
+      "temperature_coefficient": {
+        "weight": 0.15,
+        "metric": "Pmax temperature coefficient"
+      },
+      "efficiency": {
+        "weight": 0.15,
+        "metric": "Module efficiency at STC"
+      },
+      "uniformity": {
+        "weight": 0.10,
+        "metric": "Manufacturing consistency (CV)"
+      },
+      "value": {
+        "weight": 0.10,
+        "metric": "Performance per unit cost (if cost data available)"
+      }
+    }
+  },
+  "data_collection": {
+    "measurements": [
+      {
+        "parameter": "power_output",
+        "unit": "W",
+        "precision": 0.1,
+        "uncertainty": "±2%",
+        "method": "IV curve tracing"
+      },
+      {
+        "parameter": "voltage",
+        "unit": "V",
+        "precision": 0.01,
+        "uncertainty": "±0.5%"
+      },
+      {
+        "parameter": "current",
+        "unit": "A",
+        "precision": 0.001,
+        "uncertainty": "±1%"
+      },
+      {
+        "parameter": "module_temperature",
+        "unit": "°C",
+        "precision": 0.1,
+        "uncertainty": "±0.5°C",
+        "locations": 4,
+        "method": "PT100 RTD, back surface center of each quadrant"
+      },
+      {
+        "parameter": "irradiance",
+        "unit": "W/m²",
+        "precision": 1,
+        "uncertainty": "±2%",
+        "method": "Calibrated reference cell"
+      },
+      {
+        "parameter": "spectral_mismatch",
+        "calculation": "Per IEC 60904-7",
+        "requirement": "<5%"
+      }
+    ],
+    "metadata": [
+      "Test date and time",
+      "Operator identification",
+      "Equipment calibration dates",
+      "Environmental conditions",
+      "Module serial numbers",
+      "Batch/lot numbers"
+    ],
+    "data_retention": "10 years minimum"
+  },
+  "analysis": {
+    "statistical_methods": {
+      "descriptive_statistics": [
+        "Mean",
+        "Standard deviation",
+        "Coefficient of variation",
+        "Min/Max range",
+        "Median",
+        "95% confidence intervals"
+      ],
+      "comparative_tests": [
+        {
+          "test": "One-way ANOVA",
+          "purpose": "Compare mean power across manufacturers",
+          "assumptions": ["Normality", "Homogeneity of variance"]
+        },
+        {
+          "test": "Tukey HSD post-hoc",
+          "purpose": "Pairwise comparisons if ANOVA significant",
+          "adjustment": "Multiple comparison correction"
+        },
+        {
+          "test": "Kruskal-Wallis",
+          "purpose": "Non-parametric alternative if assumptions violated"
+        }
+      ],
+      "performance_metrics": [
+        "Normalized power output",
+        "Efficiency comparison",
+        "Temperature-corrected performance",
+        "Energy yield estimation"
+      ]
+    },
+    "benchmarking_framework": {
+      "baseline_establishment": "Module with highest mean STC power or industry average",
+      "performance_indices": [
+        {
+          "name": "Power Index",
+          "formula": "(Module_Pmax / Baseline_Pmax) * 100"
+        },
+        {
+          "name": "Efficiency Index",
+          "formula": "(Module_Efficiency / Baseline_Efficiency) * 100"
+        },
+        {
+          "name": "Low-Light Index",
+          "formula": "(Module_LowLight / Baseline_LowLight) * 100"
+        },
+        {
+          "name": "Temperature Robustness Index",
+          "formula": "100 - (|TempCoef_Pmax| / |Baseline_TempCoef| * 100)"
+        }
+      ],
+      "overall_score": "Weighted average of all indices per ranking criteria"
+    },
+    "outlier_detection": {
+      "method": "Grubbs test or modified Z-score",
+      "threshold": "3 standard deviations",
+      "action": "Flag for review, re-test if equipment error suspected"
+    },
+    "uncertainty_analysis": {
+      "method": "GUM (Guide to expression of Uncertainty in Measurement)",
+      "components": [
+        "Type A: Statistical (repeatability)",
+        "Type B: Systematic (calibration, environmental)"
+      ],
+      "reporting": "Expanded uncertainty at k=2 (95% confidence)"
+    }
+  },
+  "reporting": {
+    "deliverables": [
+      {
+        "name": "Comparative Performance Report",
+        "format": "PDF",
+        "sections": [
+          "Executive summary with ranking",
+          "Test methodology",
+          "Sample description",
+          "Results by manufacturer",
+          "Statistical analysis",
+          "Performance benchmarking",
+          "Conclusions and recommendations"
+        ]
+      },
+      {
+        "name": "Data Package",
+        "format": "Excel + CSV",
+        "contents": [
+          "Raw IV curves (all modules)",
+          "Calculated parameters",
+          "Statistical summary tables",
+          "Manufacturer comparison matrices"
+        ]
+      },
+      {
+        "name": "Executive Dashboard",
+        "format": "PDF/Interactive",
+        "visualizations": [
+          "Performance ranking chart",
+          "Box plots by manufacturer",
+          "Radar chart comparison",
+          "Statistical significance matrix"
+        ]
+      }
+    ],
+    "charts": [
+      "Power output box plots by manufacturer",
+      "IV curve overlays",
+      "Temperature coefficient comparison",
+      "Low irradiance performance curves",
+      "Efficiency distribution histograms",
+      "Performance index radar chart",
+      "Statistical significance heat map",
+      "Cost-performance scatter plot (if applicable)"
+    ],
+    "confidentiality": {
+      "options": [
+        "Full disclosure (all manufacturers named)",
+        "Anonymized (Manufacturer A, B, C)",
+        "Private (individual reports per manufacturer)"
+      ],
+      "recommendation": "Agree confidentiality terms before testing"
+    }
+  },
+  "quality_control": {
+    "randomization": {
+      "test_order": "Randomize module testing sequence",
+      "purpose": "Eliminate time-of-day or order effects",
+      "documentation": "Record actual test sequence"
+    },
+    "blinding": {
+      "operator_blinding": "Optional but recommended",
+      "method": "Cover labels, use code numbers",
+      "purpose": "Reduce operator bias"
+    },
+    "calibration_verification": {
+      "frequency": "Before and after test campaign",
+      "equipment": [
+        "Solar simulator (reference cells)",
+        "Temperature sensors",
+        "Multimeters/data acquisition",
+        "Irradiance sensors"
+      ],
+      "tolerance": "Within calibration specifications"
+    },
+    "environmental_monitoring": {
+      "continuous_logging": true,
+      "parameters": ["Temperature", "Humidity", "Pressure"],
+      "verification": "Stability within specifications during testing"
+    },
+    "inter-laboratory_comparison": {
+      "recommended": "For high-stakes procurements",
+      "method": "Send subset of modules to second accredited lab",
+      "acceptance": "Agreement within combined uncertainties"
+    }
+  },
+  "integration": {
+    "lims": {
+      "batch_management": "Track all modules by campaign",
+      "automated_data_import": "Direct from test equipment",
+      "statistical_analysis": "Integrated or API to R/Python"
+    },
+    "database": {
+      "benchmarking_database": "Historical comparison data",
+      "trend_analysis": "Technology improvement over time",
+      "manufacturer_profiles": "Historical performance records"
+    },
+    "procurement_integration": {
+      "scoring_export": "Format for procurement scoring systems",
+      "documentation": "Attach to bid evaluations",
+      "decision_support": "Performance-price optimization tools"
+    }
+  }
+}

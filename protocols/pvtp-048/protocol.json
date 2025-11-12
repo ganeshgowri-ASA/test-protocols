@@ -1,0 +1,323 @@
+{
+  "protocol": {
+    "id": "PVTP-048",
+    "version": "1.0.0",
+    "title": "Energy Rating & Bankability Assessment",
+    "category": "Financial & Performance",
+    "subcategory": "Bankability Analysis",
+    "status": "active",
+    "effective_date": "2025-01-15",
+    "revision_history": [
+      {
+        "version": "1.0.0",
+        "date": "2025-01-15",
+        "author": "PV Testing Lab",
+        "changes": "Initial protocol release"
+      }
+    ],
+    "description": "Comprehensive assessment of PV module energy rating and bankability for financial modeling and investment analysis",
+    "purpose": "To evaluate and certify PV module performance for financial institutions, investors, and project developers",
+    "scope": "Module energy yield prediction, degradation analysis, and bankability assessment",
+    "references": [
+      "IEC 61853 series",
+      "IEC 61215",
+      "IEC 61730",
+      "ASTM E2848",
+      "BNEF Tier 1 criteria"
+    ]
+  },
+  "test_parameters": {
+    "sample_requirements": {
+      "quantity": {
+        "value": 6,
+        "unit": "modules",
+        "notes": "Minimum 6 modules for statistical significance"
+      },
+      "selection": "Random sampling from production lot",
+      "preconditioning": "5 kWh/m² light soaking at 25°C ±5°C",
+      "marking": "Unique serial number tracking"
+    },
+    "environmental_conditions": {
+      "temperature_range": {
+        "min": 15,
+        "max": 75,
+        "unit": "°C",
+        "tolerance": 2
+      },
+      "humidity": {
+        "value": 45,
+        "unit": "%RH",
+        "tolerance": 10
+      },
+      "irradiance_levels": [200, 400, 600, 800, 1000],
+      "spectral_mismatch": "<5%"
+    },
+    "test_sequence": [
+      {
+        "step": 1,
+        "name": "Initial Flash Test",
+        "standard": "IEC 60904-1",
+        "conditions": "STC (1000 W/m², 25°C, AM1.5)"
+      },
+      {
+        "step": 2,
+        "name": "Low Irradiance Testing",
+        "irradiance_levels": [200, 400, 600],
+        "temperature": 25,
+        "duration": "30 minutes per level"
+      },
+      {
+        "step": 3,
+        "name": "Temperature Coefficient Testing",
+        "temperature_range": [15, 25, 50, 75],
+        "irradiance": 1000,
+        "duration": "20 minutes per temperature"
+      },
+      {
+        "step": 4,
+        "name": "Spectral Response Analysis",
+        "wavelength_range": [300, 1200],
+        "interval": 10,
+        "unit": "nm"
+      },
+      {
+        "step": 5,
+        "name": "Energy Matrix Development",
+        "conditions": "IEC 61853-1 matrix (6x6 minimum)",
+        "points": 36
+      },
+      {
+        "step": 6,
+        "name": "Degradation Analysis",
+        "method": "Accelerated aging correlation",
+        "duration": "Extended exposure modeling"
+      }
+    ]
+  },
+  "acceptance_criteria": {
+    "energy_rating": {
+      "pmax_stc": {
+        "tolerance": "±3%",
+        "nameplate": "required"
+      },
+      "low_light_performance": {
+        "at_200w": ">90%",
+        "at_400w": ">95%",
+        "relative_to_stc": true
+      },
+      "temperature_coefficients": {
+        "pmax": {
+          "typical": -0.4,
+          "max": -0.5,
+          "unit": "%/°C"
+        },
+        "voc": {
+          "typical": -0.3,
+          "max": -0.35,
+          "unit": "%/°C"
+        },
+        "isc": {
+          "typical": 0.05,
+          "max": 0.1,
+          "unit": "%/°C"
+        }
+      }
+    },
+    "bankability_factors": {
+      "manufacturer_tier": {
+        "minimum": "Tier 1",
+        "criteria": "BNEF classification"
+      },
+      "warranty_terms": {
+        "product": ">=12 years",
+        "performance": ">=25 years",
+        "linear_degradation": "<=0.55%/year"
+      },
+      "certifications": [
+        "IEC 61215",
+        "IEC 61730",
+        "UL 1703 or IEC 62804"
+      ],
+      "financial_stability": {
+        "years_operation": ">=5",
+        "production_capacity": ">=1 GW/year",
+        "balance_sheet": "Investment grade or equivalent"
+      }
+    },
+    "performance_ratio": {
+      "first_year": {
+        "min": 0.84,
+        "target": 0.86,
+        "unit": "decimal"
+      },
+      "year_25": {
+        "min": 0.80,
+        "target": 0.82,
+        "unit": "decimal"
+      }
+    }
+  },
+  "data_collection": {
+    "measurements": [
+      {
+        "parameter": "power_output",
+        "unit": "W",
+        "precision": 0.1,
+        "method": "IV curve tracing"
+      },
+      {
+        "parameter": "voltage",
+        "unit": "V",
+        "precision": 0.01,
+        "method": "Digital multimeter"
+      },
+      {
+        "parameter": "current",
+        "unit": "A",
+        "precision": 0.001,
+        "method": "Precision current sensor"
+      },
+      {
+        "parameter": "irradiance",
+        "unit": "W/m²",
+        "precision": 1,
+        "method": "Reference cell"
+      },
+      {
+        "parameter": "module_temperature",
+        "unit": "°C",
+        "precision": 0.1,
+        "method": "PT100 RTD"
+      },
+      {
+        "parameter": "spectral_response",
+        "unit": "A/W",
+        "precision": 0.001,
+        "wavelength_range": [300, 1200]
+      }
+    ],
+    "sampling_rate": {
+      "iv_curve": "10 ms per point",
+      "temperature": "1 Hz",
+      "irradiance": "1 Hz"
+    },
+    "data_retention": "25 years minimum"
+  },
+  "analysis": {
+    "energy_yield_modeling": {
+      "method": "IEC 61853-3",
+      "climate_zones": ["Hot-Dry", "Hot-Humid", "Temperate", "Cold"],
+      "orientation": "Multiple azimuth and tilt angles",
+      "shading_factors": "Included in analysis"
+    },
+    "degradation_modeling": {
+      "initial_degradation": "0-1 year LID analysis",
+      "linear_degradation": "Year 2-25 projection",
+      "confidence_interval": "95%",
+      "statistical_method": "Linear regression with outlier removal"
+    },
+    "financial_metrics": {
+      "lcoe_calculation": {
+        "method": "Levelized cost of energy",
+        "discount_rate": "Variable input",
+        "period": 25
+      },
+      "npv_calculation": {
+        "method": "Net present value",
+        "inputs": ["capex", "opex", "energy_price", "degradation"]
+      },
+      "irr_calculation": {
+        "method": "Internal rate of return",
+        "threshold": "Project-specific"
+      }
+    }
+  },
+  "reporting": {
+    "deliverables": [
+      {
+        "name": "Energy Rating Certificate",
+        "format": "PDF",
+        "template": "energy_rating_certificate.jinja2",
+        "sections": [
+          "Module specifications",
+          "STC performance",
+          "Energy matrix",
+          "Temperature coefficients",
+          "Low light performance",
+          "Energy yield projections"
+        ]
+      },
+      {
+        "name": "Bankability Assessment Report",
+        "format": "PDF",
+        "template": "bankability_report.jinja2",
+        "sections": [
+          "Executive summary",
+          "Manufacturer assessment",
+          "Product certifications",
+          "Performance analysis",
+          "Degradation projections",
+          "Financial modeling",
+          "Risk assessment",
+          "Recommendations"
+        ]
+      },
+      {
+        "name": "Data Package",
+        "format": "ZIP",
+        "contents": [
+          "Raw measurement data (CSV)",
+          "IV curves (all conditions)",
+          "Analysis spreadsheets",
+          "Calibration certificates",
+          "Test photographs"
+        ]
+      }
+    ],
+    "charts": [
+      "Power vs irradiance curves",
+      "Temperature coefficient plots",
+      "Energy yield by climate zone",
+      "25-year degradation projection",
+      "Performance ratio timeline",
+      "LCOE sensitivity analysis"
+    ]
+  },
+  "quality_control": {
+    "equipment_calibration": {
+      "solar_simulator": "Every 6 months",
+      "reference_cells": "Every 12 months",
+      "temperature_sensors": "Every 12 months",
+      "multimeters": "Every 12 months"
+    },
+    "measurement_uncertainty": {
+      "power": "±2%",
+      "voltage": "±0.5%",
+      "current": "±1%",
+      "temperature": "±0.5°C",
+      "irradiance": "±2%"
+    },
+    "round_robin_testing": {
+      "frequency": "Annual",
+      "participants": "Minimum 3 accredited labs",
+      "acceptance": "±3% agreement"
+    }
+  },
+  "integration": {
+    "lims": {
+      "sample_tracking": true,
+      "data_import": "Automatic",
+      "result_export": "Real-time"
+    },
+    "qms": {
+      "nc_generation": "Automatic on failure",
+      "approval_workflow": "Multi-level",
+      "document_control": "Version tracked"
+    },
+    "project_management": {
+      "milestone_tracking": true,
+      "resource_allocation": true,
+      "timeline_management": true
+    }
+  }
+}

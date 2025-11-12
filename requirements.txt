@@ -1,0 +1,99 @@
+# PV Testing Protocol Framework - Requirements
+# Python 3.9+
+
+# Core Framework
+streamlit>=1.31.0
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Visualization
+plotly>=5.18.0
+matplotlib>=3.7.0
+seaborn>=0.13.0
+
+# Data Analysis
+scipy>=1.11.0
+scikit-learn>=1.3.0
+statsmodels>=0.14.0
+
+# Database
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0
+sqlite3  # Built-in
+
+# API Framework
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+pydantic>=2.5.0
+
+# Graph Analysis
+networkx>=3.2.0
+
+# File Handling
+openpyxl>=3.1.0
+xlrd>=2.0.0
+python-docx>=1.1.0
+pypdf2>=3.0.0
+
+# Image Processing
+pillow>=10.2.0
+opencv-python>=4.9.0
+
+# Reporting
+jinja2>=3.1.3
+reportlab>=4.0.0
+weasyprint>=60.2
+
+# Notifications
+smtplib  # Built-in
+twilio>=8.10.0
+requests>=2.31.0
+
+# Cryptography & Security
+cryptography>=41.0.0
+hashlib  # Built-in
+pyjwt>=2.8.0
+
+# Date/Time
+python-dateutil>=2.8.2
+pytz>=2023.3
+
+# Configuration
+pyyaml>=6.0.1
+python-dotenv>=1.0.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-asyncio>=0.23.0
+
+# Code Quality
+black>=23.12.0
+flake8>=7.0.0
+mypy>=1.8.0
+pylint>=3.0.0
+
+# Documentation
+sphinx>=7.2.0
+sphinx-rtd-theme>=2.0.0
+myst-parser>=2.0.0
+
+# Logging
+loguru>=0.7.2
+
+# Task Queue (optional)
+celery>=5.3.0
+redis>=5.0.0
+
+# Monitoring (optional)
+prometheus-client>=0.19.0
+
+# Development Tools
+ipython>=8.20.0
+jupyter>=1.0.0
+notebook>=7.0.0
+
+# Utilities
+tqdm>=4.66.0
+click>=8.1.7
+colorama>=0.4.6

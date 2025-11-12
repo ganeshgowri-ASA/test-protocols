@@ -1,0 +1,193 @@
+{
+  "ui_configuration": {
+    "protocol_id": "PVTP-050",
+    "title": "Comparative Module Testing (Multi-manufacturer)",
+    "layout": "multi_page",
+    "theme": {
+      "primary_color": "#2E7D32",
+      "secondary_color": "#FFA726",
+      "background_color": "#FFFFFF",
+      "font_family": "Arial, sans-serif"
+    },
+    "pages": [
+      {
+        "id": "overview",
+        "title": "Overview",
+        "icon": "📊",
+        "components": [
+          {
+            "type": "header",
+            "content": "Comparative Module Testing",
+            "level": 1
+          },
+          {
+            "type": "info_box",
+            "style": "info",
+            "content": "Head-to-head performance comparison under standardized test conditions"
+          },
+          {
+            "type": "metrics_row",
+            "metrics": [
+              {"label": "Manufacturers", "value": "${manufacturer_count}"},
+              {"label": "Total Modules", "value": "${total_modules}"},
+              {"label": "Test Status", "value": "${test_status}"},
+              {"label": "Top Performer", "value": "${top_manufacturer}"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sample_registration",
+        "title": "Sample Registration",
+        "icon": "📝",
+        "components": [
+          {
+            "type": "form",
+            "id": "manufacturer_registration",
+            "title": "Register Manufacturers",
+            "repeatable": true,
+            "fields": [
+              {"name": "manufacturer_id", "label": "Manufacturer ID", "type": "text", "required": true},
+              {"name": "manufacturer_name", "label": "Manufacturer Name", "type": "text", "required": true},
+              {"name": "model", "label": "Model Number", "type": "text", "required": true},
+              {"name": "technology", "label": "Technology", "type": "select",
+               "options": ["Mono-Si", "Multi-Si", "PERC", "HJT", "TOPCon", "IBC"]},
+              {"name": "nameplate_power", "label": "Nameplate Power", "type": "number", "unit": "W"},
+              {"name": "module_count", "label": "Number of Modules", "type": "number", "min": 6}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "testing",
+        "title": "Testing",
+        "icon": "🔬",
+        "components": [
+          {
+            "type": "tabs",
+            "tabs": [
+              {
+                "id": "stc_testing",
+                "label": "STC Testing",
+                "components": [
+                  {
+                    "type": "data_editor",
+                    "id": "stc_measurements",
+                    "columns": [
+                      {"name": "manufacturer", "type": "text"},
+                      {"name": "serial_number", "type": "text"},
+                      {"name": "pmax", "type": "number", "unit": "W"},
+                      {"name": "voc", "type": "number", "unit": "V"},
+                      {"name": "isc", "type": "number", "unit": "A"},
+                      {"name": "fill_factor", "type": "number"}
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "low_irradiance",
+                "label": "Low Irradiance",
+                "components": [
+                  {
+                    "type": "data_editor",
+                    "id": "low_light_data",
+                    "columns": [
+                      {"name": "manufacturer", "type": "text"},
+                      {"name": "200w_performance", "type": "number", "unit": "%"},
+                      {"name": "400w_performance", "type": "number", "unit": "%"}
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "analysis",
+        "title": "Analysis",
+        "icon": "📈",
+        "components": [
+          {
+            "type": "button",
+            "label": "Run Statistical Analysis",
+            "action": "run_analysis",
+            "style": "primary"
+          },
+          {
+            "type": "chart",
+            "chart_type": "boxplot",
+            "data_source": "power_distribution",
+            "title": "Power Distribution by Manufacturer"
+          },
+          {
+            "type": "chart",
+            "chart_type": "radar",
+            "data_source": "performance_indices",
+            "title": "Performance Comparison"
+          }
+        ]
+      },
+      {
+        "id": "ranking",
+        "title": "Ranking",
+        "icon": "🏆",
+        "components": [
+          {
+            "type": "data_table",
+            "title": "Performance Ranking",
+            "data_source": "ranking_results"
+          },
+          {
+            "type": "chart",
+            "chart_type": "bar",
+            "data_source": "overall_scores",
+            "title": "Overall Performance Scores"
+          }
+        ]
+      },
+      {
+        "id": "report",
+        "title": "Report",
+        "icon": "📄",
+        "components": [
+          {
+            "type": "button",
+            "label": "Generate Report",
+            "action": "generate_report",
+            "style": "primary"
+          },
+          {
+            "type": "download_button",
+            "label": "Download Data Package",
+            "file_source": "data_package"
+          }
+        ]
+      }
+    ],
+    "sidebar": {
+      "show": true,
+      "components": [
+        {
+          "type": "progress_tracker",
+          "steps": [
+            {"id": "setup", "label": "Setup", "status": "${setup_status}"},
+            {"id": "testing", "label": "Testing", "status": "${testing_status}"},
+            {"id": "analysis", "label": "Analysis", "status": "${analysis_status}"},
+            {"id": "report", "label": "Report", "status": "${report_status}"}
+          ]
+        }
+      ]
+    },
+    "actions": {
+      "run_analysis": {
+        "endpoint": "/api/run_analysis",
+        "method": "POST"
+      },
+      "generate_report": {
+        "endpoint": "/api/generate_report",
+        "method": "POST"
+      }
+    }
+  }
+}

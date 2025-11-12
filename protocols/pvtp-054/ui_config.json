@@ -1,0 +1,76 @@
+{
+  "ui_configuration": {
+    "protocol_id": "PVTP-054",
+    "title": "End-of-Life & Recycling Assessment",
+    "layout": "multi_page",
+    "theme": {"primary_color": "#4CAF50", "secondary_color": "#8BC34A"},
+    "pages": [
+      {
+        "id": "overview",
+        "title": "Overview",
+        "icon": "♻️",
+        "components": [
+          {"type": "header", "content": "End-of-Life & Recycling Assessment"},
+          {"type": "metrics_row", "metrics": [
+            {"label": "Recovery Rate", "value": "${recovery_rate}", "unit": "%"},
+            {"label": "Recyclability Score", "value": "${recyclability_score}"},
+            {"label": "Net Value", "value": "${net_value}", "unit": "$"},
+            {"label": "Rating", "value": "${rating}"}
+          ]}
+        ]
+      },
+      {
+        "id": "decommissioning",
+        "title": "Decommissioning",
+        "icon": "🔧",
+        "components": [
+          {"type": "form", "id": "initial_characterization", "fields": [
+            {"name": "module_weight", "label": "Module Weight", "type": "number", "unit": "kg"},
+            {"name": "age_years", "label": "Module Age", "type": "number", "unit": "years"},
+            {"name": "residual_power", "label": "Residual Power", "type": "number", "unit": "W"}
+          ]},
+          {"type": "form", "id": "safety_checks", "fields": [
+            {"name": "insulation_test", "label": "Insulation Test", "type": "select", "options": ["Pass", "Fail"]},
+            {"name": "ground_continuity", "label": "Ground Continuity", "type": "select", "options": ["Pass", "Fail"]}
+          ]}
+        ]
+      },
+      {
+        "id": "material_recovery",
+        "title": "Material Recovery",
+        "icon": "📦",
+        "components": [
+          {"type": "data_editor", "id": "material_weights", "columns": [
+            {"name": "material", "type": "text"},
+            {"name": "weight_kg", "type": "number"},
+            {"name": "purity_percent", "type": "number"}
+          ]},
+          {"type": "chart", "chart_type": "pie", "data_source": "material_composition"}
+        ]
+      },
+      {
+        "id": "analysis",
+        "title": "Analysis",
+        "icon": "📊",
+        "components": [
+          {"type": "chart", "chart_type": "bar", "data_source": "recovery_by_material"},
+          {"type": "chart", "chart_type": "radar", "data_source": "recyclability_factors"},
+          {"type": "data_table", "data_source": "economic_analysis"}
+        ]
+      },
+      {
+        "id": "results",
+        "title": "Results",
+        "icon": "📄",
+        "components": [
+          {"type": "metric_cards", "metrics": [
+            {"label": "Overall Score", "value": "${overall_score}"},
+            {"label": "Rating", "value": "${rating}"},
+            {"label": "Profitable", "value": "${profitable}"}
+          ]},
+          {"type": "button", "label": "Generate Report", "action": "generate_report"}
+        ]
+      }
+    ]
+  }
+}

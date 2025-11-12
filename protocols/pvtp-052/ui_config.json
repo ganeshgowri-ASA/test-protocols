@@ -1,0 +1,45 @@
+{
+  "ui_configuration": {
+    "protocol_id": "PVTP-052",
+    "title": "Partial Shading Analysis",
+    "layout": "multi_page",
+    "theme": {"primary_color": "#FF6F00", "secondary_color": "#FFC107"},
+    "pages": [
+      {
+        "id": "overview",
+        "title": "Overview",
+        "icon": "🌓",
+        "components": [
+          {"type": "header", "content": "Partial Shading Analysis"},
+          {"type": "metrics_row", "metrics": [
+            {"label": "Patterns Tested", "value": "${patterns_tested}"},
+            {"label": "Hot Spots", "value": "${hotspots_detected}"},
+            {"label": "Overall Safe", "value": "${overall_safe}"}
+          ]}
+        ]
+      },
+      {
+        "id": "testing",
+        "title": "Testing",
+        "icon": "🔬",
+        "components": [
+          {"type": "form", "id": "shading_pattern", "fields": [
+            {"name": "pattern_type", "label": "Shading Pattern", "type": "select",
+             "options": ["single_cell", "cell_string", "corner", "bottom_row", "diagonal"]},
+            {"name": "shaded_cells", "label": "Number of Shaded Cells", "type": "number"}
+          ]},
+          {"type": "chart", "chart_type": "line", "data_source": "iv_curves", "title": "IV Curves"}
+        ]
+      },
+      {
+        "id": "results",
+        "title": "Results",
+        "icon": "📊",
+        "components": [
+          {"type": "data_table", "data_source": "power_loss_results"},
+          {"type": "chart", "chart_type": "bar", "data_source": "power_loss_by_pattern"}
+        ]
+      }
+    ]
+  }
+}

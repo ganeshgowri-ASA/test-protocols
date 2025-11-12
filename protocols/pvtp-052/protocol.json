@@ -1,0 +1,63 @@
+{
+  "protocol": {
+    "id": "PVTP-052",
+    "version": "1.0.0",
+    "title": "Partial Shading Analysis",
+    "category": "Performance Analysis",
+    "subcategory": "Shading & Mismatch Testing",
+    "status": "active",
+    "effective_date": "2025-01-15",
+    "revision_history": [{"version": "1.0.0", "date": "2025-01-15", "author": "PV Testing Lab", "changes": "Initial protocol release"}],
+    "description": "Comprehensive analysis of module performance under partial shading conditions including hot spot detection, bypass diode verification, and power loss quantification",
+    "purpose": "To evaluate module behavior under partial shading, verify bypass diode functionality, quantify power losses, and assess thermal safety",
+    "scope": "Hot spot detection, bypass diode verification, power loss quantification, shading pattern testing",
+    "references": ["IEC 61215-2 MQT 19", "IEC 61730", "UL 1703", "IEC 62804"]
+  },
+  "test_parameters": {
+    "sample_requirements": {"quantity": {"value": 3, "unit": "modules"}, "bypass_diodes": "All functional"},
+    "shading_patterns": [
+      {"pattern": "single_cell", "description": "One cell fully shaded", "percentage": 1.67},
+      {"pattern": "cell_string", "description": "Full cell string shaded", "percentage": 33.3},
+      {"pattern": "corner", "description": "Corner shading (progressive)", "percentage": 10},
+      {"pattern": "bottom_row", "description": "Bottom row of cells", "percentage": 16.7},
+      {"pattern": "diagonal", "description": "Diagonal pattern", "percentage": 25}
+    ],
+    "test_conditions": {
+      "irradiance_unshaded": {"value": 1000, "unit": "W/m²"},
+      "irradiance_shaded": {"value": 0, "unit": "W/m²", "notes": "Or specified partial value"},
+      "temperature": {"value": 25, "unit": "°C"}
+    },
+    "test_sequence": [
+      {"step": 1, "name": "Baseline (No Shading)", "tests": ["IV curve", "IR thermography"]},
+      {"step": 2, "name": "Shading Pattern Tests", "for_each_pattern": ["Apply shading", "IV curve", "IR thermography", "Hot spot detection"]},
+      {"step": 3, "name": "Bypass Diode Verification", "tests": ["Measure diode activation", "Verify current bypass"]},
+      {"step": 4, "name": "Power Loss Analysis", "calculate": ["Power loss per pattern", "Relative efficiency"]}
+    ]
+  },
+  "acceptance_criteria": {
+    "hot_spot": {"temperature_rise": {"max": 20, "unit": "°C", "above": "unshaded_cells"}, "absolute_temperature": {"max": 85, "unit": "°C"}},
+    "bypass_diode": {"activation": "Must activate when cell string shaded", "forward_voltage": {"max": 1.0, "unit": "V"}},
+    "power_loss": {"single_cell_shading": {"typical": 33, "max": 50, "unit": "%", "notes": "For 1/3 substring shaded"}, "multiple_cells": "Proportional to shaded area"},
+    "thermal_safety": {"no_damage": "No burns, delamination, or discoloration", "junction_box": {"max_temp": 90, "unit": "°C"}}
+  },
+  "data_collection": {
+    "measurements": [
+      {"parameter": "iv_curve", "for_each": "shading_pattern"},
+      {"parameter": "cell_temperatures", "method": "IR thermography", "resolution": "Per cell"},
+      {"parameter": "hot_spot_temperature", "if_detected": true},
+      {"parameter": "bypass_diode_voltage", "during": "shading"},
+      {"parameter": "power_output", "for_each": "pattern"}
+    ],
+    "ir_imaging": {"resolution": "≤100 mK", "frequency": "After thermal equilibrium each pattern"}
+  },
+  "analysis": {
+    "power_loss_calculation": {"method": "Compare to baseline", "formula": "(P_baseline - P_shaded) / P_baseline * 100"},
+    "hot_spot_detection": {"threshold": "Cell temp >20°C above average", "risk_assessment": "Based on temperature and duration"},
+    "bypass_diode_analysis": {"verify_activation": "Current path analysis", "voltage_drop": "Measure across diode"},
+    "shading_tolerance": {"rank_patterns": "By power loss", "identify_critical": "Patterns with >50% loss or hot spots"}
+  },
+  "reporting": {
+    "deliverables": [{"name": "Partial Shading Analysis Report", "sections": ["Executive summary", "Shading patterns tested", "Power loss analysis", "Hot spot assessment", "Bypass diode performance", "Safety evaluation"]}],
+    "charts": ["Power loss vs shading pattern", "IV curves overlay", "IR thermography images", "Hot spot temperature profiles", "Bypass diode activation map"]
+  }
+}

@@ -1,0 +1,954 @@
+{
+  "ui_configuration": {
+    "protocol_id": "PVTP-049",
+    "title": "Warranty Claim Testing & Documentation",
+    "layout": "multi_page",
+    "theme": {
+      "primary_color": "#D32F2F",
+      "secondary_color": "#FFA000",
+      "background_color": "#FFFFFF",
+      "font_family": "Arial, sans-serif"
+    },
+    "pages": [
+      {
+        "id": "overview",
+        "title": "Overview",
+        "icon": "📋",
+        "components": [
+          {
+            "type": "header",
+            "content": "Warranty Claim Investigation",
+            "level": 1
+          },
+          {
+            "type": "alert",
+            "severity": "warning",
+            "message": "This protocol is for warranty claim validation. Maintain chain of custody at all times."
+          },
+          {
+            "type": "metrics_row",
+            "metrics": [
+              {
+                "label": "Case Status",
+                "value": "${case_status}",
+                "delta": null
+              },
+              {
+                "label": "Claim Validity",
+                "value": "${claim_validity}",
+                "delta": null
+              },
+              {
+                "label": "Defects Found",
+                "value": "${defect_count}",
+                "delta": null
+              },
+              {
+                "label": "Safety Concern",
+                "value": "${safety_concern}",
+                "delta": null
+              }
+            ]
+          },
+          {
+            "type": "divider"
+          },
+          {
+            "type": "info_box",
+            "style": "info",
+            "content": "Complete all sections for thorough warranty investigation"
+          }
+        ]
+      },
+      {
+        "id": "case_setup",
+        "title": "Case Setup",
+        "icon": "📝",
+        "components": [
+          {
+            "type": "form",
+            "id": "case_information",
+            "title": "Case Information",
+            "fields": [
+              {
+                "name": "case_id",
+                "label": "Case ID",
+                "type": "text",
+                "required": true,
+                "auto_generated": true,
+                "placeholder": "Auto-generated on submission"
+              },
+              {
+                "name": "claim_date",
+                "label": "Claim Date",
+                "type": "date",
+                "required": true
+              },
+              {
+                "name": "claimed_issue",
+                "label": "Claimed Issue",
+                "type": "text_area",
+                "required": true,
+                "rows": 3
+              },
+              {
+                "name": "customer_name",
+                "label": "Customer/Installer",
+                "type": "text",
+                "required": true
+              }
+            ]
+          },
+          {
+            "type": "form",
+            "id": "module_information",
+            "title": "Module Information",
+            "fields": [
+              {
+                "name": "serial_number",
+                "label": "Serial Number",
+                "type": "text",
+                "required": true
+              },
+              {
+                "name": "manufacturer",
+                "label": "Manufacturer",
+                "type": "text",
+                "required": true
+              },
+              {
+                "name": "model",
+                "label": "Model Number",
+                "type": "text",
+                "required": true
+              },
+              {
+                "name": "nameplate_power",
+                "label": "Nameplate Power",
+                "type": "number",
+                "required": true,
+                "unit": "W"
+              },
+              {
+                "name": "manufacture_date",
+                "label": "Manufacture Date",
+                "type": "date"
+              },
+              {
+                "name": "installation_date",
+                "label": "Installation Date",
+                "type": "date",
+                "required": true
+              }
+            ]
+          },
+          {
+            "type": "form",
+            "id": "field_conditions",
+            "title": "Field Installation Details",
+            "fields": [
+              {
+                "name": "location",
+                "label": "Installation Location",
+                "type": "text",
+                "required": true
+              },
+              {
+                "name": "system_size",
+                "label": "System Size",
+                "type": "number",
+                "unit": "kW"
+              },
+              {
+                "name": "string_position",
+                "label": "String Position",
+                "type": "text"
+              },
+              {
+                "name": "tilt_angle",
+                "label": "Tilt Angle",
+                "type": "number",
+                "unit": "degrees"
+              },
+              {
+                "name": "azimuth",
+                "label": "Azimuth",
+                "type": "number",
+                "unit": "degrees"
+              }
+            ]
+          },
+          {
+            "type": "form",
+            "id": "receipt_documentation",
+            "title": "Receipt & Initial Documentation",
+            "fields": [
+              {
+                "name": "receipt_date",
+                "label": "Receipt Date",
+                "type": "date",
+                "required": true
+              },
+              {
+                "name": "packaging_condition",
+                "label": "Packaging Condition",
+                "type": "select",
+                "options": ["Good", "Fair", "Poor", "Damaged"]
+              },
+              {
+                "name": "visible_damage",
+                "label": "Visible Damage on Receipt",
+                "type": "text_area",
+                "rows": 2
+              },
+              {
+                "name": "field_photos_received",
+                "label": "Field Photos Received",
+                "type": "checkbox"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "documentation",
+        "title": "Photo Documentation",
+        "icon": "📸",
+        "components": [
+          {
+            "type": "header",
+            "content": "Photographic Evidence Collection",
+            "level": 2
+          },
+          {
+            "type": "alert",
+            "severity": "info",
+            "message": "Minimum 6 photos required (all 6 sides). Recommended: 12+ photos including close-ups"
+          },
+          {
+            "type": "tabs",
+            "tabs": [
+              {
+                "id": "module_photos",
+                "label": "Module Photos",
+                "components": [
+                  {
+                    "type": "file_uploader",
+                    "label": "Front (Glass Side)",
+                    "accept": [".jpg", ".jpeg", ".png", ".raw"],
+                    "multiple": true,
+                    "required": true
+                  },
+                  {
+                    "type": "file_uploader",
+                    "label": "Back (Backsheet Side)",
+                    "accept": [".jpg", ".jpeg", ".png", ".raw"],
+                    "multiple": true,
+                    "required": true
+                  },
+                  {
+                    "type": "file_uploader",
+                    "label": "All 4 Sides",
+                    "accept": [".jpg", ".jpeg", ".png", ".raw"],
+                    "multiple": true,
+                    "required": true
+                  },
+                  {
+                    "type": "file_uploader",
+                    "label": "Junction Box & Cables",
+                    "accept": [".jpg", ".jpeg", ".png", ".raw"],
+                    "multiple": true,
+                    "required": true
+                  }
+                ]
+              },
+              {
+                "id": "defect_photos",
+                "label": "Defect Details",
+                "components": [
+                  {
+                    "type": "file_uploader",
+                    "label": "Defect Close-ups",
+                    "accept": [".jpg", ".jpeg", ".png", ".raw"],
+                    "multiple": true,
+                    "help_text": "High resolution close-up photos of each identified defect"
+                  },
+                  {
+                    "type": "data_editor",
+                    "id": "photo_annotations",
+                    "columns": [
+                      {"name": "photo_id", "type": "text"},
+                      {"name": "description", "type": "text"},
+                      {"name": "defect_type", "type": "text"}
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "metric_cards",
+            "metrics": [
+              {
+                "label": "Photos Uploaded",
+                "value": "${photo_count}",
+                "threshold": {"min": 6}
+              },
+              {
+                "label": "Resolution",
+                "value": "${avg_resolution}",
+                "unit": "MP",
+                "threshold": {"min": 12}
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "visual_inspection",
+        "title": "Visual Inspection",
+        "icon": "🔍",
+        "components": [
+          {
+            "type": "header",
+            "content": "Detailed Visual Inspection",
+            "level": 2
+          },
+          {
+            "type": "form",
+            "id": "defect_checklist",
+            "title": "Defect Identification Checklist",
+            "fields": [
+              {
+                "name": "cell_cracks",
+                "label": "Cell Cracks",
+                "type": "select",
+                "options": ["Not Present", "Minor", "Moderate", "Severe"],
+                "required": true
+              },
+              {
+                "name": "cell_cracks_details",
+                "label": "Cell Crack Details",
+                "type": "text_area",
+                "conditional": {"cell_cracks": ["Minor", "Moderate", "Severe"]},
+                "rows": 2
+              },
+              {
+                "name": "discoloration",
+                "label": "Discoloration/Browning",
+                "type": "select",
+                "options": ["Not Present", "Minor", "Moderate", "Severe"],
+                "required": true
+              },
+              {
+                "name": "delamination",
+                "label": "Delamination",
+                "type": "select",
+                "options": ["Not Present", "Minor", "Moderate", "Severe"],
+                "required": true
+              },
+              {
+                "name": "delamination_area",
+                "label": "Delamination Area",
+                "type": "number",
+                "unit": "% of module",
+                "conditional": {"delamination": ["Minor", "Moderate", "Severe"]}
+              },
+              {
+                "name": "backsheet_damage",
+                "label": "Backsheet Damage",
+                "type": "select",
+                "options": ["Not Present", "Minor", "Moderate", "Severe"],
+                "required": true
+              },
+              {
+                "name": "junction_box",
+                "label": "Junction Box Condition",
+                "type": "select",
+                "options": ["Good", "Minor Issues", "Significant Damage", "Failed"],
+                "required": true
+              },
+              {
+                "name": "frame_condition",
+                "label": "Frame Condition",
+                "type": "select",
+                "options": ["Good", "Minor Damage", "Bent/Deformed", "Cracked"],
+                "required": true
+              },
+              {
+                "name": "glass_condition",
+                "label": "Glass Condition",
+                "type": "select",
+                "options": ["Good", "Soiled", "Scratched", "Cracked", "Broken"],
+                "required": true
+              },
+              {
+                "name": "other_defects",
+                "label": "Other Defects",
+                "type": "text_area",
+                "rows": 3
+              }
+            ]
+          },
+          {
+            "type": "alert",
+            "severity": "error",
+            "message": "Safety Concern Detected: Immediate attention required",
+            "conditional": "${safety_concern}"
+          }
+        ]
+      },
+      {
+        "id": "electrical_testing",
+        "title": "Electrical Testing",
+        "icon": "⚡",
+        "components": [
+          {
+            "type": "tabs",
+            "tabs": [
+              {
+                "id": "iv_curve",
+                "label": "IV Curve",
+                "components": [
+                  {
+                    "type": "file_uploader",
+                    "label": "Upload IV Curve Data",
+                    "accept": [".csv", ".xlsx"],
+                    "required": true
+                  },
+                  {
+                    "type": "chart",
+                    "chart_type": "line",
+                    "data_source": "iv_curve_data",
+                    "x_axis": "voltage",
+                    "y_axes": ["current", "power"],
+                    "title": "I-V and P-V Curves"
+                  },
+                  {
+                    "type": "metric_cards",
+                    "metrics": [
+                      {
+                        "label": "Pmax",
+                        "value": "${pmax}",
+                        "unit": "W"
+                      },
+                      {
+                        "label": "Voc",
+                        "value": "${voc}",
+                        "unit": "V"
+                      },
+                      {
+                        "label": "Isc",
+                        "value": "${isc}",
+                        "unit": "A"
+                      },
+                      {
+                        "label": "Fill Factor",
+                        "value": "${fill_factor}"
+                      },
+                      {
+                        "label": "Power Ratio",
+                        "value": "${power_ratio}",
+                        "unit": "%",
+                        "threshold": {"min": 80}
+                      },
+                      {
+                        "label": "Degradation",
+                        "value": "${degradation}",
+                        "unit": "%"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "insulation_test",
+                "label": "Insulation & Safety",
+                "components": [
+                  {
+                    "type": "form",
+                    "id": "insulation_measurements",
+                    "fields": [
+                      {
+                        "name": "insulation_resistance",
+                        "label": "Insulation Resistance",
+                        "type": "number",
+                        "required": true,
+                        "unit": "MΩ",
+                        "min": 0
+                      },
+                      {
+                        "name": "ground_continuity",
+                        "label": "Ground Continuity",
+                        "type": "number",
+                        "required": true,
+                        "unit": "Ω",
+                        "max": 0.1
+                      },
+                      {
+                        "name": "bypass_diode_test",
+                        "label": "Bypass Diode Test Result",
+                        "type": "select",
+                        "options": ["Pass", "Fail", "Not Tested"]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "alert",
+                    "severity": "error",
+                    "message": "SAFETY FAILURE: Insulation resistance below 50 MΩ minimum",
+                    "conditional": "${insulation_resistance} < 50"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "imaging",
+        "title": "Advanced Imaging",
+        "icon": "📷",
+        "components": [
+          {
+            "type": "tabs",
+            "tabs": [
+              {
+                "id": "el_imaging",
+                "label": "EL Imaging",
+                "components": [
+                  {
+                    "type": "file_uploader",
+                    "label": "Upload EL Images",
+                    "accept": [".jpg", ".png", ".tiff"],
+                    "multiple": true
+                  },
+                  {
+                    "type": "form",
+                    "id": "el_analysis",
+                    "fields": [
+                      {
+                        "name": "el_performed",
+                        "label": "EL Imaging Performed",
+                        "type": "checkbox",
+                        "required": true
+                      },
+                      {
+                        "name": "current_levels",
+                        "label": "Current Levels",
+                        "type": "text",
+                        "help_text": "e.g., 0.1 Isc, 1.0 Isc",
+                        "conditional": {"el_performed": true}
+                      },
+                      {
+                        "name": "cracks_detected",
+                        "label": "Cell Cracks Detected",
+                        "type": "checkbox",
+                        "conditional": {"el_performed": true}
+                      },
+                      {
+                        "name": "crack_count",
+                        "label": "Number of Cracked Cells",
+                        "type": "number",
+                        "conditional": {"cracks_detected": true}
+                      },
+                      {
+                        "name": "crack_severity",
+                        "label": "Crack Severity",
+                        "type": "select",
+                        "options": ["Minor", "Moderate", "Severe"],
+                        "conditional": {"cracks_detected": true}
+                      },
+                      {
+                        "name": "crack_pattern",
+                        "label": "Crack Pattern",
+                        "type": "select",
+                        "options": ["Parallel", "Dendritic", "Random", "Grid-aligned"],
+                        "conditional": {"cracks_detected": true}
+                      },
+                      {
+                        "name": "inactive_areas",
+                        "label": "Inactive Areas Detected",
+                        "type": "checkbox",
+                        "conditional": {"el_performed": true}
+                      },
+                      {
+                        "name": "inactive_percent",
+                        "label": "Inactive Area Percentage",
+                        "type": "number",
+                        "unit": "%",
+                        "conditional": {"inactive_areas": true}
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "ir_imaging",
+                "label": "IR Thermography",
+                "components": [
+                  {
+                    "type": "file_uploader",
+                    "label": "Upload IR Images",
+                    "accept": [".jpg", ".png", ".tiff"],
+                    "multiple": true
+                  },
+                  {
+                    "type": "form",
+                    "id": "ir_analysis",
+                    "fields": [
+                      {
+                        "name": "ir_performed",
+                        "label": "IR Thermography Performed",
+                        "type": "checkbox",
+                        "required": true
+                      },
+                      {
+                        "name": "average_temperature",
+                        "label": "Average Module Temperature",
+                        "type": "number",
+                        "unit": "°C",
+                        "conditional": {"ir_performed": true}
+                      },
+                      {
+                        "name": "max_temperature",
+                        "label": "Maximum Temperature",
+                        "type": "number",
+                        "unit": "°C",
+                        "conditional": {"ir_performed": true}
+                      },
+                      {
+                        "name": "hotspot_detected",
+                        "label": "Hotspot Detected",
+                        "type": "checkbox",
+                        "conditional": {"ir_performed": true}
+                      },
+                      {
+                        "name": "hotspot_severity",
+                        "label": "Hotspot Severity",
+                        "type": "select",
+                        "options": ["Minor", "Moderate", "Severe"],
+                        "conditional": {"hotspot_detected": true}
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "root_cause",
+        "title": "Root Cause Analysis",
+        "icon": "🔬",
+        "components": [
+          {
+            "type": "header",
+            "content": "Root Cause Determination",
+            "level": 2
+          },
+          {
+            "type": "form",
+            "id": "rca_form",
+            "fields": [
+              {
+                "name": "primary_root_cause",
+                "label": "Primary Root Cause",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "manufacturing_defect",
+                  "material_defect",
+                  "design_defect",
+                  "installation_error",
+                  "environmental_damage",
+                  "normal_wear",
+                  "electrical_overstress",
+                  "mechanical_stress"
+                ]
+              },
+              {
+                "name": "confidence_level",
+                "label": "Confidence Level",
+                "type": "slider",
+                "min": 0,
+                "max": 1,
+                "step": 0.05,
+                "required": true
+              },
+              {
+                "name": "evidence_sources",
+                "label": "Evidence Sources",
+                "type": "multi_select",
+                "options": [
+                  "Visual Inspection",
+                  "EL Imaging",
+                  "IR Thermography",
+                  "Electrical Testing",
+                  "Destructive Analysis",
+                  "Field Data"
+                ]
+              },
+              {
+                "name": "five_why_analysis",
+                "label": "5-Why Analysis",
+                "type": "text_area",
+                "rows": 5,
+                "help_text": "Document the 5-Why analysis chain"
+              },
+              {
+                "name": "preventive_actions",
+                "label": "Recommended Preventive Actions",
+                "type": "text_area",
+                "rows": 4
+              }
+            ]
+          },
+          {
+            "type": "chart",
+            "chart_type": "bar",
+            "data_source": "evidence_breakdown",
+            "title": "Evidence Weight by Source"
+          }
+        ]
+      },
+      {
+        "id": "warranty_determination",
+        "title": "Warranty Determination",
+        "icon": "✓",
+        "components": [
+          {
+            "type": "header",
+            "content": "Warranty Claim Determination",
+            "level": 2
+          },
+          {
+            "type": "alert",
+            "severity": "warning",
+            "message": "Ensure all testing is complete before making determination"
+          },
+          {
+            "type": "form",
+            "id": "warranty_terms",
+            "title": "Warranty Terms",
+            "fields": [
+              {
+                "name": "product_warranty_years",
+                "label": "Product Warranty",
+                "type": "number",
+                "required": true,
+                "unit": "years",
+                "default": 12
+              },
+              {
+                "name": "performance_warranty_years",
+                "label": "Performance Warranty",
+                "type": "number",
+                "required": true,
+                "unit": "years",
+                "default": 25
+              },
+              {
+                "name": "degradation_rate",
+                "label": "Warranted Degradation Rate",
+                "type": "number",
+                "required": true,
+                "unit": "%/year",
+                "default": 0.5
+              }
+            ]
+          },
+          {
+            "type": "button",
+            "label": "Calculate Warranty Determination",
+            "action": "calculate_warranty",
+            "style": "primary",
+            "size": "large"
+          },
+          {
+            "type": "divider"
+          },
+          {
+            "type": "metric_cards",
+            "metrics": [
+              {
+                "label": "Claim Validity",
+                "value": "${warranty_validity}",
+                "color_map": {
+                  "valid": "green",
+                  "invalid": "red"
+                }
+              },
+              {
+                "label": "Coverage Type",
+                "value": "${coverage_type}"
+              },
+              {
+                "label": "Confidence",
+                "value": "${determination_confidence}",
+                "unit": "%"
+              }
+            ]
+          },
+          {
+            "type": "data_table",
+            "title": "Determination Summary",
+            "data_source": "warranty_summary"
+          },
+          {
+            "type": "text_area",
+            "label": "Recommendation",
+            "value": "${warranty_recommendation}",
+            "readonly": true,
+            "rows": 4
+          }
+        ]
+      },
+      {
+        "id": "report",
+        "title": "Report",
+        "icon": "📄",
+        "components": [
+          {
+            "type": "header",
+            "content": "Investigation Report Generation",
+            "level": 2
+          },
+          {
+            "type": "alert",
+            "severity": "info",
+            "message": "Review all findings before generating final report"
+          },
+          {
+            "type": "form",
+            "id": "report_options",
+            "fields": [
+              {
+                "name": "report_sections",
+                "label": "Report Sections",
+                "type": "multi_select",
+                "options": [
+                  "Executive Summary",
+                  "Module Identification",
+                  "Visual Inspection",
+                  "Electrical Testing",
+                  "Advanced Imaging",
+                  "Root Cause Analysis",
+                  "Warranty Determination",
+                  "Recommendations",
+                  "Photo Evidence",
+                  "Test Data"
+                ],
+                "default": ["All"]
+              },
+              {
+                "name": "include_raw_data",
+                "label": "Include Raw Test Data",
+                "type": "checkbox",
+                "default": true
+              },
+              {
+                "name": "include_photos",
+                "label": "Include All Photos",
+                "type": "checkbox",
+                "default": true
+              },
+              {
+                "name": "report_format",
+                "label": "Report Format",
+                "type": "select",
+                "options": ["PDF", "PDF + Data Package", "Full Archive (ZIP)"],
+                "default": "PDF + Data Package"
+              }
+            ]
+          },
+          {
+            "type": "button",
+            "label": "Generate Report",
+            "action": "generate_report",
+            "style": "primary",
+            "size": "large"
+          },
+          {
+            "type": "divider"
+          },
+          {
+            "type": "report_preview",
+            "sections": [
+              "Executive Summary",
+              "Findings",
+              "Determination",
+              "Recommendations"
+            ]
+          },
+          {
+            "type": "download_button",
+            "label": "Download Report Package",
+            "file_source": "warranty_report_package"
+          }
+        ]
+      }
+    ],
+    "sidebar": {
+      "show": true,
+      "components": [
+        {
+          "type": "logo",
+          "image_path": "/assets/logo.png",
+          "alt_text": "PV Testing Lab"
+        },
+        {
+          "type": "info_panel",
+          "title": "Case Info",
+          "content": "${case_summary}"
+        },
+        {
+          "type": "progress_tracker",
+          "steps": [
+            {"id": "setup", "label": "Case Setup", "status": "${setup_status}"},
+            {"id": "documentation", "label": "Documentation", "status": "${docs_status}"},
+            {"id": "visual", "label": "Visual Inspection", "status": "${visual_status}"},
+            {"id": "electrical", "label": "Electrical", "status": "${electrical_status}"},
+            {"id": "imaging", "label": "Imaging", "status": "${imaging_status}"},
+            {"id": "rca", "label": "Root Cause", "status": "${rca_status}"},
+            {"id": "warranty", "label": "Determination", "status": "${warranty_status}"},
+            {"id": "report", "label": "Report", "status": "${report_status}"}
+          ]
+        },
+        {
+          "type": "alert",
+          "severity": "error",
+          "message": "Safety concern flagged!",
+          "conditional": "${safety_concern}"
+        }
+      ]
+    },
+    "actions": {
+      "calculate_warranty": {
+        "endpoint": "/api/calculate_warranty",
+        "method": "POST",
+        "success_message": "Warranty determination calculated",
+        "error_message": "Failed to calculate warranty determination"
+      },
+      "generate_report": {
+        "endpoint": "/api/generate_report",
+        "method": "POST",
+        "success_message": "Report generated successfully",
+        "error_message": "Failed to generate report"
+      },
+      "save_progress": {
+        "endpoint": "/api/save_progress",
+        "method": "POST",
+        "auto_save": true,
+        "interval": 300
+      }
+    },
+    "validation": {
+      "real_time": true,
+      "show_errors_inline": true,
+      "block_navigation_on_errors": false,
+      "chain_of_custody": true
+    }
+  }
+}

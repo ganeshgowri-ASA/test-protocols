@@ -1,0 +1,34 @@
+# Test Protocols Dashboard & Analytics Engine - Requirements
+# Core dependencies for the application
+
+# Streamlit - Main web framework
+streamlit==1.31.0
+
+# Data processing
+pandas==2.1.4
+numpy==1.24.3
+
+# Visualization
+plotly==5.18.0
+matplotlib==3.8.2
+
+# API framework
+flask==3.0.0
+flask-cors==4.0.0
+
+# Utilities
+python-dateutil==2.8.2
+
+# Development dependencies (optional)
+pytest==7.4.3
+black==23.12.1
+flake8==7.0.0
+
+# Documentation
+# sphinx==7.2.6  # Uncomment if building docs
+
+# Future enhancements
+# sqlalchemy==2.0.23  # For database integration
+# redis==5.0.1  # For caching
+# celery==5.3.4  # For background tasks
+# pytest-cov==4.1.0  # For test coverage

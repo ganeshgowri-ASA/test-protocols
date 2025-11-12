@@ -1,0 +1,303 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Protocol Execution Template (Enhanced with Workflow Metadata)",
+  "description": "Base template for all protocol executions with complete workflow traceability",
+  "type": "object",
+  "required": [
+    "protocol_id",
+    "protocol_name",
+    "execution_id",
+    "workflow_metadata"
+  ],
+  "properties": {
+    "protocol_id": {
+      "type": "string",
+      "description": "Unique protocol identifier (e.g., IEC-61215-1)"
+    },
+    "protocol_name": {
+      "type": "string",
+      "description": "Full protocol name"
+    },
+    "execution_id": {
+      "type": "string",
+      "description": "Unique execution identifier",
+      "pattern": "^PE-"
+    },
+    "standard_reference": {
+      "type": "string",
+      "description": "Standard reference (e.g., IEC 61215-1:2021)"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Module Testing",
+        "Safety Testing",
+        "Performance Testing",
+        "Degradation Testing",
+        "Environmental Testing"
+      ]
+    },
+    "workflow_metadata": {
+      "type": "object",
+      "required": ["service_request_id", "inspection_id"],
+      "description": "Workflow linkage and traceability metadata",
+      "properties": {
+        "service_request_id": {
+          "type": "string",
+          "description": "Link to originating service request",
+          "pattern": "^SR-"
+        },
+        "inspection_id": {
+          "type": "string",
+          "description": "Link to incoming inspection record",
+          "pattern": "^II-"
+        },
+        "work_order_id": {
+          "type": "string",
+          "description": "Associated work order ID",
+          "pattern": "^WO-"
+        },
+        "equipment_assigned": {
+          "type": "object",
+          "description": "Equipment allocation details",
+          "properties": {
+            "planning_id": {
+              "type": "string",
+              "pattern": "^EP-"
+            },
+            "equipment_list": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "equipment_id": {"type": "string"},
+                  "equipment_type": {"type": "string"},
+                  "calibration_status": {"type": "string"}
+                }
+              }
+            }
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Scheduled",
+            "In Progress",
+            "Completed",
+            "On Hold",
+            "Failed",
+            "Cancelled"
+          ],
+          "default": "Scheduled"
+        },
+        "stage_tracking": {
+          "type": "object",
+          "properties": {
+            "dispatched_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "started_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "completed_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "approvals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "stage": {"type": "string"},
+              "approved_by": {"type": "string"},
+              "approved_at": {"type": "string", "format": "date-time"},
+              "comments": {"type": "string"}
+            }
+          }
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "version": {
+          "type": "integer",
+          "description": "Version number for change tracking",
+          "default": 1
+        }
+      }
+    },
+    "test_configuration": {
+      "type": "object",
+      "description": "Test setup and configuration parameters",
+      "properties": {
+        "test_conditions": {
+          "type": "object",
+          "properties": {
+            "temperature_celsius": {"type": "number"},
+            "humidity_percent": {"type": "number"},
+            "irradiance_wm2": {"type": "number"},
+            "other_conditions": {"type": "object"}
+          }
+        },
+        "sample_information": {
+          "type": "object",
+          "properties": {
+            "sample_ids": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "sample_count": {"type": "integer"},
+            "sample_type": {"type": "string"}
+          }
+        },
+        "technician": {
+          "type": "object",
+          "properties": {
+            "name": {"type": "string"},
+            "employee_id": {"type": "string"},
+            "certification": {"type": "string"}
+          }
+        }
+      }
+    },
+    "test_procedure": {
+      "type": "object",
+      "description": "Detailed test procedure steps",
+      "properties": {
+        "procedure_steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "step_number": {"type": "integer"},
+              "step_description": {"type": "string"},
+              "status": {
+                "type": "string",
+                "enum": ["Pending", "In Progress", "Completed", "Skipped", "Failed"]
+              },
+              "timestamp": {"type": "string", "format": "date-time"},
+              "notes": {"type": "string"}
+            }
+          }
+        },
+        "deviations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "deviation_description": {"type": "string"},
+              "justification": {"type": "string"},
+              "approved_by": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "measurements": {
+      "type": "array",
+      "description": "Test measurements and data collection",
+      "items": {
+        "type": "object",
+        "properties": {
+          "measurement_id": {"type": "string"},
+          "parameter_name": {"type": "string"},
+          "value": {"type": "number"},
+          "unit": {"type": "string"},
+          "timestamp": {"type": "string", "format": "date-time"},
+          "instrument_id": {"type": "string"},
+          "operator": {"type": "string"}
+        }
+      }
+    },
+    "test_data": {
+      "type": "object",
+      "description": "Raw and processed test data",
+      "properties": {
+        "raw_data": {"type": "object"},
+        "processed_data": {"type": "object"},
+        "data_files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "file_name": {"type": "string"},
+              "file_path": {"type": "string"},
+              "file_type": {"type": "string"},
+              "checksum": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "results": {
+      "type": "object",
+      "required": ["overall_result"],
+      "properties": {
+        "overall_result": {
+          "type": "string",
+          "enum": ["Pass", "Fail", "Conditional Pass", "Incomplete"]
+        },
+        "pass_fail_criteria": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "criterion": {"type": "string"},
+              "required_value": {"type": "string"},
+              "actual_value": {"type": "string"},
+              "result": {"type": "string", "enum": ["Pass", "Fail"]}
+            }
+          }
+        },
+        "analysis_complete": {"type": "boolean"},
+        "report_generated": {"type": "boolean"}
+      }
+    },
+    "quality_control": {
+      "type": "object",
+      "properties": {
+        "reviewed_by": {"type": "string"},
+        "reviewed_at": {"type": "string", "format": "date-time"},
+        "qc_status": {
+          "type": "string",
+          "enum": ["Pending Review", "Approved", "Rejected", "Needs Correction"]
+        },
+        "qc_comments": {"type": "string"}
+      }
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "attachment_id": {"type": "string"},
+          "file_name": {"type": "string"},
+          "file_path": {"type": "string"},
+          "file_type": {"type": "string"},
+          "description": {"type": "string"},
+          "uploaded_at": {"type": "string", "format": "date-time"}
+        }
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": {"type": "string", "format": "date-time"},
+          "author": {"type": "string"},
+          "note": {"type": "string"},
+          "category": {"type": "string"}
+        }
+      }
+    }
+  }
+}

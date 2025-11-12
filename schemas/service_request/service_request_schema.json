@@ -1,0 +1,293 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Service Request Form",
+  "description": "Comprehensive service request form for PV testing protocols with complete traceability",
+  "type": "object",
+  "required": [
+    "request_id",
+    "request_date",
+    "requested_by",
+    "project_customer",
+    "protocols_requested",
+    "sample_details",
+    "priority"
+  ],
+  "properties": {
+    "request_id": {
+      "type": "string",
+      "description": "Unique service request identifier (auto-generated)",
+      "pattern": "^SR-[0-9]{4}-[0-9]{6}$",
+      "example": "SR-2025-000001"
+    },
+    "request_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date and time when request was submitted"
+    },
+    "requested_by": {
+      "type": "object",
+      "required": ["name", "email", "department"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of person submitting request"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Contact email"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Contact phone number"
+        },
+        "department": {
+          "type": "string",
+          "description": "Department or division"
+        }
+      }
+    },
+    "project_customer": {
+      "type": "object",
+      "required": ["type", "name"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["Internal Project", "External Customer", "R&D", "Quality Control"],
+          "description": "Type of requester"
+        },
+        "name": {
+          "type": "string",
+          "description": "Project name or customer name"
+        },
+        "project_code": {
+          "type": "string",
+          "description": "Internal project tracking code"
+        },
+        "purchase_order": {
+          "type": "string",
+          "description": "PO number for external customers"
+        }
+      }
+    },
+    "protocols_requested": {
+      "type": "array",
+      "minItems": 1,
+      "description": "List of protocol(s) requested from the 54 available protocols",
+      "items": {
+        "type": "object",
+        "required": ["protocol_id", "protocol_name"],
+        "properties": {
+          "protocol_id": {
+            "type": "string",
+            "description": "Unique protocol identifier (e.g., IEC-61215-1, IEC-61730-2)"
+          },
+          "protocol_name": {
+            "type": "string",
+            "description": "Full protocol name"
+          },
+          "test_parameters": {
+            "type": "object",
+            "description": "Specific parameters for this protocol"
+          },
+          "standards_applicable": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Applicable standards (IEC, UL, ASTM, etc.)"
+          }
+        }
+      }
+    },
+    "sample_details": {
+      "type": "object",
+      "required": ["sample_type", "quantity"],
+      "properties": {
+        "sample_type": {
+          "type": "string",
+          "enum": [
+            "PV Module",
+            "Solar Cell",
+            "Junction Box",
+            "Connector",
+            "Cable",
+            "Backsheet",
+            "Encapsulant",
+            "Frame",
+            "Other"
+          ],
+          "description": "Type of sample to be tested"
+        },
+        "sample_description": {
+          "type": "string",
+          "description": "Detailed description of the sample"
+        },
+        "quantity": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of samples"
+        },
+        "manufacturer": {
+          "type": "string",
+          "description": "Manufacturer name"
+        },
+        "model_number": {
+          "type": "string",
+          "description": "Model or part number"
+        },
+        "serial_numbers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Serial numbers of samples"
+        },
+        "batch_lot_number": {
+          "type": "string",
+          "description": "Batch or lot identification"
+        }
+      }
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["Low", "Normal", "High", "Urgent"],
+      "description": "Request priority level"
+    },
+    "requested_completion_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Desired completion date"
+    },
+    "special_requirements": {
+      "type": "object",
+      "properties": {
+        "environmental_conditions": {
+          "type": "string",
+          "description": "Special environmental requirements (temperature, humidity, etc.)"
+        },
+        "safety_concerns": {
+          "type": "string",
+          "description": "Safety considerations or hazardous materials"
+        },
+        "handling_instructions": {
+          "type": "string",
+          "description": "Special handling requirements"
+        },
+        "confidentiality": {
+          "type": "string",
+          "enum": ["None", "Standard NDA", "Enhanced Confidentiality"],
+          "description": "Confidentiality level required"
+        },
+        "witness_testing": {
+          "type": "boolean",
+          "description": "Customer witness required during testing"
+        },
+        "custom_reporting": {
+          "type": "string",
+          "description": "Custom report format or additional data requirements"
+        }
+      }
+    },
+    "workflow_metadata": {
+      "type": "object",
+      "description": "Workflow tracking and status information",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "Draft",
+            "Submitted",
+            "Under Review",
+            "Approved",
+            "Awaiting Inspection",
+            "In Progress",
+            "On Hold",
+            "Completed",
+            "Cancelled"
+          ],
+          "default": "Draft"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "created_by": {
+          "type": "string"
+        },
+        "approved_by": {
+          "type": "string"
+        },
+        "approved_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "inspection_id": {
+          "type": "string",
+          "description": "Link to incoming inspection record"
+        },
+        "work_order_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Generated work order IDs"
+        },
+        "protocol_execution_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Protocol execution tracking IDs"
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "user": {
+                "type": "string"
+              },
+              "note": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "filename": {
+            "type": "string"
+          },
+          "file_path": {
+            "type": "string"
+          },
+          "file_type": {
+            "type": "string"
+          },
+          "uploaded_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Supporting documents (drawings, specs, previous reports, etc.)"
+    }
+  }
+}

@@ -1,0 +1,378 @@
+{
+  "protocol_metadata": {
+    "protocol_id": "iv_curve_test",
+    "protocol_name": "I-V Curve Characterization",
+    "version": "1.0.0",
+    "category": "electrical",
+    "standard_reference": "IEC 61215-2 MQT 01",
+    "description": "Measurement of current-voltage characteristics of photovoltaic modules under standard test conditions (STC)",
+    "tags": ["electrical", "performance", "characterization", "STC"]
+  },
+  "general_data": {
+    "fields": [
+      {
+        "field_id": "test_date",
+        "field_name": "Test Date",
+        "field_type": "date",
+        "required": true,
+        "description": "Date when the test was performed"
+      },
+      {
+        "field_id": "operator_name",
+        "field_name": "Operator Name",
+        "field_type": "text",
+        "required": true,
+        "description": "Name of the person conducting the test"
+      },
+      {
+        "field_id": "test_facility",
+        "field_name": "Test Facility",
+        "field_type": "text",
+        "required": false,
+        "description": "Name of the testing laboratory or facility"
+      },
+      {
+        "field_id": "equipment_id",
+        "field_name": "Solar Simulator ID",
+        "field_type": "text",
+        "required": true,
+        "description": "Identification number of the solar simulator used"
+      },
+      {
+        "field_id": "ambient_temp",
+        "field_name": "Ambient Temperature",
+        "field_type": "number",
+        "unit": "°C",
+        "required": true,
+        "validation": {
+          "min": 15,
+          "max": 35
+        }
+      }
+    ]
+  },
+  "sample_info": {
+    "fields": [
+      {
+        "field_id": "module_id",
+        "field_name": "Module ID",
+        "field_type": "text",
+        "required": true,
+        "description": "Unique identifier for the PV module"
+      },
+      {
+        "field_id": "manufacturer",
+        "field_name": "Manufacturer",
+        "field_type": "text",
+        "required": true
+      },
+      {
+        "field_id": "module_type",
+        "field_name": "Module Type",
+        "field_type": "select",
+        "required": true,
+        "validation": {
+          "options": ["Monocrystalline", "Polycrystalline", "Thin Film", "CIGS", "CdTe", "Perovskite", "Other"]
+        }
+      },
+      {
+        "field_id": "rated_power",
+        "field_name": "Rated Power (Nameplate)",
+        "field_type": "number",
+        "unit": "W",
+        "required": true,
+        "description": "Nameplate power rating"
+      },
+      {
+        "field_id": "cells_in_series",
+        "field_name": "Number of Cells in Series",
+        "field_type": "number",
+        "required": false
+      }
+    ]
+  },
+  "protocol_inputs": {
+    "sections": [
+      {
+        "section_id": "test_conditions",
+        "section_title": "Test Conditions",
+        "fields": [
+          {
+            "field_id": "irradiance",
+            "field_name": "Irradiance",
+            "field_type": "number",
+            "unit": "W/m²",
+            "required": true,
+            "default_value": 1000,
+            "description": "Target: 1000 W/m² for STC"
+          },
+          {
+            "field_id": "module_temp",
+            "field_name": "Module Temperature",
+            "field_type": "number",
+            "unit": "°C",
+            "required": true,
+            "default_value": 25,
+            "description": "Target: 25°C for STC"
+          },
+          {
+            "field_id": "spectrum",
+            "field_name": "Spectrum",
+            "field_type": "select",
+            "required": true,
+            "default_value": "AM 1.5G",
+            "validation": {
+              "options": ["AM 1.5G", "AM 1.5D", "AM 0"]
+            }
+          }
+        ]
+      },
+      {
+        "section_id": "measurement_settings",
+        "section_title": "Measurement Settings",
+        "fields": [
+          {
+            "field_id": "sweep_direction",
+            "field_name": "Sweep Direction",
+            "field_type": "select",
+            "required": true,
+            "validation": {
+              "options": ["Forward (Voc to Isc)", "Reverse (Isc to Voc)", "Bidirectional"]
+            }
+          },
+          {
+            "field_id": "sweep_rate",
+            "field_name": "Sweep Rate",
+            "field_type": "number",
+            "unit": "V/s",
+            "required": true,
+            "default_value": 1.0
+          },
+          {
+            "field_id": "stabilization_time",
+            "field_name": "Light Stabilization Time",
+            "field_type": "number",
+            "unit": "seconds",
+            "required": true,
+            "default_value": 60
+          }
+        ]
+      }
+    ]
+  },
+  "live_readings": {
+    "tables": [
+      {
+        "table_id": "iv_data",
+        "table_name": "I-V Curve Data Points",
+        "columns": [
+          {
+            "column_id": "voltage",
+            "column_name": "Voltage (V)",
+            "data_type": "number",
+            "unit": "V",
+            "required": true
+          },
+          {
+            "column_id": "current",
+            "column_name": "Current (A)",
+            "data_type": "number",
+            "unit": "A",
+            "required": true
+          },
+          {
+            "column_id": "power",
+            "column_name": "Power (W)",
+            "data_type": "number",
+            "unit": "W",
+            "required": false
+          }
+        ],
+        "editable": true,
+        "min_rows": 10
+      }
+    ]
+  },
+  "analysis": {
+    "calculations": [
+      {
+        "calc_id": "voc",
+        "calc_name": "Open Circuit Voltage (Voc)",
+        "formula": "MAX(voltage) where current ≈ 0",
+        "description": "Voltage at which current is zero",
+        "output_unit": "V"
+      },
+      {
+        "calc_id": "isc",
+        "calc_name": "Short Circuit Current (Isc)",
+        "formula": "MAX(current) where voltage ≈ 0",
+        "description": "Current at which voltage is zero",
+        "output_unit": "A"
+      },
+      {
+        "calc_id": "pmax",
+        "calc_name": "Maximum Power (Pmax)",
+        "formula": "MAX(voltage × current)",
+        "description": "Maximum power point on the I-V curve",
+        "output_unit": "W"
+      },
+      {
+        "calc_id": "vmp",
+        "calc_name": "Voltage at Maximum Power (Vmp)",
+        "formula": "voltage at MAX(power)",
+        "description": "Voltage at maximum power point",
+        "output_unit": "V"
+      },
+      {
+        "calc_id": "imp",
+        "calc_name": "Current at Maximum Power (Imp)",
+        "formula": "current at MAX(power)",
+        "description": "Current at maximum power point",
+        "output_unit": "A"
+      },
+      {
+        "calc_id": "fill_factor",
+        "calc_name": "Fill Factor (FF)",
+        "formula": "(Vmp × Imp) / (Voc × Isc)",
+        "description": "Ratio of maximum power to the product of Voc and Isc",
+        "output_unit": "%"
+      },
+      {
+        "calc_id": "efficiency",
+        "calc_name": "Module Efficiency",
+        "formula": "Pmax / (Irradiance × Module_Area) × 100",
+        "description": "Conversion efficiency of the module",
+        "output_unit": "%"
+      }
+    ],
+    "statistical_analysis": [
+      {
+        "analysis_type": "mean",
+        "target_field": "power",
+        "output_name": "Average Power"
+      }
+    ]
+  },
+  "charts": {
+    "visualizations": [
+      {
+        "chart_id": "iv_curve",
+        "chart_type": "line",
+        "title": "I-V Characteristic Curve",
+        "x_axis": {
+          "field": "voltage",
+          "label": "Voltage",
+          "unit": "V"
+        },
+        "y_axis": {
+          "field": "current",
+          "label": "Current",
+          "unit": "A"
+        }
+      },
+      {
+        "chart_id": "pv_curve",
+        "chart_type": "line",
+        "title": "P-V Characteristic Curve",
+        "x_axis": {
+          "field": "voltage",
+          "label": "Voltage",
+          "unit": "V"
+        },
+        "y_axis": {
+          "field": "power",
+          "label": "Power",
+          "unit": "W"
+        }
+      }
+    ]
+  },
+  "quality_control": {
+    "validation_rules": [
+      {
+        "rule_id": "voc_range",
+        "rule_name": "Voc Range Check",
+        "field": "voc",
+        "rule_type": "range",
+        "parameters": {
+          "min": 20,
+          "max": 100
+        },
+        "severity": "critical",
+        "message": "Voc value is outside expected range (20-100V)"
+      },
+      {
+        "rule_id": "isc_positive",
+        "rule_name": "Isc Positive Check",
+        "field": "isc",
+        "rule_type": "threshold",
+        "parameters": {
+          "threshold": 0
+        },
+        "severity": "critical",
+        "message": "Isc must be positive"
+      },
+      {
+        "rule_id": "fill_factor_range",
+        "rule_name": "Fill Factor Range",
+        "field": "fill_factor",
+        "rule_type": "range",
+        "parameters": {
+          "min": 0.6,
+          "max": 0.85
+        },
+        "severity": "warning",
+        "message": "Fill factor is outside typical range (0.6-0.85)"
+      }
+    ],
+    "acceptance_criteria": [
+      {
+        "criteria_id": "power_tolerance",
+        "description": "Measured Pmax should be within ±3% of rated power",
+        "pass_condition": "ABS(Pmax - Rated_Power) / Rated_Power <= 0.03",
+        "reference_standard": "IEC 61215-2"
+      },
+      {
+        "criteria_id": "data_quality",
+        "description": "Minimum 50 data points in I-V curve",
+        "pass_condition": "COUNT(iv_data) >= 50",
+        "reference_standard": "IEC 60904-1"
+      }
+    ]
+  },
+  "report_template": {
+    "sections": [
+      {
+        "section_name": "Test Summary",
+        "include_in_report": true,
+        "content_source": "general_data"
+      },
+      {
+        "section_name": "Module Information",
+        "include_in_report": true,
+        "content_source": "sample_info"
+      },
+      {
+        "section_name": "Test Conditions",
+        "include_in_report": true,
+        "content_source": "protocol_inputs"
+      },
+      {
+        "section_name": "Measured Parameters",
+        "include_in_report": true,
+        "content_source": "analysis"
+      },
+      {
+        "section_name": "I-V and P-V Curves",
+        "include_in_report": true,
+        "content_source": "charts"
+      },
+      {
+        "section_name": "Quality Control Results",
+        "include_in_report": true,
+        "content_source": "quality_control"
+      }
+    ],
+    "export_formats": ["pdf", "excel"]
+  }
+}

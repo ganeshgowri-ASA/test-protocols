@@ -1,0 +1,16 @@
+{
+  "app_name": "PV Testing Protocol System",
+  "version": "1.0.0",
+  "data_directory": "./data",
+  "templates_directory": "./templates",
+  "auto_save": true,
+  "auto_save_interval": 300,
+  "theme": "light",
+  "enable_notifications": true,
+  "max_file_upload_size_mb": 100,
+  "supported_export_formats": ["pdf", "excel", "csv", "json"],
+  "logging": {
+    "level": "INFO",
+    "log_file": "./data/app.log"
+  }
+}

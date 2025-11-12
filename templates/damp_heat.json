@@ -1,0 +1,471 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "protocol_metadata": {
+    "id": "PVTP-004-DH",
+    "name": "Damp Heat Test",
+    "version": "1.0",
+    "standards": [
+      "IEC 61215-2:2016 MQT 14"
+    ],
+    "description": "Long-term exposure to elevated temperature and humidity to evaluate module resistance to moisture ingress and corrosion",
+    "test_duration": "1000h",
+    "equipment_required": [
+      "Climate chamber with precise humidity control",
+      "Continuous temperature monitoring system",
+      "Continuous humidity monitoring system",
+      "IV curve tracer",
+      "Insulation resistance tester (≥500V)",
+      "EL imaging system (optional)"
+    ]
+  },
+  "protocol_inputs": {
+    "test_duration": {
+      "value": 1000,
+      "unit": "hours",
+      "description": "Total duration of continuous exposure",
+      "validation": {
+        "min": 100,
+        "max": 2000,
+        "required": true
+      }
+    },
+    "conditions": {
+      "temperature": {
+        "value": 85,
+        "unit": "°C",
+        "tolerance": "±2°C",
+        "description": "Constant chamber temperature"
+      },
+      "relative_humidity": {
+        "value": 85,
+        "unit": "%",
+        "tolerance": "±5%",
+        "description": "Constant relative humidity"
+      },
+      "stabilization_time": {
+        "value": 4,
+        "unit": "hours",
+        "description": "Time to reach stable conditions before test begins"
+      }
+    },
+    "measurement_intervals": {
+      "value": [0, 250, 500, 750, 1000],
+      "unit": "hours",
+      "description": "Hours at which performance measurements are taken",
+      "validation": {
+        "must_include_zero": true,
+        "must_include_final": true
+      }
+    },
+    "additional_checkpoints": {
+      "enable": false,
+      "intervals": [100, 200, 300, 400, 600, 800, 900],
+      "description": "Optional additional measurement points for detailed degradation tracking"
+    },
+    "module_configuration": {
+      "serial_numbers": [],
+      "mounting": "open_circuit",
+      "electrical_connection": "terminals_accessible",
+      "load_condition": "open_circuit",
+      "orientation": "horizontal_face_up"
+    }
+  },
+  "continuous_monitoring": {
+    "description": "Continuous data collection throughout the test duration",
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "datetime",
+        "unit": "ISO8601",
+        "description": "Data collection timestamp"
+      },
+      {
+        "name": "elapsed_time",
+        "type": "float",
+        "unit": "hours",
+        "description": "Hours since test start"
+      },
+      {
+        "name": "chamber_temperature",
+        "type": "float",
+        "unit": "°C",
+        "description": "Measured chamber temperature"
+      },
+      {
+        "name": "chamber_humidity",
+        "type": "float",
+        "unit": "%",
+        "description": "Measured relative humidity"
+      },
+      {
+        "name": "chamber_door_status",
+        "type": "string",
+        "enum": ["closed", "open", "alarm"],
+        "description": "Door status (should remain closed during test)"
+      },
+      {
+        "name": "temperature_deviation",
+        "type": "float",
+        "unit": "°C",
+        "description": "Deviation from target temperature"
+      },
+      {
+        "name": "humidity_deviation",
+        "type": "float",
+        "unit": "%",
+        "description": "Deviation from target humidity"
+      },
+      {
+        "name": "chamber_status",
+        "type": "string",
+        "enum": ["normal", "warning", "alarm", "maintenance"],
+        "description": "Overall chamber operating status"
+      },
+      {
+        "name": "alarms",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Active alarms or warnings"
+      }
+    ],
+    "sampling_rate": {
+      "normal": "10 minutes",
+      "alarm": "1 minute"
+    },
+    "alert_conditions": [
+      {
+        "parameter": "temperature_deviation",
+        "threshold": 3,
+        "unit": "°C",
+        "duration": 30,
+        "duration_unit": "minutes",
+        "action": "email_notification"
+      },
+      {
+        "parameter": "humidity_deviation",
+        "threshold": 7,
+        "unit": "%",
+        "duration": 30,
+        "duration_unit": "minutes",
+        "action": "email_notification"
+      },
+      {
+        "parameter": "chamber_door_status",
+        "condition": "open",
+        "action": "immediate_alert"
+      }
+    ]
+  },
+  "degradation_tracking": {
+    "description": "Module performance measurements at specified intervals",
+    "conditioning_before_measurement": {
+      "temperature": 25,
+      "unit": "°C",
+      "tolerance": "±2°C",
+      "duration": 4,
+      "duration_unit": "hours",
+      "description": "Stabilize modules at STC conditions before measurements"
+    },
+    "return_to_test_time": {
+      "max_duration": 8,
+      "unit": "hours",
+      "description": "Maximum time allowed for module removal, testing, and return to chamber"
+    },
+    "measurements": [
+      {
+        "parameter": "Pmax",
+        "name": "Maximum Power",
+        "unit": "W",
+        "method": "IV curve at STC",
+        "record_at_each_interval": true
+      },
+      {
+        "parameter": "Voc",
+        "name": "Open Circuit Voltage",
+        "unit": "V",
+        "method": "IV curve at STC",
+        "record_at_each_interval": true
+      },
+      {
+        "parameter": "Isc",
+        "name": "Short Circuit Current",
+        "unit": "A",
+        "method": "IV curve at STC",
+        "record_at_each_interval": true
+      },
+      {
+        "parameter": "FF",
+        "name": "Fill Factor",
+        "unit": "",
+        "method": "Calculated from IV curve",
+        "record_at_each_interval": true
+      },
+      {
+        "parameter": "power_loss_percentage",
+        "name": "Power Loss",
+        "unit": "%",
+        "method": "Calculated as ((Pmax_initial - Pmax_current) / Pmax_initial) × 100",
+        "acceptance_criteria": "≤5% after 1000h"
+      },
+      {
+        "parameter": "insulation_resistance",
+        "name": "Insulation Resistance",
+        "unit": "MΩ",
+        "test_voltage": "500V or 2×Voc+500V",
+        "method": "Wet leakage current test per IEC 61215-2 MQT 01",
+        "record_at_each_interval": true,
+        "acceptance_criteria": ">40 MΩ at all intervals"
+      },
+      {
+        "parameter": "visual_inspection",
+        "name": "Visual Inspection",
+        "unit": "",
+        "method": "IEC 61215-2 MQT 01",
+        "record_at_each_interval": true,
+        "defects_checked": [
+          "Broken cells",
+          "Delamination",
+          "Bubbles",
+          "Discoloration",
+          "Corrosion (especially junction box and connectors)",
+          "Loss of mechanical integrity",
+          "Open circuits",
+          "Broken interconnects"
+        ]
+      },
+      {
+        "parameter": "electroluminescence",
+        "name": "EL Imaging",
+        "unit": "",
+        "method": "Electroluminescence imaging",
+        "optional": true,
+        "intervals": [0, 500, 1000],
+        "description": "Optional EL imaging for detailed defect analysis"
+      }
+    ]
+  },
+  "statistical_analysis": {
+    "degradation_rate": {
+      "calculation": "Linear regression of power vs. time",
+      "unit": "%/1000h",
+      "parameters": ["Pmax", "Voc", "Isc", "FF"]
+    },
+    "time_to_failure": {
+      "definition": "Time when power drops below 95% of initial",
+      "extrapolation_allowed": true,
+      "confidence_level": 0.95
+    },
+    "chamber_stability_metrics": {
+      "temperature_statistics": [
+        "mean",
+        "standard_deviation",
+        "min",
+        "max",
+        "% time within tolerance"
+      ],
+      "humidity_statistics": [
+        "mean",
+        "standard_deviation",
+        "min",
+        "max",
+        "% time within tolerance"
+      ]
+    }
+  },
+  "quality_control": {
+    "chamber_qualification": {
+      "frequency": "annually",
+      "requirements": [
+        "Temperature uniformity survey (±1°C across test volume)",
+        "Humidity uniformity survey (±3% RH across test volume)",
+        "Long-term stability test (72h minimum)",
+        "Humidity sensor calibration"
+      ]
+    },
+    "pre_test_verification": [
+      "Chamber leak check",
+      "Door seal inspection",
+      "Calibration certificate review (within 12 months)",
+      "Data logging system verification",
+      "Backup power supply check",
+      "Emergency contact list updated"
+    ],
+    "during_test_monitoring": [
+      "Daily remote data review",
+      "Weekly on-site chamber inspection",
+      "Immediate alarm response protocol",
+      "Water level monitoring (for humidifier)",
+      "Data backup verification"
+    ],
+    "post_test_requirements": [
+      "Data completeness verification (>98% valid data points)",
+      "Alarm log review and analysis",
+      "Equipment condition documentation",
+      "Chamber cleaning and maintenance"
+    ]
+  },
+  "preventive_maintenance": {
+    "chamber_maintenance": {
+      "daily": [
+        "Remote monitoring of temperature and humidity",
+        "Verify data logging",
+        "Check alarm system"
+      ],
+      "weekly": [
+        "On-site visual inspection",
+        "Clean humidity sensor",
+        "Check water level in humidifier",
+        "Inspect drainage system",
+        "Verify door seals"
+      ],
+      "monthly": [
+        "Download and archive all data",
+        "Clean chamber interior (during scheduled measurement intervals)",
+        "Check refrigeration system",
+        "Inspect heating elements"
+      ],
+      "at_each_measurement_interval": [
+        "Full chamber inspection",
+        "Clean viewing window",
+        "Check all sensors",
+        "Verify calibration"
+      ]
+    },
+    "module_handling": [
+      "Use ESD protection during all handling",
+      "Allow minimum 4h thermal stabilization before measurements",
+      "Document any physical changes",
+      "Photograph modules at each interval",
+      "Return to same location in chamber"
+    ]
+  },
+  "nonconformance_register": {
+    "description": "Record of deviations from protocol requirements",
+    "fields": [
+      {
+        "name": "nc_id",
+        "type": "string",
+        "description": "Unique nonconformance identifier"
+      },
+      {
+        "name": "timestamp",
+        "type": "datetime",
+        "description": "When nonconformance was detected"
+      },
+      {
+        "name": "elapsed_time",
+        "type": "float",
+        "unit": "hours",
+        "description": "Hours into test when NC occurred"
+      },
+      {
+        "name": "type",
+        "type": "string",
+        "enum": [
+          "temperature_excursion",
+          "humidity_excursion",
+          "chamber_failure",
+          "power_interruption",
+          "door_opening",
+          "data_loss",
+          "sensor_failure",
+          "operator_error",
+          "other"
+        ]
+      },
+      {
+        "name": "description",
+        "type": "string",
+        "description": "Detailed description of the nonconformance"
+      },
+      {
+        "name": "duration",
+        "type": "float",
+        "unit": "hours",
+        "description": "Duration of the nonconformance event"
+      },
+      {
+        "name": "temperature_range",
+        "type": "object",
+        "properties": {
+          "min": "float",
+          "max": "float"
+        },
+        "description": "Temperature range during NC event"
+      },
+      {
+        "name": "humidity_range",
+        "type": "object",
+        "properties": {
+          "min": "float",
+          "max": "float"
+        },
+        "description": "Humidity range during NC event"
+      },
+      {
+        "name": "impact_assessment",
+        "type": "string",
+        "enum": ["none", "minor", "moderate", "major", "test_invalid"],
+        "description": "Assessment of impact on test validity"
+      },
+      {
+        "name": "corrective_action",
+        "type": "string",
+        "description": "Action taken to resolve the issue"
+      },
+      {
+        "name": "time_credit",
+        "type": "float",
+        "unit": "hours",
+        "description": "Additional test time added to compensate for NC"
+      },
+      {
+        "name": "disposition",
+        "type": "string",
+        "enum": ["continue", "extend_test", "restart_test", "abort_test"],
+        "description": "Decision on how to proceed"
+      },
+      {
+        "name": "approved_by",
+        "type": "string",
+        "description": "Name of person approving the disposition"
+      }
+    ]
+  },
+  "test_report_sections": {
+    "executive_summary": {
+      "test_completion_status": "",
+      "actual_duration": "",
+      "pass_fail_result": "",
+      "key_findings": []
+    },
+    "test_conditions": {
+      "temperature_stability_summary": "",
+      "humidity_stability_summary": "",
+      "chamber_uptime_percentage": "",
+      "nonconformances_summary": ""
+    },
+    "performance_results": {
+      "initial_power": "",
+      "final_power": "",
+      "power_degradation_rate": "",
+      "insulation_resistance_trend": "",
+      "visual_inspection_findings": "",
+      "comparison_to_acceptance_criteria": ""
+    },
+    "data_analysis": {
+      "degradation_curve": "",
+      "statistical_analysis": "",
+      "correlation_with_environmental_conditions": "",
+      "failure_mode_analysis": ""
+    },
+    "conclusions": {
+      "test_verdict": "",
+      "module_qualification_status": "",
+      "predicted_field_lifetime": "",
+      "recommendations": []
+    }
+  }
+}

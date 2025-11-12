@@ -1,0 +1,371 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "protocol_metadata": {
+    "id": "PVTP-003-HF",
+    "name": "Humidity-Freeze Cycling Test",
+    "version": "1.0",
+    "standards": [
+      "IEC 61215-2:2016 MQT 13"
+    ],
+    "description": "Accelerated environmental stress test combining high humidity and thermal cycling to evaluate module resistance to moisture ingress and thermal shock",
+    "test_duration_estimate": "240h",
+    "equipment_required": [
+      "Climate chamber with humidity control",
+      "Temperature monitoring system",
+      "Humidity sensor (±2% RH accuracy)",
+      "IV curve tracer",
+      "Insulation resistance tester (≥500V)"
+    ]
+  },
+  "protocol_inputs": {
+    "cycles": {
+      "value": 10,
+      "unit": "cycles",
+      "description": "Number of humidity-freeze cycles to perform",
+      "validation": {
+        "min": 1,
+        "max": 50,
+        "required": true
+      }
+    },
+    "humidity_phase": {
+      "temperature": {
+        "value": 85,
+        "unit": "°C",
+        "tolerance": "±2°C"
+      },
+      "relative_humidity": {
+        "value": 85,
+        "unit": "%",
+        "tolerance": "±5%"
+      },
+      "duration": {
+        "value": 20,
+        "unit": "hours",
+        "description": "Duration of high humidity exposure per cycle"
+      }
+    },
+    "freeze_phase": {
+      "temperature": {
+        "value": -40,
+        "unit": "°C",
+        "tolerance": "±3°C"
+      },
+      "relative_humidity": {
+        "value": "ambient",
+        "unit": "%",
+        "description": "No humidity control during freeze phase"
+      },
+      "duration": {
+        "value": 4,
+        "unit": "hours",
+        "description": "Duration of freeze exposure per cycle"
+      }
+    },
+    "transition_requirements": {
+      "max_rate": {
+        "value": 3,
+        "unit": "°C/min",
+        "description": "Maximum temperature change rate during transitions"
+      },
+      "stabilization_time": {
+        "value": 30,
+        "unit": "minutes",
+        "description": "Time to stabilize at target conditions before phase duration begins"
+      }
+    },
+    "module_configuration": {
+      "serial_numbers": [],
+      "mounting": "open_circuit",
+      "electrical_connection": "terminals_accessible"
+    }
+  },
+  "cycle_data": {
+    "description": "Real-time data collection during cycling",
+    "fields": [
+      {
+        "name": "cycle_number",
+        "type": "integer",
+        "unit": "",
+        "description": "Current cycle number (1 to N)"
+      },
+      {
+        "name": "phase",
+        "type": "string",
+        "unit": "",
+        "enum": ["humidity", "transition_to_freeze", "freeze", "transition_to_humidity", "stabilization"],
+        "description": "Current phase of the cycle"
+      },
+      {
+        "name": "timestamp",
+        "type": "datetime",
+        "unit": "ISO8601",
+        "description": "Data collection timestamp"
+      },
+      {
+        "name": "chamber_temperature",
+        "type": "float",
+        "unit": "°C",
+        "description": "Measured chamber temperature"
+      },
+      {
+        "name": "chamber_humidity",
+        "type": "float",
+        "unit": "%",
+        "description": "Measured relative humidity"
+      },
+      {
+        "name": "chamber_status",
+        "type": "string",
+        "enum": ["normal", "stabilizing", "transitioning", "alarm", "paused"],
+        "description": "Operating status of climate chamber"
+      },
+      {
+        "name": "temperature_rate",
+        "type": "float",
+        "unit": "°C/min",
+        "description": "Current rate of temperature change"
+      },
+      {
+        "name": "alarms",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Active alarms or warnings"
+      },
+      {
+        "name": "elapsed_time",
+        "type": "float",
+        "unit": "hours",
+        "description": "Total elapsed time since test start"
+      }
+    ],
+    "sampling_rate": {
+      "normal": "5 minutes",
+      "transition": "1 minute",
+      "alarm": "30 seconds"
+    }
+  },
+  "performance_checks": {
+    "description": "Module performance measurements at specified intervals",
+    "measurement_cycles": [0, 5, 10],
+    "conditioning_before_test": {
+      "temperature": 25,
+      "unit": "°C",
+      "tolerance": "±2°C",
+      "duration": 2,
+      "duration_unit": "hours",
+      "description": "Stabilize modules at STC conditions before measurements"
+    },
+    "measurements": [
+      {
+        "parameter": "Pmax",
+        "name": "Maximum Power",
+        "unit": "W",
+        "method": "IV curve at STC",
+        "acceptance_criteria": {
+          "cycles_0-5": "≥98% of initial",
+          "cycles_5-10": "≥95% of initial"
+        }
+      },
+      {
+        "parameter": "Voc",
+        "name": "Open Circuit Voltage",
+        "unit": "V",
+        "method": "IV curve at STC",
+        "acceptance_criteria": "±5% of initial"
+      },
+      {
+        "parameter": "Isc",
+        "name": "Short Circuit Current",
+        "unit": "A",
+        "method": "IV curve at STC",
+        "acceptance_criteria": "±5% of initial"
+      },
+      {
+        "parameter": "FF",
+        "name": "Fill Factor",
+        "unit": "",
+        "method": "Calculated from IV curve",
+        "acceptance_criteria": "±0.03 absolute of initial"
+      },
+      {
+        "parameter": "insulation_resistance",
+        "name": "Insulation Resistance",
+        "unit": "MΩ",
+        "test_voltage": "500V or 2×Voc+500V",
+        "method": "Wet leakage current test per IEC 61215-2 MQT 01",
+        "acceptance_criteria": ">40 MΩ after all cycles"
+      },
+      {
+        "parameter": "visual_inspection",
+        "name": "Visual Inspection",
+        "unit": "",
+        "method": "IEC 61215-2 MQT 01",
+        "defects_checked": [
+          "Broken cells",
+          "Delamination",
+          "Bubbles",
+          "Corrosion",
+          "Loss of mechanical integrity",
+          "Open circuits",
+          "Broken interconnects"
+        ]
+      }
+    ]
+  },
+  "quality_control": {
+    "chamber_qualification": {
+      "frequency": "annually",
+      "requirements": [
+        "Temperature uniformity survey (±2°C across test volume)",
+        "Humidity uniformity survey (±5% RH across test volume)",
+        "Temperature rate verification",
+        "Humidity sensor calibration"
+      ]
+    },
+    "pre_test_verification": [
+      "Chamber leak check",
+      "Door seal inspection",
+      "Calibration certificate review",
+      "Safety interlock verification"
+    ],
+    "during_test_monitoring": [
+      "Daily data review",
+      "Alarm response within 2 hours",
+      "Weekly chamber inspection"
+    ],
+    "post_test_requirements": [
+      "Data completeness verification (>95% valid data points)",
+      "Alarm log review",
+      "Equipment condition documentation"
+    ]
+  },
+  "preventive_maintenance": {
+    "chamber_maintenance": {
+      "daily": [
+        "Check temperature and humidity readings",
+        "Verify data logging",
+        "Inspect door seals"
+      ],
+      "weekly": [
+        "Clean humidity sensor",
+        "Check water level in humidifier",
+        "Inspect drainage system"
+      ],
+      "monthly": [
+        "Clean chamber interior",
+        "Check refrigeration system",
+        "Inspect heating elements"
+      ],
+      "quarterly": [
+        "Replace air filters",
+        "Lubricate moving parts",
+        "Check electrical connections"
+      ]
+    },
+    "module_handling": [
+      "Use ESD protection during all handling",
+      "Allow full thermal stabilization before measurements",
+      "Document any physical damage before and after test"
+    ]
+  },
+  "nonconformance_register": {
+    "description": "Record of deviations from protocol requirements",
+    "fields": [
+      {
+        "name": "nc_id",
+        "type": "string",
+        "description": "Unique nonconformance identifier"
+      },
+      {
+        "name": "timestamp",
+        "type": "datetime",
+        "description": "When nonconformance was detected"
+      },
+      {
+        "name": "cycle_number",
+        "type": "integer",
+        "description": "Cycle during which NC occurred"
+      },
+      {
+        "name": "type",
+        "type": "string",
+        "enum": [
+          "temperature_excursion",
+          "humidity_excursion",
+          "transition_rate_exceeded",
+          "chamber_failure",
+          "power_interruption",
+          "data_loss",
+          "operator_error",
+          "other"
+        ]
+      },
+      {
+        "name": "description",
+        "type": "string",
+        "description": "Detailed description of the nonconformance"
+      },
+      {
+        "name": "duration",
+        "type": "float",
+        "unit": "minutes",
+        "description": "Duration of the nonconformance event"
+      },
+      {
+        "name": "impact_assessment",
+        "type": "string",
+        "enum": ["none", "minor", "moderate", "major", "test_invalid"],
+        "description": "Assessment of impact on test validity"
+      },
+      {
+        "name": "corrective_action",
+        "type": "string",
+        "description": "Action taken to resolve the issue"
+      },
+      {
+        "name": "disposition",
+        "type": "string",
+        "enum": ["continue", "repeat_cycle", "restart_test", "abort_test"],
+        "description": "Decision on how to proceed"
+      },
+      {
+        "name": "approved_by",
+        "type": "string",
+        "description": "Name of person approving the disposition"
+      }
+    ]
+  },
+  "test_report_sections": {
+    "executive_summary": {
+      "test_completion_status": "",
+      "total_duration": "",
+      "pass_fail_result": "",
+      "key_findings": []
+    },
+    "test_conditions": {
+      "actual_cycles_completed": "",
+      "temperature_profile_summary": "",
+      "humidity_profile_summary": "",
+      "nonconformances_summary": ""
+    },
+    "performance_results": {
+      "power_degradation": "",
+      "insulation_resistance_results": "",
+      "visual_inspection_findings": "",
+      "comparison_to_acceptance_criteria": ""
+    },
+    "data_analysis": {
+      "statistical_summary": "",
+      "trend_analysis": "",
+      "correlation_analysis": ""
+    },
+    "conclusions": {
+      "test_verdict": "",
+      "module_qualification_status": "",
+      "recommendations": []
+    }
+  }
+}

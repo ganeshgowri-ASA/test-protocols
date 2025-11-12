@@ -1,0 +1,662 @@
+{
+  "protocol_metadata": {
+    "id": "PVTP-002-TC",
+    "name": "Thermal Cycling Test",
+    "version": "1.0",
+    "category": "Environmental & Durability Testing",
+    "standards": [
+      "IEC 61215-2:2016 MQT 12",
+      "IEC 61730",
+      "UL 1703"
+    ],
+    "description": "Thermal cycling test to evaluate module resistance to thermal fatigue, temperature extremes, and stress on materials and interconnects",
+    "test_types": ["TC200", "TC50"],
+    "created_date": "2025-11-12",
+    "last_modified": "2025-11-12"
+  },
+
+  "general_data": {
+    "test_facility": {
+      "type": "string",
+      "required": true,
+      "description": "Name and location of test facility"
+    },
+    "project": {
+      "type": "string",
+      "required": true,
+      "description": "Project name or ID"
+    },
+    "client": {
+      "type": "string",
+      "required": true,
+      "description": "Client/customer name"
+    },
+    "date": {
+      "type": "date",
+      "required": true,
+      "description": "Test start date"
+    },
+    "technician": {
+      "type": "string",
+      "required": true,
+      "description": "Primary technician responsible"
+    },
+    "chamber_id": {
+      "type": "string",
+      "required": true,
+      "description": "Thermal cycling chamber identification"
+    },
+    "test_reference": {
+      "type": "string",
+      "required": false,
+      "description": "Internal test reference number"
+    }
+  },
+
+  "sample_information": {
+    "module_specs": {
+      "manufacturer": {
+        "type": "string",
+        "required": true
+      },
+      "model_number": {
+        "type": "string",
+        "required": true
+      },
+      "technology": {
+        "type": "select",
+        "options": ["Mono-Si", "Poly-Si", "Thin-Film", "PERC", "HJT", "TOPCon", "Bifacial"],
+        "required": true
+      },
+      "rated_power": {
+        "type": "number",
+        "unit": "W",
+        "required": true
+      },
+      "dimensions": {
+        "length": {"type": "number", "unit": "mm"},
+        "width": {"type": "number", "unit": "mm"},
+        "thickness": {"type": "number", "unit": "mm"}
+      },
+      "cell_count": {
+        "type": "integer",
+        "required": false
+      },
+      "serial_numbers": {
+        "type": "array",
+        "required": true,
+        "description": "List of all module serial numbers"
+      }
+    },
+    "quantity": {
+      "type": "integer",
+      "required": true,
+      "min": 1,
+      "description": "Number of modules under test"
+    },
+    "pre_test_power": {
+      "type": "array",
+      "description": "Pre-test power measurements for each module",
+      "items": {
+        "serial_number": {"type": "string"},
+        "pmax": {"type": "number", "unit": "W"},
+        "voc": {"type": "number", "unit": "V"},
+        "isc": {"type": "number", "unit": "A"},
+        "vmp": {"type": "number", "unit": "V"},
+        "imp": {"type": "number", "unit": "A"},
+        "fill_factor": {"type": "number", "unit": "%"},
+        "efficiency": {"type": "number", "unit": "%"}
+      }
+    },
+    "pre_test_images": {
+      "type": "object",
+      "description": "Pre-test visual and EL imaging",
+      "properties": {
+        "visual_inspection": {"type": "array", "items": {"type": "string"}},
+        "el_images": {"type": "array", "items": {"type": "string"}},
+        "ir_images": {"type": "array", "items": {"type": "string"}},
+        "notes": {"type": "string"}
+      }
+    }
+  },
+
+  "protocol_inputs": {
+    "cycle_count": {
+      "type": "select",
+      "options": [50, 200],
+      "default": 200,
+      "required": true,
+      "description": "Total number of thermal cycles (TC50 or TC200)"
+    },
+    "temp_range": {
+      "min": {
+        "type": "number",
+        "unit": "°C",
+        "default": -40,
+        "required": true,
+        "description": "Minimum temperature"
+      },
+      "max": {
+        "type": "number",
+        "unit": "°C",
+        "default": 85,
+        "required": true,
+        "description": "Maximum temperature"
+      }
+    },
+    "dwell_time": {
+      "cold": {
+        "type": "number",
+        "unit": "minutes",
+        "default": 30,
+        "required": true,
+        "description": "Dwell time at minimum temperature"
+      },
+      "hot": {
+        "type": "number",
+        "unit": "minutes",
+        "default": 30,
+        "required": true,
+        "description": "Dwell time at maximum temperature"
+      }
+    },
+    "transition_rate": {
+      "type": "string",
+      "default": "≤100°C/hour",
+      "required": true,
+      "description": "Maximum temperature transition rate per IEC 61215-2"
+    },
+    "humidity_level": {
+      "type": "string",
+      "default": "<75% RH",
+      "required": true,
+      "description": "Maximum relative humidity during test"
+    },
+    "measurement_intervals": {
+      "type": "array",
+      "default": [0, 50, 100, 150, 200],
+      "description": "Cycle numbers at which to perform intermediate measurements"
+    }
+  },
+
+  "cycle_monitoring": {
+    "description": "Real-time monitoring data collected during each cycle",
+    "fields": {
+      "cycle_number": {
+        "type": "integer",
+        "required": true
+      },
+      "chamber_temp": {
+        "type": "number",
+        "unit": "°C",
+        "required": true,
+        "description": "Chamber temperature reading"
+      },
+      "humidity": {
+        "type": "number",
+        "unit": "% RH",
+        "required": true
+      },
+      "module_temp": {
+        "type": "array",
+        "description": "Temperature readings from thermocouples on modules",
+        "items": {
+          "serial_number": {"type": "string"},
+          "temperature": {"type": "number", "unit": "°C"}
+        }
+      },
+      "timestamp": {
+        "type": "datetime",
+        "required": true
+      },
+      "cycle_phase": {
+        "type": "select",
+        "options": ["heating", "hot_dwell", "cooling", "cold_dwell"],
+        "required": true
+      },
+      "alarms": {
+        "type": "array",
+        "description": "Any alarms or deviations during cycle"
+      }
+    }
+  },
+
+  "intermediate_measurements": {
+    "description": "Electrical and visual measurements at specified intervals",
+    "measurement_points": {
+      "type": "array",
+      "default": [0, 50, 100, 150, 200],
+      "description": "Cycle numbers for intermediate measurements"
+    },
+    "parameters": {
+      "pmax": {
+        "type": "number",
+        "unit": "W",
+        "required": true,
+        "description": "Maximum power"
+      },
+      "voc": {
+        "type": "number",
+        "unit": "V",
+        "required": true,
+        "description": "Open circuit voltage"
+      },
+      "isc": {
+        "type": "number",
+        "unit": "A",
+        "required": true,
+        "description": "Short circuit current"
+      },
+      "vmp": {
+        "type": "number",
+        "unit": "V",
+        "required": true,
+        "description": "Voltage at maximum power point"
+      },
+      "imp": {
+        "type": "number",
+        "unit": "A",
+        "required": true,
+        "description": "Current at maximum power point"
+      },
+      "ff": {
+        "type": "number",
+        "unit": "%",
+        "required": true,
+        "description": "Fill factor"
+      },
+      "rs": {
+        "type": "number",
+        "unit": "Ω",
+        "required": false,
+        "description": "Series resistance"
+      },
+      "rsh": {
+        "type": "number",
+        "unit": "Ω",
+        "required": false,
+        "description": "Shunt resistance"
+      }
+    },
+    "el_imaging": {
+      "type": "array",
+      "default": ["before", "midpoint", "after"],
+      "description": "EL imaging schedule",
+      "items": {
+        "cycle_number": {"type": "integer"},
+        "image_path": {"type": "string"},
+        "defects_detected": {"type": "array"}
+      }
+    },
+    "visual_inspection": {
+      "type": "object",
+      "description": "Visual inspection findings at measurement points",
+      "properties": {
+        "cycle_number": {"type": "integer"},
+        "inspector": {"type": "string"},
+        "observations": {"type": "string"},
+        "images": {"type": "array"}
+      }
+    }
+  },
+
+  "analysis": {
+    "power_degradation": {
+      "type": "object",
+      "description": "Power degradation analysis",
+      "fields": {
+        "initial_power": {"type": "number", "unit": "W"},
+        "final_power": {"type": "number", "unit": "W"},
+        "absolute_loss": {"type": "number", "unit": "W"},
+        "percentage_loss": {"type": "number", "unit": "%"},
+        "degradation_rate": {"type": "number", "unit": "%/cycle"}
+      }
+    },
+    "performance_retention": {
+      "type": "number",
+      "unit": "%",
+      "description": "Percentage of initial power retained",
+      "calculation": "(final_power / initial_power) * 100"
+    },
+    "visual_defects": {
+      "type": "array",
+      "description": "Visual defects observed during test",
+      "items": {
+        "defect_type": {
+          "type": "select",
+          "options": [
+            "Delamination",
+            "Bubble formation",
+            "Discoloration",
+            "Solder bond failure",
+            "Cell cracks",
+            "Frame deformation",
+            "Junction box issues",
+            "Backsheet degradation"
+          ]
+        },
+        "severity": {
+          "type": "select",
+          "options": ["Minor", "Moderate", "Major", "Critical"]
+        },
+        "location": {"type": "string"},
+        "cycle_detected": {"type": "integer"},
+        "description": {"type": "string"}
+      }
+    },
+    "el_defects": {
+      "type": "array",
+      "description": "Electroluminescence defects detected",
+      "items": {
+        "defect_type": {
+          "type": "select",
+          "options": [
+            "Cell cracks",
+            "Inactive cell area",
+            "Busbar discontinuity",
+            "Finger interruption",
+            "Dark spots",
+            "Shunts"
+          ]
+        },
+        "severity": {
+          "type": "select",
+          "options": ["Minor", "Moderate", "Major", "Critical"]
+        },
+        "location": {"type": "string"},
+        "cycle_detected": {"type": "integer"},
+        "affected_area": {"type": "number", "unit": "%"}
+      }
+    },
+    "pass_fail": {
+      "criteria": {
+        "max_power_loss": {
+          "type": "number",
+          "unit": "%",
+          "default": 5,
+          "description": "Maximum allowable power loss per IEC 61215-2"
+        },
+        "major_defects": {
+          "type": "string",
+          "default": "no major defects",
+          "description": "No major visual or functional defects allowed"
+        }
+      },
+      "result": {
+        "type": "select",
+        "options": ["PASS", "FAIL", "CONDITIONAL"],
+        "required": true
+      },
+      "justification": {
+        "type": "string",
+        "required": true,
+        "description": "Detailed justification for pass/fail determination"
+      }
+    },
+    "statistical_analysis": {
+      "sample_size": {"type": "integer"},
+      "mean_degradation": {"type": "number", "unit": "%"},
+      "std_deviation": {"type": "number"},
+      "confidence_interval": {"type": "string"},
+      "outliers": {"type": "array"}
+    }
+  },
+
+  "charts": {
+    "temp_profile_cycle": {
+      "type": "line_chart",
+      "description": "Temperature profile for representative cycle",
+      "x_axis": "Time (minutes)",
+      "y_axis": "Temperature (°C)",
+      "data_source": "cycle_monitoring"
+    },
+    "power_degradation_trend": {
+      "type": "line_chart",
+      "description": "Power degradation trend over test duration",
+      "x_axis": "Cycle Number",
+      "y_axis": "Power (W) / Retention (%)",
+      "data_source": "intermediate_measurements"
+    },
+    "parameter_evolution": {
+      "type": "multi_line_chart",
+      "description": "Evolution of key parameters (Voc, Isc, FF)",
+      "x_axis": "Cycle Number",
+      "y_axis": "Normalized Value (%)",
+      "parameters": ["Pmax", "Voc", "Isc", "FF"],
+      "data_source": "intermediate_measurements"
+    },
+    "degradation_distribution": {
+      "type": "box_plot",
+      "description": "Distribution of power degradation across samples",
+      "y_axis": "Power Loss (%)",
+      "data_source": "analysis.power_degradation"
+    }
+  },
+
+  "quality_control": {
+    "chamber_calibration": {
+      "type": "object",
+      "required": true,
+      "fields": {
+        "calibration_date": {"type": "date", "required": true},
+        "calibration_certificate": {"type": "string"},
+        "next_calibration_due": {"type": "date", "required": true},
+        "temperature_accuracy": {"type": "string", "default": "±2°C"},
+        "humidity_accuracy": {"type": "string", "default": "±3% RH"}
+      }
+    },
+    "sensor_accuracy": {
+      "type": "object",
+      "fields": {
+        "thermocouple_type": {"type": "string", "default": "Type T"},
+        "thermocouple_accuracy": {"type": "string", "default": "±0.5°C"},
+        "data_logger_info": {"type": "string"},
+        "last_verification": {"type": "date"}
+      }
+    },
+    "data_validation": {
+      "type": "object",
+      "fields": {
+        "data_completeness": {"type": "number", "unit": "%"},
+        "missing_cycles": {"type": "array"},
+        "data_anomalies": {"type": "array"},
+        "validation_notes": {"type": "string"}
+      }
+    },
+    "reference_modules": {
+      "type": "array",
+      "description": "Reference modules for chamber uniformity verification",
+      "items": {
+        "serial_number": {"type": "string"},
+        "initial_power": {"type": "number", "unit": "W"},
+        "final_power": {"type": "number", "unit": "W"}
+      }
+    }
+  },
+
+  "maintenance": {
+    "chamber_maintenance_log": {
+      "type": "array",
+      "description": "Maintenance activities during test",
+      "items": {
+        "date": {"type": "date"},
+        "maintenance_type": {
+          "type": "select",
+          "options": ["Routine inspection", "Cleaning", "Repair", "Calibration", "Component replacement"]
+        },
+        "description": {"type": "string"},
+        "downtime": {"type": "number", "unit": "hours"},
+        "technician": {"type": "string"}
+      }
+    },
+    "sensor_replacement_schedule": {
+      "type": "array",
+      "items": {
+        "sensor_id": {"type": "string"},
+        "install_date": {"type": "date"},
+        "expected_lifetime": {"type": "number", "unit": "months"},
+        "replacement_due": {"type": "date"}
+      }
+    },
+    "test_interruptions": {
+      "type": "array",
+      "description": "Any interruptions to test continuity",
+      "items": {
+        "date": {"type": "date"},
+        "cycle_number": {"type": "integer"},
+        "reason": {"type": "string"},
+        "duration": {"type": "number", "unit": "hours"},
+        "impact_assessment": {"type": "string"}
+      }
+    }
+  },
+
+  "project_management": {
+    "test_phase": {
+      "type": "select",
+      "options": ["Planning", "Setup", "Pre-test", "Testing", "Post-test", "Analysis", "Reporting", "Completed"],
+      "required": true
+    },
+    "completion_percentage": {
+      "type": "number",
+      "unit": "%",
+      "calculation": "(current_cycle / total_cycles) * 100"
+    },
+    "next_milestone": {
+      "type": "object",
+      "fields": {
+        "milestone_name": {"type": "string"},
+        "target_date": {"type": "date"},
+        "cycle_number": {"type": "integer"}
+      }
+    },
+    "stakeholders": {
+      "type": "array",
+      "items": {
+        "name": {"type": "string"},
+        "role": {"type": "string"},
+        "contact": {"type": "string"}
+      }
+    },
+    "deliverables": {
+      "type": "array",
+      "items": {
+        "deliverable_name": {"type": "string"},
+        "due_date": {"type": "date"},
+        "status": {
+          "type": "select",
+          "options": ["Pending", "In Progress", "Completed", "Delivered"]
+        }
+      }
+    }
+  },
+
+  "nc_register": {
+    "description": "Non-conformance register for tracking issues",
+    "type": "array",
+    "items": {
+      "nc_id": {
+        "type": "string",
+        "required": true,
+        "description": "Unique non-conformance ID"
+      },
+      "issue_category": {
+        "type": "select",
+        "options": [
+          "Equipment malfunction",
+          "Temperature deviation",
+          "Humidity deviation",
+          "Module failure",
+          "Data loss",
+          "Procedure deviation",
+          "Safety incident",
+          "Other"
+        ],
+        "required": true
+      },
+      "severity": {
+        "type": "select",
+        "options": ["Low", "Medium", "High", "Critical"],
+        "required": true
+      },
+      "date_reported": {
+        "type": "date",
+        "required": true
+      },
+      "cycle_number": {
+        "type": "integer",
+        "description": "Cycle at which NC was detected"
+      },
+      "description": {
+        "type": "string",
+        "required": true
+      },
+      "root_cause": {
+        "type": "string",
+        "required": true,
+        "description": "Root cause analysis findings"
+      },
+      "corrective_action": {
+        "type": "string",
+        "required": true,
+        "description": "Corrective actions taken"
+      },
+      "preventive_action": {
+        "type": "string",
+        "description": "Preventive actions to avoid recurrence"
+      },
+      "responsible_person": {
+        "type": "string",
+        "required": true
+      },
+      "target_closure_date": {
+        "type": "date",
+        "required": true
+      },
+      "actual_closure_date": {
+        "type": "date"
+      },
+      "status": {
+        "type": "select",
+        "options": ["Open", "In Progress", "Closed", "Verified"],
+        "required": true
+      },
+      "verification_notes": {
+        "type": "string",
+        "description": "Verification of effectiveness"
+      }
+    }
+  },
+
+  "export_settings": {
+    "excel": {
+      "enabled": true,
+      "template": "thermal_cycling_report.xlsx",
+      "sheets": [
+        "Summary",
+        "Test Parameters",
+        "Cycle Data",
+        "Measurements",
+        "Analysis",
+        "Charts",
+        "QC Records",
+        "NC Register"
+      ]
+    },
+    "pdf": {
+      "enabled": true,
+      "template": "thermal_cycling_report_template.pdf",
+      "sections": [
+        "Cover Page",
+        "Executive Summary",
+        "Test Setup",
+        "Results",
+        "Analysis",
+        "Conclusions",
+        "Appendices"
+      ],
+      "include_charts": true,
+      "include_images": true
+    }
+  }
+}

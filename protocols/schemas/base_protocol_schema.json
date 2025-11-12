@@ -1,0 +1,130 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "base_protocol_schema.json",
+  "title": "Base Protocol Schema",
+  "description": "Base schema for all PV testing protocols",
+  "type": "object",
+  "required": ["protocol_id", "protocol_name", "protocol_type", "version", "parameters"],
+  "properties": {
+    "protocol_id": {
+      "type": "string",
+      "pattern": "^[A-Z0-9-]+$",
+      "description": "Unique protocol identifier (e.g., IEC61215-10-1)"
+    },
+    "protocol_name": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 200,
+      "description": "Human-readable protocol name"
+    },
+    "protocol_type": {
+      "type": "string",
+      "enum": [
+        "inspection",
+        "electrical",
+        "mechanical",
+        "thermal",
+        "environmental",
+        "performance",
+        "reliability",
+        "safety",
+        "calibration",
+        "characterization"
+      ],
+      "description": "Category of the test protocol"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+(\\.\\d+)?$",
+      "description": "Protocol version (semantic versioning)"
+    },
+    "standard": {
+      "type": "string",
+      "description": "Applicable standard (e.g., IEC 61215, IEC 61730)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed protocol description"
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Protocol-specific input parameters"
+    },
+    "measurements": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/measurement"
+      },
+      "description": "Array of measurement data"
+    },
+    "acceptance_criteria": {
+      "type": "object",
+      "description": "Pass/fail criteria for the protocol"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "operator": {
+          "type": "string"
+        },
+        "facility": {
+          "type": "string"
+        },
+        "equipment": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "in_progress", "completed", "failed", "cancelled"],
+      "default": "pending"
+    }
+  },
+  "definitions": {
+    "measurement": {
+      "type": "object",
+      "required": ["measurement_id", "parameter", "value", "unit"],
+      "properties": {
+        "measurement_id": {
+          "type": "string"
+        },
+        "parameter": {
+          "type": "string",
+          "description": "Name of the measured parameter"
+        },
+        "value": {
+          "type": ["number", "string", "boolean"],
+          "description": "Measured value"
+        },
+        "unit": {
+          "type": "string",
+          "description": "Unit of measurement"
+        },
+        "uncertainty": {
+          "type": "number",
+          "description": "Measurement uncertainty"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pass", "fail", "warning", "info"]
+        },
+        "conditions": {
+          "type": "object",
+          "description": "Environmental or test conditions during measurement"
+        }
+      }
+    }
+  }
+}

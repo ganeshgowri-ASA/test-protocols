@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "thermal_protocol_schema.json",
+  "title": "Thermal Test Protocol Schema",
+  "description": "Schema for thermal cycling and heat dissipation protocols",
+  "allOf": [
+    {
+      "$ref": "base_protocol_schema.json"
+    },
+    {
+      "properties": {
+        "protocol_type": {
+          "const": "thermal"
+        },
+        "parameters": {
+          "type": "object",
+          "required": ["module_id", "test_type"],
+          "properties": {
+            "module_id": {
+              "type": "string"
+            },
+            "test_type": {
+              "type": "string",
+              "enum": [
+                "thermal_cycling",
+                "hot_spot_endurance",
+                "thermal_imaging",
+                "heat_dissipation",
+                "thermal_shock"
+              ]
+            },
+            "temperature_profile": {
+              "type": "object",
+              "properties": {
+                "min_temp": {
+                  "type": "number",
+                  "minimum": -40,
+                  "maximum": 0
+                },
+                "max_temp": {
+                  "type": "number",
+                  "minimum": 25,
+                  "maximum": 150
+                },
+                "ramp_rate": {
+                  "type": "number",
+                  "description": "Temperature change rate (°C/min)"
+                },
+                "dwell_time": {
+                  "type": "number",
+                  "description": "Time at target temperature (minutes)"
+                }
+              }
+            },
+            "number_of_cycles": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000
+            },
+            "humidity": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Relative humidity percentage"
+            }
+          }
+        },
+        "acceptance_criteria": {
+          "type": "object",
+          "properties": {
+            "max_power_degradation": {
+              "type": "number",
+              "description": "Maximum acceptable power degradation (%)"
+            },
+            "max_hot_spot_temp": {
+              "type": "number",
+              "description": "Maximum hot spot temperature (°C)"
+            },
+            "max_temp_difference": {
+              "type": "number",
+              "description": "Maximum temperature difference across module (°C)"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

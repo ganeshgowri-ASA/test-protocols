@@ -1,0 +1,43 @@
+{
+  "protocol_id": "IEC61215-10-2",
+  "protocol_name": "Maximum Power Determination",
+  "protocol_type": "electrical",
+  "version": "1.0",
+  "standard": "IEC 61215",
+  "description": "Determination of maximum power output under Standard Test Conditions (STC)",
+  "parameters": {
+    "module_id": "",
+    "test_type": "iv_curve",
+    "irradiance": 1000,
+    "temperature": 25,
+    "spectrum": "AM1.5G",
+    "voltage_range": {
+      "min": 0,
+      "max": 50
+    },
+    "current_range": {
+      "min": 0,
+      "max": 15
+    },
+    "scan_rate": 0.1
+  },
+  "measurements": [],
+  "acceptance_criteria": {
+    "min_power": 0,
+    "min_efficiency": 0,
+    "power_tolerance": 3,
+    "fill_factor_min": 0.70
+  },
+  "metadata": {
+    "timestamp": "",
+    "operator": "",
+    "facility": "",
+    "equipment": [
+      "Solar simulator",
+      "I-V curve tracer",
+      "Pyranometer",
+      "Temperature sensor"
+    ]
+  },
+  "status": "pending"
+}

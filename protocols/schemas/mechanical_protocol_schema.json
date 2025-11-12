@@ -1,0 +1,94 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "mechanical_protocol_schema.json",
+  "title": "Mechanical Test Protocol Schema",
+  "description": "Schema for mechanical load and stress testing protocols",
+  "allOf": [
+    {
+      "$ref": "base_protocol_schema.json"
+    },
+    {
+      "properties": {
+        "protocol_type": {
+          "const": "mechanical"
+        },
+        "parameters": {
+          "type": "object",
+          "required": ["module_id", "test_type"],
+          "properties": {
+            "module_id": {
+              "type": "string"
+            },
+            "test_type": {
+              "type": "string",
+              "enum": [
+                "mechanical_load",
+                "hail_impact",
+                "twist_test",
+                "pull_test",
+                "compression_test",
+                "vibration_test"
+              ]
+            },
+            "load_profile": {
+              "type": "object",
+              "properties": {
+                "load_value": {
+                  "type": "number",
+                  "description": "Applied load (Pa or N)"
+                },
+                "load_direction": {
+                  "type": "string",
+                  "enum": ["front", "back", "side"]
+                },
+                "duration": {
+                  "type": "number",
+                  "description": "Load duration (seconds)"
+                },
+                "cycles": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "support_points": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number"
+                  },
+                  "y": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "acceptance_criteria": {
+          "type": "object",
+          "properties": {
+            "max_deflection": {
+              "type": "number",
+              "description": "Maximum acceptable deflection (mm)"
+            },
+            "max_power_degradation": {
+              "type": "number",
+              "description": "Maximum power degradation after test (%)"
+            },
+            "no_cracks": {
+              "type": "boolean",
+              "description": "No visible cracks allowed"
+            },
+            "no_delamination": {
+              "type": "boolean",
+              "description": "No delamination allowed"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

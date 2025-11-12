@@ -1,0 +1,68 @@
+{
+  "protocol_id": "IEC61215-10-1",
+  "protocol_name": "Visual Inspection",
+  "protocol_type": "inspection",
+  "version": "1.0",
+  "standard": "IEC 61215",
+  "description": "Visual inspection of PV modules for physical defects, damage, and workmanship quality",
+  "parameters": {
+    "module_id": "",
+    "inspection_type": "pre-test",
+    "inspector": "",
+    "inspection_date": "",
+    "checklist": [
+      {
+        "item": "No broken cells",
+        "status": "pending",
+        "notes": ""
+      },
+      {
+        "item": "No delamination",
+        "status": "pending",
+        "notes": ""
+      },
+      {
+        "item": "No bubbles in encapsulant",
+        "status": "pending",
+        "notes": ""
+      },
+      {
+        "item": "Frame integrity",
+        "status": "pending",
+        "notes": ""
+      },
+      {
+        "item": "Junction box secure",
+        "status": "pending",
+        "notes": ""
+      },
+      {
+        "item": "Cable condition",
+        "status": "pending",
+        "notes": ""
+      },
+      {
+        "item": "Connector integrity",
+        "status": "pending",
+        "notes": ""
+      },
+      {
+        "item": "Label legibility",
+        "status": "pending",
+        "notes": ""
+      }
+    ]
+  },
+  "measurements": [],
+  "acceptance_criteria": {
+    "all_items_pass": true,
+    "no_major_defects": true
+  },
+  "metadata": {
+    "timestamp": "",
+    "operator": "",
+    "facility": "",
+    "equipment": ["Visual inspection tools", "Magnifying glass", "Camera"]
+  },
+  "status": "pending"
+}

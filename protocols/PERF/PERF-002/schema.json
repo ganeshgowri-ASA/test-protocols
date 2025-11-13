@@ -1,0 +1,296 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://test-protocols.example.com/schemas/PERF-002.json",
+  "title": "PERF-002 Data Validation Schema",
+  "description": "JSON Schema for validating PERF-002 measurement data",
+  "type": "object",
+  "required": [
+    "test_run",
+    "measurements"
+  ],
+  "properties": {
+    "test_run": {
+      "type": "object",
+      "required": [
+        "protocol_id",
+        "operator",
+        "start_time"
+      ],
+      "properties": {
+        "protocol_id": {
+          "type": "string",
+          "const": "PERF-002"
+        },
+        "run_number": {
+          "type": "string",
+          "pattern": "^PERF-002-[0-9]{4}-[0-9]{6}$",
+          "description": "Format: PERF-002-YYYY-NNNNNN"
+        },
+        "operator": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "module_serial": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "batch_number": {
+          "type": "string"
+        },
+        "project_code": {
+          "type": "string"
+        },
+        "start_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "end_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ambient_temperature": {
+          "type": "number",
+          "minimum": 15,
+          "maximum": 35
+        },
+        "ambient_humidity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "equipment_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "measurements": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "timestamp",
+          "target_irradiance",
+          "irradiance",
+          "module_temperature",
+          "voltage",
+          "current"
+        ],
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "target_irradiance": {
+            "type": "number",
+            "enum": [100, 200, 400, 600, 800, 1000, 1100],
+            "description": "Target irradiance level in W/m²"
+          },
+          "irradiance": {
+            "type": "number",
+            "minimum": 50,
+            "maximum": 1200,
+            "description": "Measured irradiance in W/m²"
+          },
+          "module_temperature": {
+            "type": "number",
+            "minimum": 15,
+            "maximum": 85,
+            "description": "Module temperature in °C"
+          },
+          "voltage": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1500,
+            "description": "Terminal voltage in V"
+          },
+          "current": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 50,
+            "description": "Output current in A"
+          },
+          "power": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Calculated power in W"
+          },
+          "position_x": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "description": "Grid X position (column)"
+          },
+          "position_y": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "description": "Grid Y position (row)"
+          }
+        }
+      }
+    },
+    "iv_curves": {
+      "type": "array",
+      "description": "I-V curve data for each irradiance level",
+      "items": {
+        "type": "object",
+        "required": [
+          "irradiance_level",
+          "points"
+        ],
+        "properties": {
+          "irradiance_level": {
+            "type": "number",
+            "enum": [100, 200, 400, 600, 800, 1000, 1100]
+          },
+          "points": {
+            "type": "array",
+            "minItems": 10,
+            "items": {
+              "type": "object",
+              "required": ["voltage", "current"],
+              "properties": {
+                "voltage": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "current": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "power": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "analysis_results": {
+      "type": "object",
+      "properties": {
+        "per_irradiance": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "irradiance_level",
+              "pmax",
+              "vmp",
+              "imp",
+              "voc",
+              "isc",
+              "fill_factor",
+              "efficiency"
+            ],
+            "properties": {
+              "irradiance_level": {
+                "type": "number",
+                "enum": [100, 200, 400, 600, 800, 1000, 1100]
+              },
+              "pmax": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Maximum power in W"
+              },
+              "vmp": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Voltage at MPP in V"
+              },
+              "imp": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Current at MPP in A"
+              },
+              "voc": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Open circuit voltage in V"
+              },
+              "isc": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Short circuit current in A"
+              },
+              "fill_factor": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "Fill factor in %"
+              },
+              "efficiency": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "Module efficiency in %"
+              },
+              "irradiance_uniformity": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "Spatial uniformity in %"
+              }
+            }
+          }
+        },
+        "overall": {
+          "type": "object",
+          "properties": {
+            "linearity_coefficient": {
+              "type": "number",
+              "description": "Power linearity coefficient"
+            },
+            "r_squared": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Coefficient of determination"
+            }
+          }
+        }
+      }
+    },
+    "qc_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "check_name",
+          "status"
+        ],
+        "properties": {
+          "check_name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pass", "fail", "warning", "na"]
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "high", "normal", "low"]
+          },
+          "message": {
+            "type": "string"
+          },
+          "expected_value": {
+            "type": "number"
+          },
+          "actual_value": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  }
+}

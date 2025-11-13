@@ -1,0 +1,729 @@
+{
+  "protocol_id": "PERF-002",
+  "version": "1.0.0",
+  "name": "Performance Testing at Different Irradiances",
+  "category": "Performance",
+  "description": "Comprehensive performance testing protocol for PV modules at multiple irradiance levels (100, 200, 400, 600, 800, 1000, 1100 W/m²) according to IEC 61853 standards. Measures I-V characteristics, power output, and efficiency across the full range of operating conditions.",
+
+  "metadata": {
+    "author": "ganeshgowri-ASA",
+    "created_date": "2025-11-13",
+    "last_modified": "2025-11-13",
+    "standard_references": [
+      "IEC 61853-1:2011 - PV module performance testing and energy rating - Part 1: Irradiance and temperature performance measurements and power rating",
+      "IEC 61853-2:2016 - Part 2: Spectral responsivity, incidence angle and module operating temperature measurements",
+      "IEC 60904-9:2020 - Solar simulator performance requirements",
+      "IEC 60904-1:2020 - Measurement of photovoltaic current-voltage characteristics"
+    ],
+    "revision_history": [
+      {
+        "version": "1.0.0",
+        "date": "2025-11-13",
+        "changes": "Initial release with full IEC 61853 compliance"
+      }
+    ]
+  },
+
+  "test_configuration": {
+    "test_type": "performance_irradiance",
+    "irradiance_levels": [
+      {
+        "level": 100,
+        "unit": "W/m²",
+        "tolerance": 2,
+        "description": "Low irradiance condition",
+        "measurement_points": 25
+      },
+      {
+        "level": 200,
+        "unit": "W/m²",
+        "tolerance": 2,
+        "description": "Low-medium irradiance condition",
+        "measurement_points": 25
+      },
+      {
+        "level": 400,
+        "unit": "W/m²",
+        "tolerance": 2,
+        "description": "Medium irradiance condition",
+        "measurement_points": 25
+      },
+      {
+        "level": 600,
+        "unit": "W/m²",
+        "tolerance": 2,
+        "description": "Medium-high irradiance condition",
+        "measurement_points": 25
+      },
+      {
+        "level": 800,
+        "unit": "W/m²",
+        "tolerance": 2,
+        "description": "High irradiance condition",
+        "measurement_points": 25
+      },
+      {
+        "level": 1000,
+        "unit": "W/m²",
+        "tolerance": 2,
+        "description": "Standard test condition (STC) irradiance",
+        "measurement_points": 25
+      },
+      {
+        "level": 1100,
+        "unit": "W/m²",
+        "tolerance": 2,
+        "description": "Peak irradiance condition",
+        "measurement_points": 25
+      }
+    ],
+
+    "equipment_required": [
+      {
+        "type": "solar_simulator",
+        "classification": "Class AAA (IEC 60904-9)",
+        "required": true,
+        "calibration_interval_months": 12
+      },
+      {
+        "type": "reference_cell",
+        "specification": "Calibrated reference cell with temperature sensor",
+        "required": true,
+        "calibration_interval_months": 12
+      },
+      {
+        "type": "iv_tracer",
+        "specification": "4-wire measurement, ≤1% accuracy",
+        "required": true,
+        "calibration_interval_months": 12
+      },
+      {
+        "type": "pyranometer",
+        "specification": "Secondary standard, ISO 9060:2018",
+        "required": true,
+        "calibration_interval_months": 24
+      },
+      {
+        "type": "temperature_sensor",
+        "specification": "Type-T thermocouple or PT100, ±0.5°C",
+        "required": true,
+        "calibration_interval_months": 12
+      },
+      {
+        "type": "data_acquisition_system",
+        "specification": "≥16-bit resolution, ≥100 samples/sec",
+        "required": true,
+        "calibration_interval_months": 12
+      }
+    ],
+
+    "environmental_conditions": {
+      "temperature": {
+        "target": 25,
+        "tolerance": 2,
+        "unit": "°C",
+        "description": "Module temperature (STC)"
+      },
+      "ambient_temperature": {
+        "min": 20,
+        "max": 30,
+        "unit": "°C"
+      },
+      "humidity": {
+        "min": 30,
+        "max": 70,
+        "unit": "%RH"
+      },
+      "wind_speed": {
+        "max": 1,
+        "unit": "m/s",
+        "description": "Indoor testing environment"
+      },
+      "spectrum": {
+        "standard": "AM1.5G",
+        "reference": "IEC 60904-3"
+      }
+    },
+
+    "stabilization": {
+      "preconditioning_time": 30,
+      "preconditioning_time_unit": "minutes",
+      "temperature_stabilization_tolerance": 0.5,
+      "irradiance_stabilization_tolerance": 1.0,
+      "stabilization_duration": 5,
+      "stabilization_duration_unit": "minutes"
+    }
+  },
+
+  "measurement_grid": {
+    "type": "uniform_grid",
+    "dimensions": {
+      "rows": 5,
+      "columns": 5,
+      "total_points": 25
+    },
+    "spacing": {
+      "horizontal": 150,
+      "vertical": 150,
+      "unit": "mm"
+    },
+    "coverage": {
+      "description": "Grid covers entire module active area with edge margin",
+      "edge_margin": 50,
+      "edge_margin_unit": "mm"
+    }
+  },
+
+  "data_collection": {
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "datetime",
+        "required": true,
+        "description": "Measurement timestamp in ISO 8601 format"
+      },
+      {
+        "name": "irradiance",
+        "type": "float",
+        "unit": "W/m²",
+        "required": true,
+        "validation": {
+          "min": 50,
+          "max": 1200
+        },
+        "precision": 0.1,
+        "description": "Measured irradiance at reference cell"
+      },
+      {
+        "name": "target_irradiance",
+        "type": "float",
+        "unit": "W/m²",
+        "required": true,
+        "enum": [100, 200, 400, 600, 800, 1000, 1100],
+        "description": "Target irradiance level for this measurement"
+      },
+      {
+        "name": "module_temperature",
+        "type": "float",
+        "unit": "°C",
+        "required": true,
+        "validation": {
+          "min": 15,
+          "max": 85
+        },
+        "precision": 0.1,
+        "description": "Module back-surface temperature"
+      },
+      {
+        "name": "voltage",
+        "type": "float",
+        "unit": "V",
+        "required": true,
+        "validation": {
+          "min": 0,
+          "max": 1500
+        },
+        "precision": 0.01,
+        "description": "Module terminal voltage"
+      },
+      {
+        "name": "current",
+        "type": "float",
+        "unit": "A",
+        "required": true,
+        "validation": {
+          "min": 0,
+          "max": 50
+        },
+        "precision": 0.001,
+        "description": "Module output current"
+      },
+      {
+        "name": "power",
+        "type": "float",
+        "unit": "W",
+        "required": false,
+        "calculated": true,
+        "formula": "voltage * current",
+        "description": "Instantaneous power output"
+      },
+      {
+        "name": "position_x",
+        "type": "integer",
+        "required": false,
+        "validation": {
+          "min": 1,
+          "max": 5
+        },
+        "description": "Grid position X coordinate (column)"
+      },
+      {
+        "name": "position_y",
+        "type": "integer",
+        "required": false,
+        "validation": {
+          "min": 1,
+          "max": 5
+        },
+        "description": "Grid position Y coordinate (row)"
+      }
+    ],
+
+    "iv_curve": {
+      "required": true,
+      "points_per_curve": 100,
+      "voltage_range": "0 to Voc",
+      "sweep_rate": "fast",
+      "sweep_direction": "forward",
+      "description": "Full I-V curve sweep from short-circuit to open-circuit"
+    }
+  },
+
+  "analysis": {
+    "calculations": [
+      {
+        "name": "pmax",
+        "description": "Maximum power point",
+        "formula": "max(V * I)",
+        "unit": "W",
+        "required": true,
+        "per_irradiance_level": true
+      },
+      {
+        "name": "vmp",
+        "description": "Voltage at maximum power point",
+        "formula": "V at Pmax",
+        "unit": "V",
+        "required": true,
+        "per_irradiance_level": true
+      },
+      {
+        "name": "imp",
+        "description": "Current at maximum power point",
+        "formula": "I at Pmax",
+        "unit": "A",
+        "required": true,
+        "per_irradiance_level": true
+      },
+      {
+        "name": "voc",
+        "description": "Open circuit voltage",
+        "formula": "V at I=0",
+        "unit": "V",
+        "required": true,
+        "per_irradiance_level": true
+      },
+      {
+        "name": "isc",
+        "description": "Short circuit current",
+        "formula": "I at V=0",
+        "unit": "A",
+        "required": true,
+        "per_irradiance_level": true
+      },
+      {
+        "name": "fill_factor",
+        "description": "Fill factor",
+        "formula": "(Vmp * Imp) / (Voc * Isc)",
+        "unit": "%",
+        "required": true,
+        "per_irradiance_level": true
+      },
+      {
+        "name": "efficiency",
+        "description": "Module efficiency",
+        "formula": "(Pmax / (Irradiance * Area)) * 100",
+        "unit": "%",
+        "required": true,
+        "per_irradiance_level": true
+      },
+      {
+        "name": "irradiance_uniformity",
+        "description": "Spatial uniformity of irradiance across grid",
+        "formula": "(1 - (StdDev / Mean)) * 100",
+        "unit": "%",
+        "required": true,
+        "per_irradiance_level": true
+      },
+      {
+        "name": "normalized_pmax",
+        "description": "Power normalized to STC (1000 W/m²)",
+        "formula": "Pmax * (1000 / Irradiance_actual)",
+        "unit": "W",
+        "required": true,
+        "per_irradiance_level": true
+      },
+      {
+        "name": "linearity_coefficient",
+        "description": "Linearity of power vs irradiance",
+        "formula": "linear_regression(Irradiance, Pmax)",
+        "unit": "W/(W/m²)",
+        "required": true,
+        "per_irradiance_level": false
+      }
+    ],
+
+    "statistical_analysis": {
+      "required": true,
+      "methods": [
+        "mean",
+        "median",
+        "std_dev",
+        "variance",
+        "min",
+        "max",
+        "coefficient_of_variation"
+      ]
+    }
+  },
+
+  "qc_checks": [
+    {
+      "name": "irradiance_tolerance",
+      "description": "Verify measured irradiance within tolerance of target",
+      "type": "range",
+      "parameter": "irradiance",
+      "tolerance_type": "percentage",
+      "tolerance_value": 2,
+      "severity": "critical",
+      "per_measurement": true
+    },
+    {
+      "name": "temperature_tolerance",
+      "description": "Verify module temperature within STC tolerance",
+      "type": "range",
+      "parameter": "module_temperature",
+      "target": 25,
+      "tolerance": 2,
+      "unit": "°C",
+      "severity": "high",
+      "per_measurement": true
+    },
+    {
+      "name": "uniformity_threshold",
+      "description": "Spatial uniformity must meet IEC requirements",
+      "type": "threshold",
+      "parameter": "irradiance_uniformity",
+      "min": 95,
+      "max": 100,
+      "unit": "%",
+      "severity": "high",
+      "per_irradiance_level": true
+    },
+    {
+      "name": "fill_factor_range",
+      "description": "Fill factor within acceptable range",
+      "type": "range",
+      "parameter": "fill_factor",
+      "min": 65,
+      "max": 85,
+      "unit": "%",
+      "severity": "normal",
+      "per_irradiance_level": true
+    },
+    {
+      "name": "efficiency_minimum",
+      "description": "Efficiency meets minimum specification",
+      "type": "threshold",
+      "parameter": "efficiency",
+      "min": 15,
+      "unit": "%",
+      "severity": "high",
+      "per_irradiance_level": true
+    },
+    {
+      "name": "iv_curve_quality",
+      "description": "I-V curve shape and monotonicity check",
+      "type": "custom",
+      "function": "validate_iv_curve",
+      "severity": "critical",
+      "per_irradiance_level": true
+    },
+    {
+      "name": "data_completeness",
+      "description": "All required measurements captured",
+      "type": "completeness",
+      "required_measurements": 175,
+      "severity": "critical"
+    },
+    {
+      "name": "linearity_check",
+      "description": "Power output linearity across irradiance range",
+      "type": "correlation",
+      "parameter": "normalized_pmax",
+      "min_r_squared": 0.98,
+      "severity": "normal"
+    }
+  ],
+
+  "visualization": {
+    "charts": [
+      {
+        "id": "iv_curves_all",
+        "type": "line",
+        "title": "I-V Curves at All Irradiance Levels",
+        "x_axis": {
+          "parameter": "voltage",
+          "label": "Voltage (V)",
+          "scale": "linear"
+        },
+        "y_axis": {
+          "parameter": "current",
+          "label": "Current (A)",
+          "scale": "linear"
+        },
+        "series": "irradiance_level",
+        "legend": true,
+        "grid": true
+      },
+      {
+        "id": "pv_curves_all",
+        "type": "line",
+        "title": "P-V Curves at All Irradiance Levels",
+        "x_axis": {
+          "parameter": "voltage",
+          "label": "Voltage (V)",
+          "scale": "linear"
+        },
+        "y_axis": {
+          "parameter": "power",
+          "label": "Power (W)",
+          "scale": "linear"
+        },
+        "series": "irradiance_level",
+        "legend": true,
+        "grid": true
+      },
+      {
+        "id": "power_vs_irradiance",
+        "type": "scatter",
+        "title": "Maximum Power vs Irradiance",
+        "x_axis": {
+          "parameter": "irradiance",
+          "label": "Irradiance (W/m²)",
+          "scale": "linear"
+        },
+        "y_axis": {
+          "parameter": "pmax",
+          "label": "Maximum Power (W)",
+          "scale": "linear"
+        },
+        "trendline": {
+          "type": "linear",
+          "show_equation": true,
+          "show_r_squared": true
+        },
+        "markers": true
+      },
+      {
+        "id": "efficiency_vs_irradiance",
+        "type": "bar",
+        "title": "Efficiency at Different Irradiance Levels",
+        "x_axis": {
+          "parameter": "irradiance_level",
+          "label": "Irradiance (W/m²)",
+          "scale": "categorical"
+        },
+        "y_axis": {
+          "parameter": "efficiency",
+          "label": "Efficiency (%)",
+          "scale": "linear"
+        },
+        "color_map": "viridis"
+      },
+      {
+        "id": "fill_factor_vs_irradiance",
+        "type": "line",
+        "title": "Fill Factor vs Irradiance",
+        "x_axis": {
+          "parameter": "irradiance_level",
+          "label": "Irradiance (W/m²)",
+          "scale": "linear"
+        },
+        "y_axis": {
+          "parameter": "fill_factor",
+          "label": "Fill Factor (%)",
+          "scale": "linear"
+        },
+        "markers": true
+      },
+      {
+        "id": "irradiance_uniformity_heatmap",
+        "type": "heatmap",
+        "title": "Irradiance Uniformity - Spatial Distribution",
+        "x_axis": {
+          "parameter": "position_x",
+          "label": "X Position"
+        },
+        "y_axis": {
+          "parameter": "position_y",
+          "label": "Y Position"
+        },
+        "z_axis": {
+          "parameter": "irradiance",
+          "label": "Irradiance (W/m²)"
+        },
+        "color_map": "RdYlBu_r",
+        "per_irradiance_level": true
+      },
+      {
+        "id": "parameters_summary",
+        "type": "table",
+        "title": "Key Parameters Summary",
+        "columns": [
+          "irradiance_level",
+          "pmax",
+          "voc",
+          "isc",
+          "vmp",
+          "imp",
+          "fill_factor",
+          "efficiency"
+        ]
+      }
+    ],
+
+    "dashboard_layout": {
+      "pages": [
+        {
+          "name": "Overview",
+          "charts": ["parameters_summary", "power_vs_irradiance"]
+        },
+        {
+          "name": "I-V Characteristics",
+          "charts": ["iv_curves_all", "pv_curves_all"]
+        },
+        {
+          "name": "Performance Analysis",
+          "charts": ["efficiency_vs_irradiance", "fill_factor_vs_irradiance"]
+        },
+        {
+          "name": "Uniformity",
+          "charts": ["irradiance_uniformity_heatmap"]
+        }
+      ]
+    }
+  },
+
+  "reporting": {
+    "template": "IEC_61853_performance_report",
+    "format": ["pdf", "html", "json"],
+    "sections": [
+      {
+        "name": "executive_summary",
+        "required": true,
+        "content": [
+          "test_date",
+          "module_info",
+          "overall_result",
+          "key_findings"
+        ]
+      },
+      {
+        "name": "test_conditions",
+        "required": true,
+        "content": [
+          "environmental_conditions",
+          "equipment_list",
+          "calibration_status",
+          "operator_info"
+        ]
+      },
+      {
+        "name": "measurements",
+        "required": true,
+        "content": [
+          "raw_data_tables",
+          "iv_curves",
+          "measurement_grid_data"
+        ]
+      },
+      {
+        "name": "analysis_results",
+        "required": true,
+        "content": [
+          "calculated_parameters",
+          "performance_charts",
+          "statistical_summary",
+          "linearity_analysis"
+        ]
+      },
+      {
+        "name": "qc_status",
+        "required": true,
+        "content": [
+          "qc_checks_summary",
+          "pass_fail_status",
+          "deviations",
+          "corrective_actions"
+        ]
+      },
+      {
+        "name": "conclusions",
+        "required": true,
+        "content": [
+          "compliance_statement",
+          "performance_rating",
+          "recommendations"
+        ]
+      },
+      {
+        "name": "appendices",
+        "required": false,
+        "content": [
+          "calibration_certificates",
+          "raw_data_export",
+          "calculation_methodology"
+        ]
+      }
+    ],
+
+    "export_options": {
+      "include_raw_data": true,
+      "include_charts": true,
+      "chart_format": "png",
+      "chart_dpi": 300,
+      "data_precision": 3
+    }
+  },
+
+  "traceability": {
+    "required_fields": [
+      "module_serial_number",
+      "batch_number",
+      "project_code",
+      "operator",
+      "test_date",
+      "equipment_ids",
+      "calibration_due_dates"
+    ],
+    "audit_trail": {
+      "enabled": true,
+      "log_all_changes": true,
+      "require_change_justification": true
+    },
+    "digital_signature": {
+      "enabled": false,
+      "required_roles": ["operator", "supervisor"]
+    }
+  },
+
+  "integrations": {
+    "lims": {
+      "enabled": false,
+      "auto_upload": true,
+      "upload_format": "json",
+      "fields_mapping": "config/lims_mapping.json"
+    },
+    "qms": {
+      "enabled": false,
+      "auto_create_ncr": true,
+      "trigger_on": "qc_failure"
+    },
+    "project_management": {
+      "enabled": false,
+      "update_status": true,
+      "milestone_tracking": true
+    }
+  }
+}

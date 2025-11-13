@@ -1,0 +1,27 @@
+database:
+  # SQLite database for development
+  development:
+    type: sqlite
+    path: ./data/test_protocols.db
+    echo: true
+    pool_size: 5
+
+  # PostgreSQL for production (optional)
+  production:
+    type: postgresql
+    host: localhost
+    port: 5432
+    database: test_protocols
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    pool_size: 20
+    max_overflow: 10
+
+  # Test database (in-memory)
+  test:
+    type: sqlite
+    path: ":memory:"
+    echo: false
+
+# Default environment
+default_env: development

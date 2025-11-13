@@ -1,0 +1,12 @@
+{
+  "test_name": "PID-001-TEST-001",
+  "module_id": "PV-MODULE-12345",
+  "test_voltage": -1000,
+  "test_duration": 96,
+  "temperature": 85,
+  "relative_humidity": 85,
+  "sampling_interval": 60,
+  "leakage_current_threshold": 10,
+  "operator": "Test Operator",
+  "notes": "Standard IEC 62804 PID shunting test"
+}

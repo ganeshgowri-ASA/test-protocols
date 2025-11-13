@@ -1,0 +1,252 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "metadata": {
+    "pid": "pid-001",
+    "name": "PID Shunting Test Protocol",
+    "version": "1.0.0",
+    "standard": "IEC 62804",
+    "description": "Potential-Induced Degradation (PID) Shunting Test for Photovoltaic Modules",
+    "created_date": "2025-11-13",
+    "status": "active",
+    "author": "GenSpark",
+    "tags": ["PID", "IEC 62804", "shunting", "leakage current", "photovoltaic"]
+  },
+  "test_parameters": {
+    "type": "object",
+    "properties": {
+      "test_name": {
+        "type": "string",
+        "description": "Unique identifier for the test execution",
+        "minLength": 1
+      },
+      "module_id": {
+        "type": "string",
+        "description": "Photovoltaic module identifier"
+      },
+      "test_voltage": {
+        "type": "number",
+        "description": "Applied test voltage in volts (V)",
+        "minimum": -1500,
+        "maximum": 1500,
+        "default": -1000
+      },
+      "test_duration": {
+        "type": "number",
+        "description": "Test duration in hours",
+        "minimum": 0,
+        "maximum": 500,
+        "default": 96
+      },
+      "temperature": {
+        "type": "number",
+        "description": "Test temperature in Celsius",
+        "minimum": 0,
+        "maximum": 100,
+        "default": 85
+      },
+      "relative_humidity": {
+        "type": "number",
+        "description": "Relative humidity in percentage",
+        "minimum": 0,
+        "maximum": 100,
+        "default": 85
+      },
+      "sampling_interval": {
+        "type": "number",
+        "description": "Measurement sampling interval in seconds",
+        "minimum": 1,
+        "maximum": 3600,
+        "default": 60
+      },
+      "leakage_current_threshold": {
+        "type": "number",
+        "description": "Maximum acceptable leakage current in mA",
+        "minimum": 0,
+        "default": 10
+      },
+      "operator": {
+        "type": "string",
+        "description": "Name of test operator"
+      },
+      "notes": {
+        "type": "string",
+        "description": "Additional test notes or observations"
+      }
+    },
+    "required": ["test_name", "module_id", "test_voltage", "test_duration"]
+  },
+  "measurements": {
+    "type": "object",
+    "properties": {
+      "timestamp": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Measurement timestamp"
+      },
+      "elapsed_time": {
+        "type": "number",
+        "description": "Elapsed time since test start in hours"
+      },
+      "leakage_current": {
+        "type": "number",
+        "description": "Measured leakage current in mA"
+      },
+      "voltage": {
+        "type": "number",
+        "description": "Applied voltage in V"
+      },
+      "temperature": {
+        "type": "number",
+        "description": "Measured temperature in Celsius"
+      },
+      "humidity": {
+        "type": "number",
+        "description": "Measured relative humidity in percentage"
+      },
+      "power_degradation": {
+        "type": "number",
+        "description": "Power degradation percentage compared to initial measurement"
+      }
+    },
+    "required": ["timestamp", "elapsed_time", "leakage_current", "voltage"]
+  },
+  "validation_rules": {
+    "leakage_current_limits": {
+      "warning_threshold": 5,
+      "critical_threshold": 10,
+      "unit": "mA"
+    },
+    "power_degradation_limits": {
+      "warning_threshold": 3,
+      "critical_threshold": 5,
+      "unit": "percent"
+    },
+    "temperature_tolerance": {
+      "min_deviation": -2,
+      "max_deviation": 2,
+      "unit": "Celsius"
+    },
+    "humidity_tolerance": {
+      "min_deviation": -5,
+      "max_deviation": 5,
+      "unit": "percent"
+    }
+  },
+  "results": {
+    "type": "object",
+    "properties": {
+      "test_id": {
+        "type": "string",
+        "description": "Unique test execution identifier"
+      },
+      "start_time": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "end_time": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "status": {
+        "type": "string",
+        "enum": ["completed", "failed", "aborted", "in_progress"],
+        "description": "Test execution status"
+      },
+      "measurements": {
+        "type": "array",
+        "items": {
+          "$ref": "#/measurements"
+        },
+        "description": "Array of measurement data points"
+      },
+      "summary": {
+        "type": "object",
+        "properties": {
+          "total_measurements": {
+            "type": "integer"
+          },
+          "average_leakage_current": {
+            "type": "number",
+            "description": "Average leakage current in mA"
+          },
+          "max_leakage_current": {
+            "type": "number",
+            "description": "Maximum leakage current in mA"
+          },
+          "final_power_degradation": {
+            "type": "number",
+            "description": "Final power degradation in percent"
+          },
+          "qc_status": {
+            "type": "string",
+            "enum": ["pass", "warning", "fail"],
+            "description": "Quality control status"
+          },
+          "qc_details": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "check": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": ["pass", "warning", "fail"]
+                },
+                "message": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "number"
+                },
+                "threshold": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "compliance": {
+        "type": "object",
+        "properties": {
+          "iec_62804_compliant": {
+            "type": "boolean",
+            "description": "Whether test meets IEC 62804 requirements"
+          },
+          "compliance_notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "required": ["test_id", "start_time", "status", "measurements", "summary"]
+  },
+  "chart_configurations": {
+    "leakage_current_vs_time": {
+      "type": "line",
+      "x_axis": "elapsed_time",
+      "y_axis": "leakage_current",
+      "title": "Leakage Current vs Time",
+      "x_label": "Time (hours)",
+      "y_label": "Leakage Current (mA)"
+    },
+    "power_degradation_vs_time": {
+      "type": "line",
+      "x_axis": "elapsed_time",
+      "y_axis": "power_degradation",
+      "title": "Power Degradation vs Time",
+      "x_label": "Time (hours)",
+      "y_label": "Power Degradation (%)"
+    },
+    "environmental_conditions": {
+      "type": "multi_line",
+      "x_axis": "elapsed_time",
+      "y_axes": ["temperature", "humidity"],
+      "title": "Environmental Conditions During Test",
+      "x_label": "Time (hours)",
+      "y_label": "Temperature (°C) / Humidity (%)"
+    }
+  }
+}

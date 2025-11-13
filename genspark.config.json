@@ -1,0 +1,115 @@
+{
+  "app_name": "PV Testing LIMS-QMS",
+  "version": "1.0.0",
+  "description": "Complete Laboratory Information Management System for Photovoltaic Testing with 54 Protocols",
+  "author": "GenSpark LIMS Team",
+  "license": "MIT",
+
+  "genspark": {
+    "framework_version": "0.1.0",
+    "app_type": "multi_page",
+    "theme": "professional",
+    "primary_color": "#1E40AF",
+    "secondary_color": "#10B981"
+  },
+
+  "features": {
+    "authentication": true,
+    "authorization": true,
+    "audit_trail": true,
+    "email_notifications": true,
+    "real_time_monitoring": true,
+    "data_export": true,
+    "report_generation": true,
+    "equipment_integration": true
+  },
+
+  "modules": {
+    "service_request": {
+      "enabled": true,
+      "auto_id_generation": true,
+      "quote_generation": true,
+      "approval_workflow": true
+    },
+    "incoming_inspection": {
+      "enabled": true,
+      "photo_capture": true,
+      "barcode_generation": true,
+      "damage_assessment": true
+    },
+    "equipment_booking": {
+      "enabled": true,
+      "calendar_view": true,
+      "conflict_detection": true,
+      "maintenance_tracking": true,
+      "calibration_tracking": true
+    },
+    "protocol_execution": {
+      "enabled": true,
+      "guided_testing": true,
+      "real_time_data": true,
+      "auto_calculations": true,
+      "live_monitoring": true
+    }
+  },
+
+  "protocols": {
+    "total_count": 54,
+    "categories": [
+      {
+        "name": "performance",
+        "count": 12,
+        "description": "Performance Testing Protocols"
+      },
+      {
+        "name": "degradation",
+        "count": 15,
+        "description": "Degradation Testing Protocols"
+      },
+      {
+        "name": "environmental",
+        "count": 12,
+        "description": "Environmental Testing Protocols"
+      },
+      {
+        "name": "mechanical",
+        "count": 8,
+        "description": "Mechanical Testing Protocols"
+      },
+      {
+        "name": "safety",
+        "count": 7,
+        "description": "Safety Testing Protocols"
+      }
+    ]
+  },
+
+  "database": {
+    "type": "postgresql",
+    "migrations_enabled": true,
+    "backup_enabled": true,
+    "backup_schedule": "daily"
+  },
+
+  "security": {
+    "jwt_enabled": true,
+    "token_expiry": 3600,
+    "refresh_token_enabled": true,
+    "rbac_enabled": true,
+    "roles": ["admin", "manager", "technician", "viewer"]
+  },
+
+  "integrations": {
+    "equipment_interfaces": ["serial", "ethernet", "rest_api"],
+    "external_systems": ["pm", "qc", "nc", "lims"],
+    "file_storage": ["local", "s3", "minio"],
+    "notifications": ["email", "sms", "webhook"]
+  },
+
+  "deployment": {
+    "containerized": true,
+    "docker_compose": true,
+    "kubernetes_ready": false,
+    "ci_cd_enabled": false
+  }
+}

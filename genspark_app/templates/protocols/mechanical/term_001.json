@@ -1,0 +1,83 @@
+{
+  "protocol_id": "TERM-001",
+  "name": "Terminal Robustness",
+  "category": "mechanical",
+  "version": "1.0",
+  "standard_reference": "IEC 61215-1:2021, MQT 19",
+  "description": "Terminal mechanical robustness test",
+  "test_conditions": {
+    "temperature_range": {
+      "min": 15,
+      "max": 75,
+      "unit": "\u00b0C"
+    },
+    "irradiance_range": {
+      "min": 100,
+      "max": 1200,
+      "unit": "W/m\u00b2"
+    },
+    "humidity_range": {
+      "min": 0,
+      "max": 100,
+      "unit": "%RH"
+    }
+  },
+  "input_parameters": [
+    {
+      "name": "sample_id",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "rated_power",
+      "type": "float",
+      "unit": "W",
+      "required": true
+    },
+    {
+      "name": "test_temperature",
+      "type": "float",
+      "unit": "\u00b0C",
+      "default": 25
+    },
+    {
+      "name": "test_irradiance",
+      "type": "float",
+      "unit": "W/m\u00b2",
+      "default": 1000
+    }
+  ],
+  "measurement_points": [
+    "Pull Force",
+    "Torque",
+    "Connection Integrity"
+  ],
+  "calculations": [
+    {
+      "name": "power_degradation",
+      "formula": "((P_initial - P_final) / P_initial) * 100",
+      "unit": "%"
+    },
+    {
+      "name": "efficiency",
+      "formula": "(P_max / (Irradiance * Area)) * 100",
+      "unit": "%"
+    }
+  ],
+  "acceptance_criteria": {
+    "power_degradation_max": 5.0,
+    "insulation_resistance_min": 40.0,
+    "visual_defects": "none"
+  },
+  "equipment_required": [
+    "Pull Test Equipment",
+    "Torque Wrench"
+  ],
+  "estimated_duration": 120,
+  "safety_precautions": [
+    "Wear appropriate PPE",
+    "Ensure equipment is properly grounded",
+    "Follow electrical safety procedures",
+    "Monitor test chamber conditions"
+  ]
+}

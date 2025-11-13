@@ -1,0 +1,82 @@
+{
+  "protocol_id": "PERF-002",
+  "name": "Performance at Different Irradiances",
+  "category": "performance",
+  "version": "1.0",
+  "standard_reference": "IEC 61215-1:2021",
+  "description": "Measure performance across irradiance range (100-1200 W/m\u00b2)",
+  "test_conditions": {
+    "temperature_range": {
+      "min": 15,
+      "max": 75,
+      "unit": "\u00b0C"
+    },
+    "irradiance_range": {
+      "min": 100,
+      "max": 1200,
+      "unit": "W/m\u00b2"
+    },
+    "humidity_range": {
+      "min": 0,
+      "max": 100,
+      "unit": "%RH"
+    }
+  },
+  "input_parameters": [
+    {
+      "name": "sample_id",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "rated_power",
+      "type": "float",
+      "unit": "W",
+      "required": true
+    },
+    {
+      "name": "test_temperature",
+      "type": "float",
+      "unit": "\u00b0C",
+      "default": 25
+    },
+    {
+      "name": "test_irradiance",
+      "type": "float",
+      "unit": "W/m\u00b2",
+      "default": 1000
+    }
+  ],
+  "measurement_points": [
+    "Efficiency vs Irradiance",
+    "Linearity Check"
+  ],
+  "calculations": [
+    {
+      "name": "power_degradation",
+      "formula": "((P_initial - P_final) / P_initial) * 100",
+      "unit": "%"
+    },
+    {
+      "name": "efficiency",
+      "formula": "(P_max / (Irradiance * Area)) * 100",
+      "unit": "%"
+    }
+  ],
+  "acceptance_criteria": {
+    "power_degradation_max": 5.0,
+    "insulation_resistance_min": 40.0,
+    "visual_defects": "none"
+  },
+  "equipment_required": [
+    "Solar Simulator",
+    "IV Curve Tracer"
+  ],
+  "estimated_duration": 240,
+  "safety_precautions": [
+    "Wear appropriate PPE",
+    "Ensure equipment is properly grounded",
+    "Follow electrical safety procedures",
+    "Monitor test chamber conditions"
+  ]
+}

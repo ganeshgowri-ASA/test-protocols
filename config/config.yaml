@@ -1,0 +1,132 @@
+# PV Testing Protocol Framework Configuration
+# ============================================
+
+# Application Settings
+app:
+  name: "PV Testing Protocol Framework"
+  version: "1.0.0"
+  environment: "production"
+  debug: false
+
+# Database Configuration
+database:
+  driver: "postgresql"
+  host: "localhost"
+  port: 5432
+  database: "pv_testing"
+  username: "pv_user"
+  password: "${DB_PASSWORD}"  # Use environment variable
+  pool_size: 10
+  max_overflow: 20
+  echo: false
+
+# Protocol Settings
+protocols:
+  data_retention_days: 365
+  auto_save_interval: 300  # seconds
+  max_concurrent_executions: 5
+  default_timeout: 3600  # seconds
+
+# Validation Settings
+validation:
+  strict_mode: true
+  allow_warnings: true
+  max_errors: 10
+
+# Visualization Settings
+visualization:
+  default_theme: "plotly_white"
+  default_width: 1200
+  default_height: 600
+  export_formats: ["png", "pdf", "svg", "html"]
+  dpi: 300
+
+# Report Settings
+reports:
+  output_directory: "./reports"
+  template_directory: "./reports/templates"
+  default_format: "pdf"
+  include_raw_data: true
+  include_visualizations: true
+  logo_path: "./assets/logo.png"
+
+# Storage Settings
+storage:
+  base_directory: "./data"
+  raw_data_directory: "./data/raw"
+  processed_data_directory: "./data/processed"
+  backup_directory: "./data/backups"
+  max_file_size_mb: 100
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  log_file: "./logs/pv_testing.log"
+  max_file_size_mb: 10
+  backup_count: 5
+  console_output: true
+
+# Integration Settings
+integrations:
+  lims:
+    enabled: false
+    api_url: "http://lims.example.com/api"
+    api_key: "${LIMS_API_KEY}"
+    timeout: 30
+
+  qms:
+    enabled: false
+    api_url: "http://qms.example.com/api"
+    api_key: "${QMS_API_KEY}"
+    timeout: 30
+
+# Performance Settings
+performance:
+  cache_enabled: true
+  cache_ttl: 3600
+  async_processing: true
+  worker_threads: 4
+
+# Security Settings
+security:
+  authentication_enabled: true
+  jwt_secret: "${JWT_SECRET}"
+  jwt_expiration: 3600
+  password_min_length: 8
+  max_login_attempts: 5
+
+# API Settings
+api:
+  host: "0.0.0.0"
+  port: 8000
+  cors_origins: ["*"]
+  rate_limit: "100/minute"
+  timeout: 60
+
+# Email Notifications (optional)
+notifications:
+  email:
+    enabled: false
+    smtp_server: "smtp.example.com"
+    smtp_port: 587
+    sender: "noreply@example.com"
+    username: "${EMAIL_USERNAME}"
+    password: "${EMAIL_PASSWORD}"
+
+# Test Equipment Configuration
+equipment:
+  solar_simulator:
+    model: "Example SS-1000"
+    calibration_date: "2024-01-01"
+    next_calibration: "2025-01-01"
+
+  iv_tracer:
+    model: "Example IV-Trace"
+    calibration_date: "2024-01-01"
+    next_calibration: "2025-01-01"
+
+  climate_chamber:
+    model: "Example CC-500"
+    calibration_date: "2024-01-01"
+    next_calibration: "2025-01-01"

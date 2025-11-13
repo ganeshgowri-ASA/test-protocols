@@ -1,0 +1,73 @@
+{
+  "protocol_id": "SPONGE-001",
+  "protocol_name": "Sponge Layer Formation Detection",
+  "version": "1.0.0",
+  "category": "degradation",
+  "standard_reference": "Internal Test Method",
+  "description": "Detection and characterization of sponge layer defects",
+  "test_parameters": [
+    {
+      "name": "inspection_method",
+      "type": "string",
+      "default": "el_imaging"
+    }
+  ],
+  "data_fields": [
+    {
+      "name": "el_image",
+      "type": "image"
+    },
+    {
+      "name": "defect_locations",
+      "type": "list"
+    },
+    {
+      "name": "severity_score",
+      "type": "float"
+    }
+  ],
+  "analysis_methods": [
+    "image_processing",
+    "defect_quantification"
+  ],
+  "validation_criteria": [
+    {
+      "parameter": "affected_area",
+      "max": 5.0
+    }
+  ],
+  "visualization_types": [
+    "el_image_overlay",
+    "defect_map",
+    "severity_heatmap"
+  ],
+  "ui_config": {
+    "tabs": [
+      {
+        "id": "setup",
+        "name": "Setup",
+        "icon": "\u2699\ufe0f"
+      },
+      {
+        "id": "data",
+        "name": "Data Acquisition",
+        "icon": "\ud83d\udcca"
+      },
+      {
+        "id": "analysis",
+        "name": "Analysis",
+        "icon": "\ud83d\udd2c"
+      },
+      {
+        "id": "validation",
+        "name": "Validation",
+        "icon": "\u2705"
+      },
+      {
+        "id": "report",
+        "name": "Report",
+        "icon": "\ud83d\udcc4"
+      }
+    ]
+  }
+}

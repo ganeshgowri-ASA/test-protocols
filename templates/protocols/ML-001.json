@@ -1,0 +1,95 @@
+{
+  "protocol_id": "ML-001",
+  "protocol_name": "Mechanical Load Test - Static",
+  "version": "1.0.0",
+  "category": "mechanical",
+  "standard_reference": "IEC 61215-2:2021 MQT 15",
+  "description": "Static mechanical load test at specified pressures",
+  "test_parameters": [
+    {
+      "name": "front_load",
+      "type": "float",
+      "unit": "Pa",
+      "default": 2400
+    },
+    {
+      "name": "back_load",
+      "type": "float",
+      "unit": "Pa",
+      "default": 2400
+    },
+    {
+      "name": "cycles",
+      "type": "int",
+      "default": 3
+    }
+  ],
+  "data_fields": [
+    {
+      "name": "load_cycle",
+      "type": "int"
+    },
+    {
+      "name": "deflection",
+      "type": "float",
+      "unit": "mm"
+    },
+    {
+      "name": "power_output",
+      "type": "float"
+    },
+    {
+      "name": "visual_inspection",
+      "type": "dict"
+    }
+  ],
+  "analysis_methods": [
+    "deflection_analysis",
+    "crack_detection",
+    "power_correlation"
+  ],
+  "validation_criteria": [
+    {
+      "parameter": "power_loss",
+      "max": 5.0
+    },
+    {
+      "parameter": "max_deflection",
+      "max": 30
+    }
+  ],
+  "visualization_types": [
+    "load_deflection_curve",
+    "power_vs_load",
+    "crack_map"
+  ],
+  "ui_config": {
+    "tabs": [
+      {
+        "id": "setup",
+        "name": "Setup",
+        "icon": "\u2699\ufe0f"
+      },
+      {
+        "id": "data",
+        "name": "Data Acquisition",
+        "icon": "\ud83d\udcca"
+      },
+      {
+        "id": "analysis",
+        "name": "Analysis",
+        "icon": "\ud83d\udd2c"
+      },
+      {
+        "id": "validation",
+        "name": "Validation",
+        "icon": "\u2705"
+      },
+      {
+        "id": "report",
+        "name": "Report",
+        "icon": "\ud83d\udcc4"
+      }
+    ]
+  }
+}

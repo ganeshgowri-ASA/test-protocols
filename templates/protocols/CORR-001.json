@@ -1,0 +1,79 @@
+{
+  "protocol_id": "CORR-001",
+  "protocol_name": "Corrosion Resistance Test",
+  "version": "1.0.0",
+  "category": "degradation",
+  "standard_reference": "IEC 61215-2:2021 MQT 12",
+  "description": "Assessment of module resistance to corrosion",
+  "test_parameters": [
+    {
+      "name": "exposure_duration",
+      "type": "float",
+      "unit": "hours",
+      "default": 240
+    },
+    {
+      "name": "salt_concentration",
+      "type": "float",
+      "unit": "%",
+      "default": 5
+    }
+  ],
+  "data_fields": [
+    {
+      "name": "time",
+      "type": "array"
+    },
+    {
+      "name": "visual_rating",
+      "type": "array"
+    },
+    {
+      "name": "electrical_performance",
+      "type": "array"
+    }
+  ],
+  "analysis_methods": [
+    "corrosion_rating",
+    "performance_degradation"
+  ],
+  "validation_criteria": [
+    {
+      "parameter": "power_loss",
+      "max": 5.0
+    }
+  ],
+  "visualization_types": [
+    "corrosion_progression",
+    "performance_impact"
+  ],
+  "ui_config": {
+    "tabs": [
+      {
+        "id": "setup",
+        "name": "Setup",
+        "icon": "\u2699\ufe0f"
+      },
+      {
+        "id": "data",
+        "name": "Data Acquisition",
+        "icon": "\ud83d\udcca"
+      },
+      {
+        "id": "analysis",
+        "name": "Analysis",
+        "icon": "\ud83d\udd2c"
+      },
+      {
+        "id": "validation",
+        "name": "Validation",
+        "icon": "\u2705"
+      },
+      {
+        "id": "report",
+        "name": "Report",
+        "icon": "\ud83d\udcc4"
+      }
+    ]
+  }
+}

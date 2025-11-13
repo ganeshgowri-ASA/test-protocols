@@ -1,0 +1,101 @@
+{
+  "protocol_id": "TEMP-001",
+  "protocol_name": "Temperature Coefficient Measurement",
+  "version": "1.0.0",
+  "category": "performance",
+  "standard_reference": "IEC 60891:2021",
+  "description": "Measurement of temperature coefficients for Isc, Voc, and Pmax",
+  "test_parameters": [
+    {
+      "name": "temperature_range",
+      "type": "list",
+      "default": [
+        15,
+        25,
+        40,
+        50,
+        60,
+        70
+      ]
+    },
+    {
+      "name": "irradiance",
+      "type": "float",
+      "default": 1000
+    }
+  ],
+  "data_fields": [
+    {
+      "name": "temperature",
+      "type": "array",
+      "unit": "\u00b0C"
+    },
+    {
+      "name": "isc",
+      "type": "array",
+      "unit": "A"
+    },
+    {
+      "name": "voc",
+      "type": "array",
+      "unit": "V"
+    },
+    {
+      "name": "pmax",
+      "type": "array",
+      "unit": "W"
+    }
+  ],
+  "analysis_methods": [
+    "temperature_coefficient_regression",
+    "normalization"
+  ],
+  "validation_criteria": [
+    {
+      "parameter": "alpha_isc",
+      "typical": 0.05
+    },
+    {
+      "parameter": "beta_voc",
+      "typical": -0.35
+    },
+    {
+      "parameter": "gamma_pmax",
+      "typical": -0.45
+    }
+  ],
+  "visualization_types": [
+    "coefficient_plots",
+    "regression_lines",
+    "comparison_table"
+  ],
+  "ui_config": {
+    "tabs": [
+      {
+        "id": "setup",
+        "name": "Setup",
+        "icon": "\u2699\ufe0f"
+      },
+      {
+        "id": "data",
+        "name": "Data Acquisition",
+        "icon": "\ud83d\udcca"
+      },
+      {
+        "id": "analysis",
+        "name": "Analysis",
+        "icon": "\ud83d\udd2c"
+      },
+      {
+        "id": "validation",
+        "name": "Validation",
+        "icon": "\u2705"
+      },
+      {
+        "id": "report",
+        "name": "Report",
+        "icon": "\ud83d\udcc4"
+      }
+    ]
+  }
+}

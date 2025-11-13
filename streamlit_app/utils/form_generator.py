@@ -122,11 +122,59 @@ class FormGenerator:
         min_val = validation.get("min")
         max_val = validation.get("max")
 
+        # Determine if field expects integer or float
+        # Check for explicit type specification in validation
+        field_type_spec = validation.get("type", "").lower()
+
+        # Infer type from min/max values if not explicitly specified
+        is_integer_field = False
+        if field_type_spec in ["integer", "int"]:
+            is_integer_field = True
+        elif field_type_spec in ["float", "decimal", "number"]:
+            is_integer_field = False
+        else:
+            # Infer from min/max values - if both are integers, treat as integer field
+            if min_val is not None and max_val is not None:
+                is_integer_field = isinstance(min_val, int) and isinstance(max_val, int)
+            elif min_val is not None:
+                is_integer_field = isinstance(min_val, int)
+            elif max_val is not None:
+                is_integer_field = isinstance(max_val, int)
+
+        # Convert all numeric parameters to the same type for consistency
+        if is_integer_field:
+            # Convert to integers
+            if default_value is not None:
+                default_value = int(default_value)
+            if min_val is not None:
+                min_val = int(min_val)
+            if max_val is not None:
+                max_val = int(max_val)
+            step = 1
+        else:
+            # Convert to floats
+            if default_value is not None:
+                default_value = float(default_value)
+            if min_val is not None:
+                min_val = float(min_val)
+            if max_val is not None:
+                max_val = float(max_val)
+            step = None  # Let Streamlit determine appropriate step for floats
+
+        # Get current value and ensure it matches the expected type
+        current_value = st.session_state.form_data.get(field_key, default_value)
+        if current_value is not None:
+            if is_integer_field:
+                current_value = int(current_value)
+            else:
+                current_value = float(current_value)
+
         value = st.number_input(
             label,
-            value=st.session_state.form_data.get(field_key, default_value),
+            value=current_value,
             min_value=min_val,
             max_value=max_val,
+            step=step,
             help=help_text,
             key=field_key
         )

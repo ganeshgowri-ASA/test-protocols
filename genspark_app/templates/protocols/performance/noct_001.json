@@ -1,0 +1,871 @@
+{
+  "protocol_id": "NOCT-001",
+  "name": "Nominal Operating Cell Temperature",
+  "category": "performance",
+  "version": "1.0.0",
+  "standard_reference": "IEC 61215-1:2021, Section 7.3",
+  "description": "Determine the nominal operating cell temperature (NOCT) and module performance under open-circuit conditions with specified irradiance, ambient temperature, and wind speed",
+
+  "test_conditions": {
+    "standard": {
+      "irradiance": {
+        "value": 800,
+        "unit": "W/m²",
+        "tolerance": "±50",
+        "description": "Total irradiance on module plane"
+      },
+      "ambient_temperature": {
+        "value": 20,
+        "unit": "°C",
+        "tolerance": "±2",
+        "description": "Ambient air temperature"
+      },
+      "wind_speed": {
+        "value": 1,
+        "unit": "m/s",
+        "tolerance": "±0.25",
+        "description": "Wind speed at module level"
+      },
+      "mounting": "open_rack",
+      "tilt_angle": {
+        "value": null,
+        "unit": "degrees",
+        "description": "Module tilt from horizontal (site-specific)"
+      }
+    },
+    "environmental_ranges": {
+      "temperature_range": {
+        "min": 15,
+        "max": 75,
+        "unit": "°C"
+      },
+      "irradiance_range": {
+        "min": 700,
+        "max": 900,
+        "unit": "W/m²"
+      },
+      "wind_speed_range": {
+        "min": 0.5,
+        "max": 2.0,
+        "unit": "m/s"
+      }
+    }
+  },
+
+  "input_parameters": [
+    {
+      "name": "sample_id",
+      "type": "string",
+      "required": true,
+      "label": "Sample ID",
+      "description": "Unique identifier for the test sample",
+      "validation": {
+        "pattern": "^[A-Z0-9-]+$",
+        "message": "Sample ID must contain only uppercase letters, numbers, and hyphens"
+      },
+      "ui": {
+        "component": "text_input",
+        "placeholder": "e.g., MOD-2025-001",
+        "order": 1
+      }
+    },
+    {
+      "name": "manufacturer",
+      "type": "string",
+      "required": true,
+      "label": "Manufacturer",
+      "description": "Module manufacturer name",
+      "ui": {
+        "component": "smart_dropdown",
+        "options_source": "manufacturers_db",
+        "allow_custom": true,
+        "order": 2
+      }
+    },
+    {
+      "name": "model",
+      "type": "string",
+      "required": true,
+      "label": "Model Number",
+      "description": "Module model number",
+      "ui": {
+        "component": "smart_dropdown",
+        "options_source": "models_db",
+        "filter_by": "manufacturer",
+        "allow_custom": true,
+        "order": 3
+      }
+    },
+    {
+      "name": "serial_number",
+      "type": "string",
+      "required": false,
+      "label": "Serial Number",
+      "description": "Module serial number (if available)",
+      "ui": {
+        "component": "text_input",
+        "order": 4
+      }
+    },
+    {
+      "name": "technology",
+      "type": "string",
+      "required": true,
+      "label": "Cell Technology",
+      "description": "Type of solar cell technology",
+      "options": ["mono-Si", "poly-Si", "thin-film CdTe", "thin-film CIGS", "perovskite", "HIT/HJT", "bifacial", "other"],
+      "default": "mono-Si",
+      "ui": {
+        "component": "select",
+        "order": 5
+      }
+    },
+    {
+      "name": "rated_power",
+      "type": "float",
+      "required": true,
+      "label": "Rated Power (Pmax)",
+      "unit": "W",
+      "description": "Nameplate rated power at STC",
+      "validation": {
+        "min": 1,
+        "max": 1000,
+        "message": "Rated power must be between 1W and 1000W"
+      },
+      "ui": {
+        "component": "number_input",
+        "step": 0.1,
+        "order": 6
+      }
+    },
+    {
+      "name": "module_area",
+      "type": "float",
+      "required": true,
+      "label": "Module Area",
+      "unit": "m²",
+      "description": "Total module area (length × width)",
+      "validation": {
+        "min": 0.1,
+        "max": 5.0,
+        "message": "Module area must be between 0.1m² and 5.0m²"
+      },
+      "ui": {
+        "component": "number_input",
+        "step": 0.01,
+        "order": 7
+      }
+    },
+    {
+      "name": "num_cells",
+      "type": "integer",
+      "required": false,
+      "label": "Number of Cells",
+      "description": "Total number of cells in module",
+      "default": 60,
+      "ui": {
+        "component": "number_input",
+        "step": 1,
+        "order": 8
+      }
+    },
+    {
+      "name": "test_irradiance",
+      "type": "float",
+      "required": true,
+      "label": "Test Irradiance",
+      "unit": "W/m²",
+      "default": 800,
+      "description": "Target irradiance for NOCT determination",
+      "validation": {
+        "min": 700,
+        "max": 900,
+        "message": "Test irradiance must be between 700-900 W/m²"
+      },
+      "ui": {
+        "component": "number_input",
+        "step": 10,
+        "order": 9
+      }
+    },
+    {
+      "name": "ambient_temp_target",
+      "type": "float",
+      "required": true,
+      "label": "Target Ambient Temperature",
+      "unit": "°C",
+      "default": 20,
+      "description": "Target ambient temperature for test",
+      "validation": {
+        "min": 15,
+        "max": 25,
+        "message": "Ambient temperature must be between 15-25°C"
+      },
+      "ui": {
+        "component": "number_input",
+        "step": 0.5,
+        "order": 10
+      }
+    },
+    {
+      "name": "wind_speed_target",
+      "type": "float",
+      "required": true,
+      "label": "Target Wind Speed",
+      "unit": "m/s",
+      "default": 1.0,
+      "description": "Target wind speed for test",
+      "validation": {
+        "min": 0.5,
+        "max": 2.0,
+        "message": "Wind speed must be between 0.5-2.0 m/s"
+      },
+      "ui": {
+        "component": "number_input",
+        "step": 0.1,
+        "order": 11
+      }
+    },
+    {
+      "name": "stabilization_duration",
+      "type": "integer",
+      "required": true,
+      "label": "Stabilization Duration",
+      "unit": "minutes",
+      "default": 30,
+      "description": "Duration to wait for thermal stabilization",
+      "validation": {
+        "min": 15,
+        "max": 60,
+        "message": "Stabilization duration must be between 15-60 minutes"
+      },
+      "ui": {
+        "component": "number_input",
+        "step": 5,
+        "order": 12
+      }
+    },
+    {
+      "name": "measurement_interval",
+      "type": "integer",
+      "required": true,
+      "label": "Measurement Interval",
+      "unit": "seconds",
+      "default": 60,
+      "description": "Time interval between measurements",
+      "validation": {
+        "min": 10,
+        "max": 300,
+        "message": "Measurement interval must be between 10-300 seconds"
+      },
+      "ui": {
+        "component": "number_input",
+        "step": 10,
+        "order": 13
+      }
+    },
+    {
+      "name": "calculate_temp_coefficients",
+      "type": "boolean",
+      "required": false,
+      "label": "Calculate Temperature Coefficients",
+      "description": "Also determine temperature coefficients (Pmax, Voc, Isc) at NOCT",
+      "default": true,
+      "ui": {
+        "component": "checkbox",
+        "order": 14
+      }
+    },
+    {
+      "name": "temp_coefficient_points",
+      "type": "integer",
+      "required": false,
+      "label": "Temperature Points for Coefficients",
+      "description": "Number of temperature points for coefficient calculation",
+      "default": 5,
+      "conditional": {
+        "depends_on": "calculate_temp_coefficients",
+        "show_when": true
+      },
+      "validation": {
+        "min": 3,
+        "max": 10,
+        "message": "Must have 3-10 temperature points"
+      },
+      "ui": {
+        "component": "number_input",
+        "step": 1,
+        "order": 15
+      }
+    }
+  ],
+
+  "measurement_points": [
+    {
+      "name": "cell_temperature",
+      "label": "Cell Temperature",
+      "unit": "°C",
+      "sensor_type": "thermocouple_type_k",
+      "measurement_locations": ["center_back", "edge_back", "corner_back"],
+      "accuracy": "±0.5°C",
+      "sampling_rate": "1 Hz",
+      "critical": true
+    },
+    {
+      "name": "ambient_temperature",
+      "label": "Ambient Temperature",
+      "unit": "°C",
+      "sensor_type": "pt100",
+      "measurement_locations": ["module_plane"],
+      "accuracy": "±0.3°C",
+      "sampling_rate": "0.1 Hz",
+      "critical": true
+    },
+    {
+      "name": "irradiance",
+      "label": "Plane-of-Array Irradiance",
+      "unit": "W/m²",
+      "sensor_type": "pyranometer",
+      "measurement_locations": ["module_plane"],
+      "accuracy": "±2%",
+      "sampling_rate": "1 Hz",
+      "critical": true
+    },
+    {
+      "name": "wind_speed",
+      "label": "Wind Speed",
+      "unit": "m/s",
+      "sensor_type": "anemometer",
+      "measurement_locations": ["module_level"],
+      "accuracy": "±0.1 m/s",
+      "sampling_rate": "0.1 Hz",
+      "critical": true
+    },
+    {
+      "name": "module_voltage",
+      "label": "Open Circuit Voltage",
+      "unit": "V",
+      "sensor_type": "voltmeter",
+      "accuracy": "±0.5%",
+      "sampling_rate": "0.1 Hz",
+      "critical": false
+    },
+    {
+      "name": "power_output",
+      "label": "Power Output at NOCT",
+      "unit": "W",
+      "sensor_type": "iv_tracer",
+      "accuracy": "±2%",
+      "sampling_rate": "on_demand",
+      "critical": true
+    }
+  ],
+
+  "calculations": [
+    {
+      "name": "noct",
+      "label": "Nominal Operating Cell Temperature",
+      "formula": "NOCT = T_ambient + (T_cell - T_ambient) × (800 / G_actual)",
+      "description": "NOCT normalized to 800 W/m² irradiance",
+      "unit": "°C",
+      "parameters": {
+        "T_cell": "Average cell temperature at stabilization",
+        "T_ambient": "Ambient temperature during test",
+        "G_actual": "Actual irradiance during test"
+      },
+      "uncertainty": "±2°C",
+      "output": true
+    },
+    {
+      "name": "pmax_at_noct",
+      "label": "Maximum Power at NOCT",
+      "formula": "Pmax_NOCT = Pmax_STC × [1 + α_P × (NOCT - 25)] × (G_NOCT / 1000)",
+      "description": "Expected module power at NOCT conditions",
+      "unit": "W",
+      "parameters": {
+        "Pmax_STC": "Rated power at STC",
+        "α_P": "Temperature coefficient of power (%/°C)",
+        "NOCT": "Calculated NOCT value",
+        "G_NOCT": "Irradiance at NOCT (800 W/m²)"
+      },
+      "uncertainty": "±3%",
+      "output": true
+    },
+    {
+      "name": "efficiency_at_noct",
+      "label": "Module Efficiency at NOCT",
+      "formula": "η_NOCT = (Pmax_NOCT / (G_NOCT × A_module)) × 100",
+      "description": "Module conversion efficiency at NOCT conditions",
+      "unit": "%",
+      "parameters": {
+        "Pmax_NOCT": "Maximum power at NOCT",
+        "G_NOCT": "Irradiance at NOCT (800 W/m²)",
+        "A_module": "Module area (m²)"
+      },
+      "uncertainty": "±3%",
+      "output": true
+    },
+    {
+      "name": "temp_coeff_power",
+      "label": "Temperature Coefficient of Power",
+      "formula": "α_P = (1/Pmax_ref) × (dPmax/dT)",
+      "description": "Power change per degree temperature change",
+      "unit": "%/°C",
+      "conditional": {
+        "depends_on": "calculate_temp_coefficients",
+        "execute_when": true
+      },
+      "uncertainty": "±0.05%/°C",
+      "output": true
+    },
+    {
+      "name": "temp_coeff_voc",
+      "label": "Temperature Coefficient of Voc",
+      "formula": "β_Voc = (1/Voc_ref) × (dVoc/dT)",
+      "description": "Voc change per degree temperature change",
+      "unit": "%/°C",
+      "conditional": {
+        "depends_on": "calculate_temp_coefficients",
+        "execute_when": true
+      },
+      "uncertainty": "±0.02%/°C",
+      "output": true
+    },
+    {
+      "name": "temp_coeff_isc",
+      "label": "Temperature Coefficient of Isc",
+      "formula": "α_Isc = (1/Isc_ref) × (dIsc/dT)",
+      "description": "Isc change per degree temperature change",
+      "unit": "%/°C",
+      "conditional": {
+        "depends_on": "calculate_temp_coefficients",
+        "execute_when": true
+      },
+      "uncertainty": "±0.02%/°C",
+      "output": true
+    },
+    {
+      "name": "operating_temperature_range",
+      "label": "Operating Temperature at Different Conditions",
+      "formula": "T_op = T_amb + (NOCT - 20) × (G / 800)",
+      "description": "Estimated module operating temperature for various conditions",
+      "unit": "°C",
+      "output": false
+    }
+  ],
+
+  "acceptance_criteria": {
+    "noct_typical_range": {
+      "min": 40,
+      "max": 50,
+      "unit": "°C",
+      "description": "Typical NOCT range for commercial modules"
+    },
+    "measurement_stability": {
+      "temperature_variation": {
+        "max": 2,
+        "unit": "°C",
+        "period": "last_10_minutes",
+        "description": "Temperature must be stable within 2°C for last 10 minutes"
+      },
+      "irradiance_variation": {
+        "max": 50,
+        "unit": "W/m²",
+        "period": "last_10_minutes",
+        "description": "Irradiance must be stable within 50 W/m²"
+      }
+    },
+    "environmental_compliance": {
+      "irradiance": {
+        "min": 750,
+        "max": 850,
+        "unit": "W/m²"
+      },
+      "ambient_temp": {
+        "min": 18,
+        "max": 22,
+        "unit": "°C"
+      },
+      "wind_speed": {
+        "min": 0.75,
+        "max": 1.25,
+        "unit": "m/s"
+      }
+    },
+    "data_quality": {
+      "min_data_points": 30,
+      "max_outliers_percent": 5,
+      "min_stabilization_time": 15
+    }
+  },
+
+  "equipment_required": [
+    {
+      "name": "Solar Simulator or Outdoor Test Facility",
+      "type": "irradiance_source",
+      "specifications": {
+        "irradiance_range": "0-1200 W/m²",
+        "uniformity": "±2%",
+        "stability": "±2%"
+      },
+      "calibration_required": true,
+      "calibration_interval_days": 90
+    },
+    {
+      "name": "Thermocouples (Type K)",
+      "type": "temperature_sensor",
+      "quantity": 3,
+      "specifications": {
+        "range": "-40 to +125°C",
+        "accuracy": "±0.5°C"
+      },
+      "calibration_required": true,
+      "calibration_interval_days": 365
+    },
+    {
+      "name": "Pyranometer",
+      "type": "irradiance_sensor",
+      "specifications": {
+        "range": "0-1500 W/m²",
+        "accuracy": "±2%",
+        "response_time": "<5s"
+      },
+      "calibration_required": true,
+      "calibration_interval_days": 365
+    },
+    {
+      "name": "Anemometer",
+      "type": "wind_speed_sensor",
+      "specifications": {
+        "range": "0-10 m/s",
+        "accuracy": "±0.1 m/s"
+      },
+      "calibration_required": true,
+      "calibration_interval_days": 365
+    },
+    {
+      "name": "Data Acquisition System",
+      "type": "data_logger",
+      "specifications": {
+        "sampling_rate": "≥10 Hz",
+        "channels": "≥8",
+        "resolution": "16-bit"
+      },
+      "calibration_required": false
+    },
+    {
+      "name": "IV Curve Tracer",
+      "type": "electrical_tester",
+      "specifications": {
+        "voltage_range": "0-100V",
+        "current_range": "0-15A",
+        "accuracy": "±0.5%"
+      },
+      "calibration_required": true,
+      "calibration_interval_days": 180
+    }
+  ],
+
+  "test_procedure": {
+    "steps": [
+      {
+        "step": 1,
+        "name": "Equipment Setup",
+        "description": "Set up all measurement equipment and verify calibration status",
+        "duration_minutes": 15,
+        "automated": false,
+        "safety_checks": ["equipment_grounding", "electrical_safety", "sensor_connections"]
+      },
+      {
+        "step": 2,
+        "name": "Module Installation",
+        "description": "Mount module on open rack structure at appropriate tilt angle",
+        "duration_minutes": 10,
+        "automated": false,
+        "safety_checks": ["secure_mounting", "clearance_check"]
+      },
+      {
+        "step": 3,
+        "name": "Sensor Attachment",
+        "description": "Attach thermocouples to module back surface, install pyranometer and anemometer",
+        "duration_minutes": 10,
+        "automated": false,
+        "verification": ["sensor_locations", "thermal_contact", "cable_management"]
+      },
+      {
+        "step": 4,
+        "name": "Environmental Conditioning",
+        "description": "Adjust irradiance to 800 W/m², ambient temp to 20°C, wind speed to 1 m/s",
+        "duration_minutes": 20,
+        "automated": true,
+        "monitoring": ["irradiance_stability", "temperature_stability", "wind_stability"]
+      },
+      {
+        "step": 5,
+        "name": "Thermal Stabilization",
+        "description": "Wait for module temperature to stabilize at NOCT conditions",
+        "duration_minutes": 30,
+        "automated": true,
+        "completion_criteria": {
+          "temperature_change": "<1°C in 10 minutes",
+          "minimum_duration": 15
+        }
+      },
+      {
+        "step": 6,
+        "name": "Data Collection",
+        "description": "Record cell temperature, ambient temperature, irradiance, and wind speed",
+        "duration_minutes": 15,
+        "automated": true,
+        "data_points": ">=30"
+      },
+      {
+        "step": 7,
+        "name": "Power Measurement",
+        "description": "Measure IV curve and determine Pmax at NOCT conditions",
+        "duration_minutes": 5,
+        "automated": true,
+        "conditional": {
+          "depends_on": "calculate_temp_coefficients"
+        }
+      },
+      {
+        "step": 8,
+        "name": "Temperature Coefficient Determination",
+        "description": "Vary cell temperature and measure power at multiple temperature points",
+        "duration_minutes": 60,
+        "automated": true,
+        "conditional": {
+          "depends_on": "calculate_temp_coefficients",
+          "execute_when": true
+        }
+      },
+      {
+        "step": 9,
+        "name": "Data Analysis",
+        "description": "Calculate NOCT, Pmax@NOCT, efficiency, and temperature coefficients",
+        "duration_minutes": 10,
+        "automated": true
+      },
+      {
+        "step": 10,
+        "name": "Report Generation",
+        "description": "Generate comprehensive test report with graphs and analysis",
+        "duration_minutes": 10,
+        "automated": true
+      }
+    ],
+    "total_duration_minutes": 185
+  },
+
+  "data_traceability": {
+    "audit_trail": {
+      "enabled": true,
+      "log_level": "detailed",
+      "tracked_events": [
+        "parameter_change",
+        "measurement_start",
+        "measurement_end",
+        "data_edit",
+        "calculation_performed",
+        "validation_check",
+        "report_generated",
+        "approval_status_change"
+      ]
+    },
+    "data_integrity": {
+      "checksum_algorithm": "SHA-256",
+      "digital_signature": true,
+      "version_control": true
+    },
+    "metadata": {
+      "required_fields": [
+        "operator_id",
+        "test_date",
+        "equipment_ids",
+        "calibration_dates",
+        "environmental_conditions",
+        "software_version"
+      ]
+    }
+  },
+
+  "qc_checks": {
+    "pre_test": [
+      {
+        "check": "equipment_calibration",
+        "description": "Verify all equipment is within calibration period",
+        "severity": "critical",
+        "auto_check": true
+      },
+      {
+        "check": "module_inspection",
+        "description": "Visual inspection for damage or defects",
+        "severity": "critical",
+        "auto_check": false
+      },
+      {
+        "check": "sensor_functionality",
+        "description": "Verify all sensors are reading valid values",
+        "severity": "critical",
+        "auto_check": true
+      }
+    ],
+    "during_test": [
+      {
+        "check": "environmental_stability",
+        "description": "Verify conditions remain within acceptable ranges",
+        "severity": "critical",
+        "auto_check": true,
+        "frequency": "continuous"
+      },
+      {
+        "check": "data_quality",
+        "description": "Check for outliers and anomalies in real-time",
+        "severity": "warning",
+        "auto_check": true,
+        "frequency": "per_measurement"
+      }
+    ],
+    "post_test": [
+      {
+        "check": "results_validation",
+        "description": "Verify calculated results are within expected ranges",
+        "severity": "critical",
+        "auto_check": true
+      },
+      {
+        "check": "data_completeness",
+        "description": "Ensure all required measurements were collected",
+        "severity": "critical",
+        "auto_check": true
+      },
+      {
+        "check": "peer_review",
+        "description": "Technical review of results by qualified personnel",
+        "severity": "important",
+        "auto_check": false
+      }
+    ]
+  },
+
+  "graphs": [
+    {
+      "name": "temperature_vs_time",
+      "type": "line_chart",
+      "title": "Cell Temperature vs Time",
+      "x_axis": {
+        "label": "Time",
+        "unit": "minutes",
+        "data_source": "timestamp"
+      },
+      "y_axis": {
+        "label": "Temperature",
+        "unit": "°C",
+        "data_sources": ["cell_temperature", "ambient_temperature"]
+      },
+      "real_time": true,
+      "export_formats": ["png", "svg", "csv"]
+    },
+    {
+      "name": "power_vs_temperature",
+      "type": "scatter_plot",
+      "title": "Power Output vs Cell Temperature",
+      "x_axis": {
+        "label": "Cell Temperature",
+        "unit": "°C",
+        "data_source": "cell_temperature"
+      },
+      "y_axis": {
+        "label": "Power Output",
+        "unit": "W",
+        "data_source": "power_output"
+      },
+      "trend_line": true,
+      "conditional": {
+        "depends_on": "calculate_temp_coefficients",
+        "show_when": true
+      }
+    },
+    {
+      "name": "efficiency_vs_temperature",
+      "type": "scatter_plot",
+      "title": "Efficiency vs Cell Temperature",
+      "x_axis": {
+        "label": "Cell Temperature",
+        "unit": "°C",
+        "data_source": "cell_temperature"
+      },
+      "y_axis": {
+        "label": "Efficiency",
+        "unit": "%",
+        "data_source": "efficiency"
+      },
+      "trend_line": true
+    },
+    {
+      "name": "environmental_conditions",
+      "type": "multi_line",
+      "title": "Environmental Conditions During Test",
+      "x_axis": {
+        "label": "Time",
+        "unit": "minutes",
+        "data_source": "timestamp"
+      },
+      "y_axes": [
+        {
+          "label": "Irradiance (W/m²)",
+          "data_source": "irradiance",
+          "position": "left"
+        },
+        {
+          "label": "Wind Speed (m/s)",
+          "data_source": "wind_speed",
+          "position": "right"
+        }
+      ],
+      "real_time": true
+    }
+  ],
+
+  "reports": {
+    "formats": ["pdf", "html", "json", "excel"],
+    "templates": ["standard", "detailed", "summary"],
+    "sections": [
+      "executive_summary",
+      "test_conditions",
+      "measurement_data",
+      "analysis_results",
+      "graphs_and_charts",
+      "temperature_coefficients",
+      "qc_checks",
+      "acceptance_criteria_compliance",
+      "conclusions",
+      "appendices"
+    ],
+    "auto_save": true,
+    "save_interval_seconds": 30
+  },
+
+  "estimated_duration": 185,
+
+  "safety_precautions": [
+    "Wear appropriate PPE including insulated gloves and safety glasses",
+    "Ensure equipment is properly grounded before starting test",
+    "Follow electrical safety procedures when connecting modules",
+    "Monitor test chamber conditions to prevent overheating",
+    "Use caution when handling modules at elevated temperatures",
+    "Ensure adequate ventilation in test area",
+    "Keep emergency shutdown procedures accessible",
+    "Follow manufacturer guidelines for all equipment"
+  ],
+
+  "notes": [
+    "NOCT is defined as the cell temperature reached when a module is exposed to 800 W/m² irradiance, 20°C ambient temperature, 1 m/s wind speed, and open-circuit conditions",
+    "Thermal stabilization is critical for accurate NOCT determination - allow adequate time",
+    "Multiple temperature measurement points on the module back surface are recommended for better accuracy",
+    "Temperature coefficients are optional but highly recommended for complete module characterization",
+    "Results may vary depending on mounting configuration and environmental conditions",
+    "For outdoor testing, multiple tests may be needed to achieve stable conditions"
+  ]
+}

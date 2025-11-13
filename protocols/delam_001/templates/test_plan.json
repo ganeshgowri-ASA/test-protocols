@@ -1,0 +1,258 @@
+{
+  "protocol_id": "DELAM-001",
+  "protocol_name": "Delamination Test with EL Imaging",
+  "version": "1.0.0",
+  "standard": {
+    "name": "IEC 61215",
+    "version": "2021",
+    "section": "10.13 - Robustness of Terminations"
+  },
+  "metadata": {
+    "created_date": "2025-01-15T00:00:00Z",
+    "updated_date": "2025-01-15T00:00:00Z",
+    "category": "environmental",
+    "tags": [
+      "delamination",
+      "el-imaging",
+      "accelerated-aging",
+      "quality-control"
+    ],
+    "description": "Accelerated delamination test for photovoltaic modules using controlled environmental conditions with electroluminescence imaging for defect detection and quantification."
+  },
+  "test_parameters": {
+    "environmental_conditions": {
+      "temperature": {
+        "value": 85,
+        "unit": "celsius",
+        "tolerance": 2
+      },
+      "humidity": {
+        "value": 85,
+        "unit": "percent_rh",
+        "tolerance": 5
+      },
+      "pressure": {
+        "value": 101.325,
+        "unit": "kPa"
+      }
+    },
+    "test_duration": {
+      "value": 1000,
+      "unit": "hours"
+    },
+    "inspection_intervals": [
+      {
+        "interval": 0,
+        "unit": "hours",
+        "inspection_type": [
+          "visual",
+          "el_imaging",
+          "electrical"
+        ]
+      },
+      {
+        "interval": 250,
+        "unit": "hours",
+        "inspection_type": [
+          "visual",
+          "el_imaging",
+          "electrical"
+        ]
+      },
+      {
+        "interval": 500,
+        "unit": "hours",
+        "inspection_type": [
+          "visual",
+          "el_imaging",
+          "electrical"
+        ]
+      },
+      {
+        "interval": 1000,
+        "unit": "hours",
+        "inspection_type": [
+          "visual",
+          "el_imaging",
+          "electrical",
+          "dimensional"
+        ]
+      }
+    ],
+    "el_imaging": {
+      "camera_settings": {
+        "resolution": {
+          "width": 2048,
+          "height": 2048,
+          "unit": "pixels"
+        },
+        "exposure_time": {
+          "value": 500,
+          "unit": "ms"
+        },
+        "gain": 1.5,
+        "bit_depth": 16
+      },
+      "lighting": {
+        "type": "led",
+        "wavelength": {
+          "value": 850,
+          "unit": "nm"
+        },
+        "intensity": {
+          "value": 1000,
+          "unit": "W/m2"
+        }
+      },
+      "analysis_parameters": {
+        "defect_detection_threshold": 0.15,
+        "minimum_defect_area": {
+          "value": 10,
+          "unit": "mm2"
+        },
+        "delamination_severity_levels": [
+          {
+            "level": "none",
+            "area_percentage_min": 0,
+            "area_percentage_max": 0.1
+          },
+          {
+            "level": "minor",
+            "area_percentage_min": 0.1,
+            "area_percentage_max": 1.0
+          },
+          {
+            "level": "moderate",
+            "area_percentage_min": 1.0,
+            "area_percentage_max": 5.0
+          },
+          {
+            "level": "severe",
+            "area_percentage_min": 5.0,
+            "area_percentage_max": 10.0
+          },
+          {
+            "level": "critical",
+            "area_percentage_min": 10.0,
+            "area_percentage_max": 100.0
+          }
+        ]
+      }
+    },
+    "sample_specifications": {
+      "module_type": "monocrystalline",
+      "sample_size": {
+        "count": 5,
+        "orientation": "landscape"
+      },
+      "mounting": "flat"
+    }
+  },
+  "acceptance_criteria": {
+    "maximum_delamination_area": {
+      "value": 5.0,
+      "unit": "percent"
+    },
+    "visual_inspection_criteria": {
+      "no_bubbles": true,
+      "no_discoloration": true,
+      "no_broken_cells": true,
+      "no_broken_interconnects": true
+    },
+    "electrical_performance": {
+      "maximum_power_degradation": {
+        "value": 5.0,
+        "unit": "percent"
+      },
+      "minimum_fill_factor": 0.70
+    }
+  },
+  "data_collection": {
+    "measurements": [
+      {
+        "type": "temperature",
+        "frequency": "continuous",
+        "method": "thermocouple",
+        "unit": "celsius"
+      },
+      {
+        "type": "humidity",
+        "frequency": "continuous",
+        "method": "capacitive_sensor",
+        "unit": "percent_rh"
+      },
+      {
+        "type": "power",
+        "frequency": "at_each_interval",
+        "method": "iv_curve_tracer",
+        "unit": "watts"
+      },
+      {
+        "type": "visual_observation",
+        "frequency": "at_each_interval",
+        "method": "inspector_notes",
+        "unit": "categorical"
+      }
+    ],
+    "images": {
+      "el_images": {
+        "required": true,
+        "format": [
+          "tiff",
+          "png"
+        ],
+        "naming_convention": "{module_id}_{timestamp}_{interval}_EL.{extension}",
+        "minimum_count": 1
+      },
+      "visual_images": {
+        "required": true,
+        "format": [
+          "jpg",
+          "png"
+        ]
+      }
+    }
+  },
+  "required_equipment": [
+    {
+      "name": "Environmental Chamber",
+      "type": "climate_control",
+      "specifications": {
+        "temperature_range": "0-100°C",
+        "humidity_range": "10-98% RH",
+        "volume": "≥1m³"
+      },
+      "calibration_required": true
+    },
+    {
+      "name": "EL Camera System",
+      "type": "imaging",
+      "specifications": {
+        "sensor_type": "InGaAs or Si CCD",
+        "resolution": "≥2MP",
+        "bit_depth": "≥12-bit"
+      },
+      "calibration_required": true
+    },
+    {
+      "name": "IV Curve Tracer",
+      "type": "electrical",
+      "specifications": {
+        "voltage_range": "0-100V",
+        "current_range": "0-20A",
+        "accuracy": "±0.5%"
+      },
+      "calibration_required": true
+    },
+    {
+      "name": "Solar Simulator or LED Array",
+      "type": "lighting",
+      "specifications": {
+        "spectrum": "Near-infrared (850nm)",
+        "uniformity": "±5%",
+        "stability": "±2%"
+      },
+      "calibration_required": true
+    }
+  ]
+}

@@ -1,0 +1,454 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://test-protocols.example.com/schemas/delam_001.json",
+  "title": "DELAM-001 Delamination Test Protocol",
+  "description": "Protocol schema for photovoltaic module delamination testing with EL analysis per IEC 61215",
+  "allOf": [
+    {
+      "$ref": "base_protocol.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "protocol_id": {
+          "const": "DELAM-001"
+        },
+        "test_parameters": {
+          "type": "object",
+          "required": [
+            "environmental_conditions",
+            "test_duration",
+            "inspection_intervals",
+            "el_imaging"
+          ],
+          "properties": {
+            "environmental_conditions": {
+              "type": "object",
+              "required": ["temperature", "humidity"],
+              "properties": {
+                "temperature": {
+                  "type": "object",
+                  "required": ["value", "unit", "tolerance"],
+                  "properties": {
+                    "value": {
+                      "type": "number",
+                      "minimum": -40,
+                      "maximum": 90
+                    },
+                    "unit": {
+                      "type": "string",
+                      "enum": ["celsius", "fahrenheit", "kelvin"]
+                    },
+                    "tolerance": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 10
+                    }
+                  }
+                },
+                "humidity": {
+                  "type": "object",
+                  "required": ["value", "unit", "tolerance"],
+                  "properties": {
+                    "value": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "unit": {
+                      "type": "string",
+                      "enum": ["percent_rh"]
+                    },
+                    "tolerance": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 10
+                    }
+                  }
+                },
+                "pressure": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "number"
+                    },
+                    "unit": {
+                      "type": "string",
+                      "enum": ["kPa", "bar", "atm"]
+                    }
+                  }
+                }
+              }
+            },
+            "test_duration": {
+              "type": "object",
+              "required": ["value", "unit"],
+              "properties": {
+                "value": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": ["hours", "days", "cycles"]
+                }
+              }
+            },
+            "inspection_intervals": {
+              "type": "array",
+              "description": "Time points for inspections",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["interval", "unit", "inspection_type"],
+                "properties": {
+                  "interval": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "unit": {
+                    "type": "string",
+                    "enum": ["hours", "days", "cycles"]
+                  },
+                  "inspection_type": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "visual",
+                        "el_imaging",
+                        "electrical",
+                        "dimensional"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "el_imaging": {
+              "type": "object",
+              "required": [
+                "camera_settings",
+                "lighting",
+                "analysis_parameters"
+              ],
+              "properties": {
+                "camera_settings": {
+                  "type": "object",
+                  "required": ["resolution", "exposure_time"],
+                  "properties": {
+                    "resolution": {
+                      "type": "object",
+                      "required": ["width", "height", "unit"],
+                      "properties": {
+                        "width": {
+                          "type": "integer",
+                          "minimum": 640
+                        },
+                        "height": {
+                          "type": "integer",
+                          "minimum": 480
+                        },
+                        "unit": {
+                          "type": "string",
+                          "const": "pixels"
+                        }
+                      }
+                    },
+                    "exposure_time": {
+                      "type": "object",
+                      "required": ["value", "unit"],
+                      "properties": {
+                        "value": {
+                          "type": "number",
+                          "minimum": 0
+                        },
+                        "unit": {
+                          "type": "string",
+                          "enum": ["ms", "seconds"]
+                        }
+                      }
+                    },
+                    "gain": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "bit_depth": {
+                      "type": "integer",
+                      "enum": [8, 10, 12, 14, 16]
+                    }
+                  }
+                },
+                "lighting": {
+                  "type": "object",
+                  "required": ["type", "wavelength"],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["led", "halogen", "solar_simulator"]
+                    },
+                    "wavelength": {
+                      "type": "object",
+                      "properties": {
+                        "value": {
+                          "type": "number"
+                        },
+                        "unit": {
+                          "type": "string",
+                          "enum": ["nm", "um"]
+                        }
+                      }
+                    },
+                    "intensity": {
+                      "type": "object",
+                      "properties": {
+                        "value": {
+                          "type": "number"
+                        },
+                        "unit": {
+                          "type": "string",
+                          "enum": ["W/m2", "lux"]
+                        }
+                      }
+                    }
+                  }
+                },
+                "analysis_parameters": {
+                  "type": "object",
+                  "required": [
+                    "defect_detection_threshold",
+                    "minimum_defect_area"
+                  ],
+                  "properties": {
+                    "defect_detection_threshold": {
+                      "type": "number",
+                      "description": "Intensity threshold for defect detection (0-1)",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "minimum_defect_area": {
+                      "type": "object",
+                      "required": ["value", "unit"],
+                      "properties": {
+                        "value": {
+                          "type": "number",
+                          "minimum": 0
+                        },
+                        "unit": {
+                          "type": "string",
+                          "enum": ["mm2", "cm2", "pixels"]
+                        }
+                      }
+                    },
+                    "delamination_severity_levels": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["level", "area_percentage_min", "area_percentage_max"],
+                        "properties": {
+                          "level": {
+                            "type": "string",
+                            "enum": ["none", "minor", "moderate", "severe", "critical"]
+                          },
+                          "area_percentage_min": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                          },
+                          "area_percentage_max": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "sample_specifications": {
+              "type": "object",
+              "required": ["module_type", "sample_size"],
+              "properties": {
+                "module_type": {
+                  "type": "string",
+                  "enum": [
+                    "monocrystalline",
+                    "polycrystalline",
+                    "thin_film",
+                    "bifacial",
+                    "other"
+                  ]
+                },
+                "sample_size": {
+                  "type": "object",
+                  "required": ["count", "orientation"],
+                  "properties": {
+                    "count": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "orientation": {
+                      "type": "string",
+                      "enum": ["portrait", "landscape", "any"]
+                    }
+                  }
+                },
+                "mounting": {
+                  "type": "string",
+                  "enum": ["flat", "tilted", "rack_mounted"]
+                }
+              }
+            }
+          }
+        },
+        "acceptance_criteria": {
+          "type": "object",
+          "required": [
+            "maximum_delamination_area",
+            "visual_inspection_criteria",
+            "electrical_performance"
+          ],
+          "properties": {
+            "maximum_delamination_area": {
+              "type": "object",
+              "required": ["value", "unit"],
+              "properties": {
+                "value": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": ["percent", "cm2", "mm2"]
+                }
+              }
+            },
+            "visual_inspection_criteria": {
+              "type": "object",
+              "properties": {
+                "no_bubbles": {
+                  "type": "boolean"
+                },
+                "no_discoloration": {
+                  "type": "boolean"
+                },
+                "no_broken_cells": {
+                  "type": "boolean"
+                },
+                "no_broken_interconnects": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "electrical_performance": {
+              "type": "object",
+              "required": ["maximum_power_degradation"],
+              "properties": {
+                "maximum_power_degradation": {
+                  "type": "object",
+                  "required": ["value", "unit"],
+                  "properties": {
+                    "value": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "unit": {
+                      "type": "string",
+                      "enum": ["percent"]
+                    }
+                  }
+                },
+                "minimum_fill_factor": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              }
+            }
+          }
+        },
+        "data_collection": {
+          "type": "object",
+          "required": ["measurements", "images"],
+          "properties": {
+            "measurements": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["type", "frequency", "method"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "temperature",
+                      "humidity",
+                      "voltage",
+                      "current",
+                      "power",
+                      "visual_observation"
+                    ]
+                  },
+                  "frequency": {
+                    "type": "string"
+                  },
+                  "method": {
+                    "type": "string"
+                  },
+                  "unit": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "images": {
+              "type": "object",
+              "required": ["el_images", "visual_images"],
+              "properties": {
+                "el_images": {
+                  "type": "object",
+                  "required": ["required", "format", "naming_convention"],
+                  "properties": {
+                    "required": {
+                      "type": "boolean"
+                    },
+                    "format": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": ["tiff", "png", "jpg", "raw"]
+                      }
+                    },
+                    "naming_convention": {
+                      "type": "string"
+                    },
+                    "minimum_count": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "visual_images": {
+                  "type": "object",
+                  "properties": {
+                    "required": {
+                      "type": "boolean"
+                    },
+                    "format": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

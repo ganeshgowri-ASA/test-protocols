@@ -1,0 +1,322 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "id": "LETID-001",
+  "version": "1.0.0",
+  "title": "Light and Elevated Temperature Induced Degradation Test",
+  "standard": "IEC 61215-2:2021",
+  "description": "Test protocol for evaluating light and elevated temperature induced degradation (LeTID) in photovoltaic modules",
+
+  "metadata": {
+    "category": "reliability",
+    "test_type": "degradation",
+    "duration_hours": 300,
+    "status": "active",
+    "revision_date": "2025-01-15"
+  },
+
+  "test_conditions": {
+    "temperature": {
+      "value": 75,
+      "unit": "°C",
+      "tolerance": 3,
+      "description": "Module temperature during exposure"
+    },
+    "irradiance": {
+      "value": 1000,
+      "unit": "W/m²",
+      "tolerance": 50,
+      "spectrum": "AM1.5G",
+      "description": "Simulated solar irradiance"
+    },
+    "humidity": {
+      "value": 20,
+      "unit": "%RH",
+      "tolerance": 15,
+      "description": "Relative humidity (optional monitoring)"
+    },
+    "exposure_duration": {
+      "value": 300,
+      "unit": "hours",
+      "description": "Total light soaking duration"
+    }
+  },
+
+  "test_parameters": {
+    "sample_info": {
+      "required": true,
+      "fields": [
+        {
+          "name": "module_id",
+          "type": "string",
+          "required": true,
+          "description": "Unique module identifier"
+        },
+        {
+          "name": "manufacturer",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "serial_number",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "cell_technology",
+          "type": "enum",
+          "required": true,
+          "values": ["mono-PERC", "multi-PERC", "n-type", "HJT", "TOPCon", "other"],
+          "description": "Solar cell technology type"
+        },
+        {
+          "name": "rated_power",
+          "type": "number",
+          "unit": "W",
+          "required": true
+        }
+      ]
+    },
+
+    "measurements": {
+      "initial_characterization": {
+        "required": true,
+        "timing": "before_test",
+        "parameters": [
+          {
+            "name": "pmax",
+            "description": "Maximum power",
+            "type": "number",
+            "unit": "W",
+            "required": true
+          },
+          {
+            "name": "voc",
+            "description": "Open circuit voltage",
+            "type": "number",
+            "unit": "V",
+            "required": true
+          },
+          {
+            "name": "isc",
+            "description": "Short circuit current",
+            "type": "number",
+            "unit": "A",
+            "required": true
+          },
+          {
+            "name": "vmp",
+            "description": "Voltage at maximum power",
+            "type": "number",
+            "unit": "V",
+            "required": true
+          },
+          {
+            "name": "imp",
+            "description": "Current at maximum power",
+            "type": "number",
+            "unit": "A",
+            "required": true
+          },
+          {
+            "name": "fill_factor",
+            "description": "Fill factor",
+            "type": "number",
+            "unit": "%",
+            "required": true
+          }
+        ]
+      },
+
+      "periodic_monitoring": {
+        "required": true,
+        "timing": "during_test",
+        "interval_hours": 24,
+        "parameters": [
+          {
+            "name": "timestamp",
+            "type": "datetime",
+            "required": true
+          },
+          {
+            "name": "elapsed_hours",
+            "type": "number",
+            "unit": "hours",
+            "required": true
+          },
+          {
+            "name": "pmax",
+            "type": "number",
+            "unit": "W",
+            "required": true
+          },
+          {
+            "name": "voc",
+            "type": "number",
+            "unit": "V",
+            "required": true
+          },
+          {
+            "name": "isc",
+            "type": "number",
+            "unit": "A",
+            "required": true
+          },
+          {
+            "name": "module_temp",
+            "type": "number",
+            "unit": "°C",
+            "required": true
+          },
+          {
+            "name": "irradiance",
+            "type": "number",
+            "unit": "W/m²",
+            "required": true
+          }
+        ]
+      },
+
+      "final_characterization": {
+        "required": true,
+        "timing": "after_test",
+        "parameters": [
+          {
+            "name": "pmax",
+            "type": "number",
+            "unit": "W",
+            "required": true
+          },
+          {
+            "name": "voc",
+            "type": "number",
+            "unit": "V",
+            "required": true
+          },
+          {
+            "name": "isc",
+            "type": "number",
+            "unit": "A",
+            "required": true
+          },
+          {
+            "name": "vmp",
+            "type": "number",
+            "unit": "V",
+            "required": true
+          },
+          {
+            "name": "imp",
+            "type": "number",
+            "unit": "A",
+            "required": true
+          },
+          {
+            "name": "fill_factor",
+            "type": "number",
+            "unit": "%",
+            "required": true
+          }
+        ]
+      }
+    }
+  },
+
+  "acceptance_criteria": {
+    "max_power_degradation": {
+      "threshold": -5.0,
+      "unit": "%",
+      "description": "Maximum acceptable power degradation",
+      "severity": "fail"
+    },
+    "max_stabilized_degradation": {
+      "threshold": -3.0,
+      "unit": "%",
+      "description": "Maximum degradation after stabilization period",
+      "severity": "warning"
+    },
+    "minimum_recovery": {
+      "threshold": 95.0,
+      "unit": "%",
+      "description": "Minimum power recovery after regeneration",
+      "severity": "info"
+    }
+  },
+
+  "analysis": {
+    "calculations": [
+      {
+        "name": "power_degradation",
+        "formula": "((final_pmax - initial_pmax) / initial_pmax) * 100",
+        "unit": "%",
+        "description": "Percentage change in maximum power"
+      },
+      {
+        "name": "degradation_rate",
+        "formula": "power_degradation / exposure_hours",
+        "unit": "%/hour",
+        "description": "Hourly degradation rate"
+      },
+      {
+        "name": "normalized_power",
+        "formula": "(pmax / initial_pmax) * 100",
+        "unit": "%",
+        "description": "Normalized power relative to initial"
+      }
+    ],
+
+    "charts": [
+      {
+        "type": "time_series",
+        "name": "Power Degradation Curve",
+        "x_axis": "elapsed_hours",
+        "y_axis": "normalized_power",
+        "description": "Normalized maximum power vs time"
+      },
+      {
+        "type": "time_series",
+        "name": "Environmental Conditions",
+        "x_axis": "elapsed_hours",
+        "y_axes": ["module_temp", "irradiance"],
+        "description": "Temperature and irradiance monitoring"
+      }
+    ]
+  },
+
+  "reporting": {
+    "required_sections": [
+      "test_summary",
+      "sample_information",
+      "test_conditions",
+      "measurement_results",
+      "degradation_analysis",
+      "pass_fail_criteria",
+      "time_series_plots",
+      "conclusions"
+    ],
+    "output_formats": ["pdf", "json", "csv"]
+  },
+
+  "validation_rules": {
+    "temperature_stability": {
+      "rule": "module_temp within test_conditions.temperature.tolerance",
+      "message": "Module temperature out of specification"
+    },
+    "irradiance_stability": {
+      "rule": "irradiance within test_conditions.irradiance.tolerance",
+      "message": "Irradiance out of specification"
+    },
+    "measurement_frequency": {
+      "rule": "measurements at specified intervals",
+      "message": "Missing required measurements"
+    },
+    "data_completeness": {
+      "rule": "all required parameters present",
+      "message": "Incomplete measurement data"
+    }
+  }
+}

@@ -1,0 +1,458 @@
+{
+  "protocol_id": "LETID-001",
+  "ui_version": "1.0.0",
+  "display_name": "LeTID Test Protocol",
+  "description": "Light and Elevated Temperature Induced Degradation Test (IEC 61215-2:2021)",
+
+  "layout": {
+    "theme": "light",
+    "sidebar_position": "left",
+    "page_icon": "🌞",
+    "page_title": "LETID-001 Test Protocol"
+  },
+
+  "navigation": {
+    "sections": [
+      {
+        "id": "overview",
+        "title": "Test Overview",
+        "icon": "📋",
+        "order": 1
+      },
+      {
+        "id": "setup",
+        "title": "Test Setup",
+        "icon": "⚙️",
+        "order": 2
+      },
+      {
+        "id": "data_entry",
+        "title": "Data Entry",
+        "icon": "📝",
+        "order": 3
+      },
+      {
+        "id": "monitoring",
+        "title": "Live Monitoring",
+        "icon": "📊",
+        "order": 4
+      },
+      {
+        "id": "analysis",
+        "title": "Analysis",
+        "icon": "🔬",
+        "order": 5
+      },
+      {
+        "id": "reports",
+        "title": "Reports",
+        "icon": "📄",
+        "order": 6
+      }
+    ]
+  },
+
+  "forms": {
+    "sample_information": {
+      "title": "Sample Information",
+      "description": "Enter details about the PV module under test",
+      "fields": [
+        {
+          "name": "module_id",
+          "label": "Module ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g., MOD-12345",
+          "help": "Unique identifier for the module",
+          "validation": {
+            "pattern": "^[A-Za-z0-9\\-]{5,50}$",
+            "message": "Must be 5-50 alphanumeric characters or hyphens"
+          }
+        },
+        {
+          "name": "manufacturer",
+          "label": "Manufacturer",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g., SampleSolar Inc."
+        },
+        {
+          "name": "model",
+          "label": "Model",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g., SS-360-PERC"
+        },
+        {
+          "name": "serial_number",
+          "label": "Serial Number",
+          "type": "text",
+          "required": true,
+          "placeholder": "e.g., SN-2025-001"
+        },
+        {
+          "name": "cell_technology",
+          "label": "Cell Technology",
+          "type": "select",
+          "required": true,
+          "options": [
+            {"value": "mono-PERC", "label": "Mono-PERC"},
+            {"value": "multi-PERC", "label": "Multi-PERC"},
+            {"value": "n-type", "label": "N-type"},
+            {"value": "HJT", "label": "HJT (Heterojunction)"},
+            {"value": "TOPCon", "label": "TOPCon"},
+            {"value": "other", "label": "Other"}
+          ]
+        },
+        {
+          "name": "rated_power",
+          "label": "Rated Power (W)",
+          "type": "number",
+          "required": true,
+          "min": 0,
+          "max": 1000,
+          "step": 0.1,
+          "help": "Nameplate power rating"
+        }
+      ]
+    },
+
+    "initial_characterization": {
+      "title": "Initial Characterization",
+      "description": "I-V curve measurements before LeTID exposure",
+      "fields": [
+        {
+          "name": "measured_at",
+          "label": "Measurement Date/Time",
+          "type": "datetime",
+          "required": true,
+          "default": "now"
+        },
+        {
+          "name": "pmax",
+          "label": "Maximum Power (W)",
+          "type": "number",
+          "required": true,
+          "min": 0,
+          "step": 0.001,
+          "decimals": 3,
+          "help": "Pmax from I-V curve"
+        },
+        {
+          "name": "voc",
+          "label": "Open Circuit Voltage (V)",
+          "type": "number",
+          "required": true,
+          "min": 0,
+          "step": 0.001,
+          "decimals": 3
+        },
+        {
+          "name": "isc",
+          "label": "Short Circuit Current (A)",
+          "type": "number",
+          "required": true,
+          "min": 0,
+          "step": 0.001,
+          "decimals": 3
+        },
+        {
+          "name": "vmp",
+          "label": "Voltage at Max Power (V)",
+          "type": "number",
+          "required": true,
+          "min": 0,
+          "step": 0.001,
+          "decimals": 3
+        },
+        {
+          "name": "imp",
+          "label": "Current at Max Power (A)",
+          "type": "number",
+          "required": true,
+          "min": 0,
+          "step": 0.001,
+          "decimals": 3
+        },
+        {
+          "name": "fill_factor",
+          "label": "Fill Factor (%)",
+          "type": "number",
+          "required": true,
+          "min": 0,
+          "max": 100,
+          "step": 0.01,
+          "decimals": 2
+        }
+      ]
+    },
+
+    "periodic_measurement": {
+      "title": "Periodic Measurement",
+      "description": "Quick measurement during exposure",
+      "fields": [
+        {
+          "name": "timestamp",
+          "label": "Measurement Time",
+          "type": "datetime",
+          "required": true,
+          "default": "now"
+        },
+        {
+          "name": "elapsed_hours",
+          "label": "Elapsed Hours",
+          "type": "number",
+          "required": true,
+          "min": 0,
+          "step": 0.1,
+          "help": "Hours since test start"
+        },
+        {
+          "name": "pmax",
+          "label": "Maximum Power (W)",
+          "type": "number",
+          "required": true,
+          "min": 0,
+          "step": 0.001
+        },
+        {
+          "name": "voc",
+          "label": "Voc (V)",
+          "type": "number",
+          "required": false,
+          "min": 0,
+          "step": 0.001
+        },
+        {
+          "name": "isc",
+          "label": "Isc (A)",
+          "type": "number",
+          "required": false,
+          "min": 0,
+          "step": 0.001
+        },
+        {
+          "name": "module_temp",
+          "label": "Module Temperature (°C)",
+          "type": "number",
+          "required": true,
+          "min": 0,
+          "max": 150,
+          "step": 0.1
+        },
+        {
+          "name": "irradiance",
+          "label": "Irradiance (W/m²)",
+          "type": "number",
+          "required": true,
+          "min": 0,
+          "max": 2000,
+          "step": 1
+        }
+      ]
+    }
+  },
+
+  "dashboards": {
+    "live_monitoring": {
+      "title": "Live Test Monitoring",
+      "refresh_interval": 60,
+      "widgets": [
+        {
+          "type": "metric_card",
+          "title": "Current Status",
+          "metrics": [
+            {
+              "name": "elapsed_time",
+              "label": "Elapsed Time",
+              "format": "{:.1f} hours",
+              "color": "blue"
+            },
+            {
+              "name": "current_power",
+              "label": "Current Power",
+              "format": "{:.2f} W",
+              "color": "green"
+            },
+            {
+              "name": "degradation",
+              "label": "Degradation",
+              "format": "{:.2f}%",
+              "color": "red",
+              "alert_threshold": -3.0
+            }
+          ]
+        },
+        {
+          "type": "time_series_chart",
+          "title": "Power Degradation Over Time",
+          "chart_type": "line",
+          "x_axis": "elapsed_hours",
+          "y_axis": "normalized_power",
+          "height": 400,
+          "options": {
+            "show_grid": true,
+            "show_legend": true,
+            "y_axis_label": "Normalized Power (%)",
+            "x_axis_label": "Elapsed Time (hours)",
+            "reference_lines": [
+              {
+                "y": 97,
+                "label": "Warning Threshold",
+                "color": "orange",
+                "style": "dashed"
+              },
+              {
+                "y": 95,
+                "label": "Fail Threshold",
+                "color": "red",
+                "style": "dashed"
+              }
+            ]
+          }
+        },
+        {
+          "type": "time_series_chart",
+          "title": "Environmental Conditions",
+          "chart_type": "line",
+          "x_axis": "elapsed_hours",
+          "y_axes": ["module_temp", "irradiance"],
+          "dual_axis": true,
+          "height": 300,
+          "options": {
+            "show_grid": true,
+            "y1_axis_label": "Temperature (°C)",
+            "y2_axis_label": "Irradiance (W/m²)"
+          }
+        },
+        {
+          "type": "data_table",
+          "title": "Recent Measurements",
+          "max_rows": 10,
+          "columns": [
+            {"field": "elapsed_hours", "header": "Time (h)", "format": "{:.1f}"},
+            {"field": "pmax", "header": "Pmax (W)", "format": "{:.2f}"},
+            {"field": "normalized_power", "header": "Normalized (%)", "format": "{:.2f}"},
+            {"field": "module_temp", "header": "Temp (°C)", "format": "{:.1f}"},
+            {"field": "irradiance", "header": "Irr (W/m²)", "format": "{:.0f}"}
+          ]
+        }
+      ]
+    },
+
+    "analysis_dashboard": {
+      "title": "Test Analysis",
+      "widgets": [
+        {
+          "type": "summary_stats",
+          "title": "Test Summary",
+          "stats": [
+            {"name": "total_duration", "label": "Total Duration", "format": "{:.1f} hours"},
+            {"name": "initial_pmax", "label": "Initial Pmax", "format": "{:.2f} W"},
+            {"name": "final_pmax", "label": "Final Pmax", "format": "{:.2f} W"},
+            {"name": "total_degradation", "label": "Total Degradation", "format": "{:.2f}%"},
+            {"name": "degradation_rate", "label": "Degradation Rate", "format": "{:.4f}%/hour"},
+            {"name": "pass_fail", "label": "Result", "format": "{}"}
+          ]
+        },
+        {
+          "type": "degradation_model",
+          "title": "Degradation Model Fit",
+          "show_confidence_interval": true,
+          "show_data_points": true
+        },
+        {
+          "type": "acceptance_criteria",
+          "title": "Acceptance Criteria Check",
+          "criteria": [
+            {
+              "name": "max_degradation",
+              "threshold": -5.0,
+              "operator": ">=",
+              "severity": "fail"
+            },
+            {
+              "name": "stabilized_degradation",
+              "threshold": -3.0,
+              "operator": ">=",
+              "severity": "warning"
+            }
+          ]
+        }
+      ]
+    }
+  },
+
+  "data_validation": {
+    "enable_realtime": true,
+    "show_warnings": true,
+    "rules": [
+      {
+        "field": "module_temp",
+        "rule": "range",
+        "min": 72,
+        "max": 78,
+        "severity": "warning",
+        "message": "Temperature outside target range (75±3°C)"
+      },
+      {
+        "field": "irradiance",
+        "rule": "range",
+        "min": 950,
+        "max": 1050,
+        "severity": "warning",
+        "message": "Irradiance outside target range (1000±50 W/m²)"
+      },
+      {
+        "field": "pmax",
+        "rule": "monotonic_check",
+        "direction": "decreasing",
+        "severity": "info",
+        "message": "Power increased - check for measurement anomaly"
+      }
+    ]
+  },
+
+  "export_options": {
+    "formats": ["csv", "json", "excel", "pdf"],
+    "templates": {
+      "csv": {
+        "include_metadata": true,
+        "include_calculated_fields": true
+      },
+      "pdf": {
+        "template": "iec_61215_report",
+        "include_charts": true,
+        "include_raw_data": false
+      }
+    }
+  },
+
+  "integrations": {
+    "lims": {
+      "enabled": false,
+      "endpoint": "/api/lims/v1",
+      "sync_on_complete": true
+    },
+    "qms": {
+      "enabled": false,
+      "endpoint": "/api/qms/v1"
+    },
+    "database": {
+      "enabled": true,
+      "auto_save": true,
+      "save_interval": 300
+    }
+  },
+
+  "notifications": {
+    "email": {
+      "enabled": false,
+      "events": ["test_complete", "test_failed", "threshold_exceeded"]
+    },
+    "in_app": {
+      "enabled": true,
+      "events": ["measurement_due", "validation_warning", "test_milestone"]
+    }
+  }
+}

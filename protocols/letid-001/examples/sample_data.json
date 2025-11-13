@@ -1,0 +1,148 @@
+{
+  "test_id": "LETID-2025-001",
+  "sample_info": {
+    "module_id": "MOD-12345",
+    "manufacturer": "SampleSolar Inc.",
+    "model": "SS-360-PERC",
+    "serial_number": "SN-2025-001",
+    "cell_technology": "mono-PERC",
+    "rated_power": 360.0
+  },
+  "initial_characterization": {
+    "measured_at": "2025-01-15T08:00:00Z",
+    "pmax": 360.5,
+    "voc": 48.2,
+    "isc": 9.8,
+    "vmp": 40.1,
+    "imp": 8.99,
+    "fill_factor": 76.5
+  },
+  "time_series": [
+    {
+      "timestamp": "2025-01-15T08:00:00Z",
+      "elapsed_hours": 0,
+      "pmax": 360.5,
+      "voc": 48.2,
+      "isc": 9.8,
+      "module_temp": 75.0,
+      "irradiance": 1000
+    },
+    {
+      "timestamp": "2025-01-16T08:00:00Z",
+      "elapsed_hours": 24,
+      "pmax": 359.8,
+      "voc": 48.1,
+      "isc": 9.78,
+      "module_temp": 75.3,
+      "irradiance": 1005
+    },
+    {
+      "timestamp": "2025-01-17T08:00:00Z",
+      "elapsed_hours": 48,
+      "pmax": 359.2,
+      "voc": 48.0,
+      "isc": 9.76,
+      "module_temp": 74.8,
+      "irradiance": 998
+    },
+    {
+      "timestamp": "2025-01-18T08:00:00Z",
+      "elapsed_hours": 72,
+      "pmax": 358.7,
+      "voc": 48.0,
+      "isc": 9.75,
+      "module_temp": 75.2,
+      "irradiance": 1002
+    },
+    {
+      "timestamp": "2025-01-19T08:00:00Z",
+      "elapsed_hours": 96,
+      "pmax": 358.3,
+      "voc": 47.9,
+      "isc": 9.74,
+      "module_temp": 75.1,
+      "irradiance": 1000
+    },
+    {
+      "timestamp": "2025-01-20T08:00:00Z",
+      "elapsed_hours": 120,
+      "pmax": 358.0,
+      "voc": 47.9,
+      "isc": 9.73,
+      "module_temp": 75.0,
+      "irradiance": 999
+    },
+    {
+      "timestamp": "2025-01-21T08:00:00Z",
+      "elapsed_hours": 144,
+      "pmax": 357.8,
+      "voc": 47.9,
+      "isc": 9.72,
+      "module_temp": 75.2,
+      "irradiance": 1001
+    },
+    {
+      "timestamp": "2025-01-22T08:00:00Z",
+      "elapsed_hours": 168,
+      "pmax": 357.6,
+      "voc": 47.8,
+      "isc": 9.72,
+      "module_temp": 74.9,
+      "irradiance": 1003
+    },
+    {
+      "timestamp": "2025-01-23T08:00:00Z",
+      "elapsed_hours": 192,
+      "pmax": 357.5,
+      "voc": 47.8,
+      "isc": 9.71,
+      "module_temp": 75.1,
+      "irradiance": 1000
+    },
+    {
+      "timestamp": "2025-01-24T08:00:00Z",
+      "elapsed_hours": 216,
+      "pmax": 357.4,
+      "voc": 47.8,
+      "isc": 9.71,
+      "module_temp": 75.0,
+      "irradiance": 1001
+    },
+    {
+      "timestamp": "2025-01-25T08:00:00Z",
+      "elapsed_hours": 240,
+      "pmax": 357.3,
+      "voc": 47.8,
+      "isc": 9.70,
+      "module_temp": 75.1,
+      "irradiance": 999
+    },
+    {
+      "timestamp": "2025-01-26T08:00:00Z",
+      "elapsed_hours": 264,
+      "pmax": 357.2,
+      "voc": 47.8,
+      "isc": 9.70,
+      "module_temp": 75.0,
+      "irradiance": 1000
+    },
+    {
+      "timestamp": "2025-01-27T08:00:00Z",
+      "elapsed_hours": 288,
+      "pmax": 357.2,
+      "voc": 47.7,
+      "isc": 9.70,
+      "module_temp": 75.2,
+      "irradiance": 1002
+    }
+  ],
+  "final_characterization": {
+    "measured_at": "2025-01-27T20:00:00Z",
+    "pmax": 357.0,
+    "voc": 47.7,
+    "isc": 9.69,
+    "vmp": 39.8,
+    "imp": 8.97,
+    "fill_factor": 76.3
+  }
+}

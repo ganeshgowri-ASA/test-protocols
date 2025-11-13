@@ -1,0 +1,70 @@
+{
+  "version": "1.0.0",
+  "protocol_id": "TC-001",
+  "name": "Thermal Cycling Test (IEC 61215 MQT11)",
+  "description": "Thermal cycling test from -40°C to +85°C per IEC 61215-2 MQT11. Evaluates module ability to withstand thermal mismatch and fatigue. Standard test with 50/200/600 cycles.",
+  "type": "environmental",
+  "metadata": {
+    "author": "PV Test Lab",
+    "created_date": "2025-11-13T00:00:00Z",
+    "standard_reference": ["IEC 61215-2 MQT11", "IEC 61730"],
+    "equipment_required": ["Thermal Cycling Chamber", "IV Curve Tracer", "EL Imaging System", "Insulation Tester"],
+    "estimated_duration_minutes": 28800
+  },
+  "parameters": {
+    "sample_id": {"type": "string", "required": true},
+    "num_cycles": {"type": "select", "enum": [50, 200, 600], "default": 200, "description": "Number of thermal cycles"},
+    "cold_temp": {"type": "number", "unit": "°C", "default": -40, "min": -45, "max": -35},
+    "hot_temp": {"type": "number", "unit": "°C", "default": 85, "min": 80, "max": 90},
+    "dwell_time": {"type": "number", "unit": "minutes", "default": 10, "min": 5, "max": 30},
+    "ramp_rate": {"type": "number", "unit": "°C/min", "default": 100, "min": 50, "max": 200}
+  },
+  "execution_flow": [
+    {"step_id": "STEP_001", "name": "Initial Characterization", "type": "measurement", "critical": true},
+    {"step_id": "STEP_002", "name": "Thermal Cycling Exposure", "type": "data_collection", "critical": true},
+    {"step_id": "STEP_003", "name": "Interim Testing", "type": "measurement", "critical": false},
+    {"step_id": "STEP_004", "name": "Final Characterization", "type": "measurement", "critical": true}
+  ],
+  "data_collection": {
+    "channels": [
+      {"channel_id": "CHAMBER_TEMP", "name": "Chamber Temperature", "unit": "°C", "data_type": "numeric", "sampling_rate": 0.017, "storage_precision": 1},
+      {"channel_id": "MODULE_TEMP", "name": "Module Temperature", "unit": "°C", "data_type": "numeric", "sampling_rate": 0.017, "storage_precision": 1},
+      {"channel_id": "CYCLE_NUMBER", "name": "Cycle Number", "unit": "count", "data_type": "numeric"},
+      {"channel_id": "POWER_DEGRADATION", "name": "Power Degradation", "unit": "%", "data_type": "numeric", "storage_precision": 2},
+      {"channel_id": "ISC_CHANGE", "name": "Isc Change", "unit": "%", "data_type": "numeric", "storage_precision": 2},
+      {"channel_id": "VOC_CHANGE", "name": "Voc Change", "unit": "%", "data_type": "numeric", "storage_precision": 2}
+    ]
+  },
+  "qc_criteria": {
+    "tests": [
+      {"test_id": "QC_001", "name": "Temperature Uniformity", "condition": "temp_uniformity <= 5.0", "severity": "pass_fail"},
+      {"test_id": "QC_002", "name": "Cycle Completeness", "condition": "completed_cycles == target_cycles", "severity": "pass_fail"},
+      {"test_id": "QC_003", "name": "Power Degradation Limit", "condition": "POWER_DEGRADATION <= 5.0", "severity": "info"},
+      {"test_id": "QC_004", "name": "Insulation Resistance", "condition": "insulation_resistance >= 40", "severity": "pass_fail"}
+    ],
+    "acceptance_criteria": {
+      "max_power_degradation": 5.0,
+      "min_insulation_resistance": 40,
+      "max_visual_defects": 0
+    }
+  },
+  "analysis": {
+    "charts": [
+      {"chart_id": "CHART_001", "title": "Temperature Profile", "type": "line", "x_axis": "TIME", "y_axis": "CHAMBER_TEMP"},
+      {"chart_id": "CHART_002", "title": "Power Degradation vs Cycles", "type": "line", "x_axis": "CYCLE_NUMBER", "y_axis": "POWER_DEGRADATION"},
+      {"chart_id": "CHART_003", "title": "Performance Parameters", "type": "line", "x_axis": "CYCLE_NUMBER", "y_axis": ["ISC_CHANGE", "VOC_CHANGE"]}
+    ],
+    "calculations": [
+      {"calc_id": "CALC_001", "name": "Total Power Degradation", "formula": "last(POWER_DEGRADATION)", "unit": "%"},
+      {"calc_id": "CALC_002", "name": "Mean Chamber Temp Cold", "formula": "mean(CHAMBER_TEMP[CHAMBER_TEMP < 0])", "unit": "°C"},
+      {"calc_id": "CALC_003", "name": "Mean Chamber Temp Hot", "formula": "mean(CHAMBER_TEMP[CHAMBER_TEMP > 50])", "unit": "°C"},
+      {"calc_id": "CALC_004", "name": "IEC 61215 Compliance", "formula": "POWER_DEGRADATION <= 5.0 && insulation_resistance >= 40", "unit": "boolean"}
+    ]
+  },
+  "report_template": {
+    "sections": ["executive_summary", "test_conditions", "thermal_profile", "electrical_performance", "visual_inspection", "qc_report", "iec_61215_compliance"],
+    "include_charts": true,
+    "include_raw_data": false,
+    "include_qc_report": true
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "version": "1.0.0",
+  "protocol_id": "JBOX-001",
+  "name": "Junction Box Degradation Testing",
+  "description": "Assessment of junction box thermal performance and degradation through infrared thermography and electrical testing per IEC 61215.",
+  "type": "reliability",
+  "metadata": {
+    "author": "PV Test Lab",
+    "created_date": "2025-11-13T00:00:00Z",
+    "standard_reference": ["IEC 61215-2", "IEC 62790"],
+    "equipment_required": ["Thermal Camera", "Current Source", "IV Curve Tracer", "Temperature Sensors"],
+    "estimated_duration_minutes": 180
+  },
+  "parameters": {
+    "sample_id": {"type": "string", "required": true},
+    "test_current": {"type": "number", "unit": "A", "default": 9.0, "min": 5.0, "max": 15.0},
+    "ambient_temperature": {"type": "number", "unit": "°C", "default": 25, "min": 20, "max": 40},
+    "test_duration": {"type": "number", "unit": "hours", "default": 2.0, "min": 1.0, "max": 24.0}
+  },
+  "data_collection": {
+    "channels": [
+      {"channel_id": "JBOX_TEMP", "name": "Junction Box Temperature", "unit": "°C", "data_type": "numeric", "storage_precision": 1},
+      {"channel_id": "DIODE_TEMP", "name": "Bypass Diode Temperature", "unit": "°C", "data_type": "numeric", "storage_precision": 1},
+      {"channel_id": "TERMINAL_TEMP", "name": "Terminal Temperature", "unit": "°C", "data_type": "numeric", "storage_precision": 1},
+      {"channel_id": "VOLTAGE_DROP", "name": "Voltage Drop", "unit": "V", "data_type": "numeric", "storage_precision": 3},
+      {"channel_id": "RESISTANCE", "name": "Contact Resistance", "unit": "mΩ", "data_type": "numeric", "storage_precision": 2}
+    ]
+  },
+  "qc_criteria": {
+    "tests": [
+      {"test_id": "QC_001", "name": "Temperature Limit", "condition": "max(JBOX_TEMP) <= 90", "severity": "pass_fail"},
+      {"test_id": "QC_002", "name": "Diode Temperature", "condition": "max(DIODE_TEMP) <= 85", "severity": "pass_fail"},
+      {"test_id": "QC_003", "name": "Resistance Increase", "condition": "(current_R - baseline_R) / baseline_R <= 0.50", "severity": "warning"}
+    ]
+  },
+  "analysis": {
+    "calculations": [
+      {"calc_id": "CALC_001", "name": "Peak Temperature", "formula": "max(JBOX_TEMP)", "unit": "°C"},
+      {"calc_id": "CALC_002", "name": "Temperature Rise", "formula": "max(JBOX_TEMP) - ambient_temp", "unit": "°C"},
+      {"calc_id": "CALC_003", "name": "Power Dissipation", "formula": "test_current^2 * RESISTANCE / 1000", "unit": "W"}
+    ]
+  }
+}

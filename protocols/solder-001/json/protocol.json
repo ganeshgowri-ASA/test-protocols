@@ -1,0 +1,41 @@
+{
+  "version": "1.0.0",
+  "protocol_id": "SOLDER-001",
+  "name": "Solder Bond Degradation Testing",
+  "description": "Assessment of solder bond strength and integrity through pull testing and thermomechanical stress. Evaluates interconnection reliability.",
+  "type": "reliability",
+  "metadata": {
+    "author": "PV Test Lab",
+    "created_date": "2025-11-13T00:00:00Z",
+    "standard_reference": ["IEC 62790", "ASTM B214"],
+    "equipment_required": ["Pull Test Machine", "Thermal Chamber", "Microscope", "Force Gauge"],
+    "estimated_duration_minutes": 120
+  },
+  "parameters": {
+    "sample_id": {"type": "string", "required": true},
+    "test_points": {"type": "integer", "default": 10, "min": 5, "max": 30},
+    "pull_rate": {"type": "number", "unit": "mm/min", "default": 50, "min": 10, "max": 100},
+    "pre_stress_cycles": {"type": "integer", "default": 0, "min": 0, "max": 200}
+  },
+  "data_collection": {
+    "channels": [
+      {"channel_id": "PULL_FORCE", "name": "Pull Force", "unit": "N", "data_type": "numeric", "storage_precision": 2},
+      {"channel_id": "DISPLACEMENT", "name": "Displacement", "unit": "mm", "data_type": "numeric", "storage_precision": 3},
+      {"channel_id": "BOND_STRENGTH", "name": "Bond Strength", "unit": "MPa", "data_type": "numeric", "storage_precision": 2},
+      {"channel_id": "FAILURE_MODE", "name": "Failure Mode", "unit": "category", "data_type": "numeric"}
+    ]
+  },
+  "qc_criteria": {
+    "tests": [
+      {"test_id": "QC_001", "name": "Bond Strength Minimum", "condition": "mean(BOND_STRENGTH) >= 40", "severity": "pass_fail"},
+      {"test_id": "QC_002", "name": "Consistency", "condition": "std_dev(BOND_STRENGTH) / mean(BOND_STRENGTH) <= 0.20", "severity": "warning"}
+    ]
+  },
+  "analysis": {
+    "calculations": [
+      {"calc_id": "CALC_001", "name": "Mean Bond Strength", "formula": "mean(BOND_STRENGTH)", "unit": "MPa"},
+      {"calc_id": "CALC_002", "name": "Minimum Bond Strength", "formula": "min(BOND_STRENGTH)", "unit": "MPa"},
+      {"calc_id": "CALC_003", "name": "Degradation Factor", "formula": "(baseline_strength - current_strength) / baseline_strength * 100", "unit": "%"}
+    ]
+  }
+}

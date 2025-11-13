@@ -1,0 +1,247 @@
+{
+  "version": "1.0.0",
+  "protocol_id": "CHALK-001",
+  "name": "Backsheet Chalking Assessment",
+  "description": "Quantitative assessment of backsheet chalking degradation through color measurement and surface analysis. Tracks UV-induced polymer degradation.",
+  "type": "characterization",
+  "metadata": {
+    "author": "PV Test Lab",
+    "created_date": "2025-11-13T00:00:00Z",
+    "last_modified": "2025-11-13T00:00:00Z",
+    "standard_reference": ["ASTM D4214", "ASTM G154"],
+    "equipment_required": ["Spectrophotometer", "Colorimeter", "UV Chamber", "Tape Test Equipment"],
+    "estimated_duration_minutes": 60,
+    "severity_level": "medium"
+  },
+  "parameters": {
+    "sample_id": {
+      "type": "string",
+      "description": "Module/Sample identifier",
+      "required": true
+    },
+    "measurement_locations": {
+      "type": "integer",
+      "description": "Number of measurement points on backsheet",
+      "required": true,
+      "min": 5,
+      "max": 25,
+      "default": 9
+    },
+    "color_space": {
+      "type": "select",
+      "description": "Color measurement space",
+      "required": true,
+      "enum": ["CIE L*a*b*", "CIE XYZ", "RGB"],
+      "default": "CIE L*a*b*"
+    },
+    "illuminant": {
+      "type": "select",
+      "description": "Standard illuminant for color measurement",
+      "required": true,
+      "enum": ["D65", "A", "C", "F2"],
+      "default": "D65"
+    },
+    "observer_angle": {
+      "type": "select",
+      "description": "Standard observer angle",
+      "required": true,
+      "enum": ["2°", "10°"],
+      "default": "10°"
+    }
+  },
+  "execution_flow": [
+    {
+      "step_id": "STEP_001",
+      "name": "Initial Visual Assessment",
+      "description": "Document initial backsheet appearance",
+      "type": "measurement",
+      "configuration": {
+        "documentation": ["photos", "visual_rating"]
+      },
+      "critical": true
+    },
+    {
+      "step_id": "STEP_002",
+      "name": "Baseline Color Measurement",
+      "description": "Measure baseline color at all locations",
+      "type": "data_collection",
+      "dependencies": ["STEP_001"],
+      "configuration": {
+        "color_space": "{parameters.color_space}",
+        "illuminant": "{parameters.illuminant}"
+      },
+      "critical": true
+    },
+    {
+      "step_id": "STEP_003",
+      "name": "Tape Test",
+      "description": "Perform tape adhesion test for chalking",
+      "type": "measurement",
+      "dependencies": ["STEP_002"],
+      "configuration": {
+        "tape_type": "clear_adhesive",
+        "test_locations": "{parameters.measurement_locations}"
+      },
+      "critical": false
+    },
+    {
+      "step_id": "STEP_004",
+      "name": "Gloss Measurement",
+      "description": "Measure surface gloss at specified angles",
+      "type": "measurement",
+      "dependencies": ["STEP_001"],
+      "configuration": {
+        "angles": [20, 60, 85]
+      },
+      "critical": false
+    }
+  ],
+  "data_collection": {
+    "channels": [
+      {
+        "channel_id": "L_STAR",
+        "name": "L* (Lightness)",
+        "unit": "unitless",
+        "data_type": "numeric",
+        "storage_precision": 3
+      },
+      {
+        "channel_id": "A_STAR",
+        "name": "a* (Red-Green)",
+        "unit": "unitless",
+        "data_type": "numeric",
+        "storage_precision": 3
+      },
+      {
+        "channel_id": "B_STAR",
+        "name": "b* (Blue-Yellow)",
+        "unit": "unitless",
+        "data_type": "numeric",
+        "storage_precision": 3
+      },
+      {
+        "channel_id": "DELTA_E",
+        "name": "Color Difference (ΔE)",
+        "unit": "unitless",
+        "data_type": "numeric",
+        "storage_precision": 3
+      },
+      {
+        "channel_id": "GLOSS_60",
+        "name": "Gloss at 60°",
+        "unit": "GU",
+        "data_type": "numeric",
+        "storage_precision": 2
+      },
+      {
+        "channel_id": "CHALK_RATING",
+        "name": "Chalking Rating",
+        "unit": "ASTM scale",
+        "data_type": "numeric",
+        "storage_precision": 1
+      }
+    ]
+  },
+  "qc_criteria": {
+    "tests": [
+      {
+        "test_id": "QC_001",
+        "name": "Measurement Repeatability",
+        "description": "Verify color measurements are repeatable within 0.5 ΔE",
+        "condition": "std_dev(DELTA_E) <= 0.5",
+        "severity": "pass_fail"
+      },
+      {
+        "test_id": "QC_002",
+        "name": "Calibration Check",
+        "description": "Verify instrument calibration with standard",
+        "condition": "calibration_deviation <= 0.3",
+        "severity": "pass_fail"
+      },
+      {
+        "test_id": "QC_003",
+        "name": "Data Completeness",
+        "description": "All measurement locations completed",
+        "condition": "count(measurements) == expected_count",
+        "severity": "pass_fail"
+      }
+    ],
+    "acceptance_criteria": {
+      "min_pass_tests": ["QC_001", "QC_002", "QC_003"],
+      "max_delta_e": 5.0,
+      "min_chalk_rating": 6
+    }
+  },
+  "analysis": {
+    "charts": [
+      {
+        "chart_id": "CHART_001",
+        "title": "Color Change Distribution",
+        "description": "ΔE values across measurement locations",
+        "type": "bar",
+        "x_axis": "LOCATION_ID",
+        "y_axis": "DELTA_E"
+      },
+      {
+        "chart_id": "CHART_002",
+        "title": "L*a*b* Space Plot",
+        "description": "Color measurements in L*a*b* color space",
+        "type": "scatter",
+        "x_axis": "A_STAR",
+        "y_axis": "B_STAR"
+      },
+      {
+        "chart_id": "CHART_003",
+        "title": "Gloss Retention",
+        "description": "Surface gloss measurements",
+        "type": "bar",
+        "x_axis": "LOCATION_ID",
+        "y_axis": "GLOSS_60"
+      }
+    ],
+    "calculations": [
+      {
+        "calc_id": "CALC_001",
+        "name": "Mean Color Change",
+        "description": "Average ΔE across all locations",
+        "formula": "mean(DELTA_E)",
+        "unit": "ΔE"
+      },
+      {
+        "calc_id": "CALC_002",
+        "name": "Max Color Change",
+        "description": "Maximum ΔE observed",
+        "formula": "max(DELTA_E)",
+        "unit": "ΔE"
+      },
+      {
+        "calc_id": "CALC_003",
+        "name": "Mean Gloss",
+        "description": "Average gloss at 60°",
+        "formula": "mean(GLOSS_60)",
+        "unit": "GU"
+      },
+      {
+        "calc_id": "CALC_004",
+        "name": "Chalking Severity",
+        "description": "Overall chalking rating",
+        "formula": "mean(CHALK_RATING)",
+        "unit": "ASTM scale (0-10)"
+      }
+    ]
+  },
+  "report_template": {
+    "sections": [
+      "executive_summary",
+      "color_analysis",
+      "gloss_measurements",
+      "tape_test_results",
+      "visual_assessment",
+      "conclusions"
+    ],
+    "include_charts": true,
+    "include_raw_data": true,
+    "include_qc_report": true,
+    "include_photos": true
+  }
+}

@@ -1,0 +1,298 @@
+{
+  "version": "1.0.0",
+  "protocol_id": "CORR-001",
+  "name": "Corrosion Testing - IEC 61701",
+  "description": "Salt mist corrosion testing for photovoltaic modules following IEC 61701 standard. Evaluates module resistance to corrosive environments through controlled salt fog exposure.",
+  "type": "environmental",
+  "metadata": {
+    "author": "PV Test Lab",
+    "created_date": "2025-11-13T00:00:00Z",
+    "last_modified": "2025-11-13T00:00:00Z",
+    "standard_reference": ["IEC 61701:2020", "ASTM B117"],
+    "equipment_required": ["Salt Spray Chamber", "Environmental Monitor", "Visual Inspection Equipment", "IV Curve Tracer"],
+    "estimated_duration_minutes": 2880,
+    "severity_level": "high"
+  },
+  "parameters": {
+    "sample_id": {
+      "type": "string",
+      "description": "Module/Sample identifier",
+      "required": true
+    },
+    "test_severity": {
+      "type": "select",
+      "description": "Test severity level per IEC 61701",
+      "required": true,
+      "enum": ["Level 1", "Level 2", "Level 3", "Level 4", "Level 5", "Level 6", "Level 7", "Level 8"],
+      "default": "Level 6"
+    },
+    "salt_concentration": {
+      "type": "number",
+      "description": "Salt solution concentration",
+      "required": true,
+      "unit": "g/L",
+      "min": 40,
+      "max": 60,
+      "default": 50
+    },
+    "chamber_temperature": {
+      "type": "number",
+      "description": "Chamber operating temperature",
+      "required": true,
+      "unit": "°C",
+      "min": 30,
+      "max": 40,
+      "default": 35
+    },
+    "exposure_duration": {
+      "type": "number",
+      "description": "Total exposure duration",
+      "required": true,
+      "unit": "hours",
+      "min": 24,
+      "max": 2000,
+      "default": 720
+    },
+    "inspection_interval": {
+      "type": "number",
+      "description": "Interval between visual inspections",
+      "required": false,
+      "unit": "hours",
+      "default": 120
+    }
+  },
+  "execution_flow": [
+    {
+      "step_id": "STEP_001",
+      "name": "Initial Characterization",
+      "description": "Perform baseline IV curve and visual inspection",
+      "type": "measurement",
+      "configuration": {
+        "measurements": ["iv_curve", "visual_inspection", "weight", "dimensions"]
+      },
+      "critical": true
+    },
+    {
+      "step_id": "STEP_002",
+      "name": "Chamber Setup",
+      "description": "Prepare salt spray chamber and verify conditions",
+      "type": "measurement",
+      "dependencies": ["STEP_001"],
+      "configuration": {
+        "temperature": "{parameters.chamber_temperature}",
+        "salt_concentration": "{parameters.salt_concentration}"
+      },
+      "critical": true
+    },
+    {
+      "step_id": "STEP_003",
+      "name": "Salt Spray Exposure",
+      "description": "Expose sample to salt spray conditions",
+      "type": "data_collection",
+      "dependencies": ["STEP_002"],
+      "configuration": {
+        "duration": "{parameters.exposure_duration}",
+        "monitoring_interval": 60
+      },
+      "timeout_seconds": 7200000,
+      "critical": true
+    },
+    {
+      "step_id": "STEP_004",
+      "name": "Periodic Inspection",
+      "description": "Conduct periodic visual and electrical inspections",
+      "type": "measurement",
+      "dependencies": ["STEP_003"],
+      "configuration": {
+        "inspection_interval": "{parameters.inspection_interval}",
+        "measurements": ["visual_corrosion", "electrical_continuity"]
+      },
+      "critical": false
+    },
+    {
+      "step_id": "STEP_005",
+      "name": "Final Characterization",
+      "description": "Post-exposure IV curve and detailed inspection",
+      "type": "measurement",
+      "dependencies": ["STEP_003"],
+      "configuration": {
+        "measurements": ["iv_curve", "visual_inspection", "weight", "dimensions", "corrosion_assessment"]
+      },
+      "critical": true
+    }
+  ],
+  "data_collection": {
+    "channels": [
+      {
+        "channel_id": "TEMPERATURE",
+        "name": "Chamber Temperature",
+        "unit": "°C",
+        "data_type": "numeric",
+        "sampling_rate": 0.017,
+        "storage_precision": 2
+      },
+      {
+        "channel_id": "HUMIDITY",
+        "name": "Chamber Humidity",
+        "unit": "%RH",
+        "data_type": "numeric",
+        "sampling_rate": 0.017,
+        "storage_precision": 2
+      },
+      {
+        "channel_id": "SALT_CONCENTRATION",
+        "name": "Salt Solution Concentration",
+        "unit": "g/L",
+        "data_type": "numeric",
+        "sampling_rate": 0.001,
+        "storage_precision": 2
+      },
+      {
+        "channel_id": "CORROSION_RATING",
+        "name": "Visual Corrosion Rating",
+        "unit": "score",
+        "data_type": "numeric",
+        "sampling_rate": 0.001,
+        "storage_precision": 1
+      },
+      {
+        "channel_id": "POWER_DEGRADATION",
+        "name": "Power Degradation",
+        "unit": "%",
+        "data_type": "numeric",
+        "sampling_rate": 0.001,
+        "storage_precision": 3
+      },
+      {
+        "channel_id": "TIMESTAMP",
+        "name": "Measurement Timestamp",
+        "unit": "datetime",
+        "data_type": "timestamp",
+        "sampling_rate": 0.017,
+        "storage_precision": 0
+      }
+    ]
+  },
+  "qc_criteria": {
+    "tests": [
+      {
+        "test_id": "QC_001",
+        "name": "Temperature Stability",
+        "description": "Verify chamber temperature remains within ±2°C",
+        "condition": "abs(mean(TEMPERATURE) - target_temp) <= 2.0",
+        "severity": "pass_fail",
+        "applies_to_channels": ["TEMPERATURE"]
+      },
+      {
+        "test_id": "QC_002",
+        "name": "Salt Concentration Range",
+        "description": "Verify salt concentration remains within specification",
+        "condition": "all(SALT_CONCENTRATION >= 40 && SALT_CONCENTRATION <= 60)",
+        "severity": "pass_fail",
+        "applies_to_channels": ["SALT_CONCENTRATION"]
+      },
+      {
+        "test_id": "QC_003",
+        "name": "Power Degradation Limit",
+        "description": "Check if power degradation exceeds 5% for pass/fail",
+        "condition": "max(POWER_DEGRADATION) <= 5.0",
+        "severity": "info",
+        "applies_to_channels": ["POWER_DEGRADATION"]
+      },
+      {
+        "test_id": "QC_004",
+        "name": "Data Completeness",
+        "description": "Verify continuous data collection with <1% gaps",
+        "condition": "data_completeness(TEMPERATURE) >= 0.99",
+        "severity": "pass_fail"
+      }
+    ],
+    "acceptance_criteria": {
+      "min_pass_tests": ["QC_001", "QC_002", "QC_004"],
+      "max_power_degradation": 5.0,
+      "max_corrosion_rating": 3.0
+    }
+  },
+  "analysis": {
+    "charts": [
+      {
+        "chart_id": "CHART_001",
+        "title": "Temperature Profile",
+        "description": "Chamber temperature over exposure duration",
+        "type": "line",
+        "x_axis": "TIMESTAMP",
+        "y_axis": "TEMPERATURE"
+      },
+      {
+        "chart_id": "CHART_002",
+        "title": "Salt Concentration Tracking",
+        "description": "Salt solution concentration over time",
+        "type": "line",
+        "x_axis": "TIMESTAMP",
+        "y_axis": "SALT_CONCENTRATION"
+      },
+      {
+        "chart_id": "CHART_003",
+        "title": "Corrosion Progression",
+        "description": "Visual corrosion rating over inspection intervals",
+        "type": "scatter",
+        "x_axis": "TIMESTAMP",
+        "y_axis": "CORROSION_RATING"
+      },
+      {
+        "chart_id": "CHART_004",
+        "title": "Power Degradation",
+        "description": "Module power degradation over exposure time",
+        "type": "line",
+        "x_axis": "TIMESTAMP",
+        "y_axis": "POWER_DEGRADATION"
+      }
+    ],
+    "calculations": [
+      {
+        "calc_id": "CALC_001",
+        "name": "Mean Chamber Temperature",
+        "description": "Average chamber temperature during exposure",
+        "formula": "mean(TEMPERATURE)",
+        "unit": "°C"
+      },
+      {
+        "calc_id": "CALC_002",
+        "name": "Temperature Stability",
+        "description": "Standard deviation of chamber temperature",
+        "formula": "std(TEMPERATURE)",
+        "unit": "°C"
+      },
+      {
+        "calc_id": "CALC_003",
+        "name": "Total Power Degradation",
+        "description": "Final power degradation percentage",
+        "formula": "last(POWER_DEGRADATION)",
+        "unit": "%"
+      },
+      {
+        "calc_id": "CALC_004",
+        "name": "Final Corrosion Rating",
+        "description": "Final visual corrosion assessment score",
+        "formula": "last(CORROSION_RATING)",
+        "unit": "score"
+      }
+    ]
+  },
+  "report_template": {
+    "sections": [
+      "executive_summary",
+      "test_conditions",
+      "environmental_monitoring",
+      "corrosion_assessment",
+      "electrical_performance",
+      "qc_report",
+      "conclusions",
+      "iec_61701_compliance"
+    ],
+    "include_charts": true,
+    "include_raw_data": false,
+    "include_qc_report": true,
+    "include_photos": true
+  }
+}

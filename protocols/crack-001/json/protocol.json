@@ -1,0 +1,42 @@
+{
+  "version": "1.0.0",
+  "protocol_id": "CRACK-001",
+  "name": "Cell Crack Propagation Analysis",
+  "description": "Electroluminescence (EL) imaging-based detection and tracking of cell cracks. Quantifies crack propagation and impact on electrical performance.",
+  "type": "characterization",
+  "metadata": {
+    "author": "PV Test Lab",
+    "created_date": "2025-11-13T00:00:00Z",
+    "standard_reference": ["IEC TS 60904-13"],
+    "equipment_required": ["EL Imaging System", "Current Source", "CCD Camera", "Image Analysis Software"],
+    "estimated_duration_minutes": 90
+  },
+  "parameters": {
+    "sample_id": {"type": "string", "required": true},
+    "forward_current": {"type": "number", "unit": "A", "default": 9.0, "min": 1.0, "max": 15.0},
+    "exposure_time": {"type": "number", "unit": "ms", "default": 500, "min": 100, "max": 5000},
+    "image_resolution": {"type": "select", "enum": ["1024x1024", "2048x2048", "4096x4096"], "default": "2048x2048"}
+  },
+  "data_collection": {
+    "channels": [
+      {"channel_id": "CRACK_COUNT", "name": "Number of Cracks", "unit": "count", "data_type": "numeric"},
+      {"channel_id": "CRACK_LENGTH", "name": "Total Crack Length", "unit": "mm", "data_type": "numeric", "storage_precision": 2},
+      {"channel_id": "CRACK_AREA", "name": "Affected Area", "unit": "%", "data_type": "numeric", "storage_precision": 2},
+      {"channel_id": "INACTIVE_AREA", "name": "Inactive Cell Area", "unit": "%", "data_type": "numeric", "storage_precision": 2},
+      {"channel_id": "EL_INTENSITY", "name": "Mean EL Intensity", "unit": "counts", "data_type": "numeric"}
+    ]
+  },
+  "qc_criteria": {
+    "tests": [
+      {"test_id": "QC_001", "name": "Image Quality", "condition": "image_contrast >= 50", "severity": "pass_fail"},
+      {"test_id": "QC_002", "name": "Current Stability", "condition": "current_deviation <= 0.05", "severity": "pass_fail"}
+    ]
+  },
+  "analysis": {
+    "calculations": [
+      {"calc_id": "CALC_001", "name": "Total Cracks", "formula": "sum(CRACK_COUNT)", "unit": "count"},
+      {"calc_id": "CALC_002", "name": "Crack Density", "formula": "CRACK_COUNT / cell_area", "unit": "cracks/cm²"},
+      {"calc_id": "CALC_003", "name": "Power Loss Estimate", "formula": "INACTIVE_AREA * power_coefficient", "unit": "%"}
+    ]
+  }
+}

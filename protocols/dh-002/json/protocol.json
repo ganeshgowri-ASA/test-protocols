@@ -1,0 +1,80 @@
+{
+  "version": "1.0.0",
+  "protocol_id": "DH-002",
+  "name": "Damp Heat 2000h Extended Test (IEC 61215)",
+  "description": "Extended damp heat test at 85°C/85%RH for 2000 hours per IEC 61215. Enhanced reliability qualification for modules intended for harsh humid environments.",
+  "type": "environmental",
+  "metadata": {
+    "author": "PV Test Lab",
+    "created_date": "2025-11-13T00:00:00Z",
+    "standard_reference": ["IEC 61215-2", "IEC 61730", "IEC TS 63126"],
+    "equipment_required": ["Damp Heat Chamber", "IV Curve Tracer", "Insulation Tester", "Environmental Monitor", "EL Imaging System"],
+    "estimated_duration_minutes": 120000
+  },
+  "parameters": {
+    "sample_id": {"type": "string", "required": true},
+    "test_temperature": {"type": "number", "unit": "°C", "default": 85, "min": 83, "max": 87},
+    "test_humidity": {"type": "number", "unit": "%RH", "default": 85, "min": 83, "max": 87},
+    "test_duration": {"type": "number", "unit": "hours", "default": 2000, "min": 2000, "max": 2000},
+    "interim_test_interval": {"type": "number", "unit": "hours", "default": 250, "min": 100, "max": 500}
+  },
+  "execution_flow": [
+    {"step_id": "STEP_001", "name": "Initial Full Characterization", "type": "measurement", "critical": true},
+    {"step_id": "STEP_002", "name": "Chamber Conditioning", "type": "measurement", "critical": true},
+    {"step_id": "STEP_003", "name": "Extended Damp Heat Exposure", "type": "data_collection", "critical": true},
+    {"step_id": "STEP_004", "name": "Periodic Interim Testing", "type": "measurement", "critical": false},
+    {"step_id": "STEP_005", "name": "1000h Milestone Characterization", "type": "measurement", "critical": true},
+    {"step_id": "STEP_006", "name": "Final Full Characterization", "type": "measurement", "critical": true}
+  ],
+  "data_collection": {
+    "channels": [
+      {"channel_id": "CHAMBER_TEMP", "name": "Chamber Temperature", "unit": "°C", "data_type": "numeric", "sampling_rate": 0.017, "storage_precision": 1},
+      {"channel_id": "CHAMBER_RH", "name": "Chamber Relative Humidity", "unit": "%RH", "data_type": "numeric", "sampling_rate": 0.017, "storage_precision": 1},
+      {"channel_id": "MODULE_TEMP", "name": "Module Surface Temperature", "unit": "°C", "data_type": "numeric", "sampling_rate": 0.017, "storage_precision": 1},
+      {"channel_id": "POWER_DEGRADATION", "name": "Power Degradation", "unit": "%", "data_type": "numeric", "storage_precision": 2},
+      {"channel_id": "INSULATION_RESISTANCE", "name": "Insulation Resistance", "unit": "MΩ", "data_type": "numeric", "storage_precision": 1},
+      {"channel_id": "GROUND_LEAKAGE", "name": "Ground Leakage Current", "unit": "μA", "data_type": "numeric", "storage_precision": 2}
+    ]
+  },
+  "qc_criteria": {
+    "tests": [
+      {"test_id": "QC_001", "name": "Temperature Control", "condition": "abs(mean(CHAMBER_TEMP) - 85) <= 2.0", "severity": "pass_fail"},
+      {"test_id": "QC_002", "name": "Humidity Control", "condition": "abs(mean(CHAMBER_RH) - 85) <= 3.0", "severity": "pass_fail"},
+      {"test_id": "QC_003", "name": "Duration Compliance", "condition": "exposure_hours >= 2000", "severity": "pass_fail"},
+      {"test_id": "QC_004", "name": "Power Degradation Limit", "condition": "POWER_DEGRADATION <= 8.0", "severity": "info"},
+      {"test_id": "QC_005", "name": "Insulation Resistance", "condition": "INSULATION_RESISTANCE >= 40", "severity": "pass_fail"},
+      {"test_id": "QC_006", "name": "Ground Leakage", "condition": "GROUND_LEAKAGE <= 50", "severity": "pass_fail"}
+    ],
+    "acceptance_criteria": {
+      "max_power_degradation": 8.0,
+      "min_insulation_resistance": 40,
+      "max_ground_leakage": 50,
+      "max_delamination_area": 1.0
+    }
+  },
+  "analysis": {
+    "charts": [
+      {"chart_id": "CHART_001", "title": "Temperature Tracking", "type": "line", "x_axis": "TIME", "y_axis": "CHAMBER_TEMP"},
+      {"chart_id": "CHART_002", "title": "Humidity Tracking", "type": "line", "x_axis": "TIME", "y_axis": "CHAMBER_RH"},
+      {"chart_id": "CHART_003", "title": "Power Degradation Timeline", "type": "line", "x_axis": "TIME", "y_axis": "POWER_DEGRADATION"},
+      {"chart_id": "CHART_004", "title": "Insulation Resistance Tracking", "type": "line", "x_axis": "TIME", "y_axis": "INSULATION_RESISTANCE"},
+      {"chart_id": "CHART_005", "title": "Ground Leakage Monitoring", "type": "line", "x_axis": "TIME", "y_axis": "GROUND_LEAKAGE"}
+    ],
+    "calculations": [
+      {"calc_id": "CALC_001", "name": "Mean Temperature", "formula": "mean(CHAMBER_TEMP)", "unit": "°C"},
+      {"calc_id": "CALC_002", "name": "Mean Humidity", "formula": "mean(CHAMBER_RH)", "unit": "%RH"},
+      {"calc_id": "CALC_003", "name": "Total Power Degradation", "formula": "last(POWER_DEGRADATION)", "unit": "%"},
+      {"calc_id": "CALC_004", "name": "Final Insulation", "formula": "last(INSULATION_RESISTANCE)", "unit": "MΩ"},
+      {"calc_id": "CALC_005", "name": "Degradation Rate", "formula": "POWER_DEGRADATION / test_hours * 1000", "unit": "%/1000h"},
+      {"calc_id": "CALC_006", "name": "1000h vs 2000h Comparison", "formula": "power_deg_2000h - power_deg_1000h", "unit": "%"},
+      {"calc_id": "CALC_007", "name": "Extended DH Compliance", "formula": "POWER_DEGRADATION <= 8.0 && INSULATION_RESISTANCE >= 40", "unit": "boolean"}
+    ]
+  },
+  "report_template": {
+    "sections": ["executive_summary", "test_conditions", "environmental_monitoring", "electrical_performance", "insulation_testing", "visual_inspection", "1000h_vs_2000h_comparison", "qc_report", "iec_compliance"],
+    "include_charts": true,
+    "include_raw_data": false,
+    "include_qc_report": true,
+    "include_el_images": true
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "version": "1.0.0",
+  "protocol_id": "YELLOW-001",
+  "name": "EVA Yellowing Index Measurement",
+  "description": "Quantitative assessment of EVA encapsulant yellowing through spectrophotometric measurement of yellowing index (YI). Tracks UV-induced EVA degradation.",
+  "type": "characterization",
+  "metadata": {
+    "author": "PV Test Lab",
+    "created_date": "2025-11-13T00:00:00Z",
+    "standard_reference": ["ASTM E313", "ASTM D1925"],
+    "equipment_required": ["Spectrophotometer", "UV-Vis Spectrometer", "Light Source"],
+    "estimated_duration_minutes": 45
+  },
+  "parameters": {
+    "sample_id": {"type": "string", "required": true},
+    "measurement_points": {"type": "integer", "default": 9, "min": 5, "max": 25},
+    "illuminant": {"type": "select", "enum": ["D65", "C"], "default": "D65"},
+    "yi_method": {"type": "select", "enum": ["ASTM E313", "ASTM D1925"], "default": "ASTM E313"}
+  },
+  "data_collection": {
+    "channels": [
+      {"channel_id": "YI", "name": "Yellowing Index", "unit": "YI", "data_type": "numeric", "storage_precision": 2},
+      {"channel_id": "TRANSMITTANCE", "name": "Light Transmittance", "unit": "%", "data_type": "numeric", "storage_precision": 2},
+      {"channel_id": "X_VALUE", "name": "Tristimulus X", "unit": "unitless", "data_type": "numeric", "storage_precision": 3},
+      {"channel_id": "Y_VALUE", "name": "Tristimulus Y", "unit": "unitless", "data_type": "numeric", "storage_precision": 3},
+      {"channel_id": "Z_VALUE", "name": "Tristimulus Z", "unit": "unitless", "data_type": "numeric", "storage_precision": 3}
+    ]
+  },
+  "qc_criteria": {
+    "tests": [
+      {"test_id": "QC_001", "name": "Repeatability", "condition": "std_dev(YI) <= 0.5", "severity": "pass_fail"},
+      {"test_id": "QC_002", "name": "Calibration", "condition": "calibration_check_passed", "severity": "pass_fail"}
+    ]
+  },
+  "analysis": {
+    "calculations": [
+      {"calc_id": "CALC_001", "name": "Mean YI", "formula": "mean(YI)", "unit": "YI"},
+      {"calc_id": "CALC_002", "name": "Max YI", "formula": "max(YI)", "unit": "YI"},
+      {"calc_id": "CALC_003", "name": "YI Change", "formula": "current_YI - baseline_YI", "unit": "ΔYI"}
+    ]
+  }
+}

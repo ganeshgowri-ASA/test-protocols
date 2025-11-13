@@ -1,0 +1,72 @@
+{
+  "protocol_id": "IAM-001",
+  "protocol_name": "Incidence Angle Modifier Test",
+  "standard": "IEC 61853",
+  "version": "1.0.0",
+  "description": "Measures the electrical performance variation of PV modules with respect to the angle of incidence of sunlight",
+
+  "default_settings": {
+    "angle_range": {
+      "min": 0,
+      "max": 90
+    },
+    "recommended_angles": [0, 10, 20, 30, 40, 50, 60, 70, 80, 90],
+    "irradiance": 1000,
+    "temperature": 25,
+    "spectrum": "AM1.5G"
+  },
+
+  "validation_rules": {
+    "min_data_points": 5,
+    "max_angle": 90,
+    "min_angle": 0,
+    "irradiance_tolerance": 50,
+    "temperature_tolerance": 5,
+    "stability_threshold": 0.02
+  },
+
+  "analysis_settings": {
+    "iam_models": ["ashrae", "physical", "polynomial"],
+    "default_model": "ashrae",
+    "normalization_angle": 0,
+    "fit_quality_thresholds": {
+      "excellent": 0.99,
+      "good": 0.95,
+      "acceptable": 0.90,
+      "poor": 0.0
+    }
+  },
+
+  "qc_checks": {
+    "enabled": true,
+    "checks": [
+      "monotonic_decrease",
+      "physical_bounds",
+      "data_completeness",
+      "measurement_stability",
+      "fit_quality"
+    ],
+    "auto_flag_threshold": "warning"
+  },
+
+  "output_settings": {
+    "generate_plots": true,
+    "plot_types": ["iam_curve", "normalized_performance", "residuals"],
+    "report_format": "pdf",
+    "include_raw_data": true,
+    "precision": {
+      "angle": 1,
+      "iam": 4,
+      "power": 2,
+      "current": 3,
+      "voltage": 2
+    }
+  },
+
+  "traceability": {
+    "track_changes": true,
+    "require_approval": false,
+    "audit_level": "detailed",
+    "retention_period_days": 2555
+  }
+}

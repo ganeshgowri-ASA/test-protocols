@@ -1,0 +1,333 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://test-protocols.example.com/schemas/iam-001.json",
+  "title": "IAM-001 Incidence Angle Modifier Protocol",
+  "description": "Protocol schema for IEC 61853 Incidence Angle Modifier testing of PV modules",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["protocol_info", "test_configuration", "measurements"],
+  "properties": {
+    "protocol_info": {
+      "type": "object",
+      "required": ["protocol_id", "protocol_version", "standard", "test_date"],
+      "properties": {
+        "protocol_id": {
+          "type": "string",
+          "const": "IAM-001",
+          "description": "Protocol identifier"
+        },
+        "protocol_version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Protocol version (semantic versioning)"
+        },
+        "standard": {
+          "type": "string",
+          "const": "IEC 61853",
+          "description": "International standard reference"
+        },
+        "test_date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Test execution date and time"
+        },
+        "operator": {
+          "type": "string",
+          "description": "Name of the test operator"
+        },
+        "facility": {
+          "type": "string",
+          "description": "Testing facility name"
+        }
+      }
+    },
+    "sample_info": {
+      "type": "object",
+      "required": ["sample_id", "module_type"],
+      "properties": {
+        "sample_id": {
+          "type": "string",
+          "description": "Unique identifier for the test sample"
+        },
+        "module_type": {
+          "type": "string",
+          "description": "PV module type or model"
+        },
+        "manufacturer": {
+          "type": "string",
+          "description": "Module manufacturer"
+        },
+        "serial_number": {
+          "type": "string",
+          "description": "Module serial number"
+        },
+        "technology": {
+          "type": "string",
+          "enum": ["mono-Si", "poly-Si", "CdTe", "CIGS", "a-Si", "HIT", "perovskite", "other"],
+          "description": "PV technology type"
+        },
+        "rated_power": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Rated power in watts"
+        },
+        "area": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Module area in square meters"
+        }
+      }
+    },
+    "test_configuration": {
+      "type": "object",
+      "required": ["angle_range", "angle_step", "irradiance", "temperature"],
+      "properties": {
+        "angle_range": {
+          "type": "object",
+          "required": ["min", "max"],
+          "properties": {
+            "min": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0,
+              "description": "Minimum angle of incidence (always 0°)"
+            },
+            "max": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 90,
+              "description": "Maximum angle of incidence (up to 90°)"
+            }
+          }
+        },
+        "angle_step": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 45,
+          "description": "Angle increment in degrees"
+        },
+        "irradiance": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Test irradiance in W/m²"
+        },
+        "temperature": {
+          "type": "number",
+          "description": "Test temperature in °C"
+        },
+        "spectrum": {
+          "type": "string",
+          "enum": ["AM1.5G", "AM1.5D", "AM0"],
+          "default": "AM1.5G",
+          "description": "Solar spectrum standard"
+        }
+      }
+    },
+    "measurements": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Array of measurements at different angles",
+      "items": {
+        "type": "object",
+        "required": ["angle", "isc", "voc", "pmax"],
+        "properties": {
+          "angle": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 90,
+            "description": "Angle of incidence in degrees"
+          },
+          "isc": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Short-circuit current in amperes"
+          },
+          "voc": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Open-circuit voltage in volts"
+          },
+          "pmax": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Maximum power in watts"
+          },
+          "imp": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Current at maximum power point in amperes"
+          },
+          "vmp": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Voltage at maximum power point in volts"
+          },
+          "ff": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Fill factor"
+          },
+          "irradiance_actual": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Actual measured irradiance in W/m²"
+          },
+          "temperature_actual": {
+            "type": "number",
+            "description": "Actual measured temperature in °C"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Measurement timestamp"
+          }
+        }
+      }
+    },
+    "analysis_results": {
+      "type": "object",
+      "description": "Calculated analysis results",
+      "properties": {
+        "iam_curve": {
+          "type": "array",
+          "description": "IAM values for each angle",
+          "items": {
+            "type": "object",
+            "required": ["angle", "iam"],
+            "properties": {
+              "angle": {
+                "type": "number",
+                "description": "Angle of incidence in degrees"
+              },
+              "iam": {
+                "type": "number",
+                "description": "Incidence Angle Modifier (normalized to 0°)"
+              }
+            }
+          }
+        },
+        "fitting_parameters": {
+          "type": "object",
+          "description": "Parameters from IAM curve fitting",
+          "properties": {
+            "model": {
+              "type": "string",
+              "enum": ["ashrae", "physical", "polynomial"],
+              "description": "IAM model type"
+            },
+            "parameters": {
+              "type": "object",
+              "description": "Model-specific parameters"
+            },
+            "r_squared": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Coefficient of determination"
+            },
+            "rmse": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Root mean square error"
+            }
+          }
+        },
+        "quality_metrics": {
+          "type": "object",
+          "description": "Quality control metrics",
+          "properties": {
+            "measurement_stability": {
+              "type": "string",
+              "enum": ["pass", "warning", "fail"],
+              "description": "Stability check result"
+            },
+            "data_completeness": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Percentage of expected data points collected"
+            },
+            "fit_quality": {
+              "type": "string",
+              "enum": ["excellent", "good", "acceptable", "poor"],
+              "description": "Overall fit quality assessment"
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional metadata",
+      "properties": {
+        "equipment": {
+          "type": "object",
+          "description": "Test equipment information",
+          "properties": {
+            "simulator": {
+              "type": "string",
+              "description": "Solar simulator model"
+            },
+            "iv_tracer": {
+              "type": "string",
+              "description": "I-V curve tracer model"
+            },
+            "pyranometer": {
+              "type": "string",
+              "description": "Irradiance sensor model"
+            },
+            "thermometer": {
+              "type": "string",
+              "description": "Temperature sensor model"
+            }
+          }
+        },
+        "calibration": {
+          "type": "object",
+          "description": "Equipment calibration dates",
+          "properties": {
+            "last_calibration_date": {
+              "type": "string",
+              "format": "date",
+              "description": "Last calibration date"
+            },
+            "next_calibration_date": {
+              "type": "string",
+              "format": "date",
+              "description": "Next calibration due date"
+            },
+            "calibration_certificate": {
+              "type": "string",
+              "description": "Calibration certificate number"
+            }
+          }
+        },
+        "environmental_conditions": {
+          "type": "object",
+          "description": "Lab environmental conditions",
+          "properties": {
+            "ambient_temperature": {
+              "type": "number",
+              "description": "Ambient temperature in °C"
+            },
+            "relative_humidity": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Relative humidity percentage"
+            },
+            "atmospheric_pressure": {
+              "type": "number",
+              "description": "Atmospheric pressure in hPa"
+            }
+          }
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional notes or observations"
+        }
+      }
+    }
+  }
+}

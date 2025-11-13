@@ -1,0 +1,76 @@
+{
+  "protocol_info": {
+    "protocol_id": "IAM-001",
+    "protocol_version": "1.0.0",
+    "standard": "IEC 61853",
+    "test_date": "2025-11-13T00:00:00Z",
+    "operator": "",
+    "facility": ""
+  },
+  "sample_info": {
+    "sample_id": "",
+    "module_type": "",
+    "manufacturer": "",
+    "serial_number": "",
+    "technology": "mono-Si",
+    "rated_power": 0,
+    "area": 0
+  },
+  "test_configuration": {
+    "angle_range": {
+      "min": 0,
+      "max": 90
+    },
+    "angle_step": 10,
+    "irradiance": 1000,
+    "temperature": 25,
+    "spectrum": "AM1.5G"
+  },
+  "measurements": [
+    {
+      "angle": 0,
+      "isc": 0,
+      "voc": 0,
+      "pmax": 0,
+      "imp": 0,
+      "vmp": 0,
+      "ff": 0,
+      "irradiance_actual": 0,
+      "temperature_actual": 0,
+      "timestamp": "2025-11-13T00:00:00Z"
+    }
+  ],
+  "analysis_results": {
+    "iam_curve": [],
+    "fitting_parameters": {
+      "model": "ashrae",
+      "parameters": {},
+      "r_squared": 0,
+      "rmse": 0
+    },
+    "quality_metrics": {
+      "measurement_stability": "pass",
+      "data_completeness": 100,
+      "fit_quality": "good"
+    }
+  },
+  "metadata": {
+    "equipment": {
+      "simulator": "",
+      "iv_tracer": "",
+      "pyranometer": "",
+      "thermometer": ""
+    },
+    "calibration": {
+      "last_calibration_date": "2025-01-01",
+      "next_calibration_date": "2026-01-01",
+      "calibration_certificate": ""
+    },
+    "environmental_conditions": {
+      "ambient_temperature": 25,
+      "relative_humidity": 50,
+      "atmospheric_pressure": 1013
+    },
+    "notes": ""
+  }
+}

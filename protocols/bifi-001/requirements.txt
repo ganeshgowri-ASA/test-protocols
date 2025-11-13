@@ -1,0 +1,21 @@
+# BIFI-001 Bifacial Performance Protocol Requirements
+
+# Core dependencies
+numpy>=1.24.0
+pandas>=2.0.0
+jsonschema>=4.17.0
+
+# Database
+sqlalchemy>=2.0.0
+
+# UI
+streamlit>=1.28.0
+plotly>=5.17.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Optional: For production deployment
+# gunicorn>=21.2.0
+# psycopg2-binary>=2.9.9  # For PostgreSQL

@@ -1,0 +1,410 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BIFI-001 Bifacial Performance Protocol",
+  "description": "IEC 60904-1-2 compliant protocol for measuring bifacial photovoltaic device performance",
+  "version": "1.0.0",
+  "protocol_id": "BIFI-001",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "protocol_name": {
+          "type": "string",
+          "const": "BIFI-001 Bifacial Performance"
+        },
+        "standard": {
+          "type": "string",
+          "const": "IEC 60904-1-2"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "test_date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "operator": {
+          "type": "string",
+          "minLength": 1
+        },
+        "facility": {
+          "type": "string"
+        }
+      },
+      "required": ["protocol_name", "standard", "version", "test_date", "operator"]
+    },
+    "device_under_test": {
+      "type": "object",
+      "properties": {
+        "device_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "manufacturer": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "serial_number": {
+          "type": "string"
+        },
+        "technology": {
+          "type": "string",
+          "enum": ["mono-Si", "poly-Si", "CdTe", "CIGS", "perovskite", "other"]
+        },
+        "rated_power_front": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Rated power in Watts under front-side illumination"
+        },
+        "rated_power_rear": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Rated power in Watts under rear-side illumination"
+        },
+        "bifaciality_factor": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Manufacturer specified bifaciality factor"
+        },
+        "area_front": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Active area in cm² for front side"
+        },
+        "area_rear": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Active area in cm² for rear side"
+        }
+      },
+      "required": ["device_id", "manufacturer", "model"]
+    },
+    "test_conditions": {
+      "type": "object",
+      "properties": {
+        "front_irradiance": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Irradiance in W/m²"
+            },
+            "tolerance": {
+              "type": "number",
+              "minimum": 0
+            },
+            "spectrum": {
+              "type": "string",
+              "enum": ["AM1.5G", "AM1.5D", "AM0", "custom"]
+            }
+          },
+          "required": ["value", "spectrum"]
+        },
+        "rear_irradiance": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Irradiance in W/m²"
+            },
+            "tolerance": {
+              "type": "number",
+              "minimum": 0
+            },
+            "spectrum": {
+              "type": "string",
+              "enum": ["AM1.5G", "AM1.5D", "AM0", "custom"]
+            }
+          },
+          "required": ["value", "spectrum"]
+        },
+        "temperature": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "number",
+              "description": "Cell temperature in °C"
+            },
+            "tolerance": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": ["value"]
+        },
+        "stc_conditions": {
+          "type": "boolean",
+          "description": "Whether test is conducted at Standard Test Conditions (1000 W/m², 25°C, AM1.5G)"
+        }
+      },
+      "required": ["front_irradiance", "rear_irradiance", "temperature"]
+    },
+    "measurements": {
+      "type": "object",
+      "properties": {
+        "front_side": {
+          "type": "object",
+          "properties": {
+            "iv_curve": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "voltage": {
+                    "type": "number",
+                    "description": "Voltage in V"
+                  },
+                  "current": {
+                    "type": "number",
+                    "description": "Current in A"
+                  },
+                  "timestamp": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": ["voltage", "current"]
+              },
+              "minItems": 10
+            },
+            "isc": {
+              "type": "number",
+              "description": "Short-circuit current in A"
+            },
+            "voc": {
+              "type": "number",
+              "description": "Open-circuit voltage in V"
+            },
+            "pmax": {
+              "type": "number",
+              "description": "Maximum power in W"
+            },
+            "imp": {
+              "type": "number",
+              "description": "Current at maximum power in A"
+            },
+            "vmp": {
+              "type": "number",
+              "description": "Voltage at maximum power in V"
+            },
+            "fill_factor": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Fill factor"
+            },
+            "efficiency": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Conversion efficiency in %"
+            }
+          },
+          "required": ["iv_curve", "isc", "voc", "pmax"]
+        },
+        "rear_side": {
+          "type": "object",
+          "properties": {
+            "iv_curve": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "voltage": {
+                    "type": "number"
+                  },
+                  "current": {
+                    "type": "number"
+                  },
+                  "timestamp": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": ["voltage", "current"]
+              },
+              "minItems": 10
+            },
+            "isc": {
+              "type": "number",
+              "description": "Short-circuit current in A"
+            },
+            "voc": {
+              "type": "number",
+              "description": "Open-circuit voltage in V"
+            },
+            "pmax": {
+              "type": "number",
+              "description": "Maximum power in W"
+            },
+            "imp": {
+              "type": "number",
+              "description": "Current at maximum power in A"
+            },
+            "vmp": {
+              "type": "number",
+              "description": "Voltage at maximum power in V"
+            },
+            "fill_factor": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "efficiency": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            }
+          },
+          "required": ["iv_curve", "isc", "voc", "pmax"]
+        },
+        "bifacial_measurements": {
+          "type": "object",
+          "properties": {
+            "combined_iv_curve": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "voltage": {
+                    "type": "number"
+                  },
+                  "current": {
+                    "type": "number"
+                  },
+                  "timestamp": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": ["voltage", "current"]
+              }
+            },
+            "measured_bifaciality": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Measured bifaciality factor (rear Pmax / front Pmax)"
+            },
+            "bifacial_gain": {
+              "type": "number",
+              "description": "Percentage gain from rear illumination"
+            },
+            "equivalent_front_efficiency": {
+              "type": "number",
+              "description": "Efficiency accounting for both front and rear contributions"
+            }
+          }
+        }
+      },
+      "required": ["front_side", "rear_side"]
+    },
+    "quality_control": {
+      "type": "object",
+      "properties": {
+        "calibration_status": {
+          "type": "object",
+          "properties": {
+            "reference_cell_front": {
+              "type": "string"
+            },
+            "reference_cell_rear": {
+              "type": "string"
+            },
+            "last_calibration_date": {
+              "type": "string",
+              "format": "date"
+            },
+            "next_calibration_due": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        },
+        "validation_checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "check_name": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "enum": ["pass", "fail", "warning"]
+              },
+              "message": {
+                "type": "string"
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": ["check_name", "status"]
+          }
+        },
+        "uncertainty_analysis": {
+          "type": "object",
+          "properties": {
+            "front_pmax_uncertainty": {
+              "type": "number",
+              "description": "Uncertainty in % for front side Pmax"
+            },
+            "rear_pmax_uncertainty": {
+              "type": "number",
+              "description": "Uncertainty in % for rear side Pmax"
+            },
+            "combined_uncertainty": {
+              "type": "number",
+              "description": "Combined uncertainty for bifacial measurements"
+            }
+          }
+        }
+      }
+    },
+    "analysis_results": {
+      "type": "object",
+      "properties": {
+        "pass_fail_status": {
+          "type": "string",
+          "enum": ["pass", "fail", "conditional"]
+        },
+        "deviations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "parameter": {
+                "type": "string"
+              },
+              "expected": {
+                "type": "number"
+              },
+              "measured": {
+                "type": "number"
+              },
+              "deviation_percent": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "recommendations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": ["metadata", "device_under_test", "test_conditions", "measurements"]
+}

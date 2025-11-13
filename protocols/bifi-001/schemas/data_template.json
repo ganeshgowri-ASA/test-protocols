@@ -1,0 +1,86 @@
+{
+  "metadata": {
+    "protocol_name": "BIFI-001 Bifacial Performance",
+    "standard": "IEC 60904-1-2",
+    "version": "1.0.0",
+    "test_date": "2025-11-13T10:00:00Z",
+    "operator": "Test Engineer",
+    "facility": "PV Testing Lab A"
+  },
+  "device_under_test": {
+    "device_id": "BF-2025-001",
+    "manufacturer": "Example Solar Co.",
+    "model": "BiModule-500",
+    "serial_number": "SN-20251113-001",
+    "technology": "mono-Si",
+    "rated_power_front": 500,
+    "rated_power_rear": 350,
+    "bifaciality_factor": 0.70,
+    "area_front": 25000,
+    "area_rear": 25000
+  },
+  "test_conditions": {
+    "front_irradiance": {
+      "value": 1000,
+      "tolerance": 2,
+      "spectrum": "AM1.5G"
+    },
+    "rear_irradiance": {
+      "value": 150,
+      "tolerance": 2,
+      "spectrum": "AM1.5G"
+    },
+    "temperature": {
+      "value": 25,
+      "tolerance": 2
+    },
+    "stc_conditions": true
+  },
+  "measurements": {
+    "front_side": {
+      "iv_curve": [],
+      "isc": 0,
+      "voc": 0,
+      "pmax": 0,
+      "imp": 0,
+      "vmp": 0,
+      "fill_factor": 0,
+      "efficiency": 0
+    },
+    "rear_side": {
+      "iv_curve": [],
+      "isc": 0,
+      "voc": 0,
+      "pmax": 0,
+      "imp": 0,
+      "vmp": 0,
+      "fill_factor": 0,
+      "efficiency": 0
+    },
+    "bifacial_measurements": {
+      "combined_iv_curve": [],
+      "measured_bifaciality": 0,
+      "bifacial_gain": 0,
+      "equivalent_front_efficiency": 0
+    }
+  },
+  "quality_control": {
+    "calibration_status": {
+      "reference_cell_front": "REF-F-2024-001",
+      "reference_cell_rear": "REF-R-2024-001",
+      "last_calibration_date": "2025-01-01",
+      "next_calibration_due": "2026-01-01"
+    },
+    "validation_checks": [],
+    "uncertainty_analysis": {
+      "front_pmax_uncertainty": 0,
+      "rear_pmax_uncertainty": 0,
+      "combined_uncertainty": 0
+    }
+  },
+  "analysis_results": {
+    "pass_fail_status": "pass",
+    "deviations": [],
+    "recommendations": []
+  }
+}

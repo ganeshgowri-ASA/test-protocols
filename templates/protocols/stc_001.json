@@ -1,0 +1,992 @@
+{
+  "metadata": {
+    "protocol_id": "STC-001",
+    "name": "Standard Test Conditions (STC) Testing",
+    "category": "Performance Testing",
+    "version": "2.0",
+    "standards": [
+      "IEC 61215-1:2021",
+      "IEC 61730-1:2023"
+    ],
+    "description": "Photovoltaic module performance testing under standard test conditions",
+    "created_date": "2025-01-01",
+    "last_updated": "2025-01-01"
+  },
+
+  "test_conditions": {
+    "irradiance": {
+      "value": 1000,
+      "unit": "W/m²",
+      "tolerance": 2,
+      "tolerance_type": "percent",
+      "min": 800,
+      "max": 1200,
+      "description": "Solar irradiance at module plane"
+    },
+    "cell_temperature": {
+      "value": 25,
+      "unit": "°C",
+      "tolerance": 2,
+      "tolerance_type": "absolute",
+      "min": 15,
+      "max": 35,
+      "description": "PV cell temperature"
+    },
+    "spectrum": {
+      "value": "AM 1.5G",
+      "options": ["AM 1.5G", "AM 1.5D", "AM 0"],
+      "description": "Solar spectrum distribution"
+    },
+    "wind_speed": {
+      "value": 0,
+      "unit": "m/s",
+      "max": 2,
+      "description": "Wind speed during test"
+    }
+  },
+
+  "module_technologies": [
+    "Mono c-Si",
+    "Poly c-Si",
+    "PERC",
+    "TOPCon",
+    "HJT (Heterojunction)",
+    "CdTe (Thin Film)",
+    "CIGS (Thin Film)",
+    "a-Si (Amorphous Silicon)",
+    "Bifacial Mono",
+    "Bifacial Poly",
+    "IBC (Interdigitated Back Contact)",
+    "Other"
+  ],
+
+  "ui_configuration": {
+    "tabs": [
+      {
+        "id": "setup",
+        "name": "Setup",
+        "icon": "settings",
+        "order": 1,
+        "sections": [
+          {
+            "id": "module_info",
+            "title": "Module Information",
+            "collapsible": true,
+            "default_expanded": true,
+            "fields": [
+              {
+                "id": "serial_number",
+                "label": "Module Serial Number",
+                "type": "text",
+                "required": true,
+                "pattern": "^[A-Z0-9-]{8,20}$",
+                "placeholder": "e.g., PV-2025-001234",
+                "help_text": "Unique identifier for the module",
+                "auto_generate": true,
+                "validation": {
+                  "min_length": 8,
+                  "max_length": 20,
+                  "unique": true
+                }
+              },
+              {
+                "id": "manufacturer",
+                "label": "Manufacturer",
+                "type": "searchable_dropdown",
+                "required": true,
+                "options_source": "manufacturers_db",
+                "remember_last": true,
+                "help_text": "Module manufacturer name"
+              },
+              {
+                "id": "model",
+                "label": "Model Number",
+                "type": "text",
+                "required": true,
+                "auto_populate_from": "manufacturer",
+                "help_text": "Manufacturer's model designation"
+              },
+              {
+                "id": "technology",
+                "label": "Technology Type",
+                "type": "dropdown",
+                "required": true,
+                "options_source": "module_technologies",
+                "default": "Mono c-Si",
+                "conditional_fields": {
+                  "Bifacial Mono": ["bifaciality_factor", "rear_side_power"],
+                  "Bifacial Poly": ["bifaciality_factor", "rear_side_power"]
+                },
+                "help_text": "PV cell technology type"
+              },
+              {
+                "id": "rated_power",
+                "label": "Rated Power (Pnom)",
+                "type": "number",
+                "required": true,
+                "unit": "W",
+                "min": 0,
+                "max": 1000,
+                "step": 0.1,
+                "help_text": "Nameplate power rating"
+              },
+              {
+                "id": "rated_voc",
+                "label": "Rated Voc",
+                "type": "number",
+                "required": false,
+                "unit": "V",
+                "min": 0,
+                "max": 100,
+                "step": 0.01,
+                "help_text": "Nameplate open-circuit voltage"
+              },
+              {
+                "id": "rated_isc",
+                "label": "Rated Isc",
+                "type": "number",
+                "required": false,
+                "unit": "A",
+                "min": 0,
+                "max": 20,
+                "step": 0.01,
+                "help_text": "Nameplate short-circuit current"
+              }
+            ]
+          },
+          {
+            "id": "test_conditions",
+            "title": "Test Conditions",
+            "collapsible": true,
+            "default_expanded": true,
+            "fields": [
+              {
+                "id": "irradiance",
+                "label": "Irradiance",
+                "type": "slider",
+                "required": true,
+                "unit": "W/m²",
+                "min": 800,
+                "max": 1200,
+                "default": 1000,
+                "step": 1,
+                "show_indicator": true,
+                "warning_range": [980, 1020],
+                "conditional_warning": {
+                  "condition": "value != 1000",
+                  "message": "Irradiance correction will be applied",
+                  "show_field": "irradiance_correction_factor"
+                },
+                "help_text": "Solar irradiance level"
+              },
+              {
+                "id": "cell_temperature",
+                "label": "Cell Temperature",
+                "type": "number",
+                "required": true,
+                "unit": "°C",
+                "min": 15,
+                "max": 35,
+                "default": 25,
+                "step": 0.1,
+                "tolerance": 2,
+                "show_tolerance_range": true,
+                "conditional_warning": {
+                  "condition": "abs(value - 25) > 2",
+                  "message": "Temperature correction recommended",
+                  "show_field": "apply_temperature_correction"
+                },
+                "help_text": "PV cell temperature during test"
+              },
+              {
+                "id": "ambient_temperature",
+                "label": "Ambient Temperature",
+                "type": "number",
+                "required": true,
+                "unit": "°C",
+                "min": -10,
+                "max": 50,
+                "step": 0.1,
+                "help_text": "Surrounding air temperature"
+              },
+              {
+                "id": "spectrum",
+                "label": "Spectrum",
+                "type": "dropdown",
+                "required": true,
+                "options": ["AM 1.5G", "AM 1.5D", "AM 0"],
+                "default": "AM 1.5G",
+                "help_text": "Solar spectrum type"
+              },
+              {
+                "id": "wind_speed",
+                "label": "Wind Speed",
+                "type": "number",
+                "required": false,
+                "unit": "m/s",
+                "min": 0,
+                "max": 10,
+                "step": 0.1,
+                "warning_threshold": 2,
+                "help_text": "Wind speed during test (should be < 2 m/s)"
+              }
+            ]
+          },
+          {
+            "id": "equipment",
+            "title": "Equipment",
+            "collapsible": true,
+            "default_expanded": true,
+            "fields": [
+              {
+                "id": "solar_simulator",
+                "label": "Solar Simulator",
+                "type": "equipment_selector",
+                "required": true,
+                "equipment_type": "solar_simulator",
+                "show_calibration_status": true,
+                "calibration_warning_days": 365,
+                "help_text": "Solar simulator used for testing"
+              },
+              {
+                "id": "iv_tracer",
+                "label": "I-V Curve Tracer",
+                "type": "equipment_selector",
+                "required": true,
+                "equipment_type": "iv_tracer",
+                "show_calibration_status": true,
+                "calibration_warning_days": 365,
+                "help_text": "I-V curve measurement device"
+              },
+              {
+                "id": "temperature_sensor",
+                "label": "Temperature Sensor",
+                "type": "equipment_selector",
+                "required": true,
+                "equipment_type": "temperature_sensor",
+                "show_calibration_status": true,
+                "calibration_warning_days": 365,
+                "help_text": "Cell temperature measurement device"
+              },
+              {
+                "id": "pyranometer",
+                "label": "Pyranometer",
+                "type": "equipment_selector",
+                "required": false,
+                "equipment_type": "pyranometer",
+                "show_calibration_status": true,
+                "calibration_warning_days": 365,
+                "help_text": "Irradiance measurement device"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "data_acquisition",
+        "name": "Data Acquisition",
+        "icon": "upload",
+        "order": 2,
+        "sections": [
+          {
+            "id": "iv_data_upload",
+            "title": "I-V Curve Data",
+            "fields": [
+              {
+                "id": "iv_data_file",
+                "label": "Upload I-V Data",
+                "type": "file_upload",
+                "required": true,
+                "accepted_formats": [".csv", ".txt", ".xlsx", ".xls"],
+                "drag_drop": true,
+                "preview": true,
+                "auto_detect_columns": true,
+                "expected_columns": ["voltage", "current"],
+                "min_points": 100,
+                "validations": [
+                  "no_negative_voltage",
+                  "no_missing_values",
+                  "monotonic_voltage",
+                  "detect_outliers"
+                ],
+                "help_text": "Upload I-V curve data (minimum 100 points)"
+              },
+              {
+                "id": "voltage_column",
+                "label": "Voltage Column",
+                "type": "column_selector",
+                "required": true,
+                "depends_on": "iv_data_file",
+                "auto_detect": true,
+                "help_text": "Select column containing voltage data"
+              },
+              {
+                "id": "current_column",
+                "label": "Current Column",
+                "type": "column_selector",
+                "required": true,
+                "depends_on": "iv_data_file",
+                "auto_detect": true,
+                "help_text": "Select column containing current data"
+              }
+            ]
+          },
+          {
+            "id": "live_monitoring",
+            "title": "Live Monitoring (Optional)",
+            "conditional_display": {
+              "condition": "equipment_supports_live",
+              "fields": ["live_connection"]
+            },
+            "fields": [
+              {
+                "id": "live_connection",
+                "label": "Enable Live Monitoring",
+                "type": "toggle",
+                "default": false,
+                "help_text": "Monitor I-V curve in real-time during acquisition"
+              },
+              {
+                "id": "live_graph",
+                "label": "Live I-V Curve",
+                "type": "live_graph",
+                "depends_on": "live_connection",
+                "update_interval": 100,
+                "help_text": "Real-time I-V curve display"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "analysis",
+        "name": "Analysis",
+        "icon": "chart",
+        "order": 3,
+        "sections": [
+          {
+            "id": "iv_curves",
+            "title": "I-V Characteristic Curves",
+            "fields": [
+              {
+                "id": "iv_curve_graph",
+                "label": "I-V and P-V Curves",
+                "type": "interactive_graph",
+                "graph_type": "iv_pv_curves",
+                "features": ["zoom", "pan", "hover", "export"],
+                "help_text": "Interactive I-V and power curves"
+              }
+            ]
+          },
+          {
+            "id": "key_parameters",
+            "title": "Key Performance Parameters",
+            "layout": "cards",
+            "fields": [
+              {
+                "id": "pmax_card",
+                "type": "metric_card",
+                "metric": "pmax",
+                "label": "Maximum Power (Pmax)",
+                "unit": "W",
+                "precision": 2,
+                "show_tolerance": true,
+                "color_coded": true,
+                "show_trend": true
+              },
+              {
+                "id": "voc_card",
+                "type": "metric_card",
+                "metric": "voc",
+                "label": "Open Circuit Voltage (Voc)",
+                "unit": "V",
+                "precision": 3,
+                "show_tolerance": true,
+                "color_coded": true,
+                "show_trend": true
+              },
+              {
+                "id": "isc_card",
+                "type": "metric_card",
+                "metric": "isc",
+                "label": "Short Circuit Current (Isc)",
+                "unit": "A",
+                "precision": 3,
+                "show_tolerance": true,
+                "color_coded": true,
+                "show_trend": true
+              },
+              {
+                "id": "ff_card",
+                "type": "metric_card",
+                "metric": "fill_factor",
+                "label": "Fill Factor (FF)",
+                "unit": "",
+                "precision": 4,
+                "show_tolerance": true,
+                "color_coded": true,
+                "show_trend": true
+              },
+              {
+                "id": "efficiency_card",
+                "type": "metric_card",
+                "metric": "efficiency",
+                "label": "Efficiency (η)",
+                "unit": "%",
+                "precision": 2,
+                "show_tolerance": true,
+                "color_coded": true,
+                "show_trend": true
+              },
+              {
+                "id": "vmp_card",
+                "type": "metric_card",
+                "metric": "vmp",
+                "label": "Voltage at MPP (Vmp)",
+                "unit": "V",
+                "precision": 2,
+                "color_coded": true
+              },
+              {
+                "id": "imp_card",
+                "type": "metric_card",
+                "metric": "imp",
+                "label": "Current at MPP (Imp)",
+                "unit": "A",
+                "precision": 3,
+                "color_coded": true
+              }
+            ]
+          },
+          {
+            "id": "advanced_analysis",
+            "title": "Advanced Analysis",
+            "collapsible": true,
+            "default_expanded": false,
+            "fields": [
+              {
+                "id": "temperature_correction",
+                "label": "Temperature Correction (IEC 60891)",
+                "type": "section",
+                "conditional_display": {
+                  "condition": "abs(cell_temperature - 25) > 0.5"
+                },
+                "fields": [
+                  {
+                    "id": "apply_temp_correction",
+                    "label": "Apply Temperature Correction",
+                    "type": "toggle",
+                    "default": true
+                  },
+                  {
+                    "id": "temp_coeff_voc",
+                    "label": "Voc Temp Coefficient",
+                    "type": "number",
+                    "unit": "%/°C",
+                    "default": -0.3,
+                    "step": 0.01
+                  },
+                  {
+                    "id": "temp_coeff_isc",
+                    "label": "Isc Temp Coefficient",
+                    "type": "number",
+                    "unit": "%/°C",
+                    "default": 0.05,
+                    "step": 0.01
+                  },
+                  {
+                    "id": "temp_coeff_pmax",
+                    "label": "Pmax Temp Coefficient",
+                    "type": "number",
+                    "unit": "%/°C",
+                    "default": -0.4,
+                    "step": 0.01
+                  }
+                ]
+              },
+              {
+                "id": "series_resistance",
+                "label": "Series Resistance (Rs)",
+                "type": "calculated_field",
+                "unit": "Ω",
+                "precision": 4,
+                "calculation": "derivative_method",
+                "help_text": "Calculated from I-V curve slope"
+              },
+              {
+                "id": "shunt_resistance",
+                "label": "Shunt Resistance (Rsh)",
+                "type": "calculated_field",
+                "unit": "Ω",
+                "precision": 2,
+                "calculation": "derivative_method",
+                "help_text": "Calculated from I-V curve slope"
+              },
+              {
+                "id": "uncertainty_budget",
+                "label": "Uncertainty Budget",
+                "type": "table",
+                "columns": ["Parameter", "Value", "Uncertainty", "Unit"],
+                "help_text": "Measurement uncertainty analysis"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "validation",
+        "name": "Validation",
+        "icon": "check",
+        "order": 4,
+        "sections": [
+          {
+            "id": "automated_checks",
+            "title": "Automated Validation Checks",
+            "fields": [
+              {
+                "id": "validation_checklist",
+                "type": "checklist",
+                "auto_check": true,
+                "items": [
+                  {
+                    "id": "equipment_calibrated",
+                    "label": "Equipment calibrated within valid period",
+                    "auto_check_field": "equipment_calibration_status"
+                  },
+                  {
+                    "id": "conditions_valid",
+                    "label": "Test conditions within tolerance",
+                    "auto_check_field": "test_conditions_validation"
+                  },
+                  {
+                    "id": "data_complete",
+                    "label": "All required measurements complete",
+                    "auto_check_field": "data_completeness"
+                  },
+                  {
+                    "id": "data_quality",
+                    "label": "Data quality acceptable (no outliers)",
+                    "auto_check_field": "data_quality_check"
+                  },
+                  {
+                    "id": "acceptance_criteria",
+                    "label": "Results meet acceptance criteria",
+                    "auto_check_field": "acceptance_criteria_validation"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "pass_fail_summary",
+            "title": "Pass/Fail Summary",
+            "fields": [
+              {
+                "id": "overall_status",
+                "type": "status_indicator",
+                "size": "large",
+                "label": "Overall Test Result"
+              },
+              {
+                "id": "failed_criteria",
+                "type": "alert_list",
+                "conditional_display": {
+                  "condition": "overall_status == 'FAIL'"
+                },
+                "label": "Failed Criteria"
+              },
+              {
+                "id": "recommendations",
+                "type": "recommendation_box",
+                "conditional_display": {
+                  "condition": "overall_status == 'FAIL'"
+                },
+                "label": "Recommended Actions"
+              }
+            ]
+          },
+          {
+            "id": "quality_review",
+            "title": "Quality Review",
+            "fields": [
+              {
+                "id": "reviewer",
+                "label": "Reviewer",
+                "type": "user_selector",
+                "required": false,
+                "role_filter": "reviewer",
+                "help_text": "Select reviewer for approval"
+              },
+              {
+                "id": "review_comments",
+                "label": "Review Comments",
+                "type": "textarea",
+                "rows": 4,
+                "help_text": "Add comments or notes"
+              },
+              {
+                "id": "review_actions",
+                "type": "button_group",
+                "buttons": [
+                  {
+                    "id": "approve",
+                    "label": "Approve",
+                    "style": "success",
+                    "requires": ["reviewer"],
+                    "action": "approve_test"
+                  },
+                  {
+                    "id": "reject",
+                    "label": "Reject",
+                    "style": "danger",
+                    "requires": ["reviewer", "review_comments"],
+                    "action": "reject_test"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "report",
+        "name": "Report",
+        "icon": "document",
+        "order": 5,
+        "sections": [
+          {
+            "id": "report_preview",
+            "title": "Report Preview",
+            "fields": [
+              {
+                "id": "report_template",
+                "label": "Report Template",
+                "type": "dropdown",
+                "options": ["Standard", "Detailed", "Summary", "Custom"],
+                "default": "Standard",
+                "help_text": "Select report template"
+              },
+              {
+                "id": "include_sections",
+                "label": "Include Sections",
+                "type": "checkbox_group",
+                "options": [
+                  {"id": "test_conditions", "label": "Test Conditions", "default": true},
+                  {"id": "iv_curves", "label": "I-V Curves", "default": true},
+                  {"id": "key_parameters", "label": "Key Parameters", "default": true},
+                  {"id": "advanced_analysis", "label": "Advanced Analysis", "default": false},
+                  {"id": "uncertainty", "label": "Uncertainty Budget", "default": false},
+                  {"id": "raw_data", "label": "Raw Data", "default": false},
+                  {"id": "audit_trail", "label": "Audit Trail", "default": false}
+                ]
+              },
+              {
+                "id": "lab_logo",
+                "label": "Lab Logo",
+                "type": "image_upload",
+                "accepted_formats": [".png", ".jpg", ".svg"],
+                "max_size_mb": 2,
+                "help_text": "Upload laboratory logo"
+              },
+              {
+                "id": "report_preview_frame",
+                "type": "pdf_preview",
+                "label": "Live Report Preview"
+              }
+            ]
+          },
+          {
+            "id": "export_options",
+            "title": "Export Options",
+            "fields": [
+              {
+                "id": "export_buttons",
+                "type": "button_group",
+                "layout": "vertical",
+                "buttons": [
+                  {
+                    "id": "export_pdf",
+                    "label": "Export PDF Certificate",
+                    "icon": "pdf",
+                    "action": "export_report",
+                    "format": "pdf"
+                  },
+                  {
+                    "id": "export_excel",
+                    "label": "Export Excel Data Report",
+                    "icon": "excel",
+                    "action": "export_report",
+                    "format": "excel"
+                  },
+                  {
+                    "id": "export_json",
+                    "label": "Export JSON Raw Data",
+                    "icon": "json",
+                    "action": "export_report",
+                    "format": "json"
+                  },
+                  {
+                    "id": "export_zip",
+                    "label": "Export All (ZIP)",
+                    "icon": "zip",
+                    "action": "export_report",
+                    "format": "zip"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "email_distribution",
+            "title": "Email Distribution",
+            "collapsible": true,
+            "default_expanded": false,
+            "fields": [
+              {
+                "id": "recipients",
+                "label": "Recipients",
+                "type": "multi_select",
+                "options_source": "users_db",
+                "help_text": "Select email recipients"
+              },
+              {
+                "id": "email_message",
+                "label": "Custom Message",
+                "type": "textarea",
+                "rows": 3,
+                "placeholder": "Add a custom message (optional)"
+              },
+              {
+                "id": "send_email",
+                "label": "Send Report",
+                "type": "button",
+                "style": "primary",
+                "action": "send_email_report"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  "measurements": {
+    "voc": {
+      "name": "Open Circuit Voltage",
+      "unit": "V",
+      "required": true,
+      "min": 0,
+      "max": 100,
+      "precision": 3,
+      "uncertainty_percent": 0.5
+    },
+    "isc": {
+      "name": "Short Circuit Current",
+      "unit": "A",
+      "required": true,
+      "min": 0,
+      "max": 20,
+      "precision": 3,
+      "uncertainty_percent": 0.5
+    },
+    "vmp": {
+      "name": "Voltage at Maximum Power Point",
+      "unit": "V",
+      "required": true,
+      "min": 0,
+      "max": 100,
+      "precision": 2,
+      "uncertainty_percent": 0.5
+    },
+    "imp": {
+      "name": "Current at Maximum Power Point",
+      "unit": "A",
+      "required": true,
+      "min": 0,
+      "max": 20,
+      "precision": 3,
+      "uncertainty_percent": 0.5
+    },
+    "pmax": {
+      "name": "Maximum Power",
+      "unit": "W",
+      "required": true,
+      "min": 0,
+      "max": 1000,
+      "precision": 2,
+      "uncertainty_percent": 1.0,
+      "calculation": "vmp * imp"
+    },
+    "fill_factor": {
+      "name": "Fill Factor",
+      "unit": "",
+      "required": true,
+      "min": 0,
+      "max": 1,
+      "precision": 4,
+      "calculation": "(vmp * imp) / (voc * isc)"
+    },
+    "efficiency": {
+      "name": "Module Efficiency",
+      "unit": "%",
+      "required": true,
+      "min": 0,
+      "max": 30,
+      "precision": 2,
+      "calculation": "(pmax / (irradiance * module_area)) * 100"
+    },
+    "rs": {
+      "name": "Series Resistance",
+      "unit": "Ω",
+      "required": false,
+      "min": 0,
+      "max": 10,
+      "precision": 4
+    },
+    "rsh": {
+      "name": "Shunt Resistance",
+      "unit": "Ω",
+      "required": false,
+      "min": 0,
+      "max": 10000,
+      "precision": 2
+    }
+  },
+
+  "acceptance_criteria": {
+    "power_tolerance": {
+      "name": "Power Tolerance",
+      "parameter": "pmax",
+      "condition": "within_percent",
+      "reference": "rated_power",
+      "tolerance_percent": 3,
+      "description": "Measured power within ±3% of rated power"
+    },
+    "repeatability": {
+      "name": "Repeatability",
+      "condition": "std_dev_percent_less_than",
+      "threshold": 0.5,
+      "description": "Measurement repeatability ≤ 0.5%"
+    },
+    "voc_deviation": {
+      "name": "Voc Deviation",
+      "parameter": "voc",
+      "condition": "within_percent",
+      "reference": "rated_voc",
+      "tolerance_percent": 2,
+      "description": "Voc within ±2% of rated value"
+    },
+    "isc_deviation": {
+      "name": "Isc Deviation",
+      "parameter": "isc",
+      "condition": "within_percent",
+      "reference": "rated_isc",
+      "tolerance_percent": 2,
+      "description": "Isc within ±2% of rated value"
+    },
+    "ff_minimum": {
+      "name": "Fill Factor Minimum",
+      "parameter": "fill_factor",
+      "condition": "greater_than",
+      "threshold": 0.70,
+      "description": "Fill Factor ≥ 0.70"
+    }
+  },
+
+  "equipment_requirements": {
+    "solar_simulator": {
+      "name": "Solar Simulator",
+      "required": true,
+      "specifications": {
+        "spectral_match": "Class A (IEC 60904-9)",
+        "non_uniformity": "< ±2%",
+        "temporal_instability": "< ±2%"
+      },
+      "calibration_interval_days": 365
+    },
+    "iv_tracer": {
+      "name": "I-V Curve Tracer",
+      "required": true,
+      "specifications": {
+        "voltage_accuracy": "< 0.5%",
+        "current_accuracy": "< 0.5%",
+        "sampling_points": "> 100"
+      },
+      "calibration_interval_days": 365
+    },
+    "temperature_sensor": {
+      "name": "Temperature Sensor",
+      "required": true,
+      "specifications": {
+        "accuracy": "±0.5°C",
+        "response_time": "< 5 s"
+      },
+      "calibration_interval_days": 365
+    }
+  },
+
+  "safety_precautions": [
+    "Wear appropriate PPE (safety glasses, gloves)",
+    "Ensure proper grounding of all equipment",
+    "Do not touch module terminals during testing",
+    "Follow lockout/tagout procedures for high voltage",
+    "Ensure adequate ventilation in testing area",
+    "Keep testing area clean and free of water/moisture",
+    "Follow manufacturer's equipment operating procedures"
+  ],
+
+  "data_processing": {
+    "outlier_detection": {
+      "method": "z_score",
+      "threshold": 3
+    },
+    "smoothing": {
+      "method": "savitzky_golay",
+      "window_length": 11,
+      "poly_order": 3
+    },
+    "mpp_calculation": {
+      "method": "polynomial_fit",
+      "degree": 5
+    }
+  },
+
+  "temperature_corrections": {
+    "method": "IEC 60891",
+    "default_coefficients": {
+      "alpha_isc": 0.0005,
+      "beta_voc": -0.003,
+      "gamma_pmax": -0.004
+    }
+  },
+
+  "report_configuration": {
+    "formats": ["pdf", "excel", "json"],
+    "default_format": "pdf",
+    "include_qr_code": true,
+    "include_digital_signature": true,
+    "sections": {
+      "header": {
+        "include_logo": true,
+        "include_accreditation": true,
+        "include_report_number": true
+      },
+      "test_info": {
+        "include_date": true,
+        "include_protocol": true,
+        "include_standard": true,
+        "include_operator": true
+      },
+      "results": {
+        "include_table": true,
+        "include_graphs": true,
+        "include_uncertainty": true
+      },
+      "footer": {
+        "include_page_numbers": true,
+        "include_document_control": true,
+        "include_signatures": true
+      }
+    }
+  }
+}

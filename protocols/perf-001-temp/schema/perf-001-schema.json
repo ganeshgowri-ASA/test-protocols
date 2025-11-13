@@ -1,0 +1,448 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://test-protocols.example.com/schemas/perf-001-temp.json",
+  "title": "PERF-001: Performance Testing at Different Temperatures",
+  "description": "IEC 61853 compliant temperature performance testing protocol for photovoltaic modules",
+  "version": "1.0.0",
+  "type": "object",
+  "required": [
+    "protocol_info",
+    "test_specimen",
+    "test_conditions",
+    "measurements",
+    "metadata"
+  ],
+  "properties": {
+    "protocol_info": {
+      "type": "object",
+      "required": ["protocol_id", "protocol_name", "standard", "version"],
+      "properties": {
+        "protocol_id": {
+          "type": "string",
+          "const": "PERF-001",
+          "description": "Protocol identifier"
+        },
+        "protocol_name": {
+          "type": "string",
+          "const": "Performance at Different Temperatures",
+          "description": "Full protocol name"
+        },
+        "standard": {
+          "type": "string",
+          "const": "IEC 61853",
+          "description": "Applicable standard"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "default": "1.0.0",
+          "description": "Protocol version (semantic versioning)"
+        },
+        "category": {
+          "type": "string",
+          "const": "PERFORMANCE",
+          "description": "Protocol category"
+        }
+      }
+    },
+    "test_specimen": {
+      "type": "object",
+      "required": ["module_id", "manufacturer", "model", "technology"],
+      "properties": {
+        "module_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique module identifier or serial number"
+        },
+        "manufacturer": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Module manufacturer name"
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Module model number"
+        },
+        "technology": {
+          "type": "string",
+          "enum": ["mono-Si", "poly-Si", "CdTe", "CIGS", "a-Si", "HIT", "PERC", "TOPCon", "IBC", "other"],
+          "description": "PV technology type"
+        },
+        "rated_power_stc": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Rated power at STC in Watts"
+        },
+        "cell_count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of cells in the module"
+        },
+        "area": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Module area in square meters"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional notes about the test specimen"
+        }
+      }
+    },
+    "test_conditions": {
+      "type": "object",
+      "required": ["temperature_points", "irradiance", "spectrum"],
+      "properties": {
+        "temperature_points": {
+          "type": "array",
+          "minItems": 4,
+          "items": {
+            "type": "number",
+            "minimum": -40,
+            "maximum": 100
+          },
+          "default": [15, 25, 50, 75],
+          "description": "Test temperature points in Celsius (IEC 61853 requires minimum 4 points)"
+        },
+        "irradiance": {
+          "type": "number",
+          "const": 1000,
+          "description": "Irradiance level in W/m² (fixed at 1000 for this protocol)"
+        },
+        "spectrum": {
+          "type": "string",
+          "enum": ["AM1.5G", "AM1.5D", "AM0"],
+          "default": "AM1.5G",
+          "description": "Solar spectrum reference"
+        },
+        "measurement_uncertainty": {
+          "type": "object",
+          "properties": {
+            "temperature": {
+              "type": "number",
+              "default": 0.5,
+              "description": "Temperature measurement uncertainty in °C"
+            },
+            "irradiance": {
+              "type": "number",
+              "default": 2,
+              "description": "Irradiance measurement uncertainty in %"
+            },
+            "electrical": {
+              "type": "number",
+              "default": 1,
+              "description": "Electrical measurement uncertainty in %"
+            }
+          }
+        }
+      }
+    },
+    "measurements": {
+      "type": "array",
+      "minItems": 4,
+      "description": "Array of measurements at each temperature point",
+      "items": {
+        "type": "object",
+        "required": ["temperature", "pmax", "voc", "isc", "vmp", "imp"],
+        "properties": {
+          "temperature": {
+            "type": "number",
+            "description": "Module temperature in Celsius"
+          },
+          "pmax": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Maximum power in Watts"
+          },
+          "voc": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Open circuit voltage in Volts"
+          },
+          "isc": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Short circuit current in Amperes"
+          },
+          "vmp": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Voltage at maximum power point in Volts"
+          },
+          "imp": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Current at maximum power point in Amperes"
+          },
+          "fill_factor": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Fill factor (calculated)"
+          },
+          "efficiency": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Module efficiency in percent"
+          },
+          "iv_curve": {
+            "type": "object",
+            "properties": {
+              "voltage": {
+                "type": "array",
+                "items": {"type": "number"},
+                "description": "Voltage data points"
+              },
+              "current": {
+                "type": "array",
+                "items": {"type": "number"},
+                "description": "Current data points"
+              }
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Measurement timestamp"
+          }
+        }
+      }
+    },
+    "calculated_results": {
+      "type": "object",
+      "description": "Temperature coefficients and derived parameters",
+      "properties": {
+        "temp_coefficient_pmax": {
+          "type": "object",
+          "required": ["value", "unit"],
+          "properties": {
+            "value": {
+              "type": "number",
+              "description": "Temperature coefficient of Pmax"
+            },
+            "unit": {
+              "type": "string",
+              "const": "%/°C",
+              "description": "Unit of measurement"
+            },
+            "r_squared": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "R-squared value of linear regression"
+            }
+          }
+        },
+        "temp_coefficient_voc": {
+          "type": "object",
+          "required": ["value", "unit"],
+          "properties": {
+            "value": {
+              "type": "number",
+              "description": "Temperature coefficient of Voc"
+            },
+            "unit": {
+              "type": "string",
+              "enum": ["V/°C", "mV/°C", "%/°C"],
+              "description": "Unit of measurement"
+            },
+            "r_squared": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "temp_coefficient_isc": {
+          "type": "object",
+          "required": ["value", "unit"],
+          "properties": {
+            "value": {
+              "type": "number",
+              "description": "Temperature coefficient of Isc"
+            },
+            "unit": {
+              "type": "string",
+              "enum": ["A/°C", "mA/°C", "%/°C"],
+              "description": "Unit of measurement"
+            },
+            "r_squared": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "reference_temperature": {
+          "type": "number",
+          "default": 25,
+          "description": "Reference temperature for normalization in Celsius"
+        },
+        "normalized_power_25C": {
+          "type": "number",
+          "description": "Normalized power at 25°C reference"
+        }
+      }
+    },
+    "quality_checks": {
+      "type": "object",
+      "properties": {
+        "data_completeness": {
+          "type": "boolean",
+          "description": "All required measurements present"
+        },
+        "measurement_stability": {
+          "type": "boolean",
+          "description": "Measurements within stability criteria"
+        },
+        "linearity_check": {
+          "type": "boolean",
+          "description": "Temperature response shows expected linearity (R² > 0.95)"
+        },
+        "range_validation": {
+          "type": "boolean",
+          "description": "All values within expected physical ranges"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "List of quality warnings"
+        },
+        "errors": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "List of quality errors"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["test_date", "test_facility", "operator"],
+      "properties": {
+        "test_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Date of test execution"
+        },
+        "test_facility": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Testing facility name"
+        },
+        "operator": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Test operator name"
+        },
+        "equipment": {
+          "type": "object",
+          "properties": {
+            "solar_simulator": {
+              "type": "string",
+              "description": "Solar simulator model"
+            },
+            "iv_tracer": {
+              "type": "string",
+              "description": "IV curve tracer model"
+            },
+            "temperature_control": {
+              "type": "string",
+              "description": "Temperature control system"
+            },
+            "calibration_date": {
+              "type": "string",
+              "format": "date",
+              "description": "Last equipment calibration date"
+            }
+          }
+        },
+        "environmental_conditions": {
+          "type": "object",
+          "properties": {
+            "ambient_temperature": {
+              "type": "number",
+              "description": "Ambient temperature in Celsius"
+            },
+            "relative_humidity": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Relative humidity in percent"
+            },
+            "barometric_pressure": {
+              "type": "number",
+              "description": "Barometric pressure in kPa"
+            }
+          }
+        },
+        "project_info": {
+          "type": "object",
+          "properties": {
+            "project_id": {
+              "type": "string",
+              "description": "Project identifier"
+            },
+            "client": {
+              "type": "string",
+              "description": "Client name"
+            },
+            "purchase_order": {
+              "type": "string",
+              "description": "Purchase order number"
+            }
+          }
+        },
+        "traceability": {
+          "type": "object",
+          "properties": {
+            "lims_id": {
+              "type": "string",
+              "description": "LIMS system identifier"
+            },
+            "qms_reference": {
+              "type": "string",
+              "description": "QMS reference number"
+            },
+            "parent_test_id": {
+              "type": "string",
+              "description": "Parent test identifier (e.g., STC-001)"
+            },
+            "related_tests": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "Related test identifiers"
+            }
+          }
+        },
+        "revision_history": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "revision": {
+                "type": "string",
+                "description": "Revision number"
+              },
+              "date": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "author": {
+                "type": "string"
+              },
+              "changes": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional notes or comments"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "protocol_info": {
+    "protocol_id": "PERF-001",
+    "protocol_name": "Performance at Different Temperatures",
+    "standard": "IEC 61853",
+    "version": "1.0.0",
+    "category": "PERFORMANCE"
+  },
+  "test_specimen": {
+    "module_id": "EXAMPLE-MODULE-2025-001",
+    "manufacturer": "Example Solar Technologies",
+    "model": "ESM-320-60M-PERC",
+    "technology": "PERC",
+    "rated_power_stc": 320.0,
+    "cell_count": 60,
+    "area": 1.96,
+    "notes": "Example test data for mono-PERC technology module"
+  },
+  "test_conditions": {
+    "temperature_points": [15, 25, 50, 75],
+    "irradiance": 1000,
+    "spectrum": "AM1.5G",
+    "measurement_uncertainty": {
+      "temperature": 0.5,
+      "irradiance": 2.0,
+      "electrical": 1.0
+    }
+  },
+  "measurements": [
+    {
+      "temperature": 15.0,
+      "pmax": 330.5,
+      "voc": 46.8,
+      "isc": 9.12,
+      "vmp": 38.2,
+      "imp": 8.65,
+      "fill_factor": 0.771,
+      "efficiency": 16.86,
+      "timestamp": "2025-11-13T10:30:00Z"
+    },
+    {
+      "temperature": 25.0,
+      "pmax": 320.0,
+      "voc": 45.2,
+      "isc": 9.18,
+      "vmp": 37.0,
+      "imp": 8.65,
+      "fill_factor": 0.771,
+      "efficiency": 16.33,
+      "timestamp": "2025-11-13T11:00:00Z"
+    },
+    {
+      "temperature": 50.0,
+      "pmax": 290.0,
+      "voc": 41.5,
+      "isc": 9.30,
+      "vmp": 34.2,
+      "imp": 8.48,
+      "fill_factor": 0.751,
+      "efficiency": 14.80,
+      "timestamp": "2025-11-13T11:30:00Z"
+    },
+    {
+      "temperature": 75.0,
+      "pmax": 260.5,
+      "voc": 38.0,
+      "isc": 9.42,
+      "vmp": 31.5,
+      "imp": 8.27,
+      "fill_factor": 0.727,
+      "efficiency": 13.29,
+      "timestamp": "2025-11-13T12:00:00Z"
+    }
+  ],
+  "calculated_results": {
+    "temp_coefficient_pmax": {
+      "value": -0.4250,
+      "unit": "%/°C",
+      "r_squared": 0.9985,
+      "std_error": 0.0123,
+      "confidence_interval_95": [-0.4562, -0.3938]
+    },
+    "temp_coefficient_voc": {
+      "value": -0.3150,
+      "unit": "%/°C",
+      "r_squared": 0.9991,
+      "std_error": 0.0089
+    },
+    "temp_coefficient_isc": {
+      "value": 0.0520,
+      "unit": "%/°C",
+      "r_squared": 0.9976,
+      "std_error": 0.0034
+    },
+    "reference_temperature": 25.0,
+    "normalized_power_25C": 320.0
+  },
+  "quality_checks": {
+    "data_completeness": true,
+    "measurement_stability": true,
+    "linearity_check": true,
+    "range_validation": true,
+    "warnings": [],
+    "errors": []
+  },
+  "metadata": {
+    "test_date": "2025-11-13",
+    "test_facility": "Example Test Laboratory",
+    "operator": "Test Engineer",
+    "equipment": {
+      "solar_simulator": "Pasan SunSim 3c",
+      "iv_tracer": "Keithley 2400",
+      "temperature_control": "Climate Chamber Model CC-5000",
+      "calibration_date": "2025-10-01"
+    },
+    "environmental_conditions": {
+      "ambient_temperature": 23.5,
+      "relative_humidity": 45.0,
+      "barometric_pressure": 101.3
+    },
+    "project_info": {
+      "project_id": "PROJ-2025-EXAMPLE",
+      "client": "Example Client Corporation",
+      "purchase_order": "PO-2025-12345"
+    },
+    "traceability": {
+      "lims_id": "LIMS-2025-EXAMPLE-001",
+      "qms_reference": "QMS-PERF-001-2025",
+      "parent_test_id": "STC-001-2025-EXAMPLE",
+      "related_tests": ["STC-001", "UV-001", "THERMAL-CYCLE-001"]
+    },
+    "notes": "Example test data demonstrating PERF-001 protocol structure and typical results for mono-PERC technology"
+  }
+}

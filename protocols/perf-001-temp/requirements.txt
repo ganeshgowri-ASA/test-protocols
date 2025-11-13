@@ -1,0 +1,27 @@
+# PERF-001 Requirements
+# Core dependencies for temperature performance testing protocol
+
+# Numerical computing
+numpy>=1.20.0
+scipy>=1.7.0
+
+# Data handling
+pandas>=1.3.0
+
+# Visualization
+plotly>=5.0.0
+matplotlib>=3.4.0
+
+# Web UI
+streamlit>=1.20.0
+
+# Database
+sqlalchemy>=1.4.0
+psycopg2-binary>=2.9.0
+
+# Data validation
+jsonschema>=4.0.0
+
+# Optional: for PDF report generation
+# reportlab>=3.6.0
+# weasyprint>=54.0

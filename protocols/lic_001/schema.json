@@ -1,0 +1,357 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://pv-testing.org/schemas/lic-001.json",
+  "title": "LIC-001 Low Irradiance Conditions Test",
+  "description": "Test protocol for measuring PV module performance at low irradiance levels according to IEC 61215-1:2021",
+  "version": "1.0.0",
+  "type": "object",
+  "required": [
+    "protocol_info",
+    "sample_info",
+    "test_conditions",
+    "measurements"
+  ],
+  "properties": {
+    "protocol_info": {
+      "type": "object",
+      "required": ["protocol_id", "version", "standard"],
+      "properties": {
+        "protocol_id": {
+          "type": "string",
+          "const": "LIC-001",
+          "description": "Protocol identifier"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Protocol version (semver)"
+        },
+        "standard": {
+          "type": "string",
+          "const": "IEC 61215-1:2021",
+          "description": "Applicable standard"
+        },
+        "category": {
+          "type": "string",
+          "const": "PERFORMANCE",
+          "description": "Test category"
+        },
+        "test_date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Test execution date and time"
+        }
+      }
+    },
+    "sample_info": {
+      "type": "object",
+      "required": ["sample_id", "module_type"],
+      "properties": {
+        "sample_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique sample identifier"
+        },
+        "module_type": {
+          "type": "string",
+          "description": "PV module type/model"
+        },
+        "manufacturer": {
+          "type": "string",
+          "description": "Module manufacturer"
+        },
+        "serial_number": {
+          "type": "string",
+          "description": "Module serial number"
+        },
+        "batch_id": {
+          "type": "string",
+          "description": "Production batch identifier"
+        },
+        "cell_technology": {
+          "type": "string",
+          "enum": ["mono-Si", "poly-Si", "CdTe", "CIGS", "a-Si", "HIT", "PERC", "TOPCon", "other"],
+          "description": "Solar cell technology type"
+        },
+        "rated_power": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Rated power at STC (W)"
+        },
+        "module_area": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Module area (m²)"
+        },
+        "num_cells": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of cells in module"
+        }
+      }
+    },
+    "test_conditions": {
+      "type": "object",
+      "required": ["temperature", "spectrum", "irradiance_levels"],
+      "properties": {
+        "temperature": {
+          "type": "number",
+          "const": 25.0,
+          "description": "Test temperature (°C) - must be 25°C per standard"
+        },
+        "temperature_tolerance": {
+          "type": "number",
+          "default": 2.0,
+          "description": "Acceptable temperature deviation (°C)"
+        },
+        "spectrum": {
+          "type": "string",
+          "enum": ["AM1.5G", "AM1.5D"],
+          "default": "AM1.5G",
+          "description": "Solar spectrum"
+        },
+        "irradiance_levels": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "enum": [200, 400, 600, 800]
+          },
+          "minItems": 4,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "description": "Test irradiance levels (W/m²)"
+        },
+        "irradiance_tolerance": {
+          "type": "number",
+          "default": 10.0,
+          "description": "Acceptable irradiance deviation (W/m²)"
+        },
+        "operator": {
+          "type": "string",
+          "description": "Test operator name/ID"
+        },
+        "equipment_id": {
+          "type": "string",
+          "description": "Test equipment identifier"
+        },
+        "lab_location": {
+          "type": "string",
+          "description": "Laboratory location"
+        },
+        "ambient_conditions": {
+          "type": "object",
+          "properties": {
+            "humidity": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Relative humidity (%)"
+            },
+            "pressure": {
+              "type": "number",
+              "description": "Atmospheric pressure (kPa)"
+            }
+          }
+        }
+      }
+    },
+    "measurements": {
+      "type": "object",
+      "required": ["200", "400", "600", "800"],
+      "properties": {
+        "200": {
+          "$ref": "#/definitions/irradiance_measurement",
+          "description": "Measurements at 200 W/m²"
+        },
+        "400": {
+          "$ref": "#/definitions/irradiance_measurement",
+          "description": "Measurements at 400 W/m²"
+        },
+        "600": {
+          "$ref": "#/definitions/irradiance_measurement",
+          "description": "Measurements at 600 W/m²"
+        },
+        "800": {
+          "$ref": "#/definitions/irradiance_measurement",
+          "description": "Measurements at 800 W/m²"
+        }
+      }
+    },
+    "results": {
+      "type": "object",
+      "description": "Calculated test results",
+      "properties": {
+        "summary": {
+          "type": "object",
+          "properties": {
+            "test_passed": {
+              "type": "boolean",
+              "description": "Overall test pass/fail status"
+            },
+            "quality_score": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Overall quality score (0-100)"
+            }
+          }
+        },
+        "by_irradiance": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/calculated_results"
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "run_id": {
+          "type": "string",
+          "description": "Unique test run identifier"
+        },
+        "data_hash": {
+          "type": "string",
+          "description": "SHA256 hash for data traceability"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lims_id": {
+          "type": "string",
+          "description": "LIMS system reference ID"
+        },
+        "qms_id": {
+          "type": "string",
+          "description": "QMS system reference ID"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional notes or observations"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "irradiance_measurement": {
+      "type": "object",
+      "required": ["actual_irradiance", "actual_temperature", "iv_curve"],
+      "properties": {
+        "actual_irradiance": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Actual measured irradiance (W/m²)"
+        },
+        "actual_temperature": {
+          "type": "number",
+          "description": "Actual measured temperature (°C)"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Measurement timestamp"
+        },
+        "iv_curve": {
+          "type": "object",
+          "required": ["voltage", "current"],
+          "properties": {
+            "voltage": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 10,
+              "description": "Voltage values (V)"
+            },
+            "current": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 10,
+              "description": "Current values (A)"
+            },
+            "num_points": {
+              "type": "integer",
+              "minimum": 10,
+              "description": "Number of I-V curve points"
+            }
+          }
+        },
+        "raw_measurements": {
+          "type": "object",
+          "description": "Additional raw measurements",
+          "properties": {
+            "voc": {
+              "type": "number",
+              "description": "Open circuit voltage (V)"
+            },
+            "isc": {
+              "type": "number",
+              "description": "Short circuit current (A)"
+            }
+          }
+        }
+      }
+    },
+    "calculated_results": {
+      "type": "object",
+      "properties": {
+        "pmax": {
+          "type": "number",
+          "description": "Maximum power (W)"
+        },
+        "vmp": {
+          "type": "number",
+          "description": "Voltage at maximum power (V)"
+        },
+        "imp": {
+          "type": "number",
+          "description": "Current at maximum power (A)"
+        },
+        "voc": {
+          "type": "number",
+          "description": "Open circuit voltage (V)"
+        },
+        "isc": {
+          "type": "number",
+          "description": "Short circuit current (A)"
+        },
+        "fill_factor": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Fill factor (0-1)"
+        },
+        "efficiency": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Module efficiency (%)"
+        },
+        "quality_indicators": {
+          "type": "object",
+          "properties": {
+            "curve_quality": {
+              "type": "string",
+              "enum": ["excellent", "good", "acceptable", "poor"],
+              "description": "I-V curve quality assessment"
+            },
+            "data_quality_score": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Data quality score (0-100)"
+            }
+          }
+        }
+      }
+    }
+  }
+}

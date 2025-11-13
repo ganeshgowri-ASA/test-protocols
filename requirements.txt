@@ -1,0 +1,27 @@
+# Core Dependencies
+streamlit>=1.28.0
+plotly>=5.17.0
+pandas>=2.1.0
+numpy>=1.24.0
+pydantic>=2.4.0
+sqlalchemy>=2.0.0
+python-dateutil>=2.8.2
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-mock>=3.11.1
+
+# Database
+alembic>=1.12.0
+psycopg2-binary>=2.9.7
+
+# Utilities
+python-dotenv>=1.0.0
+jsonschema>=4.19.0
+openpyxl>=3.1.2
+
+# Development
+black>=23.9.1
+flake8>=6.1.0
+mypy>=1.5.1

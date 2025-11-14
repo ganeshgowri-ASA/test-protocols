@@ -81,8 +81,8 @@ class User(Base):
 
     # Relationships
     service_requests = relationship("ServiceRequest", back_populates="created_by_user")
-    test_executions = relationship("TestExecution", foreign_keys="[TestExecution.technician_id]", back_populates="technician_user")
-    reviewed_executions = relationship("TestExecution", foreign_keys="[TestExecution.reviewer_id]", back_populates="reviewer_user")
+    test_executions = relationship("TestExecution", foreign_keys=lambda: [TestExecution.technician_id], back_populates="technician_user")
+    reviewed_executions = relationship("TestExecution", foreign_keys=lambda: [TestExecution.reviewer_id], back_populates="reviewer_user")
     audit_logs = relationship("AuditLog", back_populates="user")
 
     def __repr__(self):

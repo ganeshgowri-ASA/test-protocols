@@ -1,0 +1,477 @@
+{
+  "protocol": {
+    "id": "SOLDER-001",
+    "version": "1.0.0",
+    "title": "Solder Bond Degradation Testing",
+    "category": "Degradation",
+    "subcategory": "Interconnect Reliability",
+    "status": "active",
+    "effective_date": "2025-01-15",
+    "revision_history": [
+      {
+        "version": "1.0.0",
+        "date": "2025-01-15",
+        "author": "PV Testing Lab",
+        "changes": "Initial protocol release for solder bond degradation assessment"
+      }
+    ],
+    "description": "Comprehensive assessment of solder joint degradation in PV modules through thermal cycling, mechanical stress, and electrical resistance monitoring",
+    "purpose": "To evaluate long-term reliability of solder bonds in photovoltaic modules under accelerated aging conditions",
+    "scope": "Solder joint integrity assessment, resistance change monitoring, mechanical strength testing, and failure mode analysis",
+    "references": [
+      "IEC 61215-2:2021 MQT 11 (Thermal Cycling)",
+      "IEC 62782:2016 (Dynamic Mechanical Load)",
+      "IPC-TM-650 (Solder Joint Testing)",
+      "JEDEC JESD22-A104 (Temperature Cycling)",
+      "IPC-9701 (Performance Testing of Interconnections)",
+      "ASTM E2481 (Reliability Testing)"
+    ]
+  },
+  "test_parameters": {
+    "sample_requirements": {
+      "quantity": {
+        "value": 12,
+        "unit": "modules",
+        "notes": "6 modules for thermal cycling, 6 for mechanical stress testing"
+      },
+      "selection": "Random sampling from production lot with identical manufacturing date",
+      "preconditioning": "24-hour stabilization at 25°C ±2°C and 45% ±5% RH",
+      "marking": "Unique serial number with cell-level tracking for resistance measurements",
+      "solder_type_documentation": "Required: lead-free or leaded composition, flux type, reflow profile"
+    },
+    "environmental_conditions": {
+      "thermal_cycling": {
+        "temperature_range": {
+          "min": -40,
+          "max": 85,
+          "unit": "°C",
+          "ramp_rate": "100°C/hour maximum",
+          "dwell_time": "10 minutes at each extreme"
+        },
+        "cycles": 600,
+        "humidity_during_cycling": "Non-condensing"
+      },
+      "mechanical_stress": {
+        "dynamic_load": {
+          "value": 1000,
+          "unit": "Pa",
+          "frequency": "0.5 Hz",
+          "cycles": 10000,
+          "waveform": "sinusoidal"
+        },
+        "static_load": {
+          "value": 2400,
+          "unit": "Pa",
+          "duration": "1 hour"
+        }
+      },
+      "ambient_conditions": {
+        "temperature": {
+          "value": 25,
+          "unit": "°C",
+          "tolerance": 2
+        },
+        "humidity": {
+          "value": 45,
+          "unit": "%RH",
+          "tolerance": 10
+        }
+      }
+    },
+    "test_sequence": [
+      {
+        "step": 1,
+        "name": "Initial Characterization",
+        "measurements": [
+          "Visual inspection (10x magnification)",
+          "Flash test at STC",
+          "IR imaging for hot spots",
+          "EL imaging for cell cracks",
+          "4-wire resistance measurement of all interconnects"
+        ],
+        "duration": "2 hours per module"
+      },
+      {
+        "step": 2,
+        "name": "Baseline Resistance Mapping",
+        "method": "4-wire Kelvin measurement",
+        "measurement_points": "All cell interconnects (ribbons and bus bars)",
+        "precision": "0.1 mΩ",
+        "repetitions": 3
+      },
+      {
+        "step": 3,
+        "name": "Thermal Cycling Stress Test",
+        "cycles": [50, 100, 200, 400, 600],
+        "checkpoint_measurements": "Resistance, power output, visual inspection, IR/EL imaging",
+        "standard": "IEC 61215-2 MQT 11 modified",
+        "notes": "Measurements at each checkpoint milestone"
+      },
+      {
+        "step": 4,
+        "name": "Mechanical Load Testing",
+        "substeps": [
+          {
+            "name": "Dynamic Mechanical Load",
+            "cycles": [1000, 3000, 5000, 10000],
+            "checkpoint_measurements": "Resistance, power output, visual inspection"
+          },
+          {
+            "name": "Static Load Test",
+            "checkpoints": "Before and after",
+            "measurements": "Full characterization"
+          }
+        ]
+      },
+      {
+        "step": 5,
+        "name": "Pull Test Analysis",
+        "method": "Destructive pull testing on aged samples",
+        "sample_size": "30 solder joints per module",
+        "measurement": "Bond strength in Newtons",
+        "comparison": "Against fresh control samples"
+      },
+      {
+        "step": 6,
+        "name": "Microscopic Failure Analysis",
+        "methods": [
+          "Optical microscopy (50x-200x)",
+          "SEM imaging (selected samples)",
+          "Cross-sectional analysis"
+        ],
+        "failure_modes": [
+          "Crack propagation",
+          "Intermetallic layer degradation",
+          "Void formation",
+          "Delamination"
+        ]
+      }
+    ]
+  },
+  "acceptance_criteria": {
+    "electrical_performance": {
+      "power_degradation": {
+        "after_200_cycles": {
+          "max": 2,
+          "unit": "%",
+          "severity": "MINOR"
+        },
+        "after_600_cycles": {
+          "max": 5,
+          "unit": "%",
+          "severity": "CRITICAL"
+        }
+      },
+      "series_resistance_increase": {
+        "after_200_cycles": {
+          "max": 10,
+          "unit": "%",
+          "severity": "MINOR"
+        },
+        "after_600_cycles": {
+          "max": 20,
+          "unit": "%",
+          "severity": "CRITICAL"
+        }
+      }
+    },
+    "resistance_thresholds": {
+      "cell_interconnect": {
+        "initial_max": {
+          "value": 5,
+          "unit": "mΩ"
+        },
+        "increase_limit": {
+          "absolute": 2,
+          "percentage": 20,
+          "unit": "mΩ/%",
+          "severity": "MAJOR"
+        }
+      },
+      "busbar_resistance": {
+        "initial_max": {
+          "value": 10,
+          "unit": "mΩ"
+        },
+        "increase_limit": {
+          "absolute": 3,
+          "percentage": 15,
+          "unit": "mΩ/%",
+          "severity": "MAJOR"
+        }
+      }
+    },
+    "mechanical_strength": {
+      "pull_test_force": {
+        "minimum_fresh": {
+          "value": 30,
+          "unit": "N",
+          "notes": "Fresh solder joints"
+        },
+        "minimum_aged": {
+          "value": 24,
+          "unit": "N",
+          "degradation_limit": 20,
+          "severity": "CRITICAL"
+        }
+      },
+      "shear_strength": {
+        "minimum_fresh": {
+          "value": 25,
+          "unit": "N"
+        },
+        "minimum_aged": {
+          "value": 20,
+          "unit": "N",
+          "degradation_limit": 20,
+          "severity": "CRITICAL"
+        }
+      }
+    },
+    "visual_inspection": {
+      "allowable_defects": {
+        "minor_discoloration": {
+          "max_percentage": 10,
+          "severity": "MINOR"
+        },
+        "solder_cracks": {
+          "max_count": 0,
+          "severity": "CRITICAL"
+        },
+        "delamination": {
+          "max_percentage": 0,
+          "severity": "CRITICAL"
+        },
+        "ribbon_detachment": {
+          "max_count": 0,
+          "severity": "CRITICAL"
+        }
+      }
+    },
+    "thermal_imaging": {
+      "hotspot_temperature": {
+        "max_delta_t": {
+          "value": 15,
+          "unit": "°C",
+          "severity": "MAJOR",
+          "notes": "Temperature difference from average cell temperature"
+        }
+      }
+    }
+  },
+  "data_collection": {
+    "measurements": [
+      {
+        "parameter": "solder_joint_resistance",
+        "unit": "mΩ",
+        "precision": 0.1,
+        "method": "4-wire Kelvin measurement",
+        "frequency": "Each checkpoint"
+      },
+      {
+        "parameter": "power_output",
+        "unit": "W",
+        "precision": 0.1,
+        "method": "Flash test at STC",
+        "frequency": "Each checkpoint"
+      },
+      {
+        "parameter": "series_resistance",
+        "unit": "Ω",
+        "precision": 0.01,
+        "method": "IV curve analysis",
+        "frequency": "Each checkpoint"
+      },
+      {
+        "parameter": "temperature_cycle_count",
+        "unit": "cycles",
+        "precision": 1,
+        "method": "Chamber data logger",
+        "frequency": "Continuous"
+      },
+      {
+        "parameter": "mechanical_load_cycles",
+        "unit": "cycles",
+        "precision": 1,
+        "method": "Test frame counter",
+        "frequency": "Continuous"
+      },
+      {
+        "parameter": "pull_test_force",
+        "unit": "N",
+        "precision": 0.1,
+        "method": "Tensile testing machine",
+        "frequency": "End of test (destructive)"
+      },
+      {
+        "parameter": "thermal_image_hotspot_delta",
+        "unit": "°C",
+        "precision": 0.1,
+        "method": "IR camera",
+        "frequency": "Each checkpoint"
+      },
+      {
+        "parameter": "visual_defect_count",
+        "unit": "count",
+        "precision": 1,
+        "method": "Optical inspection",
+        "frequency": "Each checkpoint"
+      }
+    ],
+    "sampling_rate": {
+      "resistance_measurement": "1 measurement per second per point",
+      "thermal_cycling": "Temperature logged every 10 seconds",
+      "mechanical_cycling": "Load logged every cycle"
+    },
+    "checkpoint_intervals": {
+      "thermal_cycling": [0, 50, 100, 200, 400, 600],
+      "mechanical_cycling": [0, 1000, 3000, 5000, 10000]
+    },
+    "data_retention": "25 years minimum with secure backup"
+  },
+  "analysis": {
+    "degradation_modeling": {
+      "resistance_growth_rate": {
+        "method": "Linear regression and Arrhenius modeling",
+        "parameters": ["cycles", "temperature", "mechanical_stress"],
+        "output": "Degradation rate per 1000 cycles"
+      },
+      "power_degradation_correlation": {
+        "method": "Correlation analysis between resistance increase and power loss",
+        "statistical_test": "Pearson correlation coefficient"
+      },
+      "lifetime_prediction": {
+        "method": "Weibull analysis",
+        "confidence_interval": "95%",
+        "extrapolation": "25-year field conditions"
+      }
+    },
+    "failure_mode_analysis": {
+      "classification": [
+        "Solder fatigue cracking",
+        "Intermetallic compound growth",
+        "Thermal expansion mismatch",
+        "Mechanical stress concentration",
+        "Corrosion-assisted degradation"
+      ],
+      "root_cause_determination": "Multi-factor analysis with microscopy correlation"
+    },
+    "statistical_analysis": {
+      "methods": [
+        "Box plot analysis for outlier detection",
+        "ANOVA for multi-factor comparison",
+        "Control chart for process monitoring",
+        "Capability analysis (Cpk)"
+      ],
+      "sample_size_validation": "Power analysis for statistical significance"
+    }
+  },
+  "reporting": {
+    "deliverables": [
+      {
+        "name": "Solder Bond Degradation Test Report",
+        "format": "PDF",
+        "template": "solder_bond_report.jinja2",
+        "sections": [
+          "Executive Summary",
+          "Test Methodology",
+          "Initial Characterization Results",
+          "Thermal Cycling Results",
+          "Mechanical Testing Results",
+          "Resistance Evolution Analysis",
+          "Power Degradation Analysis",
+          "Failure Mode Analysis",
+          "Microscopic Examination Findings",
+          "Statistical Analysis",
+          "Lifetime Projection",
+          "Conclusions and Recommendations"
+        ]
+      },
+      {
+        "name": "Checkpoint Data Package",
+        "format": "XLSX",
+        "contents": [
+          "Resistance measurements (all checkpoints)",
+          "Power output data",
+          "IV curve parameters",
+          "Thermal imaging results",
+          "Visual inspection logs",
+          "Pull test results"
+        ]
+      },
+      {
+        "name": "Image Archive",
+        "format": "ZIP",
+        "contents": [
+          "Visual inspection photos (all checkpoints)",
+          "IR thermal images",
+          "EL images",
+          "Microscopy images",
+          "Failure mode documentation"
+        ]
+      }
+    ],
+    "charts": [
+      "Resistance vs cycle count (trend plot)",
+      "Power degradation vs cycles",
+      "Resistance increase distribution (histogram)",
+      "Thermal cycling profile",
+      "Hotspot temperature evolution",
+      "Pull test force comparison (before/after)",
+      "Weibull reliability plot",
+      "Failure mode Pareto chart",
+      "Correlation matrix (resistance vs power loss)",
+      "Control chart for series resistance"
+    ]
+  },
+  "quality_control": {
+    "equipment_calibration": {
+      "micro-ohmmeter": "Every 6 months (NIST traceable)",
+      "thermal_chamber": "Every 12 months",
+      "ir_camera": "Every 12 months",
+      "solar_simulator": "Every 6 months",
+      "pull_test_machine": "Every 12 months",
+      "reference_resistors": "Every 12 months"
+    },
+    "measurement_uncertainty": {
+      "resistance": "±2% or ±0.1 mΩ (whichever is greater)",
+      "power": "±2%",
+      "temperature": "±1°C",
+      "pull_force": "±1%",
+      "cycle_count": "±1 cycle"
+    },
+    "control_samples": {
+      "frequency": "One control module per batch (no aging)",
+      "purpose": "Baseline drift verification",
+      "storage": "Climate-controlled environment"
+    },
+    "repeatability": {
+      "resistance_measurements": "3 repetitions, CV < 5%",
+      "power_measurements": "2 repetitions, difference < 1%"
+    }
+  },
+  "integration": {
+    "lims": {
+      "sample_tracking": true,
+      "data_import": "Automatic from test equipment",
+      "result_export": "Real-time to database",
+      "checkpoint_triggers": "Automatic notifications"
+    },
+    "qms": {
+      "nc_generation": "Automatic on acceptance criteria violation",
+      "approval_workflow": "Technical review and QA sign-off",
+      "document_control": "Version tracked with change history",
+      "capa_integration": "Link to corrective action system"
+    },
+    "project_management": {
+      "milestone_tracking": true,
+      "resource_allocation": "Test chamber scheduling",
+      "timeline_management": "Auto-calculated based on cycle duration"
+    },
+    "traceability": {
+      "material_traceability": "Solder lot, flux type, cell batch",
+      "process_traceability": "Reflow profile, assembly date",
+      "test_traceability": "Equipment ID, operator, environmental conditions"
+    }
+  }
+}

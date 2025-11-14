@@ -1,0 +1,231 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PV Test Protocol Schema",
+  "description": "Schema for defining PV testing protocols",
+  "type": "object",
+  "required": ["protocol_id", "name", "version", "category", "metadata", "test_phases", "measurements", "qc_criteria"],
+  "properties": {
+    "protocol_id": {
+      "type": "string",
+      "description": "Unique protocol identifier (e.g., JBOX-001)",
+      "pattern": "^[A-Z]+-[0-9]{3}$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable protocol name"
+    },
+    "version": {
+      "type": "string",
+      "description": "Protocol version (semantic versioning)",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "category": {
+      "type": "string",
+      "description": "Protocol category",
+      "enum": ["Degradation", "Performance", "Safety", "Environmental", "Mechanical", "Electrical"]
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["description", "standards", "created_date", "author"],
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Detailed protocol description"
+        },
+        "standards": {
+          "type": "array",
+          "description": "Applicable standards (e.g., IEC 61215, IEC 61730)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "created_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "modified_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "author": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "test_phases": {
+      "type": "array",
+      "description": "Sequential test phases",
+      "items": {
+        "type": "object",
+        "required": ["phase_id", "name", "description", "steps"],
+        "properties": {
+          "phase_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "number"
+              },
+              "unit": {
+                "type": "string",
+                "enum": ["seconds", "minutes", "hours", "days", "cycles"]
+              }
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["step_id", "action", "parameters"],
+              "properties": {
+                "step_id": {
+                  "type": "string"
+                },
+                "action": {
+                  "type": "string"
+                },
+                "parameters": {
+                  "type": "object"
+                },
+                "conditions": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "measurements": {
+      "type": "array",
+      "description": "Measurements to be collected",
+      "items": {
+        "type": "object",
+        "required": ["measurement_id", "name", "type", "unit"],
+        "properties": {
+          "measurement_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["voltage", "current", "power", "temperature", "humidity", "resistance", "visual", "other"]
+          },
+          "unit": {
+            "type": "string"
+          },
+          "frequency": {
+            "type": "string"
+          },
+          "precision": {
+            "type": "number"
+          },
+          "range": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    },
+    "qc_criteria": {
+      "type": "object",
+      "description": "Quality control and pass/fail criteria",
+      "properties": {
+        "acceptance_criteria": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["criterion_id", "description", "condition"],
+            "properties": {
+              "criterion_id": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "condition": {
+                "type": "object"
+              },
+              "severity": {
+                "type": "string",
+                "enum": ["critical", "major", "minor"]
+              }
+            }
+          }
+        },
+        "data_validation": {
+          "type": "object",
+          "properties": {
+            "outlier_detection": {
+              "type": "boolean"
+            },
+            "completeness_check": {
+              "type": "boolean"
+            },
+            "range_validation": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "analysis_config": {
+      "type": "object",
+      "description": "Analysis and reporting configuration",
+      "properties": {
+        "statistical_methods": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "charts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "chart_type": {
+                "type": "string"
+              },
+              "data_series": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "report_sections": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

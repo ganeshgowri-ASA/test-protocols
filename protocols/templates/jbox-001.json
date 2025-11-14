@@ -1,0 +1,510 @@
+{
+  "protocol_id": "JBOX-001",
+  "name": "Junction Box Degradation Test",
+  "version": "1.0.0",
+  "category": "Degradation",
+  "metadata": {
+    "description": "Comprehensive junction box degradation testing protocol to evaluate the long-term reliability and performance degradation of PV module junction boxes under accelerated environmental stress conditions.",
+    "standards": [
+      "IEC 61215-2:2021 (Terrestrial photovoltaic modules - Design qualification and type approval - Part 2: Test procedures)",
+      "IEC 61730-2:2016 (PV module safety qualification - Part 2: Requirements for testing)",
+      "UL 1703 (Standard for Flat-Plate Photovoltaic Modules and Panels)"
+    ],
+    "created_date": "2025-01-14",
+    "author": "PV Testing Framework",
+    "tags": [
+      "junction-box",
+      "degradation",
+      "thermal-cycling",
+      "humidity",
+      "electrical-performance"
+    ]
+  },
+  "test_phases": [
+    {
+      "phase_id": "P1",
+      "name": "Initial Characterization",
+      "description": "Baseline measurements and visual inspection before stress testing",
+      "duration": {
+        "value": 4,
+        "unit": "hours"
+      },
+      "steps": [
+        {
+          "step_id": "P1-S1",
+          "action": "Visual Inspection",
+          "parameters": {
+            "inspection_points": [
+              "junction_box_housing",
+              "cable_entry",
+              "potting_compound",
+              "bypass_diodes",
+              "terminal_connections"
+            ],
+            "documentation": "photograph_all_areas"
+          },
+          "conditions": {
+            "environment": "clean_room",
+            "lighting": "adequate_illumination"
+          }
+        },
+        {
+          "step_id": "P1-S2",
+          "action": "Measure Contact Resistance",
+          "parameters": {
+            "measurement_points": [
+              "cell_to_busbar",
+              "busbar_to_cable",
+              "cable_connections"
+            ],
+            "current": "1A_DC"
+          },
+          "conditions": {
+            "temperature": "25±2°C",
+            "humidity": "45±10%"
+          }
+        },
+        {
+          "step_id": "P1-S3",
+          "action": "Diode Forward Voltage Test",
+          "parameters": {
+            "test_current": "10A",
+            "number_of_diodes": "3"
+          }
+        },
+        {
+          "step_id": "P1-S4",
+          "action": "Insulation Resistance Test",
+          "parameters": {
+            "test_voltage": "1000V_DC",
+            "duration": "60_seconds",
+            "min_acceptable": "40MΩ"
+          }
+        },
+        {
+          "step_id": "P1-S5",
+          "action": "I-V Curve Measurement",
+          "parameters": {
+            "irradiance": "1000W/m²",
+            "cell_temperature": "25°C",
+            "scan_rate": "10V/s"
+          }
+        }
+      ]
+    },
+    {
+      "phase_id": "P2",
+      "name": "Thermal Cycling Stress",
+      "description": "Subject junction box to accelerated thermal cycling to simulate years of field operation",
+      "duration": {
+        "value": 200,
+        "unit": "cycles"
+      },
+      "steps": [
+        {
+          "step_id": "P2-S1",
+          "action": "Thermal Cycle Exposure",
+          "parameters": {
+            "cycles": 200,
+            "low_temperature": "-40°C",
+            "high_temperature": "85°C",
+            "dwell_time": "30_minutes",
+            "transition_rate": "100°C/hour",
+            "cycle_profile": "IEC_61215_TC200"
+          },
+          "conditions": {
+            "module_configuration": "open_circuit"
+          }
+        },
+        {
+          "step_id": "P2-S2",
+          "action": "Interim Measurements (every 50 cycles)",
+          "parameters": {
+            "measurement_frequency": "50_cycles",
+            "measurements": [
+              "visual_inspection",
+              "contact_resistance",
+              "diode_forward_voltage",
+              "insulation_resistance"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "phase_id": "P3",
+      "name": "Humidity-Freeze Stress",
+      "description": "Evaluate junction box performance under humidity and freeze conditions",
+      "duration": {
+        "value": 10,
+        "unit": "cycles"
+      },
+      "steps": [
+        {
+          "step_id": "P3-S1",
+          "action": "Humidity-Freeze Cycle Exposure",
+          "parameters": {
+            "cycles": 10,
+            "humidity_phase": {
+              "temperature": "85°C",
+              "humidity": "85%RH",
+              "duration": "20_hours"
+            },
+            "freeze_phase": {
+              "temperature": "-40°C",
+              "duration": "4_hours"
+            },
+            "profile": "IEC_61215_HF10"
+          }
+        },
+        {
+          "step_id": "P3-S2",
+          "action": "Moisture Ingress Inspection",
+          "parameters": {
+            "inspection_method": "visual_and_weight_measurement",
+            "acceptable_weight_gain": "<1%"
+          }
+        }
+      ]
+    },
+    {
+      "phase_id": "P4",
+      "name": "UV Exposure Stress",
+      "description": "Assess junction box housing and potting material degradation under UV exposure",
+      "duration": {
+        "value": 15,
+        "unit": "hours"
+      },
+      "steps": [
+        {
+          "step_id": "P4-S1",
+          "action": "UV Preconditioning",
+          "parameters": {
+            "uv_dose": "15_kWh/m²",
+            "wavelength_range": "280-400nm",
+            "irradiance": "1000W/m²",
+            "chamber_temperature": "60±5°C"
+          }
+        },
+        {
+          "step_id": "P4-S2",
+          "action": "Material Degradation Assessment",
+          "parameters": {
+            "visual_inspection": "discoloration_cracking_embrittlement",
+            "mechanical_test": "housing_integrity"
+          }
+        }
+      ]
+    },
+    {
+      "phase_id": "P5",
+      "name": "Electrical Load Stress",
+      "description": "Long-term electrical stress testing at rated current",
+      "duration": {
+        "value": 168,
+        "unit": "hours"
+      },
+      "steps": [
+        {
+          "step_id": "P5-S1",
+          "action": "Continuous Current Load",
+          "parameters": {
+            "current": "1.25×Isc",
+            "duration": "168_hours",
+            "ambient_temperature": "45°C"
+          }
+        },
+        {
+          "step_id": "P5-S2",
+          "action": "Temperature Monitoring",
+          "parameters": {
+            "measurement_points": [
+              "junction_box_surface",
+              "cable_connections",
+              "diode_locations"
+            ],
+            "sampling_rate": "1_minute",
+            "max_temperature_rise": "<40K"
+          }
+        },
+        {
+          "step_id": "P5-S3",
+          "action": "Real-time Resistance Monitoring",
+          "parameters": {
+            "measurement_frequency": "hourly",
+            "acceptable_drift": "<5%"
+          }
+        }
+      ]
+    },
+    {
+      "phase_id": "P6",
+      "name": "Final Characterization",
+      "description": "Comprehensive post-stress testing measurements and analysis",
+      "duration": {
+        "value": 4,
+        "unit": "hours"
+      },
+      "steps": [
+        {
+          "step_id": "P6-S1",
+          "action": "Repeat All Initial Measurements",
+          "parameters": {
+            "measurements": [
+              "visual_inspection",
+              "contact_resistance",
+              "diode_forward_voltage",
+              "insulation_resistance",
+              "iv_curve"
+            ]
+          }
+        },
+        {
+          "step_id": "P6-S2",
+          "action": "Destructive Analysis (Optional)",
+          "parameters": {
+            "potting_removal": "thermal_or_chemical",
+            "internal_inspection": "corrosion_delamination_solder_joints"
+          }
+        },
+        {
+          "step_id": "P6-S3",
+          "action": "Performance Degradation Calculation",
+          "parameters": {
+            "comparison": "initial_vs_final",
+            "metrics": [
+              "power_degradation",
+              "resistance_increase",
+              "diode_degradation"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "measurements": [
+    {
+      "measurement_id": "M1",
+      "name": "Contact Resistance",
+      "type": "resistance",
+      "unit": "mΩ",
+      "frequency": "per_test_phase",
+      "precision": 0.1,
+      "range": {
+        "min": 0,
+        "max": 100
+      }
+    },
+    {
+      "measurement_id": "M2",
+      "name": "Diode Forward Voltage",
+      "type": "voltage",
+      "unit": "V",
+      "frequency": "per_test_phase",
+      "precision": 0.01,
+      "range": {
+        "min": 0,
+        "max": 2
+      }
+    },
+    {
+      "measurement_id": "M3",
+      "name": "Insulation Resistance",
+      "type": "resistance",
+      "unit": "MΩ",
+      "frequency": "per_test_phase",
+      "precision": 1,
+      "range": {
+        "min": 0,
+        "max": 10000
+      }
+    },
+    {
+      "measurement_id": "M4",
+      "name": "Junction Box Temperature",
+      "type": "temperature",
+      "unit": "°C",
+      "frequency": "continuous_during_electrical_stress",
+      "precision": 0.1,
+      "range": {
+        "min": -50,
+        "max": 150
+      }
+    },
+    {
+      "measurement_id": "M5",
+      "name": "Module Power Output",
+      "type": "power",
+      "unit": "W",
+      "frequency": "initial_and_final",
+      "precision": 0.1,
+      "range": {
+        "min": 0,
+        "max": 500
+      }
+    },
+    {
+      "measurement_id": "M6",
+      "name": "Open Circuit Voltage (Voc)",
+      "type": "voltage",
+      "unit": "V",
+      "frequency": "initial_and_final",
+      "precision": 0.01,
+      "range": {
+        "min": 0,
+        "max": 100
+      }
+    },
+    {
+      "measurement_id": "M7",
+      "name": "Short Circuit Current (Isc)",
+      "type": "current",
+      "unit": "A",
+      "frequency": "initial_and_final",
+      "precision": 0.01,
+      "range": {
+        "min": 0,
+        "max": 15
+      }
+    },
+    {
+      "measurement_id": "M8",
+      "name": "Visual Defects Count",
+      "type": "other",
+      "unit": "count",
+      "frequency": "each_inspection",
+      "precision": 1,
+      "range": {
+        "min": 0,
+        "max": 100
+      }
+    }
+  ],
+  "qc_criteria": {
+    "acceptance_criteria": [
+      {
+        "criterion_id": "AC1",
+        "description": "Power degradation must not exceed 5% after all stress tests",
+        "condition": {
+          "metric": "power_degradation_percentage",
+          "operator": "<=",
+          "threshold": 5
+        },
+        "severity": "critical"
+      },
+      {
+        "criterion_id": "AC2",
+        "description": "Contact resistance increase must not exceed 20%",
+        "condition": {
+          "metric": "resistance_increase_percentage",
+          "operator": "<=",
+          "threshold": 20
+        },
+        "severity": "major"
+      },
+      {
+        "criterion_id": "AC3",
+        "description": "Insulation resistance must remain above 40 MΩ",
+        "condition": {
+          "metric": "insulation_resistance_final",
+          "operator": ">=",
+          "threshold": 40,
+          "unit": "MΩ"
+        },
+        "severity": "critical"
+      },
+      {
+        "criterion_id": "AC4",
+        "description": "No visible damage to junction box housing or potting",
+        "condition": {
+          "metric": "visual_defects_critical",
+          "operator": "==",
+          "threshold": 0
+        },
+        "severity": "critical"
+      },
+      {
+        "criterion_id": "AC5",
+        "description": "Diode forward voltage must remain within ±10% of initial value",
+        "condition": {
+          "metric": "diode_voltage_drift_percentage",
+          "operator": "<=",
+          "threshold": 10
+        },
+        "severity": "major"
+      },
+      {
+        "criterion_id": "AC6",
+        "description": "No moisture ingress evidence (weight gain < 1%)",
+        "condition": {
+          "metric": "weight_gain_percentage",
+          "operator": "<",
+          "threshold": 1
+        },
+        "severity": "major"
+      },
+      {
+        "criterion_id": "AC7",
+        "description": "Junction box temperature rise must not exceed 40K under load",
+        "condition": {
+          "metric": "max_temperature_rise",
+          "operator": "<=",
+          "threshold": 40,
+          "unit": "K"
+        },
+        "severity": "critical"
+      }
+    ],
+    "data_validation": {
+      "outlier_detection": true,
+      "completeness_check": true,
+      "range_validation": true
+    }
+  },
+  "analysis_config": {
+    "statistical_methods": [
+      "mean",
+      "standard_deviation",
+      "percentage_change",
+      "linear_regression",
+      "confidence_intervals"
+    ],
+    "charts": [
+      {
+        "chart_type": "line",
+        "data_series": [
+          "contact_resistance_vs_cycles",
+          "diode_voltage_vs_cycles"
+        ]
+      },
+      {
+        "chart_type": "bar",
+        "data_series": [
+          "power_degradation_comparison"
+        ]
+      },
+      {
+        "chart_type": "scatter",
+        "data_series": [
+          "temperature_vs_time"
+        ]
+      },
+      {
+        "chart_type": "heatmap",
+        "data_series": [
+          "junction_box_temperature_distribution"
+        ]
+      }
+    ],
+    "report_sections": [
+      "executive_summary",
+      "test_conditions",
+      "initial_characterization",
+      "stress_test_results",
+      "final_characterization",
+      "degradation_analysis",
+      "pass_fail_summary",
+      "recommendations"
+    ]
+  }
+}

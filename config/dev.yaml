@@ -1,0 +1,30 @@
+environment: development
+
+database:
+  url: "sqlite:///./data/db/test_protocols.db"
+  echo: true
+  pool_size: 5
+
+logging:
+  level: DEBUG
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/dev.log"
+
+ui:
+  title: "Test Protocols - Development"
+  theme: light
+  page_config:
+    layout: wide
+    initial_sidebar_state: expanded
+
+performance:
+  cache_ttl: 300
+  max_concurrent_tests: 5
+
+integrations:
+  lims:
+    enabled: false
+  qms:
+    enabled: false
+  project_management:
+    enabled: false

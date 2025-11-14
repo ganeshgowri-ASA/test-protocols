@@ -1,0 +1,190 @@
+{
+  "protocol_id": "TRACK-001",
+  "name": "Tracker Performance Test",
+  "version": "1.0.0",
+  "category": "Performance",
+  "description": "Comprehensive performance evaluation of solar tracker systems including accuracy, response time, and power consumption analysis under various environmental conditions.",
+  "test_parameters": {
+    "duration": {
+      "value": 8,
+      "unit": "hours"
+    },
+    "sample_interval": {
+      "value": 5,
+      "unit": "minutes"
+    },
+    "metrics": [
+      {
+        "name": "azimuth_angle",
+        "type": "angle",
+        "unit": "degrees",
+        "description": "Horizontal tracking angle"
+      },
+      {
+        "name": "elevation_angle",
+        "type": "angle",
+        "unit": "degrees",
+        "description": "Vertical tracking angle"
+      },
+      {
+        "name": "tracking_error",
+        "type": "angle",
+        "unit": "degrees",
+        "description": "Deviation from ideal sun position"
+      },
+      {
+        "name": "motor_current",
+        "type": "current",
+        "unit": "A",
+        "description": "Motor drive current"
+      },
+      {
+        "name": "power_consumption",
+        "type": "power",
+        "unit": "W",
+        "description": "Total system power consumption"
+      }
+    ],
+    "tracking_mode": "dual_axis",
+    "environmental_conditions": {
+      "temperature_range": {
+        "min": -10,
+        "max": 50,
+        "unit": "C"
+      },
+      "irradiance_range": {
+        "min": 0,
+        "max": 1200,
+        "unit": "W/m2"
+      }
+    },
+    "performance_metrics": {
+      "tracking_accuracy": {
+        "measurement_points": 100,
+        "acceptance_threshold": 2.0,
+        "unit": "degrees"
+      },
+      "positioning_speed": {
+        "max_speed": 15,
+        "unit": "degrees/second"
+      },
+      "power_consumption": {
+        "idle": 10,
+        "active": 150,
+        "unit": "W"
+      }
+    },
+    "test_scenarios": [
+      {
+        "scenario_id": "S001",
+        "name": "Clear Sky Morning",
+        "description": "Tracker performance during sunrise to noon under clear sky conditions",
+        "conditions": {
+          "time_of_day": "06:00-12:00",
+          "weather": "clear",
+          "irradiance_level": "increasing"
+        }
+      },
+      {
+        "scenario_id": "S002",
+        "name": "Variable Cloud Cover",
+        "description": "Response to rapidly changing irradiance conditions",
+        "conditions": {
+          "time_of_day": "09:00-15:00",
+          "weather": "partly_cloudy",
+          "irradiance_level": "variable"
+        }
+      },
+      {
+        "scenario_id": "S003",
+        "name": "Afternoon High Irradiance",
+        "description": "Peak performance during maximum solar irradiance",
+        "conditions": {
+          "time_of_day": "12:00-16:00",
+          "weather": "clear",
+          "irradiance_level": "high"
+        }
+      }
+    ]
+  },
+  "qc_criteria": {
+    "tracking_accuracy": {
+      "max_error": 2.0,
+      "unit": "degrees"
+    },
+    "response_time": {
+      "max_delay": 30,
+      "unit": "seconds"
+    },
+    "data_completeness": 95,
+    "limits": {
+      "max_tracking_error": 2.0,
+      "max_position_deviation": 1.5,
+      "min_data_points": 90
+    },
+    "tolerances": {
+      "angle_measurement": 0.1,
+      "current_measurement": 0.01,
+      "power_measurement": 1.0
+    },
+    "validation_rules": [
+      {
+        "rule_id": "R001",
+        "description": "Tracking error must be below threshold for 95% of measurements",
+        "parameter": "tracking_error",
+        "condition": "percentile_95",
+        "threshold": 2.0,
+        "unit": "degrees"
+      },
+      {
+        "rule_id": "R002",
+        "description": "Power consumption must remain within specified limits",
+        "parameter": "power_consumption",
+        "condition": "max",
+        "threshold": 200,
+        "unit": "W"
+      },
+      {
+        "rule_id": "R003",
+        "description": "Data gaps must not exceed 10 minutes",
+        "parameter": "data_continuity",
+        "condition": "max_gap",
+        "threshold": 10,
+        "unit": "minutes"
+      }
+    ]
+  },
+  "analysis_methods": {
+    "statistical_analysis": {
+      "methods": ["mean", "median", "std_dev", "percentile_95", "percentile_99"],
+      "parameters": ["tracking_error", "power_consumption", "positioning_speed"]
+    },
+    "performance_indices": [
+      {
+        "name": "tracking_performance_ratio",
+        "formula": "(ideal_tracking_time - error_time) / ideal_tracking_time * 100",
+        "unit": "percentage"
+      },
+      {
+        "name": "energy_efficiency",
+        "formula": "energy_gained / energy_consumed",
+        "unit": "ratio"
+      }
+    ],
+    "visualization": {
+      "required_charts": [
+        "tracking_error_timeline",
+        "position_vs_ideal",
+        "power_consumption_profile",
+        "error_distribution_histogram"
+      ]
+    }
+  },
+  "metadata": {
+    "author": "Test Protocols Team",
+    "created_date": "2025-01-14T00:00:00Z",
+    "modified_date": "2025-01-14T00:00:00Z",
+    "approved_by": "Quality Assurance",
+    "approval_date": "2025-01-14T00:00:00Z"
+  }
+}

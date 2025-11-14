@@ -1,0 +1,17 @@
+# Core dependencies
+streamlit>=1.28.0
+pandas>=2.0.0
+numpy>=1.24.0
+plotly>=5.17.0
+jsonschema>=4.19.0
+pydantic>=2.4.0
+sqlalchemy>=2.0.0
+python-dotenv>=1.0.0
+pyyaml>=6.0
+
+# Development dependencies
+pytest>=7.4.0
+pytest-cov>=4.1.0
+black>=23.9.0
+ruff>=0.0.292
+mypy>=1.5.0

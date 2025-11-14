@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://test-protocols.org/schemas/tracker-schema.json",
+  "title": "Tracker Protocol Schema",
+  "description": "Schema for tracker performance test protocols",
+  "allOf": [
+    {
+      "$ref": "protocol-schema.json"
+    }
+  ],
+  "type": "object",
+  "properties": {
+    "test_parameters": {
+      "type": "object",
+      "required": ["duration", "sample_interval", "metrics", "tracking_mode"],
+      "properties": {
+        "duration": {
+          "type": "object",
+          "required": ["value", "unit"],
+          "properties": {
+            "value": {"type": "number", "minimum": 0},
+            "unit": {"type": "string", "enum": ["seconds", "minutes", "hours", "days"]}
+          }
+        },
+        "sample_interval": {
+          "type": "object",
+          "required": ["value", "unit"],
+          "properties": {
+            "value": {"type": "number", "minimum": 0},
+            "unit": {"type": "string", "enum": ["seconds", "minutes", "hours"]}
+          }
+        },
+        "metrics": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["name", "type", "unit"],
+            "properties": {
+              "name": {"type": "string"},
+              "type": {"type": "string", "enum": ["angle", "voltage", "current", "power", "temperature", "position"]},
+              "unit": {"type": "string"},
+              "description": {"type": "string"}
+            }
+          }
+        },
+        "tracking_mode": {
+          "type": "string",
+          "enum": ["single_axis", "dual_axis", "passive"],
+          "description": "Tracker operating mode"
+        },
+        "environmental_conditions": {
+          "type": "object",
+          "properties": {
+            "temperature_range": {
+              "type": "object",
+              "properties": {
+                "min": {"type": "number"},
+                "max": {"type": "number"},
+                "unit": {"type": "string", "enum": ["C", "F", "K"]}
+              }
+            },
+            "irradiance_range": {
+              "type": "object",
+              "properties": {
+                "min": {"type": "number"},
+                "max": {"type": "number"},
+                "unit": {"type": "string", "enum": ["W/m2"]}
+              }
+            }
+          }
+        }
+      }
+    },
+    "qc_criteria": {
+      "type": "object",
+      "properties": {
+        "tracking_accuracy": {
+          "type": "object",
+          "properties": {
+            "max_error": {"type": "number"},
+            "unit": {"type": "string", "enum": ["degrees", "radians"]}
+          }
+        },
+        "response_time": {
+          "type": "object",
+          "properties": {
+            "max_delay": {"type": "number"},
+            "unit": {"type": "string", "enum": ["seconds", "minutes"]}
+          }
+        },
+        "data_completeness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Minimum required data completeness percentage"
+        }
+      }
+    }
+  }
+}

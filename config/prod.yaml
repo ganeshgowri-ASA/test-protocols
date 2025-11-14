@@ -1,0 +1,31 @@
+environment: production
+
+database:
+  url: "${DATABASE_URL}"
+  echo: false
+  pool_size: 20
+  max_overflow: 40
+
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/prod.log"
+
+ui:
+  title: "Test Protocols Framework"
+  theme: light
+  page_config:
+    layout: wide
+    initial_sidebar_state: expanded
+
+performance:
+  cache_ttl: 3600
+  max_concurrent_tests: 20
+
+integrations:
+  lims:
+    enabled: true
+  qms:
+    enabled: true
+  project_management:
+    enabled: true

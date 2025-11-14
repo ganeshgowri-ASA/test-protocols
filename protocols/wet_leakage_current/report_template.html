@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ protocol_id }} Test Report - {{ test_result.sample_id }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header .meta {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .result-banner {
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .result-banner.pass {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .result-banner.fail {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .section {
+            margin: 30px 0;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            font-size: 20px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .info-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .info-item label {
+            display: block;
+            font-weight: bold;
+            color: #7f8c8d;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .info-item value {
+            display: block;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .measurements-summary {
+            background: #e8f4f8;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .stat-card .label {
+            font-size: 12px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+        }
+
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 10px 0;
+        }
+
+        .stat-card .unit {
+            font-size: 14px;
+            color: #95a5a6;
+        }
+
+        .failure-reasons {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .failure-reasons ul {
+            margin-left: 20px;
+        }
+
+        .failure-reasons li {
+            color: #856404;
+            margin: 5px 0;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #ecf0f1;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>{{ protocol_name }} ({{ protocol_id }})</h1>
+            <div class="meta">
+                <strong>Standard:</strong> {{ standard }} |
+                <strong>Version:</strong> {{ version }} |
+                <strong>Generated:</strong> {{ generated_date }}
+            </div>
+        </div>
+
+        <!-- Test Result Banner -->
+        <div class="result-banner {{ 'pass' if test_result.passed else 'fail' }}">
+            {{ 'PASS ✓' if test_result.passed else 'FAIL ✗' }}
+        </div>
+
+        <!-- Summary -->
+        <div class="section">
+            <h2>Test Summary</h2>
+            <p>{{ test_result.summary }}</p>
+        </div>
+
+        <!-- Sample Information -->
+        <div class="section">
+            <h2>Sample Information</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Sample ID</label>
+                    <value>{{ test_result.sample_id }}</value>
+                </div>
+                <div class="info-item">
+                    <label>Module Type</label>
+                    <value>{{ parameters.sample_information.module_type }}</value>
+                </div>
+                {% if parameters.sample_information.manufacturer %}
+                <div class="info-item">
+                    <label>Manufacturer</label>
+                    <value>{{ parameters.sample_information.manufacturer }}</value>
+                </div>
+                {% endif %}
+                {% if parameters.sample_information.serial_number %}
+                <div class="info-item">
+                    <label>Serial Number</label>
+                    <value>{{ parameters.sample_information.serial_number }}</value>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Test Conditions -->
+        <div class="section">
+            <h2>Test Conditions</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Test Voltage</label>
+                    <value>{{ parameters.test_conditions.test_voltage }} V DC</value>
+                </div>
+                <div class="info-item">
+                    <label>Electrode Configuration</label>
+                    <value>Type {{ parameters.test_conditions.electrode_configuration }}</value>
+                </div>
+                <div class="info-item">
+                    <label>Test Duration</label>
+                    <value>{{ parameters.test_conditions.test_duration }} hours</value>
+                </div>
+                <div class="info-item">
+                    <label>Measurement Interval</label>
+                    <value>{{ parameters.test_conditions.measurement_interval|default(60) }} minutes</value>
+                </div>
+                <div class="info-item">
+                    <label>Temperature</label>
+                    <value>{{ parameters.environmental_conditions.temperature }} °C</value>
+                </div>
+                <div class="info-item">
+                    <label>Relative Humidity</label>
+                    <value>{{ parameters.environmental_conditions.relative_humidity }} %</value>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="section">
+            <h2>Test Results</h2>
+            <div class="measurements-summary">
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="label">Max Leakage Current</div>
+                        <div class="value">{{ "%.4f"|format(test_result.details.max_leakage_current_measured) }}</div>
+                        <div class="unit">mA</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Avg Leakage Current</div>
+                        <div class="value">{{ "%.4f"|format(test_result.details.average_leakage_current) }}</div>
+                        <div class="unit">mA</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Min Insulation Resistance</div>
+                        <div class="value">{{ "%.2f"|format(test_result.details.min_insulation_resistance_measured) }}</div>
+                        <div class="unit">MΩ</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Acceptance Criteria -->
+        <div class="section">
+            <h2>Acceptance Criteria</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Criterion</th>
+                        <th>Limit</th>
+                        <th>Measured</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Maximum Leakage Current</td>
+                        <td>≤ {{ test_result.acceptance_criteria.max_leakage_current }} mA</td>
+                        <td>{{ "%.4f"|format(test_result.details.max_leakage_current_measured) }} mA</td>
+                        <td>{{ 'PASS ✓' if test_result.details.max_leakage_current_measured <= test_result.acceptance_criteria.max_leakage_current else 'FAIL ✗' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Minimum Insulation Resistance</td>
+                        <td>≥ {{ test_result.acceptance_criteria.min_insulation_resistance }} MΩ</td>
+                        <td>{{ "%.2f"|format(test_result.details.min_insulation_resistance_measured) }} MΩ</td>
+                        <td>{{ 'PASS ✓' if test_result.details.min_insulation_resistance_measured >= test_result.acceptance_criteria.min_insulation_resistance else 'FAIL ✗' }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Failure Reasons (if any) -->
+        {% if test_result.details.failure_reasons %}
+        <div class="section">
+            <h2>Failure Analysis</h2>
+            <div class="failure-reasons">
+                <strong>Reasons for Failure:</strong>
+                <ul>
+                    {% for reason in test_result.details.failure_reasons %}
+                    <li>{{ reason }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Measurement Statistics -->
+        <div class="section">
+            <h2>Measurement Statistics</h2>
+            <table>
+                <tr>
+                    <th>Statistic</th>
+                    <th>Leakage Current (mA)</th>
+                    <th>Insulation Resistance (MΩ)</th>
+                </tr>
+                <tr>
+                    <td>Maximum</td>
+                    <td>{{ "%.4f"|format(test_result.details.max_leakage_current_measured) }}</td>
+                    <td>{{ "%.2f"|format(test_result.details.max_insulation_resistance_measured) }}</td>
+                </tr>
+                <tr>
+                    <td>Minimum</td>
+                    <td>{{ "%.4f"|format(test_result.details.min_leakage_current_measured) }}</td>
+                    <td>{{ "%.2f"|format(test_result.details.min_insulation_resistance_measured) }}</td>
+                </tr>
+                <tr>
+                    <td>Average</td>
+                    <td>{{ "%.4f"|format(test_result.details.average_leakage_current) }}</td>
+                    <td>{{ "%.2f"|format(test_result.details.average_insulation_resistance) }}</td>
+                </tr>
+                <tr>
+                    <td>Std Deviation</td>
+                    <td>{{ "%.4f"|format(test_result.details.std_dev_leakage_current) }}</td>
+                    <td>{{ "%.2f"|format(test_result.details.std_insulation) }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Test Information -->
+        <div class="section">
+            <h2>Test Information</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Start Time</label>
+                    <value>{{ test_result.start_time.strftime('%Y-%m-%d %H:%M:%S') }}</value>
+                </div>
+                <div class="info-item">
+                    <label>End Time</label>
+                    <value>{{ test_result.end_time.strftime('%Y-%m-%d %H:%M:%S') }}</value>
+                </div>
+                <div class="info-item">
+                    <label>Total Measurements</label>
+                    <value>{{ measurement_count }}</value>
+                </div>
+                <div class="info-item">
+                    <label>Test Duration</label>
+                    <value>{{ "%.2f"|format(test_result.details.test_duration_hours) }} hours</value>
+                </div>
+                {% if test_result.operator %}
+                <div class="info-item">
+                    <label>Operator</label>
+                    <value>{{ test_result.operator }}</value>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>This report was automatically generated by the IEC 61730 Test Protocol Framework</p>
+            <p>{{ protocol_id }} {{ version }} | {{ standard }}</p>
+        </div>
+    </div>
+</body>
+</html>

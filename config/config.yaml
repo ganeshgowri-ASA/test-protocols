@@ -1,0 +1,82 @@
+# Test Protocols Framework Configuration
+
+app:
+  name: "IEC 61730 Test Protocol Framework"
+  version: "1.0.0"
+  environment: "development"  # development, staging, production
+
+database:
+  # SQLite for development
+  type: "sqlite"
+  path: "test_protocols.db"
+
+  # PostgreSQL for production (uncomment and configure as needed)
+  # type: "postgresql"
+  # host: "localhost"
+  # port: 5432
+  # database: "test_protocols"
+  # username: "postgres"
+  # password: "your_password"
+
+  echo: false  # Set to true for SQL query logging
+  pool_size: 5
+  max_overflow: 10
+
+ui:
+  title: "IEC 61730 Test Protocol Framework"
+  page_icon: "🔬"
+  layout: "wide"
+  sidebar_state: "expanded"
+  theme:
+    primary_color: "#1f77b4"
+    background_color: "#ffffff"
+    secondary_background_color: "#f0f2f6"
+
+protocols:
+  base_path: "protocols"
+  schema_path: "schemas"
+  report_template_path: "protocols/{protocol_id}/report_template.html"
+
+measurements:
+  default_interval: 60  # seconds
+  max_points: 100000
+  auto_save: true
+  auto_save_interval: 300  # seconds
+
+reporting:
+  output_path: "reports"
+  format: "html"  # html, pdf, json
+  include_charts: true
+  include_raw_data: true
+
+integrations:
+  lims:
+    enabled: false
+    api_url: ""
+    api_key: ""
+    timeout: 30
+
+  qms:
+    enabled: false
+    api_url: ""
+    api_key: ""
+
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/test_protocols.log"
+  max_bytes: 10485760  # 10MB
+  backup_count: 5
+
+# IEC 61730 MST 02 - Wet Leakage Current Test Defaults
+wet_leakage_current:
+  default_test_voltage: 1500  # V DC
+  default_test_duration: 168  # hours (1 week)
+  default_measurement_interval: 60  # minutes
+  max_leakage_current: 0.25  # mA
+  min_insulation_resistance: 400  # MΩ
+  environmental:
+    min_temperature: 20  # °C
+    max_temperature: 30  # °C
+    min_humidity: 85  # % RH
+    max_humidity: 95  # % RH

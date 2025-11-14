@@ -1,0 +1,292 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WET-001 Wet Leakage Current Test Protocol",
+  "description": "IEC 61730 MST 02 - Wet Leakage Current Test for PV Modules",
+  "version": "1.0.0",
+  "type": "object",
+
+  "metadata": {
+    "protocol_id": "WET-001",
+    "standard": "IEC 61730",
+    "test_type": "MST 02",
+    "category": "Safety",
+    "revision": "1.0",
+    "created_date": "2025-11-14",
+    "last_modified": "2025-11-14",
+    "author": "ASA Test Protocols Team"
+  },
+
+  "properties": {
+    "sample_information": {
+      "type": "object",
+      "required": ["sample_id", "module_type"],
+      "properties": {
+        "sample_id": {
+          "type": "string",
+          "description": "Unique sample identifier"
+        },
+        "module_type": {
+          "type": "string",
+          "description": "PV module type or model number"
+        },
+        "manufacturer": {
+          "type": "string",
+          "description": "Module manufacturer"
+        },
+        "manufacturing_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Module manufacturing date (YYYY-MM-DD)"
+        },
+        "serial_number": {
+          "type": "string",
+          "description": "Module serial number"
+        },
+        "rated_power": {
+          "type": "number",
+          "description": "Rated power in watts",
+          "minimum": 0
+        }
+      }
+    },
+
+    "test_conditions": {
+      "type": "object",
+      "required": ["test_voltage", "electrode_configuration", "test_duration"],
+      "properties": {
+        "test_voltage": {
+          "type": "number",
+          "description": "Test voltage in volts DC",
+          "minimum": 0,
+          "maximum": 5000,
+          "default": 1500
+        },
+        "electrode_configuration": {
+          "type": "string",
+          "description": "Electrode configuration type",
+          "enum": ["A", "B"],
+          "default": "A"
+        },
+        "test_duration": {
+          "type": "number",
+          "description": "Test duration in hours",
+          "minimum": 1,
+          "maximum": 720,
+          "default": 168
+        },
+        "measurement_interval": {
+          "type": "number",
+          "description": "Measurement interval in minutes",
+          "minimum": 1,
+          "maximum": 1440,
+          "default": 60
+        },
+        "polarity": {
+          "type": "string",
+          "description": "Test voltage polarity",
+          "enum": ["positive", "negative"],
+          "default": "positive"
+        }
+      }
+    },
+
+    "environmental_conditions": {
+      "type": "object",
+      "required": ["temperature", "relative_humidity"],
+      "properties": {
+        "temperature": {
+          "type": "number",
+          "description": "Ambient temperature in °C",
+          "minimum": 15,
+          "maximum": 35
+        },
+        "temperature_tolerance": {
+          "type": "number",
+          "description": "Temperature tolerance in °C",
+          "minimum": 0,
+          "default": 5
+        },
+        "relative_humidity": {
+          "type": "number",
+          "description": "Relative humidity in %",
+          "minimum": 45,
+          "maximum": 100
+        },
+        "humidity_tolerance": {
+          "type": "number",
+          "description": "Humidity tolerance in %",
+          "minimum": 0,
+          "default": 5
+        },
+        "barometric_pressure": {
+          "type": "number",
+          "description": "Barometric pressure in kPa",
+          "minimum": 80,
+          "maximum": 110
+        }
+      }
+    },
+
+    "acceptance_criteria": {
+      "type": "object",
+      "properties": {
+        "max_leakage_current": {
+          "type": "number",
+          "description": "Maximum allowable leakage current in mA",
+          "minimum": 0,
+          "default": 0.25
+        },
+        "min_insulation_resistance": {
+          "type": "number",
+          "description": "Minimum insulation resistance in MΩ",
+          "minimum": 0,
+          "default": 400
+        },
+        "max_voltage_variation": {
+          "type": "number",
+          "description": "Maximum voltage variation in %",
+          "minimum": 0,
+          "default": 5
+        },
+        "no_surface_tracking": {
+          "type": "boolean",
+          "description": "No surface tracking or breakdown allowed",
+          "default": true
+        },
+        "no_visible_damage": {
+          "type": "boolean",
+          "description": "No visible damage allowed",
+          "default": true
+        }
+      }
+    },
+
+    "operator_information": {
+      "type": "object",
+      "properties": {
+        "operator_name": {
+          "type": "string",
+          "description": "Name of test operator"
+        },
+        "operator_id": {
+          "type": "string",
+          "description": "Operator ID or badge number"
+        },
+        "test_facility": {
+          "type": "string",
+          "description": "Testing facility name"
+        },
+        "equipment_id": {
+          "type": "string",
+          "description": "Test equipment identifier"
+        },
+        "calibration_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Equipment calibration date"
+        }
+      }
+    }
+  },
+
+  "required": [
+    "sample_information",
+    "test_conditions",
+    "environmental_conditions",
+    "acceptance_criteria"
+  ],
+
+  "definitions": {
+    "measurement": {
+      "type": "object",
+      "required": ["timestamp", "leakage_current", "voltage"],
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Measurement timestamp in ISO 8601 format"
+        },
+        "leakage_current": {
+          "type": "number",
+          "description": "Measured leakage current in mA",
+          "minimum": 0
+        },
+        "voltage": {
+          "type": "number",
+          "description": "Applied voltage in V",
+          "minimum": 0
+        },
+        "temperature": {
+          "type": "number",
+          "description": "Ambient temperature in °C"
+        },
+        "humidity": {
+          "type": "number",
+          "description": "Relative humidity in %",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "insulation_resistance": {
+          "type": "number",
+          "description": "Calculated insulation resistance in MΩ",
+          "minimum": 0
+        },
+        "notes": {
+          "type": "string",
+          "description": "Observation notes"
+        }
+      }
+    },
+
+    "result": {
+      "type": "object",
+      "required": ["passed", "summary"],
+      "properties": {
+        "passed": {
+          "type": "boolean",
+          "description": "Overall pass/fail status"
+        },
+        "summary": {
+          "type": "string",
+          "description": "Test result summary"
+        },
+        "max_leakage_current_measured": {
+          "type": "number",
+          "description": "Maximum leakage current measured in mA"
+        },
+        "min_insulation_resistance_measured": {
+          "type": "number",
+          "description": "Minimum insulation resistance measured in MΩ"
+        },
+        "average_leakage_current": {
+          "type": "number",
+          "description": "Average leakage current in mA"
+        },
+        "surface_tracking_observed": {
+          "type": "boolean",
+          "description": "Surface tracking observed"
+        },
+        "visible_damage_observed": {
+          "type": "boolean",
+          "description": "Visible damage observed"
+        },
+        "failure_reasons": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of failure reasons if test failed"
+        },
+        "report_id": {
+          "type": "string",
+          "description": "Test report identifier"
+        },
+        "report_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Report generation date"
+        }
+      }
+    }
+  }
+}

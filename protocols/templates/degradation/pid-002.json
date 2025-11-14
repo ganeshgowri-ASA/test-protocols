@@ -1,0 +1,1300 @@
+{
+  "protocol_id": "PID-002",
+  "name": "Potential-Induced Degradation (Polarization) Test",
+  "version": "1.0.0",
+  "category": "degradation",
+  "subcategory": "electrical_stress",
+  "standard_reference": "IEC 62804-1",
+  "metadata": {
+    "author": "Test Protocols Team",
+    "created": "2025-11-14",
+    "last_updated": "2025-11-14",
+    "description": "Evaluates PV module susceptibility to potential-induced degradation caused by high voltage stress in combination with elevated temperature and humidity",
+    "tags": ["PID", "degradation", "reliability", "electrical", "long-term"],
+    "estimated_duration_hours": 192
+  },
+  "test_parameters": {
+    "voltage_stress": {
+      "value": -1000,
+      "unit": "V",
+      "tolerance": 50,
+      "description": "Applied voltage between module frame and cells (negative for p-type cells)",
+      "configurable": true,
+      "options": [-1500, -1000, -600, 1000]
+    },
+    "temperature": {
+      "value": 85,
+      "unit": "°C",
+      "tolerance": 2,
+      "description": "Chamber temperature during stress",
+      "configurable": true,
+      "min": 60,
+      "max": 85
+    },
+    "relative_humidity": {
+      "value": 85,
+      "unit": "%",
+      "tolerance": 5,
+      "description": "Relative humidity during stress",
+      "configurable": false
+    },
+    "test_duration": {
+      "value": 192,
+      "unit": "hours",
+      "description": "Total duration of voltage stress application",
+      "configurable": true,
+      "options": [96, 192, 336, 672]
+    },
+    "measurement_interval": {
+      "value": 24,
+      "unit": "hours",
+      "description": "Interval for interim measurements",
+      "configurable": true
+    },
+    "recovery_duration": {
+      "value": 96,
+      "unit": "hours",
+      "description": "Recovery period after stress removal",
+      "configurable": true
+    }
+  },
+  "equipment_requirements": [
+    {
+      "equipment_id": "CLIMATE_CHAMBER",
+      "name": "Climate Chamber",
+      "specifications": {
+        "temperature_range": "0-100°C",
+        "humidity_range": "10-95%",
+        "temperature_uniformity": "±2°C",
+        "humidity_uniformity": "±5%"
+      },
+      "calibration_required": true,
+      "calibration_interval_months": 12
+    },
+    {
+      "equipment_id": "HV_POWER_SUPPLY",
+      "name": "High Voltage Power Supply",
+      "specifications": {
+        "voltage_range": "0-2000V",
+        "current_capability": "0-10A",
+        "voltage_accuracy": "±1%",
+        "current_limiting": true
+      },
+      "calibration_required": true,
+      "calibration_interval_months": 12
+    },
+    {
+      "equipment_id": "IV_CURVE_TRACER",
+      "name": "I-V Curve Tracer / Solar Simulator",
+      "specifications": {
+        "irradiance": "1000 W/m²",
+        "spectral_match": "Class A",
+        "uniformity": "±2%",
+        "temporal_stability": "±1%"
+      },
+      "calibration_required": true,
+      "calibration_interval_months": 6
+    },
+    {
+      "equipment_id": "EL_IMAGER",
+      "name": "Electroluminescence Imaging System",
+      "specifications": {
+        "resolution": "≥1 megapixel",
+        "sensitivity": "850-1150 nm"
+      },
+      "calibration_required": false,
+      "optional": true
+    },
+    {
+      "equipment_id": "DATA_LOGGER",
+      "name": "Environmental Data Logger",
+      "specifications": {
+        "temperature_accuracy": "±0.5°C",
+        "humidity_accuracy": "±3%",
+        "sampling_rate": "≥1 per minute"
+      },
+      "calibration_required": true,
+      "calibration_interval_months": 12
+    }
+  ],
+  "sample_requirements": {
+    "sample_type": "PV Module",
+    "min_samples": 3,
+    "recommended_samples": 6,
+    "control_samples": 2,
+    "sample_preparation": [
+      "Ensure modules are from same production batch",
+      "Perform initial flash test to confirm power ratings",
+      "Document initial visual inspection",
+      "Record module serial numbers and production codes"
+    ],
+    "conditioning": {
+      "required": true,
+      "temperature": 25,
+      "humidity": 50,
+      "duration_hours": 24,
+      "description": "Stabilize modules at standard conditions before initial measurements"
+    }
+  },
+  "test_sequence": {
+    "steps": [
+      {
+        "step_id": 1,
+        "name": "Initial Characterization",
+        "type": "measurement",
+        "duration_hours": 4,
+        "description": "Baseline measurements before stress application",
+        "substeps": [
+          {
+            "substep_id": 1.1,
+            "name": "Visual Inspection",
+            "type": "inspection",
+            "required": true,
+            "data_fields": [
+              {
+                "field_id": "visual_defects",
+                "label": "Visual Defects",
+                "type": "multiselect",
+                "options": ["None", "Delamination", "Discoloration", "Cell Cracks", "Other"],
+                "required": true
+              },
+              {
+                "field_id": "visual_notes",
+                "label": "Visual Inspection Notes",
+                "type": "text",
+                "required": false
+              }
+            ],
+            "acceptance_criteria": {
+              "visual_defects": ["None"]
+            }
+          },
+          {
+            "substep_id": 1.2,
+            "name": "I-V Curve Measurement",
+            "type": "measurement",
+            "required": true,
+            "conditions": {
+              "irradiance": 1000,
+              "irradiance_unit": "W/m²",
+              "module_temperature": 25,
+              "temperature_unit": "°C"
+            },
+            "data_fields": [
+              {
+                "field_id": "pmax_initial",
+                "label": "Maximum Power (Pmax)",
+                "type": "number",
+                "unit": "W",
+                "required": true,
+                "decimal_places": 2
+              },
+              {
+                "field_id": "voc_initial",
+                "label": "Open Circuit Voltage (Voc)",
+                "type": "number",
+                "unit": "V",
+                "required": true,
+                "decimal_places": 2
+              },
+              {
+                "field_id": "isc_initial",
+                "label": "Short Circuit Current (Isc)",
+                "type": "number",
+                "unit": "A",
+                "required": true,
+                "decimal_places": 3
+              },
+              {
+                "field_id": "vmpp_initial",
+                "label": "Voltage at MPP (Vmpp)",
+                "type": "number",
+                "unit": "V",
+                "required": true,
+                "decimal_places": 2
+              },
+              {
+                "field_id": "impp_initial",
+                "label": "Current at MPP (Impp)",
+                "type": "number",
+                "unit": "A",
+                "required": true,
+                "decimal_places": 3
+              },
+              {
+                "field_id": "fill_factor_initial",
+                "label": "Fill Factor (FF)",
+                "type": "number",
+                "unit": "%",
+                "required": true,
+                "decimal_places": 2,
+                "calculation": "(pmax_initial / (voc_initial * isc_initial)) * 100"
+              }
+            ],
+            "acceptance_criteria": {
+              "pmax_initial": {
+                "min_deviation_from_nameplate": -3,
+                "max_deviation_from_nameplate": 5,
+                "unit": "%"
+              }
+            }
+          },
+          {
+            "substep_id": 1.3,
+            "name": "Insulation Resistance Test",
+            "type": "measurement",
+            "required": true,
+            "data_fields": [
+              {
+                "field_id": "insulation_resistance_initial",
+                "label": "Insulation Resistance",
+                "type": "number",
+                "unit": "MΩ",
+                "required": true,
+                "decimal_places": 1
+              }
+            ],
+            "acceptance_criteria": {
+              "insulation_resistance_initial": {
+                "min": 40,
+                "unit": "MΩ"
+              }
+            }
+          },
+          {
+            "substep_id": 1.4,
+            "name": "Electroluminescence Imaging (Optional)",
+            "type": "measurement",
+            "required": false,
+            "data_fields": [
+              {
+                "field_id": "el_image_initial",
+                "label": "EL Image",
+                "type": "file",
+                "file_types": ["jpg", "png", "tiff"],
+                "required": false
+              },
+              {
+                "field_id": "el_defects_initial",
+                "label": "EL Detected Defects",
+                "type": "multiselect",
+                "options": ["None", "Dark Areas", "Cracks", "Shunts", "Other"],
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "step_id": 2,
+        "name": "Test Setup and Conditioning",
+        "type": "setup",
+        "duration_hours": 2,
+        "description": "Prepare modules and chamber for stress application",
+        "substeps": [
+          {
+            "substep_id": 2.1,
+            "name": "Module Installation",
+            "type": "procedure",
+            "required": true,
+            "instructions": [
+              "Mount modules in climate chamber with frame electrically isolated",
+              "Connect high voltage supply to module frames (negative terminal for p-type)",
+              "Connect module positive terminal to chamber ground through current limiting resistor",
+              "Ensure proper clearance and insulation from chamber walls",
+              "Install temperature sensors on module backsheet",
+              "Connect environmental data logger"
+            ],
+            "data_fields": [
+              {
+                "field_id": "setup_complete",
+                "label": "Setup Completed",
+                "type": "boolean",
+                "required": true
+              },
+              {
+                "field_id": "setup_date",
+                "label": "Setup Date",
+                "type": "datetime",
+                "required": true
+              },
+              {
+                "field_id": "technician_id",
+                "label": "Technician ID",
+                "type": "text",
+                "required": true
+              }
+            ]
+          },
+          {
+            "substep_id": 2.2,
+            "name": "Chamber Conditioning",
+            "type": "procedure",
+            "required": true,
+            "instructions": [
+              "Set chamber to test temperature and humidity",
+              "Allow chamber to stabilize for minimum 1 hour",
+              "Verify temperature uniformity across module positions",
+              "Verify humidity uniformity"
+            ],
+            "data_fields": [
+              {
+                "field_id": "chamber_stabilized",
+                "label": "Chamber Stabilized",
+                "type": "boolean",
+                "required": true
+              },
+              {
+                "field_id": "stabilization_time",
+                "label": "Stabilization Time",
+                "type": "number",
+                "unit": "minutes",
+                "required": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "step_id": 3,
+        "name": "Stress Application",
+        "type": "stress",
+        "duration_hours": 192,
+        "description": "Apply high voltage stress under controlled environmental conditions",
+        "substeps": [
+          {
+            "substep_id": 3.1,
+            "name": "Voltage Application",
+            "type": "procedure",
+            "required": true,
+            "instructions": [
+              "Gradually ramp voltage to test level over 5 minutes",
+              "Monitor leakage current continuously",
+              "Record voltage and current at start"
+            ],
+            "data_fields": [
+              {
+                "field_id": "voltage_applied",
+                "label": "Applied Voltage",
+                "type": "number",
+                "unit": "V",
+                "required": true,
+                "decimal_places": 1
+              },
+              {
+                "field_id": "leakage_current_start",
+                "label": "Initial Leakage Current",
+                "type": "number",
+                "unit": "mA",
+                "required": true,
+                "decimal_places": 2
+              },
+              {
+                "field_id": "stress_start_time",
+                "label": "Stress Start Time",
+                "type": "datetime",
+                "required": true
+              }
+            ],
+            "safety_checks": [
+              "Verify current limiting is active",
+              "Confirm emergency stop is accessible",
+              "Ensure chamber door interlocks are functional"
+            ]
+          },
+          {
+            "substep_id": 3.2,
+            "name": "Continuous Monitoring",
+            "type": "monitoring",
+            "required": true,
+            "monitoring_parameters": [
+              {
+                "parameter": "temperature",
+                "frequency": "1 per minute",
+                "alert_threshold_low": 83,
+                "alert_threshold_high": 87,
+                "abort_threshold_low": 80,
+                "abort_threshold_high": 90
+              },
+              {
+                "parameter": "humidity",
+                "frequency": "1 per minute",
+                "alert_threshold_low": 80,
+                "alert_threshold_high": 90,
+                "abort_threshold_low": 75,
+                "abort_threshold_high": 95
+              },
+              {
+                "parameter": "voltage",
+                "frequency": "1 per minute",
+                "alert_threshold": 5,
+                "alert_threshold_unit": "% deviation"
+              },
+              {
+                "parameter": "leakage_current",
+                "frequency": "1 per minute",
+                "alert_threshold": 100,
+                "alert_threshold_unit": "mA"
+              }
+            ],
+            "data_logging": {
+              "format": "CSV",
+              "fields": ["timestamp", "temperature", "humidity", "voltage", "current"],
+              "storage_location": "data/monitoring/"
+            }
+          },
+          {
+            "substep_id": 3.3,
+            "name": "Interim Measurements",
+            "type": "measurement",
+            "required": true,
+            "interval_hours": 24,
+            "description": "Periodic I-V measurements during stress",
+            "procedure": [
+              "Reduce voltage to zero",
+              "Remove modules from chamber",
+              "Allow modules to cool to 25°C (approximately 30 minutes)",
+              "Perform I-V curve measurement at STC",
+              "Return modules to chamber",
+              "Re-establish test conditions",
+              "Reapply voltage stress"
+            ],
+            "data_fields": [
+              {
+                "field_id": "measurement_time_hours",
+                "label": "Elapsed Time",
+                "type": "number",
+                "unit": "hours",
+                "required": true
+              },
+              {
+                "field_id": "pmax_interim",
+                "label": "Maximum Power (Pmax)",
+                "type": "number",
+                "unit": "W",
+                "required": true,
+                "decimal_places": 2
+              },
+              {
+                "field_id": "voc_interim",
+                "label": "Open Circuit Voltage (Voc)",
+                "type": "number",
+                "unit": "V",
+                "required": true,
+                "decimal_places": 2
+              },
+              {
+                "field_id": "isc_interim",
+                "label": "Short Circuit Current (Isc)",
+                "type": "number",
+                "unit": "A",
+                "required": true,
+                "decimal_places": 3
+              },
+              {
+                "field_id": "power_degradation",
+                "label": "Power Degradation",
+                "type": "number",
+                "unit": "%",
+                "required": true,
+                "decimal_places": 2,
+                "calculation": "((pmax_initial - pmax_interim) / pmax_initial) * 100"
+              }
+            ],
+            "qc_rules": [
+              {
+                "rule_id": "INTERIM_POWER_DROP",
+                "severity": "warning",
+                "condition": "power_degradation > 5",
+                "message": "Significant power degradation detected during interim measurement"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "step_id": 4,
+        "name": "Post-Stress Measurement",
+        "type": "measurement",
+        "duration_hours": 2,
+        "description": "Immediate measurements after stress removal",
+        "substeps": [
+          {
+            "substep_id": 4.1,
+            "name": "Voltage Removal",
+            "type": "procedure",
+            "required": true,
+            "instructions": [
+              "Gradually ramp voltage to zero over 5 minutes",
+              "Record final leakage current",
+              "Disconnect high voltage supply",
+              "Remove modules from chamber"
+            ],
+            "data_fields": [
+              {
+                "field_id": "stress_end_time",
+                "label": "Stress End Time",
+                "type": "datetime",
+                "required": true
+              },
+              {
+                "field_id": "total_stress_hours",
+                "label": "Total Stress Duration",
+                "type": "number",
+                "unit": "hours",
+                "required": true,
+                "decimal_places": 1
+              },
+              {
+                "field_id": "leakage_current_end",
+                "label": "Final Leakage Current",
+                "type": "number",
+                "unit": "mA",
+                "required": true,
+                "decimal_places": 2
+              }
+            ]
+          },
+          {
+            "substep_id": 4.2,
+            "name": "Post-Stress I-V Measurement",
+            "type": "measurement",
+            "required": true,
+            "conditions": {
+              "irradiance": 1000,
+              "irradiance_unit": "W/m²",
+              "module_temperature": 25,
+              "temperature_unit": "°C"
+            },
+            "data_fields": [
+              {
+                "field_id": "pmax_post_stress",
+                "label": "Maximum Power (Pmax)",
+                "type": "number",
+                "unit": "W",
+                "required": true,
+                "decimal_places": 2
+              },
+              {
+                "field_id": "voc_post_stress",
+                "label": "Open Circuit Voltage (Voc)",
+                "type": "number",
+                "unit": "V",
+                "required": true,
+                "decimal_places": 2
+              },
+              {
+                "field_id": "isc_post_stress",
+                "label": "Short Circuit Current (Isc)",
+                "type": "number",
+                "unit": "A",
+                "required": true,
+                "decimal_places": 3
+              },
+              {
+                "field_id": "vmpp_post_stress",
+                "label": "Voltage at MPP (Vmpp)",
+                "type": "number",
+                "unit": "V",
+                "required": true,
+                "decimal_places": 2
+              },
+              {
+                "field_id": "impp_post_stress",
+                "label": "Current at MPP (Impp)",
+                "type": "number",
+                "unit": "A",
+                "required": true,
+                "decimal_places": 3
+              },
+              {
+                "field_id": "fill_factor_post_stress",
+                "label": "Fill Factor (FF)",
+                "type": "number",
+                "unit": "%",
+                "required": true,
+                "decimal_places": 2,
+                "calculation": "(pmax_post_stress / (voc_post_stress * isc_post_stress)) * 100"
+              },
+              {
+                "field_id": "power_degradation_post_stress",
+                "label": "Power Degradation (Post-Stress)",
+                "type": "number",
+                "unit": "%",
+                "required": true,
+                "decimal_places": 2,
+                "calculation": "((pmax_initial - pmax_post_stress) / pmax_initial) * 100"
+              }
+            ]
+          },
+          {
+            "substep_id": 4.3,
+            "name": "Post-Stress EL Imaging (Optional)",
+            "type": "measurement",
+            "required": false,
+            "data_fields": [
+              {
+                "field_id": "el_image_post_stress",
+                "label": "EL Image",
+                "type": "file",
+                "file_types": ["jpg", "png", "tiff"],
+                "required": false
+              },
+              {
+                "field_id": "el_defects_post_stress",
+                "label": "EL Detected Defects",
+                "type": "multiselect",
+                "options": ["None", "Dark Areas", "Cracks", "Shunts", "Other"],
+                "required": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "step_id": 5,
+        "name": "Recovery Period",
+        "type": "recovery",
+        "duration_hours": 96,
+        "description": "Monitor power recovery under standard conditions",
+        "substeps": [
+          {
+            "substep_id": 5.1,
+            "name": "Recovery Storage",
+            "type": "procedure",
+            "required": true,
+            "instructions": [
+              "Store modules at standard conditions (25°C, 50% RH)",
+              "Keep modules in dark or under low light",
+              "Ensure modules are not subjected to any electrical stress"
+            ],
+            "data_fields": [
+              {
+                "field_id": "recovery_start_time",
+                "label": "Recovery Start Time",
+                "type": "datetime",
+                "required": true
+              }
+            ]
+          },
+          {
+            "substep_id": 5.2,
+            "name": "Recovery Measurements",
+            "type": "measurement",
+            "required": true,
+            "interval_hours": 24,
+            "description": "Periodic I-V measurements during recovery",
+            "data_fields": [
+              {
+                "field_id": "recovery_time_hours",
+                "label": "Recovery Time",
+                "type": "number",
+                "unit": "hours",
+                "required": true
+              },
+              {
+                "field_id": "pmax_recovery",
+                "label": "Maximum Power (Pmax)",
+                "type": "number",
+                "unit": "W",
+                "required": true,
+                "decimal_places": 2
+              },
+              {
+                "field_id": "power_recovery_percent",
+                "label": "Power Recovery",
+                "type": "number",
+                "unit": "%",
+                "required": true,
+                "decimal_places": 2,
+                "calculation": "((pmax_recovery - pmax_post_stress) / (pmax_initial - pmax_post_stress)) * 100"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "step_id": 6,
+        "name": "Final Characterization",
+        "type": "measurement",
+        "duration_hours": 2,
+        "description": "Final measurements after recovery period",
+        "substeps": [
+          {
+            "substep_id": 6.1,
+            "name": "Final I-V Measurement",
+            "type": "measurement",
+            "required": true,
+            "conditions": {
+              "irradiance": 1000,
+              "irradiance_unit": "W/m²",
+              "module_temperature": 25,
+              "temperature_unit": "°C"
+            },
+            "data_fields": [
+              {
+                "field_id": "pmax_final",
+                "label": "Maximum Power (Pmax)",
+                "type": "number",
+                "unit": "W",
+                "required": true,
+                "decimal_places": 2
+              },
+              {
+                "field_id": "voc_final",
+                "label": "Open Circuit Voltage (Voc)",
+                "type": "number",
+                "unit": "V",
+                "required": true,
+                "decimal_places": 2
+              },
+              {
+                "field_id": "isc_final",
+                "label": "Short Circuit Current (Isc)",
+                "type": "number",
+                "unit": "A",
+                "required": true,
+                "decimal_places": 3
+              },
+              {
+                "field_id": "vmpp_final",
+                "label": "Voltage at MPP (Vmpp)",
+                "type": "number",
+                "unit": "V",
+                "required": true,
+                "decimal_places": 2
+              },
+              {
+                "field_id": "impp_final",
+                "label": "Current at MPP (Impp)",
+                "type": "number",
+                "unit": "A",
+                "required": true,
+                "decimal_places": 3
+              },
+              {
+                "field_id": "fill_factor_final",
+                "label": "Fill Factor (FF)",
+                "type": "number",
+                "unit": "%",
+                "required": true,
+                "decimal_places": 2,
+                "calculation": "(pmax_final / (voc_final * isc_final)) * 100"
+              },
+              {
+                "field_id": "power_degradation_final",
+                "label": "Final Power Degradation",
+                "type": "number",
+                "unit": "%",
+                "required": true,
+                "decimal_places": 2,
+                "calculation": "((pmax_initial - pmax_final) / pmax_initial) * 100"
+              }
+            ]
+          },
+          {
+            "substep_id": 6.2,
+            "name": "Final Visual Inspection",
+            "type": "inspection",
+            "required": true,
+            "data_fields": [
+              {
+                "field_id": "visual_defects_final",
+                "label": "Visual Defects",
+                "type": "multiselect",
+                "options": ["None", "Delamination", "Discoloration", "Cell Cracks", "Corrosion", "Other"],
+                "required": true
+              },
+              {
+                "field_id": "visual_notes_final",
+                "label": "Final Visual Inspection Notes",
+                "type": "text",
+                "required": false
+              }
+            ]
+          },
+          {
+            "substep_id": 6.3,
+            "name": "Final Insulation Resistance",
+            "type": "measurement",
+            "required": true,
+            "data_fields": [
+              {
+                "field_id": "insulation_resistance_final",
+                "label": "Insulation Resistance",
+                "type": "number",
+                "unit": "MΩ",
+                "required": true,
+                "decimal_places": 1
+              }
+            ]
+          },
+          {
+            "substep_id": 6.4,
+            "name": "Final EL Imaging (Optional)",
+            "type": "measurement",
+            "required": false,
+            "data_fields": [
+              {
+                "field_id": "el_image_final",
+                "label": "EL Image",
+                "type": "file",
+                "file_types": ["jpg", "png", "tiff"],
+                "required": false
+              },
+              {
+                "field_id": "el_defects_final",
+                "label": "EL Detected Defects",
+                "type": "multiselect",
+                "options": ["None", "Dark Areas", "Cracks", "Shunts", "Other"],
+                "required": false
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "qc_rules": [
+    {
+      "rule_id": "QC001",
+      "name": "Initial Power Deviation",
+      "severity": "error",
+      "condition": "abs((pmax_initial - nameplate_power) / nameplate_power * 100) > 5",
+      "message": "Initial power measurement deviates more than 5% from nameplate rating",
+      "action": "review_sample"
+    },
+    {
+      "rule_id": "QC002",
+      "name": "Excessive Leakage Current",
+      "severity": "error",
+      "condition": "leakage_current_start > 100 OR leakage_current_end > 100",
+      "message": "Leakage current exceeds 100 mA - possible insulation breakdown",
+      "action": "abort_test"
+    },
+    {
+      "rule_id": "QC003",
+      "name": "Low Insulation Resistance",
+      "severity": "error",
+      "condition": "insulation_resistance_initial < 40 OR insulation_resistance_final < 40",
+      "message": "Insulation resistance below minimum threshold (40 MΩ)",
+      "action": "review_sample"
+    },
+    {
+      "rule_id": "QC004",
+      "name": "Severe Power Degradation",
+      "severity": "warning",
+      "condition": "power_degradation_post_stress > 10",
+      "message": "Power degradation exceeds 10% - module shows high PID susceptibility",
+      "action": "flag_result"
+    },
+    {
+      "rule_id": "QC005",
+      "name": "Temperature Out of Range",
+      "severity": "warning",
+      "condition": "temperature < 83 OR temperature > 87",
+      "message": "Chamber temperature outside acceptable range during stress",
+      "action": "review_data"
+    },
+    {
+      "rule_id": "QC006",
+      "name": "Humidity Out of Range",
+      "severity": "warning",
+      "condition": "relative_humidity < 80 OR relative_humidity > 90",
+      "message": "Chamber humidity outside acceptable range during stress",
+      "action": "review_data"
+    },
+    {
+      "rule_id": "QC007",
+      "name": "Incomplete Recovery",
+      "severity": "info",
+      "condition": "power_degradation_final > 5",
+      "message": "Power did not fully recover after stress removal (>5% degradation remains)",
+      "action": "note_in_report"
+    }
+  ],
+  "pass_fail_criteria": {
+    "pass_conditions": [
+      {
+        "parameter": "power_degradation_final",
+        "operator": "<=",
+        "value": 5,
+        "unit": "%",
+        "description": "Final power degradation not exceeding 5% per IEC 62804-1"
+      },
+      {
+        "parameter": "insulation_resistance_final",
+        "operator": ">=",
+        "value": 40,
+        "unit": "MΩ",
+        "description": "Final insulation resistance meets minimum requirement"
+      }
+    ],
+    "grading": [
+      {
+        "grade": "A",
+        "description": "PID-free",
+        "conditions": [
+          "power_degradation_final <= 0"
+        ]
+      },
+      {
+        "grade": "B",
+        "description": "Low PID susceptibility",
+        "conditions": [
+          "power_degradation_final > 0",
+          "power_degradation_final <= 2"
+        ]
+      },
+      {
+        "grade": "C",
+        "description": "Moderate PID susceptibility",
+        "conditions": [
+          "power_degradation_final > 2",
+          "power_degradation_final <= 5"
+        ]
+      },
+      {
+        "grade": "D",
+        "description": "High PID susceptibility",
+        "conditions": [
+          "power_degradation_final > 5",
+          "power_degradation_final <= 10"
+        ]
+      },
+      {
+        "grade": "F",
+        "description": "Failed - Severe PID",
+        "conditions": [
+          "power_degradation_final > 10"
+        ]
+      }
+    ]
+  },
+  "analysis_config": {
+    "charts": [
+      {
+        "chart_id": "power_degradation_curve",
+        "type": "line",
+        "title": "Power Degradation vs. Time",
+        "x_axis": {
+          "field": "measurement_time_hours",
+          "label": "Time (hours)"
+        },
+        "y_axis": {
+          "field": "power_degradation",
+          "label": "Power Degradation (%)"
+        },
+        "series": [
+          {
+            "name": "Sample Power Degradation",
+            "data_source": "interim_measurements"
+          }
+        ]
+      },
+      {
+        "chart_id": "iv_curve_comparison",
+        "type": "line",
+        "title": "I-V Curve Comparison",
+        "x_axis": {
+          "field": "voltage",
+          "label": "Voltage (V)"
+        },
+        "y_axis": {
+          "field": "current",
+          "label": "Current (A)"
+        },
+        "series": [
+          {
+            "name": "Initial",
+            "data_source": "initial_iv_curve",
+            "color": "blue"
+          },
+          {
+            "name": "Post-Stress",
+            "data_source": "post_stress_iv_curve",
+            "color": "red"
+          },
+          {
+            "name": "Final (After Recovery)",
+            "data_source": "final_iv_curve",
+            "color": "green"
+          }
+        ]
+      },
+      {
+        "chart_id": "recovery_curve",
+        "type": "line",
+        "title": "Power Recovery vs. Time",
+        "x_axis": {
+          "field": "recovery_time_hours",
+          "label": "Recovery Time (hours)"
+        },
+        "y_axis": {
+          "field": "power_recovery_percent",
+          "label": "Power Recovery (%)"
+        },
+        "series": [
+          {
+            "name": "Recovery Progress",
+            "data_source": "recovery_measurements"
+          }
+        ]
+      },
+      {
+        "chart_id": "environmental_conditions",
+        "type": "line",
+        "title": "Environmental Conditions During Stress",
+        "x_axis": {
+          "field": "timestamp",
+          "label": "Time"
+        },
+        "y_axes": [
+          {
+            "field": "temperature",
+            "label": "Temperature (°C)",
+            "position": "left",
+            "color": "red"
+          },
+          {
+            "field": "humidity",
+            "label": "Relative Humidity (%)",
+            "position": "right",
+            "color": "blue"
+          }
+        ],
+        "data_source": "monitoring_log"
+      }
+    ],
+    "statistics": [
+      {
+        "statistic_id": "mean_power_degradation",
+        "name": "Mean Power Degradation",
+        "type": "mean",
+        "field": "power_degradation_final",
+        "across": "all_samples"
+      },
+      {
+        "statistic_id": "std_power_degradation",
+        "name": "Standard Deviation - Power Degradation",
+        "type": "std_dev",
+        "field": "power_degradation_final",
+        "across": "all_samples"
+      },
+      {
+        "statistic_id": "max_degradation_rate",
+        "name": "Maximum Degradation Rate",
+        "type": "max_slope",
+        "field": "power_degradation",
+        "over": "measurement_time_hours"
+      }
+    ],
+    "calculations": [
+      {
+        "calculation_id": "degradation_rate",
+        "name": "Average Degradation Rate",
+        "formula": "power_degradation_post_stress / total_stress_hours",
+        "unit": "%/hour",
+        "description": "Rate of power loss during stress period"
+      },
+      {
+        "calculation_id": "reversible_degradation",
+        "name": "Reversible Degradation",
+        "formula": "power_degradation_post_stress - power_degradation_final",
+        "unit": "%",
+        "description": "Amount of power recovered during recovery period"
+      },
+      {
+        "calculation_id": "irreversible_degradation",
+        "name": "Irreversible Degradation",
+        "formula": "power_degradation_final",
+        "unit": "%",
+        "description": "Permanent power loss after recovery"
+      }
+    ]
+  },
+  "report_config": {
+    "template": "pid_test_report",
+    "sections": [
+      {
+        "section_id": "executive_summary",
+        "title": "Executive Summary",
+        "content": [
+          "test_objective",
+          "sample_information",
+          "test_conditions",
+          "key_results",
+          "pass_fail_status"
+        ]
+      },
+      {
+        "section_id": "test_setup",
+        "title": "Test Setup and Conditions",
+        "content": [
+          "equipment_list",
+          "calibration_status",
+          "test_parameters",
+          "sample_preparation"
+        ]
+      },
+      {
+        "section_id": "results",
+        "title": "Test Results",
+        "content": [
+          "initial_measurements",
+          "stress_monitoring_summary",
+          "interim_measurements_table",
+          "post_stress_measurements",
+          "recovery_measurements_table",
+          "final_measurements"
+        ]
+      },
+      {
+        "section_id": "analysis",
+        "title": "Data Analysis",
+        "content": [
+          "power_degradation_curve",
+          "iv_curve_comparison",
+          "recovery_curve",
+          "statistical_analysis",
+          "degradation_rates"
+        ]
+      },
+      {
+        "section_id": "visual_inspection",
+        "title": "Visual and EL Inspection",
+        "content": [
+          "initial_visual_findings",
+          "final_visual_findings",
+          "el_image_comparison",
+          "defect_analysis"
+        ]
+      },
+      {
+        "section_id": "discussion",
+        "title": "Discussion",
+        "content": [
+          "performance_evaluation",
+          "comparison_to_criteria",
+          "degradation_mechanisms",
+          "recommendations"
+        ]
+      },
+      {
+        "section_id": "conclusion",
+        "title": "Conclusion",
+        "content": [
+          "test_completion_statement",
+          "final_verdict",
+          "grading",
+          "next_steps"
+        ]
+      },
+      {
+        "section_id": "appendices",
+        "title": "Appendices",
+        "content": [
+          "raw_data_tables",
+          "calibration_certificates",
+          "monitoring_logs",
+          "complete_iv_curves"
+        ]
+      }
+    ],
+    "format": "PDF",
+    "include_raw_data": true,
+    "include_charts": true,
+    "include_images": true
+  },
+  "integration_config": {
+    "lims": {
+      "export_fields": [
+        "protocol_id",
+        "sample_id",
+        "test_start_date",
+        "test_end_date",
+        "pmax_initial",
+        "pmax_final",
+        "power_degradation_final",
+        "pass_fail_status",
+        "grade"
+      ],
+      "trigger_on": "test_completion"
+    },
+    "qms": {
+      "export_fields": [
+        "protocol_id",
+        "sample_id",
+        "qc_flags",
+        "out_of_spec_conditions",
+        "corrective_actions"
+      ],
+      "trigger_on": "qc_failure"
+    },
+    "project_management": {
+      "export_fields": [
+        "protocol_id",
+        "sample_id",
+        "test_duration_actual",
+        "completion_status",
+        "technician_id"
+      ],
+      "trigger_on": "step_completion"
+    }
+  },
+  "safety_requirements": {
+    "hazards": [
+      {
+        "hazard": "High Voltage",
+        "severity": "critical",
+        "controls": [
+          "Use isolated power supply with current limiting",
+          "Implement emergency shutoff accessible from outside chamber",
+          "Post high voltage warning signs on chamber",
+          "Use proper lockout/tagout procedures",
+          "Ensure all personnel are trained on high voltage safety"
+        ]
+      },
+      {
+        "hazard": "Electrical Shock",
+        "severity": "critical",
+        "controls": [
+          "Ensure all connections are properly insulated",
+          "Verify chamber door interlocks are functional",
+          "Discharge all capacitance before handling modules",
+          "Use insulated tools and PPE"
+        ]
+      },
+      {
+        "hazard": "Module Damage/Breakage",
+        "severity": "moderate",
+        "controls": [
+          "Handle modules with care during installation/removal",
+          "Inspect modules for cracks before testing",
+          "Use proper lifting techniques",
+          "Wear safety glasses and gloves"
+        ]
+      }
+    ],
+    "ppe_required": [
+      "Safety glasses",
+      "Insulated gloves (for high voltage work)",
+      "Lab coat",
+      "Closed-toe shoes"
+    ],
+    "training_required": [
+      "High voltage safety",
+      "Climate chamber operation",
+      "PV module handling",
+      "Emergency procedures"
+    ]
+  },
+  "revision_history": [
+    {
+      "version": "1.0.0",
+      "date": "2025-11-14",
+      "author": "Test Protocols Team",
+      "changes": "Initial release of PID-002 protocol based on IEC 62804-1"
+    }
+  ]
+}

@@ -1,0 +1,344 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://test-protocols.com/schemas/base_protocol.schema.json",
+  "title": "Base Test Protocol Schema",
+  "description": "Schema for validating test protocol JSON definitions",
+  "type": "object",
+  "required": ["protocol"],
+  "properties": {
+    "protocol": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "version",
+        "standard",
+        "category",
+        "test_type",
+        "metadata",
+        "parameters",
+        "sample_requirements",
+        "measurements",
+        "pass_criteria",
+        "reporting"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Z]+-[0-9]{3}$",
+          "description": "Unique protocol identifier (e.g., VIBR-001)"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable protocol name"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+          "description": "Semantic version number"
+        },
+        "standard": {
+          "type": "string",
+          "description": "Reference standard (e.g., IEC 62759-1:2022)"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["mechanical", "environmental", "electrical", "thermal", "combined"],
+          "description": "Test category"
+        },
+        "test_type": {
+          "type": "string",
+          "description": "Specific test type within category"
+        },
+        "metadata": {
+          "type": "object",
+          "required": ["description", "applicable_products"],
+          "properties": {
+            "description": {
+              "type": "string",
+              "minLength": 10
+            },
+            "applicable_products": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1
+            },
+            "severity_level": {
+              "type": "string",
+              "enum": ["low", "standard", "high", "extreme"]
+            },
+            "estimated_duration_hours": {
+              "type": "number",
+              "minimum": 0
+            },
+            "required_equipment": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "safety_notes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "parameters": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-z_]+$": {
+              "type": "object",
+              "required": ["type"],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["numeric", "range", "select", "boolean", "object"]
+                },
+                "unit": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "value": {},
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                },
+                "options": {
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "sample_requirements": {
+          "type": "object",
+          "required": ["sample_size"],
+          "properties": {
+            "sample_size": {
+              "type": "object",
+              "properties": {
+                "min": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "recommended": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "description": {
+                  "type": "string"
+                }
+              }
+            },
+            "conditioning": {
+              "type": "object"
+            },
+            "mounting": {
+              "type": "object"
+            }
+          }
+        },
+        "test_sequence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["step", "name", "description"],
+            "properties": {
+              "step": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "duration_minutes": {
+                "type": "number"
+              },
+              "duration_hours": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "measurements": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["id", "name", "type", "stage", "required"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z_]+$"
+              },
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["qualitative", "quantitative", "time_series"]
+              },
+              "stage": {
+                "type": "string",
+                "enum": ["pre_test", "during_test", "post_test"]
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "checklist": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "measurements": {
+                "type": "array"
+              },
+              "parameters": {
+                "type": "array"
+              },
+              "sampling_rate_hz": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "pass_criteria": {
+          "type": "object",
+          "minProperties": 1,
+          "patternProperties": {
+            "^[a-z_]+$": {
+              "type": "object",
+              "properties": {
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                },
+                "unit": {
+                  "type": "string"
+                },
+                "comparison": {
+                  "type": "string",
+                  "enum": [
+                    "less_than",
+                    "less_than_or_equal",
+                    "greater_than",
+                    "greater_than_or_equal",
+                    "equal",
+                    "not_equal"
+                  ]
+                },
+                "description": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "reporting": {
+          "type": "object",
+          "required": ["required_charts", "required_sections"],
+          "properties": {
+            "required_charts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["name", "type"],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["line", "bar", "scatter", "heatmap", "time_series", "histogram"]
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "required_sections": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1
+            },
+            "templates": {
+              "type": "object",
+              "properties": {
+                "pdf": {
+                  "type": "string"
+                },
+                "excel": {
+                  "type": "string"
+                },
+                "json": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "quality_controls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "name", "stage", "description", "required"],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "stage": {
+                "type": "string",
+                "enum": ["pre_test", "during_test", "post_test"]
+              },
+              "description": {
+                "type": "string"
+              },
+              "required": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["standard", "title"],
+            "properties": {
+              "standard": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "section": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

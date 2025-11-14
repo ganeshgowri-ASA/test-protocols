@@ -1,0 +1,453 @@
+{
+  "protocol": {
+    "id": "VIBR-001",
+    "name": "Transportation Vibration Test",
+    "version": "1.0.0",
+    "standard": "IEC 62759-1:2022",
+    "category": "mechanical",
+    "test_type": "vibration",
+
+    "metadata": {
+      "description": "Random vibration test simulating transportation conditions for PV modules. This test evaluates the ability of PV modules to withstand vibration stresses encountered during shipping and handling.",
+      "applicable_products": ["PV modules", "PV module packages"],
+      "severity_level": "standard",
+      "estimated_duration_hours": 3.5,
+      "required_equipment": [
+        "Vibration test system (5-200 Hz capability)",
+        "Accelerometers",
+        "Data acquisition system",
+        "Solar simulator (for electrical testing)",
+        "I-V curve tracer",
+        "Environmental chamber (for conditioning)"
+      ],
+      "safety_notes": [
+        "Ensure proper fixturing to prevent sample detachment",
+        "Verify vibration system calibration before testing",
+        "Use appropriate PPE when handling samples"
+      ]
+    },
+
+    "parameters": {
+      "frequency_range": {
+        "min": 5,
+        "max": 200,
+        "unit": "Hz",
+        "type": "range",
+        "description": "Frequency range for random vibration"
+      },
+      "vibration_severity": {
+        "value": 0.49,
+        "min": 0.49,
+        "unit": "g_rms",
+        "type": "numeric",
+        "description": "Root mean square acceleration level"
+      },
+      "test_duration": {
+        "value": 180,
+        "min": 180,
+        "unit": "minutes",
+        "type": "numeric",
+        "description": "Duration of vibration exposure"
+      },
+      "axis": {
+        "value": "vertical",
+        "options": ["vertical", "horizontal_longitudinal", "horizontal_lateral"],
+        "type": "select",
+        "description": "Test axis orientation"
+      },
+      "psd_profile": {
+        "type": "object",
+        "description": "Power Spectral Density profile",
+        "value": {
+          "5Hz": 0.001,
+          "10Hz": 0.005,
+          "20Hz": 0.01,
+          "50Hz": 0.015,
+          "100Hz": 0.01,
+          "150Hz": 0.005,
+          "200Hz": 0.001
+        },
+        "unit": "g²/Hz"
+      }
+    },
+
+    "sample_requirements": {
+      "sample_size": {
+        "min": 2,
+        "recommended": 2,
+        "description": "Minimum number of samples to test"
+      },
+      "conditioning": {
+        "temperature": {
+          "value": 23,
+          "tolerance": 5,
+          "unit": "°C"
+        },
+        "relative_humidity": {
+          "value": 50,
+          "tolerance": 10,
+          "unit": "%"
+        },
+        "duration_hours": 24,
+        "description": "Samples must be conditioned at standard test conditions before testing"
+      },
+      "mounting": {
+        "method": "rigid_fixture",
+        "orientation": "as_installed",
+        "description": "Module should be mounted as it would be installed in the field"
+      }
+    },
+
+    "test_sequence": [
+      {
+        "step": 1,
+        "name": "Sample Preparation and Conditioning",
+        "description": "Condition samples at standard test conditions for 24 hours",
+        "duration_hours": 24
+      },
+      {
+        "step": 2,
+        "name": "Pre-test Visual Inspection",
+        "description": "Perform detailed visual inspection and document any existing defects",
+        "duration_minutes": 30
+      },
+      {
+        "step": 3,
+        "name": "Pre-test Electrical Performance",
+        "description": "Measure I-V characteristics at STC (1000 W/m², 25°C, AM1.5)",
+        "duration_minutes": 30
+      },
+      {
+        "step": 4,
+        "name": "Vibration Test Setup",
+        "description": "Mount sample on vibration table and install instrumentation",
+        "duration_minutes": 30
+      },
+      {
+        "step": 5,
+        "name": "Vibration Test Execution",
+        "description": "Execute random vibration test for specified duration",
+        "duration_minutes": 180
+      },
+      {
+        "step": 6,
+        "name": "Post-test Visual Inspection",
+        "description": "Perform detailed visual inspection and document any new defects",
+        "duration_minutes": 30
+      },
+      {
+        "step": 7,
+        "name": "Post-test Electrical Performance",
+        "description": "Measure I-V characteristics at STC (1000 W/m², 25°C, AM1.5)",
+        "duration_minutes": 30
+      }
+    ],
+
+    "measurements": [
+      {
+        "id": "visual_inspection_pre",
+        "name": "Pre-test Visual Inspection",
+        "type": "qualitative",
+        "stage": "pre_test",
+        "required": true,
+        "checklist": [
+          "Cell cracks",
+          "Delamination",
+          "Frame damage",
+          "Junction box damage",
+          "Glass breakage",
+          "Backsheet defects",
+          "Discoloration"
+        ]
+      },
+      {
+        "id": "electrical_performance_pre",
+        "name": "Pre-test Electrical Performance",
+        "type": "quantitative",
+        "stage": "pre_test",
+        "required": true,
+        "measurements": [
+          {
+            "parameter": "Pmax",
+            "unit": "W",
+            "description": "Maximum power at STC"
+          },
+          {
+            "parameter": "Voc",
+            "unit": "V",
+            "description": "Open circuit voltage"
+          },
+          {
+            "parameter": "Isc",
+            "unit": "A",
+            "description": "Short circuit current"
+          },
+          {
+            "parameter": "Vmp",
+            "unit": "V",
+            "description": "Voltage at maximum power point"
+          },
+          {
+            "parameter": "Imp",
+            "unit": "A",
+            "description": "Current at maximum power point"
+          },
+          {
+            "parameter": "FF",
+            "unit": "%",
+            "description": "Fill factor"
+          }
+        ]
+      },
+      {
+        "id": "vibration_monitoring",
+        "name": "Vibration Monitoring During Test",
+        "type": "time_series",
+        "stage": "during_test",
+        "required": true,
+        "sampling_rate_hz": 1000,
+        "parameters": [
+          {
+            "name": "acceleration_x",
+            "unit": "g",
+            "description": "Acceleration in X axis"
+          },
+          {
+            "name": "acceleration_y",
+            "unit": "g",
+            "description": "Acceleration in Y axis"
+          },
+          {
+            "name": "acceleration_z",
+            "unit": "g",
+            "description": "Acceleration in Z axis (vertical)"
+          },
+          {
+            "name": "rms_acceleration",
+            "unit": "g_rms",
+            "description": "RMS acceleration"
+          },
+          {
+            "name": "frequency",
+            "unit": "Hz",
+            "description": "Dominant frequency"
+          }
+        ]
+      },
+      {
+        "id": "visual_inspection_post",
+        "name": "Post-test Visual Inspection",
+        "type": "qualitative",
+        "stage": "post_test",
+        "required": true,
+        "checklist": [
+          "Cell cracks",
+          "Delamination",
+          "Frame damage",
+          "Junction box damage",
+          "Glass breakage",
+          "Backsheet defects",
+          "Discoloration",
+          "Solder bond failures",
+          "Internal connection damage"
+        ]
+      },
+      {
+        "id": "electrical_performance_post",
+        "name": "Post-test Electrical Performance",
+        "type": "quantitative",
+        "stage": "post_test",
+        "required": true,
+        "measurements": [
+          {
+            "parameter": "Pmax",
+            "unit": "W",
+            "description": "Maximum power at STC"
+          },
+          {
+            "parameter": "Voc",
+            "unit": "V",
+            "description": "Open circuit voltage"
+          },
+          {
+            "parameter": "Isc",
+            "unit": "A",
+            "description": "Short circuit current"
+          },
+          {
+            "parameter": "Vmp",
+            "unit": "V",
+            "description": "Voltage at maximum power point"
+          },
+          {
+            "parameter": "Imp",
+            "unit": "A",
+            "description": "Current at maximum power point"
+          },
+          {
+            "parameter": "FF",
+            "unit": "%",
+            "description": "Fill factor"
+          }
+        ]
+      },
+      {
+        "id": "insulation_resistance",
+        "name": "Insulation Resistance Test",
+        "type": "quantitative",
+        "stage": "post_test",
+        "required": true,
+        "measurements": [
+          {
+            "parameter": "R_insulation",
+            "unit": "MΩ",
+            "description": "Insulation resistance",
+            "test_voltage": 1000,
+            "test_voltage_unit": "V"
+          }
+        ]
+      }
+    ],
+
+    "pass_criteria": {
+      "power_degradation": {
+        "max": 5.0,
+        "unit": "percent",
+        "comparison": "less_than_or_equal",
+        "description": "Maximum allowable power degradation from pre-test to post-test"
+      },
+      "visual_defects": {
+        "critical_defects": [
+          "Cell cracks",
+          "Delamination > 10% of module area",
+          "Glass breakage",
+          "Frame detachment",
+          "Junction box damage affecting functionality"
+        ],
+        "allowed_critical_defects": 0,
+        "description": "No critical visual defects allowed"
+      },
+      "insulation_resistance": {
+        "min": 40,
+        "unit": "MΩ",
+        "description": "Minimum insulation resistance per IEC 61215"
+      },
+      "electrical_parameters": {
+        "Voc_degradation_max": 2.0,
+        "Isc_degradation_max": 2.0,
+        "FF_degradation_max": 3.0,
+        "unit": "percent",
+        "description": "Maximum allowable degradation for individual parameters"
+      }
+    },
+
+    "reporting": {
+      "required_charts": [
+        {
+          "name": "vibration_psd_spectrum",
+          "type": "line",
+          "description": "Power spectral density vs frequency"
+        },
+        {
+          "name": "time_series_acceleration",
+          "type": "time_series",
+          "description": "Acceleration time history"
+        },
+        {
+          "name": "power_comparison",
+          "type": "bar",
+          "description": "Pre-test vs post-test power comparison"
+        },
+        {
+          "name": "iv_curves",
+          "type": "line",
+          "description": "Pre-test and post-test I-V curves overlay"
+        },
+        {
+          "name": "parameter_degradation",
+          "type": "bar",
+          "description": "Degradation percentage for all electrical parameters"
+        }
+      ],
+      "required_sections": [
+        "executive_summary",
+        "test_objectives",
+        "sample_description",
+        "test_setup_and_equipment",
+        "test_conditions",
+        "test_procedure",
+        "results_and_observations",
+        "data_analysis",
+        "pass_fail_evaluation",
+        "conclusion_and_recommendations",
+        "appendices"
+      ],
+      "templates": {
+        "pdf": "templates/mechanical_test_report.pdf",
+        "excel": "templates/mechanical_test_data.xlsx",
+        "json": "templates/mechanical_test_results.json"
+      }
+    },
+
+    "quality_controls": [
+      {
+        "id": "qc_vibration_calibration",
+        "name": "Vibration System Calibration",
+        "stage": "pre_test",
+        "description": "Verify vibration system calibration is current (within 1 year)",
+        "required": true
+      },
+      {
+        "id": "qc_accelerometer_calibration",
+        "name": "Accelerometer Calibration",
+        "stage": "pre_test",
+        "description": "Verify accelerometer calibration is current (within 1 year)",
+        "required": true
+      },
+      {
+        "id": "qc_solar_simulator",
+        "name": "Solar Simulator Verification",
+        "stage": "pre_test",
+        "description": "Verify solar simulator meets Class A requirements per IEC 60904-9",
+        "required": true
+      },
+      {
+        "id": "qc_fixture_integrity",
+        "name": "Fixture Integrity Check",
+        "stage": "during_test",
+        "description": "Monitor fixture for any loosening or damage during test",
+        "required": true
+      },
+      {
+        "id": "qc_data_integrity",
+        "name": "Data Integrity Check",
+        "stage": "post_test",
+        "description": "Verify all data was properly recorded without gaps or corruption",
+        "required": true
+      }
+    ],
+
+    "references": [
+      {
+        "standard": "IEC 62759-1:2022",
+        "title": "Transportation testing of photovoltaic (PV) modules",
+        "section": "All sections"
+      },
+      {
+        "standard": "IEC 61215-1:2021",
+        "title": "Terrestrial photovoltaic (PV) modules - Design qualification and type approval - Part 1: Test requirements",
+        "section": "MQT 18 - Vibration test"
+      },
+      {
+        "standard": "IEC 60904-9:2020",
+        "title": "Photovoltaic devices - Part 9: Solar simulator performance requirements",
+        "section": "All sections"
+      },
+      {
+        "standard": "ASTM D4169",
+        "title": "Standard Practice for Performance Testing of Shipping Containers and Systems",
+        "section": "Vibration testing procedures"
+      }
+    ]
+  }
+}

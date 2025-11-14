@@ -1,0 +1,56 @@
+{
+  "ui_configuration": {
+    "protocol_id": "PVTP-051",
+    "title": "Reverse Current Overload Test",
+    "layout": "multi_page",
+    "theme": {
+      "primary_color": "#C62828",
+      "secondary_color": "#FFA000"
+    },
+    "pages": [
+      {
+        "id": "overview",
+        "title": "Overview",
+        "icon": "⚡",
+        "components": [
+          {"type": "header", "content": "Reverse Current Overload Test"},
+          {"type": "metrics_row", "metrics": [
+            {"label": "Test Status", "value": "${test_status}"},
+            {"label": "Max Diode Temp", "value": "${max_diode_temp}", "unit": "°C"},
+            {"label": "Result", "value": "${overall_result}"}
+          ]}
+        ]
+      },
+      {
+        "id": "testing",
+        "title": "Testing",
+        "icon": "🔬",
+        "components": [
+          {"type": "form", "id": "test_parameters", "fields": [
+            {"name": "reverse_current", "label": "Reverse Current", "type": "number", "unit": "A"},
+            {"name": "duration", "label": "Duration", "type": "number", "unit": "minutes"},
+            {"name": "ambient_temp", "label": "Ambient Temperature", "type": "number", "unit": "°C"}
+          ]}
+        ]
+      },
+      {
+        "id": "monitoring",
+        "title": "Monitoring",
+        "icon": "📊",
+        "components": [
+          {"type": "chart", "chart_type": "line", "data_source": "temperature_profile", "title": "Temperature vs Time"},
+          {"type": "chart", "chart_type": "line", "data_source": "voltage_profile", "title": "Diode Voltage vs Time"}
+        ]
+      },
+      {
+        "id": "results",
+        "title": "Results",
+        "icon": "📄",
+        "components": [
+          {"type": "data_table", "data_source": "test_results"},
+          {"type": "button", "label": "Generate Report", "action": "generate_report"}
+        ]
+      }
+    ]
+  }
+}

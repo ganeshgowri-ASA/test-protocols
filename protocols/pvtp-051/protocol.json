@@ -1,0 +1,142 @@
+{
+  "protocol": {
+    "id": "PVTP-051",
+    "version": "1.0.0",
+    "title": "Reverse Current Overload Test",
+    "category": "Safety & Reliability",
+    "subcategory": "Bypass Diode & Reverse Bias Testing",
+    "status": "active",
+    "effective_date": "2025-01-15",
+    "revision_history": [
+      {
+        "version": "1.0.0",
+        "date": "2025-01-15",
+        "author": "PV Testing Lab",
+        "changes": "Initial protocol release"
+      }
+    ],
+    "description": "Testing module response to reverse current conditions including bypass diode functionality and reverse bias stress",
+    "purpose": "To verify bypass diode operation, evaluate thermal behavior under reverse current, and ensure module safety under fault conditions",
+    "scope": "Bypass diode testing, reverse bias conditions, thermal analysis, IEC 61215-2 compliance",
+    "references": [
+      "IEC 61215-2 MQT 19 (Bypass diode thermal test)",
+      "IEC 62852 (Connectors)",
+      "IEC 61730 (Safety qualification)",
+      "UL 1703"
+    ]
+  },
+  "test_parameters": {
+    "sample_requirements": {
+      "quantity": {"value": 3, "unit": "modules"},
+      "condition": "New, pre-conditioned modules",
+      "preconditioning": "Light soaking not required",
+      "bypass_diodes": "All bypass diodes must be functional"
+    },
+    "test_conditions": {
+      "ambient_temperature": {"value": 25, "unit": "°C", "tolerance": 5},
+      "mounting": "Open rack, vertical orientation",
+      "ventilation": "Natural convection"
+    },
+    "test_sequence": [
+      {
+        "step": 1,
+        "name": "Initial Characterization",
+        "tests": ["IV curve at STC", "Bypass diode forward voltage measurement", "IR thermography baseline"]
+      },
+      {
+        "step": 2,
+        "name": "Bypass Diode Forward Voltage Test",
+        "current": "1.25 × Isc",
+        "duration": "1 hour",
+        "measurements": ["Diode voltage", "Diode temperature", "Junction box temperature"]
+      },
+      {
+        "step": 3,
+        "name": "Reverse Current Application",
+        "current_levels": [
+          {"level": "1.0 × Isc", "duration": "30 minutes"},
+          {"level": "1.25 × Isc", "duration": "1 hour"},
+          {"level": "1.5 × Isc", "duration": "1 hour"}
+        ],
+        "monitoring": "Continuous temperature and voltage"
+      },
+      {
+        "step": 4,
+        "name": "Thermal Analysis",
+        "method": "IR thermography",
+        "frequency": "Every 15 minutes",
+        "critical_points": ["Bypass diodes", "Junction box", "Interconnect ribbons"]
+      },
+      {
+        "step": 5,
+        "name": "Post-test Characterization",
+        "tests": ["IV curve", "Visual inspection", "Insulation resistance", "Ground continuity"]
+      }
+    ]
+  },
+  "acceptance_criteria": {
+    "bypass_diode": {
+      "forward_voltage": {"max": 1.0, "unit": "V", "at_current": "1.25 × Isc"},
+      "temperature": {"max": 100, "unit": "°C", "notes": "Diode case temperature"},
+      "operation": "Must conduct current without damage"
+    },
+    "junction_box": {
+      "temperature": {"max": 90, "unit": "°C"},
+      "no_damage": "No melting, burning, or deformation"
+    },
+    "module": {
+      "power_degradation": {"max": 2, "unit": "%", "notes": "Compared to pre-test"},
+      "no_visual_damage": "No burns, discoloration, or delamination",
+      "insulation_resistance": {"min": 40, "unit": "MΩ", "after_test": true}
+    },
+    "thermal_limits": {
+      "cell_temperature": {"max": 85, "unit": "°C"},
+      "interconnect_temperature": {"max": 120, "unit": "°C"},
+      "cable_temperature": {"max": 90, "unit": "°C"}
+    }
+  },
+  "data_collection": {
+    "measurements": [
+      {"parameter": "bypass_diode_voltage", "unit": "V", "precision": 0.01, "frequency": "1 Hz"},
+      {"parameter": "bypass_diode_temperature", "unit": "°C", "precision": 0.1, "frequency": "1 Hz"},
+      {"parameter": "reverse_current", "unit": "A", "precision": 0.01, "monitoring": "Continuous"},
+      {"parameter": "junction_box_temperature", "unit": "°C", "precision": 0.1, "frequency": "1 Hz"},
+      {"parameter": "module_temperatures", "unit": "°C", "locations": "Multiple points", "method": "IR or thermocouples"}
+    ],
+    "ir_imaging": {"interval": "15 minutes", "resolution": "≤100 mK"},
+    "data_logging": "Continuous throughout test"
+  },
+  "analysis": {
+    "thermal_analysis": {
+      "hotspot_detection": "Identify temperatures >15°C above average",
+      "thermal_runaway": "Monitor for accelerating temperature rise",
+      "steady_state": "Verify thermal equilibrium achieved"
+    },
+    "electrical_analysis": {
+      "diode_characteristics": "Calculate resistance and power dissipation",
+      "voltage_compliance": "Verify forward voltage within limits",
+      "current_distribution": "Analyze current sharing among diodes"
+    },
+    "failure_analysis": "If failure occurs, document mode and root cause"
+  },
+  "reporting": {
+    "deliverables": [
+      {
+        "name": "Reverse Current Test Report",
+        "sections": ["Test summary", "Thermal analysis", "Bypass diode performance", "Pass/fail determination"]
+      }
+    ],
+    "charts": [
+      "Temperature vs time profiles",
+      "IR thermography images",
+      "Diode voltage vs current characteristics",
+      "Pre/post IV curve comparison"
+    ]
+  },
+  "safety": {
+    "current_limiting": "Power supply must have current limit and shutdown",
+    "temperature_monitoring": "Automatic shutdown if limits exceeded",
+    "fire_safety": "Fire extinguisher and containment available",
+    "ppe": "Heat-resistant gloves and safety glasses required"
+  }
+}

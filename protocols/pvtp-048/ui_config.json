@@ -1,0 +1,621 @@
+{
+  "ui_configuration": {
+    "protocol_id": "PVTP-048",
+    "title": "Energy Rating & Bankability Assessment",
+    "layout": "multi_page",
+    "theme": {
+      "primary_color": "#1E88E5",
+      "secondary_color": "#FFC107",
+      "background_color": "#FFFFFF",
+      "font_family": "Arial, sans-serif"
+    },
+    "pages": [
+      {
+        "id": "overview",
+        "title": "Overview",
+        "icon": "📊",
+        "components": [
+          {
+            "type": "header",
+            "content": "Energy Rating & Bankability Assessment",
+            "level": 1
+          },
+          {
+            "type": "info_box",
+            "style": "info",
+            "content": "Comprehensive assessment for financial modeling and investment analysis"
+          },
+          {
+            "type": "metrics_row",
+            "metrics": [
+              {
+                "label": "Test Status",
+                "value": "${test_status}",
+                "delta": null
+              },
+              {
+                "label": "Bankability Rating",
+                "value": "${bankability_rating}",
+                "delta": null
+              },
+              {
+                "label": "Energy Rating",
+                "value": "${energy_rating}",
+                "delta": null
+              },
+              {
+                "label": "Compliance",
+                "value": "${compliance_percentage}%",
+                "delta": "${compliance_change}"
+              }
+            ]
+          },
+          {
+            "type": "divider"
+          },
+          {
+            "type": "data_table",
+            "title": "Module Information",
+            "data_source": "module_info",
+            "columns": ["Parameter", "Value", "Unit"]
+          }
+        ]
+      },
+      {
+        "id": "test_setup",
+        "title": "Test Setup",
+        "icon": "⚙️",
+        "components": [
+          {
+            "type": "form",
+            "id": "sample_info_form",
+            "fields": [
+              {
+                "name": "sample_id",
+                "label": "Sample ID",
+                "type": "text",
+                "required": true,
+                "placeholder": "e.g., MOD-2025-001"
+              },
+              {
+                "name": "manufacturer",
+                "label": "Manufacturer",
+                "type": "text",
+                "required": true
+              },
+              {
+                "name": "model",
+                "label": "Model Number",
+                "type": "text",
+                "required": true
+              },
+              {
+                "name": "serial_numbers",
+                "label": "Serial Numbers (6 modules)",
+                "type": "text_area",
+                "required": true,
+                "help_text": "Enter one serial number per line"
+              },
+              {
+                "name": "nameplate_power",
+                "label": "Nameplate Power",
+                "type": "number",
+                "required": true,
+                "unit": "W",
+                "min": 0,
+                "max": 1000
+              },
+              {
+                "name": "technology",
+                "label": "Cell Technology",
+                "type": "select",
+                "required": true,
+                "options": [
+                  "Mono-Si",
+                  "Multi-Si",
+                  "PERC",
+                  "HJT",
+                  "IBC",
+                  "TOPCon"
+                ]
+              }
+            ]
+          },
+          {
+            "type": "form",
+            "id": "manufacturer_info_form",
+            "title": "Manufacturer Information",
+            "fields": [
+              {
+                "name": "tier_classification",
+                "label": "Tier Classification",
+                "type": "select",
+                "required": true,
+                "options": ["Tier 1", "Tier 2", "Tier 3", "Unranked"]
+              },
+              {
+                "name": "years_operation",
+                "label": "Years in Operation",
+                "type": "number",
+                "required": true,
+                "min": 0
+              },
+              {
+                "name": "production_capacity",
+                "label": "Production Capacity",
+                "type": "number",
+                "required": true,
+                "unit": "GW/year",
+                "min": 0
+              },
+              {
+                "name": "certifications",
+                "label": "Certifications",
+                "type": "multi_select",
+                "options": [
+                  "IEC 61215",
+                  "IEC 61730",
+                  "IEC 62804",
+                  "UL 1703",
+                  "CEC Listed",
+                  "TUV Certified"
+                ]
+              },
+              {
+                "name": "product_warranty_years",
+                "label": "Product Warranty",
+                "type": "number",
+                "required": true,
+                "unit": "years",
+                "min": 0,
+                "max": 30
+              },
+              {
+                "name": "performance_warranty_years",
+                "label": "Performance Warranty",
+                "type": "number",
+                "required": true,
+                "unit": "years",
+                "min": 0,
+                "max": 35
+              },
+              {
+                "name": "degradation_guarantee",
+                "label": "Degradation Guarantee",
+                "type": "number",
+                "required": true,
+                "unit": "%/year",
+                "step": 0.01,
+                "min": 0,
+                "max": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "testing",
+        "title": "Testing",
+        "icon": "🔬",
+        "components": [
+          {
+            "type": "tabs",
+            "tabs": [
+              {
+                "id": "flash_test",
+                "label": "Flash Test (STC)",
+                "components": [
+                  {
+                    "type": "file_uploader",
+                    "label": "Upload IV Curve Data",
+                    "accept": [".csv", ".xlsx"],
+                    "multiple": true
+                  },
+                  {
+                    "type": "data_editor",
+                    "id": "stc_measurements",
+                    "columns": [
+                      {"name": "module_id", "type": "text"},
+                      {"name": "pmax", "type": "number", "unit": "W"},
+                      {"name": "voc", "type": "number", "unit": "V"},
+                      {"name": "isc", "type": "number", "unit": "A"},
+                      {"name": "vmpp", "type": "number", "unit": "V"},
+                      {"name": "impp", "type": "number", "unit": "A"},
+                      {"name": "fill_factor", "type": "number"}
+                    ],
+                    "num_rows": 6
+                  },
+                  {
+                    "type": "chart",
+                    "chart_type": "line",
+                    "data_source": "iv_curves",
+                    "x_axis": "voltage",
+                    "y_axes": ["current", "power"],
+                    "title": "I-V and P-V Curves (STC)"
+                  }
+                ]
+              },
+              {
+                "id": "low_irradiance",
+                "label": "Low Irradiance",
+                "components": [
+                  {
+                    "type": "data_editor",
+                    "id": "low_light_measurements",
+                    "columns": [
+                      {"name": "irradiance", "type": "number", "unit": "W/m²"},
+                      {"name": "pmax", "type": "number", "unit": "W"},
+                      {"name": "efficiency_ratio", "type": "number", "unit": "%"}
+                    ]
+                  },
+                  {
+                    "type": "chart",
+                    "chart_type": "bar",
+                    "data_source": "low_light_measurements",
+                    "x_axis": "irradiance",
+                    "y_axis": "efficiency_ratio",
+                    "title": "Low Light Performance"
+                  }
+                ]
+              },
+              {
+                "id": "temperature",
+                "label": "Temperature Coefficients",
+                "components": [
+                  {
+                    "type": "data_editor",
+                    "id": "temp_measurements",
+                    "columns": [
+                      {"name": "temperature", "type": "number", "unit": "°C"},
+                      {"name": "pmax", "type": "number", "unit": "W"},
+                      {"name": "voc", "type": "number", "unit": "V"},
+                      {"name": "isc", "type": "number", "unit": "A"}
+                    ]
+                  },
+                  {
+                    "type": "metric_cards",
+                    "metrics": [
+                      {
+                        "label": "Pmax Temp Coef",
+                        "value": "${temp_coef_pmax}",
+                        "unit": "%/°C",
+                        "threshold": {"max": -0.5, "warning": -0.45}
+                      },
+                      {
+                        "label": "Voc Temp Coef",
+                        "value": "${temp_coef_voc}",
+                        "unit": "%/°C",
+                        "threshold": {"max": -0.35, "warning": -0.32}
+                      },
+                      {
+                        "label": "Isc Temp Coef",
+                        "value": "${temp_coef_isc}",
+                        "unit": "%/°C",
+                        "threshold": {"max": 0.1, "warning": 0.08}
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "energy_matrix",
+                "label": "Energy Matrix",
+                "components": [
+                  {
+                    "type": "heatmap",
+                    "data_source": "energy_matrix",
+                    "x_label": "Irradiance (W/m²)",
+                    "y_label": "Temperature (°C)",
+                    "color_scale": "viridis",
+                    "title": "IEC 61853-1 Energy Matrix"
+                  },
+                  {
+                    "type": "data_table",
+                    "data_source": "energy_matrix_table",
+                    "title": "Energy Matrix Values (W)"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "analysis",
+        "title": "Analysis",
+        "icon": "📈",
+        "components": [
+          {
+            "type": "header",
+            "content": "Performance Analysis",
+            "level": 2
+          },
+          {
+            "type": "chart",
+            "chart_type": "line",
+            "data_source": "degradation_projection",
+            "x_axis": "year",
+            "y_axis": "power_percent",
+            "title": "25-Year Power Degradation Projection",
+            "reference_lines": [
+              {"y": 80, "label": "Warranty Threshold", "color": "red", "style": "dashed"}
+            ]
+          },
+          {
+            "type": "chart",
+            "chart_type": "bar",
+            "data_source": "energy_yield_climate",
+            "x_axis": "climate_zone",
+            "y_axis": "annual_kwh_per_kwp",
+            "title": "Annual Energy Yield by Climate Zone"
+          },
+          {
+            "type": "divider"
+          },
+          {
+            "type": "header",
+            "content": "Bankability Assessment",
+            "level": 2
+          },
+          {
+            "type": "progress_indicator",
+            "label": "Overall Bankability Score",
+            "value": "${bankability_score}",
+            "max": 100,
+            "show_percentage": true,
+            "color_thresholds": [
+              {"min": 85, "color": "green", "label": "Highly Bankable"},
+              {"min": 75, "color": "yellow", "label": "Bankable"},
+              {"min": 0, "color": "red", "label": "Not Recommended"}
+            ]
+          },
+          {
+            "type": "chart",
+            "chart_type": "radar",
+            "data_source": "bankability_factors",
+            "title": "Bankability Factor Analysis"
+          },
+          {
+            "type": "data_table",
+            "data_source": "bankability_details",
+            "title": "Detailed Factor Scores"
+          }
+        ]
+      },
+      {
+        "id": "financial",
+        "title": "Financial",
+        "icon": "💰",
+        "components": [
+          {
+            "type": "form",
+            "id": "financial_inputs",
+            "title": "Financial Model Inputs",
+            "fields": [
+              {
+                "name": "capex_per_wp",
+                "label": "CAPEX",
+                "type": "number",
+                "required": true,
+                "unit": "$/Wp",
+                "step": 0.01
+              },
+              {
+                "name": "opex_annual",
+                "label": "Annual OPEX",
+                "type": "number",
+                "required": true,
+                "unit": "$/kW/year"
+              },
+              {
+                "name": "electricity_price",
+                "label": "Electricity Price",
+                "type": "number",
+                "required": true,
+                "unit": "$/kWh",
+                "step": 0.001
+              },
+              {
+                "name": "discount_rate",
+                "label": "Discount Rate",
+                "type": "number",
+                "required": true,
+                "unit": "%",
+                "step": 0.1,
+                "default": 5.0
+              },
+              {
+                "name": "project_lifetime",
+                "label": "Project Lifetime",
+                "type": "number",
+                "required": true,
+                "unit": "years",
+                "default": 25,
+                "min": 1,
+                "max": 35
+              }
+            ]
+          },
+          {
+            "type": "metric_cards",
+            "metrics": [
+              {
+                "label": "LCOE",
+                "value": "${lcoe}",
+                "unit": "$/kWh",
+                "delta": "${lcoe_vs_benchmark}"
+              },
+              {
+                "label": "NPV (25 years)",
+                "value": "${npv}",
+                "unit": "$",
+                "delta": null
+              },
+              {
+                "label": "IRR",
+                "value": "${irr}",
+                "unit": "%",
+                "delta": null
+              },
+              {
+                "label": "Payback Period",
+                "value": "${payback_period}",
+                "unit": "years",
+                "delta": null
+              }
+            ]
+          },
+          {
+            "type": "chart",
+            "chart_type": "bar",
+            "data_source": "lcoe_sensitivity",
+            "orientation": "horizontal",
+            "title": "LCOE Sensitivity Analysis"
+          },
+          {
+            "type": "chart",
+            "chart_type": "line",
+            "data_source": "cashflow_projection",
+            "x_axis": "year",
+            "y_axes": ["annual_cashflow", "cumulative_cashflow"],
+            "title": "25-Year Cash Flow Projection"
+          }
+        ]
+      },
+      {
+        "id": "report",
+        "title": "Report",
+        "icon": "📄",
+        "components": [
+          {
+            "type": "header",
+            "content": "Test Report Generation",
+            "level": 2
+          },
+          {
+            "type": "alert",
+            "severity": "info",
+            "message": "Review all test results before generating final report"
+          },
+          {
+            "type": "form",
+            "id": "report_options",
+            "fields": [
+              {
+                "name": "report_type",
+                "label": "Report Type",
+                "type": "multi_select",
+                "options": [
+                  "Energy Rating Certificate",
+                  "Bankability Assessment",
+                  "Financial Analysis",
+                  "Executive Summary",
+                  "Full Technical Report"
+                ],
+                "default": ["Full Technical Report"]
+              },
+              {
+                "name": "include_raw_data",
+                "label": "Include Raw Data",
+                "type": "checkbox",
+                "default": true
+              },
+              {
+                "name": "include_charts",
+                "label": "Include All Charts",
+                "type": "checkbox",
+                "default": true
+              },
+              {
+                "name": "report_format",
+                "label": "Format",
+                "type": "select",
+                "options": ["PDF", "PDF + Excel", "PDF + ZIP Package"],
+                "default": "PDF + ZIP Package"
+              }
+            ]
+          },
+          {
+            "type": "button",
+            "label": "Generate Report",
+            "action": "generate_report",
+            "style": "primary",
+            "size": "large"
+          },
+          {
+            "type": "divider"
+          },
+          {
+            "type": "header",
+            "content": "Report Preview",
+            "level": 3
+          },
+          {
+            "type": "report_preview",
+            "sections": [
+              "Executive Summary",
+              "Energy Rating Analysis",
+              "Bankability Assessment",
+              "Financial Analysis",
+              "Appendices"
+            ]
+          },
+          {
+            "type": "download_button",
+            "label": "Download Report Package",
+            "file_source": "report_package"
+          }
+        ]
+      }
+    ],
+    "sidebar": {
+      "show": true,
+      "components": [
+        {
+          "type": "logo",
+          "image_path": "/assets/logo.png",
+          "alt_text": "PV Testing Lab"
+        },
+        {
+          "type": "progress_tracker",
+          "steps": [
+            {"id": "setup", "label": "Setup", "status": "${setup_status}"},
+            {"id": "testing", "label": "Testing", "status": "${testing_status}"},
+            {"id": "analysis", "label": "Analysis", "status": "${analysis_status}"},
+            {"id": "financial", "label": "Financial", "status": "${financial_status}"},
+            {"id": "report", "label": "Report", "status": "${report_status}"}
+          ]
+        },
+        {
+          "type": "info_panel",
+          "title": "Quick Stats",
+          "content": "${quick_stats}"
+        }
+      ]
+    },
+    "actions": {
+      "generate_report": {
+        "endpoint": "/api/generate_report",
+        "method": "POST",
+        "success_message": "Report generated successfully",
+        "error_message": "Failed to generate report"
+      },
+      "save_progress": {
+        "endpoint": "/api/save_progress",
+        "method": "POST",
+        "auto_save": true,
+        "interval": 300
+      },
+      "validate_data": {
+        "endpoint": "/api/validate",
+        "method": "POST",
+        "trigger": "on_change"
+      }
+    },
+    "validation": {
+      "real_time": true,
+      "show_errors_inline": true,
+      "block_navigation_on_errors": false
+    }
+  }
+}

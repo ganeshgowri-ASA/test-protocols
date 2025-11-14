@@ -1,0 +1,70 @@
+{
+  "protocol": {
+    "id": "PVTP-053",
+    "version": "1.0.0",
+    "title": "Module Cleaning Efficiency Test",
+    "category": "Operations & Maintenance",
+    "subcategory": "Soiling & Cleaning Analysis",
+    "status": "active",
+    "effective_date": "2025-01-15",
+    "revision_history": [{"version": "1.0.0", "date": "2025-01-15", "author": "PV Testing Lab", "changes": "Initial protocol release"}],
+    "description": "Evaluation of soiling impact on module performance and effectiveness of various cleaning methods",
+    "purpose": "To quantify soiling losses, evaluate cleaning methods, measure recovery rates, and perform cost-benefit analysis",
+    "scope": "Soiling measurement, cleaning effectiveness, recovery rates, cost-benefit analysis",
+    "references": ["IEC 61853", "IEC 61215", "ASTM E1036", "IEEE 1526"]
+  },
+  "test_parameters": {
+    "sample_requirements": {"quantity": {"value": 12, "unit": "modules"}, "groups": {"control": 2, "soiling": 2, "cleaning_method_testing": 8}},
+    "soiling_protocol": {
+      "method": "Natural soiling or artificial application",
+      "duration": {"natural": "30-90 days", "artificial": "Standardized dust application"},
+      "soiling_types": ["Desert dust", "Urban pollution", "Agricultural", "Industrial"],
+      "measurement": "Daily or weekly power measurements"
+    },
+    "cleaning_methods": [
+      {"method": "water_only", "description": "Deionized water, soft brush"},
+      {"method": "water_pressure", "description": "Pressure washer (low pressure)"},
+      {"method": "detergent", "description": "Approved cleaning solution"},
+      {"method": "dry_brush", "description": "Soft dry brushing"},
+      {"method": "robotic", "description": "Automated cleaning system"},
+      {"method": "rain_simulation", "description": "Natural rain equivalent"}
+    ],
+    "test_sequence": [
+      {"step": 1, "name": "Baseline Characterization", "tests": ["Clean module IV curve", "Irradiance measurement", "Visual documentation"]},
+      {"step": 2, "name": "Soiling Phase", "duration": "Variable", "monitoring": "Daily power measurement"},
+      {"step": 3, "name": "Soiling Measurement", "tests": ["Soiled module IV curve", "Transmittance measurement", "Soiling ratio calculation"]},
+      {"step": 4, "name": "Cleaning Application", "per_method": ["Apply cleaning method", "Document time and resources"]},
+      {"step": 5, "name": "Post-Cleaning Measurement", "tests": ["IV curve", "Visual inspection", "Recovery rate calculation"]},
+      {"step": 6, "name": "Cost-Benefit Analysis", "calculate": ["Cleaning cost", "Energy recovery value", "ROI"]}
+    ]
+  },
+  "acceptance_criteria": {
+    "soiling_impact": {"max_loss": {"typical": 5, "severe": 20, "unit": "%"}, "measurement_accuracy": "±1%"},
+    "cleaning_effectiveness": {"water_only": {"min_recovery": 95, "unit": "%"}, "detergent": {"min_recovery": 98, "unit": "%"}, "acceptable_residue": "No visible streaks or spots"},
+    "recovery_rate": {"immediate": {"min": 90, "unit": "%"}, "after_24hrs": {"min": 95, "unit": "%"}},
+    "cost_effectiveness": {"water_usage": {"max": 2, "unit": "L/m²"}, "time": {"max": 5, "unit": "min/module"}, "roi_period": {"target": "<6 months"}}
+  },
+  "data_collection": {
+    "measurements": [
+      {"parameter": "power_output", "frequency": "Daily during soiling", "pre_post_cleaning": true},
+      {"parameter": "soiling_ratio", "calculation": "P_soiled / P_clean"},
+      {"parameter": "transmittance", "method": "Pyranometer above/below glass"},
+      {"parameter": "visual_documentation", "photos": "Before/after each step"},
+      {"parameter": "cleaning_resources", "track": ["Water volume", "Time", "Labor", "Materials"]}
+    ]
+  },
+  "analysis": {
+    "soiling_rate": {"calculation": "Daily power loss %", "trending": "Exponential or linear fit"},
+    "cleaning_efficiency": {"formula": "(P_after - P_before) / (P_clean - P_before) * 100"},
+    "cost_benefit": {
+      "cleaning_cost": "Water + labor + materials + equipment amortization",
+      "energy_value": "Power recovery × electricity price × operating hours",
+      "payback_period": "Cleaning cost / monthly energy value gained"
+    },
+    "comparison": "Rank cleaning methods by effectiveness and cost"
+  },
+  "reporting": {
+    "deliverables": [{"name": "Cleaning Efficiency Report", "sections": ["Soiling impact analysis", "Cleaning method comparison", "Recovery rates", "Cost-benefit analysis", "Recommendations"]}],
+    "charts": ["Power vs time (soiling curve)", "Cleaning method comparison (bar chart)", "Cost vs effectiveness scatter plot", "Recovery rate timeline", "Before/after photos"]
+  }
+}

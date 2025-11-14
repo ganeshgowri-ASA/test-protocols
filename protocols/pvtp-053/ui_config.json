@@ -1,0 +1,55 @@
+{
+  "ui_configuration": {
+    "protocol_id": "PVTP-053",
+    "title": "Module Cleaning Efficiency Test",
+    "layout": "multi_page",
+    "theme": {"primary_color": "#2196F3", "secondary_color": "#4CAF50"},
+    "pages": [
+      {
+        "id": "overview",
+        "title": "Overview",
+        "icon": "💧",
+        "components": [
+          {"type": "header", "content": "Module Cleaning Efficiency Test"},
+          {"type": "metrics_row", "metrics": [
+            {"label": "Soiling Loss", "value": "${max_soiling_loss}", "unit": "%"},
+            {"label": "Best Method", "value": "${best_method}"},
+            {"label": "Best ROI", "value": "${best_roi}", "unit": "%"}
+          ]}
+        ]
+      },
+      {
+        "id": "soiling",
+        "title": "Soiling Monitoring",
+        "icon": "📊",
+        "components": [
+          {"type": "chart", "chart_type": "line", "data_source": "soiling_curve", "title": "Power Loss Over Time"},
+          {"type": "data_table", "data_source": "daily_measurements"}
+        ]
+      },
+      {
+        "id": "cleaning",
+        "title": "Cleaning Methods",
+        "icon": "🧹",
+        "components": [
+          {"type": "form", "id": "cleaning_method", "fields": [
+            {"name": "method", "label": "Cleaning Method", "type": "select",
+             "options": ["water_only", "water_pressure", "detergent", "dry_brush", "robotic"]},
+            {"name": "water_used", "label": "Water Used", "type": "number", "unit": "L"},
+            {"name": "time_taken", "label": "Time Taken", "type": "number", "unit": "min"}
+          ]},
+          {"type": "chart", "chart_type": "bar", "data_source": "method_comparison"}
+        ]
+      },
+      {
+        "id": "results",
+        "title": "Results",
+        "icon": "📈",
+        "components": [
+          {"type": "data_table", "data_source": "method_results"},
+          {"type": "button", "label": "Generate Report", "action": "generate_report"}
+        ]
+      }
+    ]
+  }
+}

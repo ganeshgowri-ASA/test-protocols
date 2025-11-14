@@ -1,0 +1,682 @@
+{
+  "metadata": {
+    "id": "DESERT-001",
+    "protocol_number": "P39/54",
+    "name": "Desert Climate Test",
+    "category": "Environmental",
+    "subcategory": "Climate Simulation",
+    "version": "1.0.0",
+    "description": "Comprehensive desert climate testing protocol for photovoltaic modules, simulating extreme temperature variations, low humidity, and high UV exposure characteristic of desert environments.",
+    "standard_references": [
+      "IEC 61215",
+      "IEC 61730",
+      "UL 1703",
+      "IEC TS 63126"
+    ],
+    "author": "ganeshgowri-ASA",
+    "created_date": "2025-11-14",
+    "last_modified": "2025-11-14",
+    "status": "active"
+  },
+  "test_conditions": {
+    "chamber_requirements": {
+      "type": "climate_chamber",
+      "temperature_range": {
+        "min": -40,
+        "max": 85,
+        "unit": "°C"
+      },
+      "humidity_range": {
+        "min": 5,
+        "max": 95,
+        "unit": "%RH"
+      },
+      "uv_exposure": {
+        "required": true,
+        "wavelength_range": {
+          "min": 280,
+          "max": 400,
+          "unit": "nm"
+        },
+        "irradiance": {
+          "value": 1000,
+          "unit": "W/m²"
+        }
+      }
+    },
+    "ambient_conditions": {
+      "pressure": {
+        "min": 86,
+        "max": 106,
+        "unit": "kPa"
+      }
+    }
+  },
+  "test_parameters": {
+    "daytime_temperature": {
+      "type": "number",
+      "description": "Simulated daytime temperature",
+      "default": 65,
+      "min": 50,
+      "max": 85,
+      "unit": "°C",
+      "validation": "required",
+      "tolerance": 2.0
+    },
+    "nighttime_temperature": {
+      "type": "number",
+      "description": "Simulated nighttime temperature",
+      "default": 5,
+      "min": -10,
+      "max": 20,
+      "unit": "°C",
+      "validation": "required",
+      "tolerance": 2.0
+    },
+    "daytime_humidity": {
+      "type": "number",
+      "description": "Daytime relative humidity",
+      "default": 15,
+      "min": 5,
+      "max": 30,
+      "unit": "%RH",
+      "validation": "required",
+      "tolerance": 5.0
+    },
+    "nighttime_humidity": {
+      "type": "number",
+      "description": "Nighttime relative humidity",
+      "default": 40,
+      "min": 20,
+      "max": 60,
+      "unit": "%RH",
+      "validation": "required",
+      "tolerance": 5.0
+    },
+    "uv_irradiance": {
+      "type": "number",
+      "description": "UV irradiance during daytime cycles",
+      "default": 1000,
+      "min": 800,
+      "max": 1200,
+      "unit": "W/m²",
+      "validation": "required",
+      "tolerance": 50
+    },
+    "cycle_duration": {
+      "type": "number",
+      "description": "Duration of each full cycle (day+night)",
+      "default": 24,
+      "min": 12,
+      "max": 48,
+      "unit": "hours",
+      "validation": "required"
+    },
+    "total_cycles": {
+      "type": "integer",
+      "description": "Total number of desert cycles to perform",
+      "default": 200,
+      "min": 50,
+      "max": 500,
+      "validation": "required"
+    },
+    "ramp_rate": {
+      "type": "number",
+      "description": "Temperature transition rate between day/night",
+      "default": 10,
+      "min": 5,
+      "max": 20,
+      "unit": "°C/hour",
+      "validation": "required"
+    }
+  },
+  "test_procedure": {
+    "preparation": [
+      {
+        "step": 1,
+        "phase": "pre_test",
+        "description": "Visual inspection of PV module",
+        "action": "visual_inspection",
+        "acceptance_criteria": "No visible defects, cracks, or delamination",
+        "documentation_required": true
+      },
+      {
+        "step": 2,
+        "phase": "pre_test",
+        "description": "Initial electrical characterization (I-V curve)",
+        "action": "measure_iv_curve",
+        "parameters": {
+          "irradiance": 1000,
+          "temperature": 25,
+          "unit": "STC"
+        },
+        "acceptance_criteria": "Pmax within ±3% of nameplate rating",
+        "documentation_required": true
+      },
+      {
+        "step": 3,
+        "phase": "pre_test",
+        "description": "Initial insulation resistance test",
+        "action": "measure_insulation_resistance",
+        "parameters": {
+          "voltage": 1000,
+          "unit": "V"
+        },
+        "acceptance_criteria": ">40 MΩ",
+        "documentation_required": true
+      },
+      {
+        "step": 4,
+        "phase": "pre_test",
+        "description": "Infrared thermography baseline",
+        "action": "ir_thermography",
+        "acceptance_criteria": "No hotspots >10°C above average",
+        "documentation_required": true
+      }
+    ],
+    "test_cycles": [
+      {
+        "step": 1,
+        "phase": "daytime",
+        "duration": 12,
+        "duration_unit": "hours",
+        "description": "Daytime desert conditions with UV exposure",
+        "actions": [
+          {
+            "action": "set_temperature",
+            "target": "daytime_temperature",
+            "ramp_rate": "ramp_rate"
+          },
+          {
+            "action": "set_humidity",
+            "target": "daytime_humidity"
+          },
+          {
+            "action": "enable_uv",
+            "irradiance": "uv_irradiance"
+          }
+        ],
+        "monitoring": {
+          "parameters": [
+            "chamber_temperature",
+            "chamber_humidity",
+            "uv_irradiance",
+            "module_temperature",
+            "voc",
+            "isc"
+          ],
+          "interval": 300,
+          "interval_unit": "seconds"
+        }
+      },
+      {
+        "step": 2,
+        "phase": "transition_to_night",
+        "duration": 2,
+        "duration_unit": "hours",
+        "description": "Transition from day to night conditions",
+        "actions": [
+          {
+            "action": "disable_uv"
+          },
+          {
+            "action": "ramp_temperature",
+            "target": "nighttime_temperature",
+            "rate": "ramp_rate"
+          },
+          {
+            "action": "ramp_humidity",
+            "target": "nighttime_humidity"
+          }
+        ],
+        "monitoring": {
+          "parameters": [
+            "chamber_temperature",
+            "chamber_humidity",
+            "module_temperature"
+          ],
+          "interval": 300,
+          "interval_unit": "seconds"
+        }
+      },
+      {
+        "step": 3,
+        "phase": "nighttime",
+        "duration": 8,
+        "duration_unit": "hours",
+        "description": "Nighttime desert conditions (cooler, higher humidity)",
+        "actions": [
+          {
+            "action": "maintain_temperature",
+            "target": "nighttime_temperature"
+          },
+          {
+            "action": "maintain_humidity",
+            "target": "nighttime_humidity"
+          }
+        ],
+        "monitoring": {
+          "parameters": [
+            "chamber_temperature",
+            "chamber_humidity",
+            "module_temperature"
+          ],
+          "interval": 600,
+          "interval_unit": "seconds"
+        }
+      },
+      {
+        "step": 4,
+        "phase": "transition_to_day",
+        "duration": 2,
+        "duration_unit": "hours",
+        "description": "Transition from night to day conditions",
+        "actions": [
+          {
+            "action": "ramp_temperature",
+            "target": "daytime_temperature",
+            "rate": "ramp_rate"
+          },
+          {
+            "action": "ramp_humidity",
+            "target": "daytime_humidity"
+          }
+        ],
+        "monitoring": {
+          "parameters": [
+            "chamber_temperature",
+            "chamber_humidity",
+            "module_temperature"
+          ],
+          "interval": 300,
+          "interval_unit": "seconds"
+        }
+      }
+    ],
+    "interim_testing": {
+      "frequency": 50,
+      "frequency_unit": "cycles",
+      "tests": [
+        {
+          "test": "visual_inspection",
+          "description": "Check for physical degradation",
+          "acceptance_criteria": "No new defects"
+        },
+        {
+          "test": "iv_curve_measurement",
+          "description": "Measure electrical performance",
+          "conditions": "STC",
+          "acceptance_criteria": "Pmax degradation <5% from initial"
+        },
+        {
+          "test": "insulation_resistance",
+          "description": "Verify electrical safety",
+          "acceptance_criteria": ">40 MΩ"
+        }
+      ]
+    },
+    "post_test": [
+      {
+        "step": 1,
+        "phase": "recovery",
+        "description": "Return to ambient conditions",
+        "duration": 4,
+        "duration_unit": "hours",
+        "action": "stabilize_ambient"
+      },
+      {
+        "step": 2,
+        "phase": "final_test",
+        "description": "Final visual inspection",
+        "action": "visual_inspection",
+        "acceptance_criteria": "Document all defects",
+        "documentation_required": true
+      },
+      {
+        "step": 3,
+        "phase": "final_test",
+        "description": "Final electrical characterization (I-V curve)",
+        "action": "measure_iv_curve",
+        "parameters": {
+          "irradiance": 1000,
+          "temperature": 25,
+          "unit": "STC"
+        },
+        "documentation_required": true
+      },
+      {
+        "step": 4,
+        "phase": "final_test",
+        "description": "Final insulation resistance test",
+        "action": "measure_insulation_resistance",
+        "parameters": {
+          "voltage": 1000,
+          "unit": "V"
+        },
+        "acceptance_criteria": ">40 MΩ",
+        "documentation_required": true
+      },
+      {
+        "step": 5,
+        "phase": "final_test",
+        "description": "Electroluminescence imaging",
+        "action": "el_imaging",
+        "acceptance_criteria": "Document cell cracks and dark areas",
+        "documentation_required": true
+      },
+      {
+        "step": 6,
+        "phase": "final_test",
+        "description": "Final infrared thermography",
+        "action": "ir_thermography",
+        "acceptance_criteria": "Document hotspots and thermal anomalies",
+        "documentation_required": true
+      }
+    ]
+  },
+  "data_collection": {
+    "continuous_monitoring": [
+      {
+        "parameter": "chamber_temperature",
+        "unit": "°C",
+        "interval": 60,
+        "interval_unit": "seconds",
+        "accuracy": 0.5
+      },
+      {
+        "parameter": "chamber_humidity",
+        "unit": "%RH",
+        "interval": 60,
+        "interval_unit": "seconds",
+        "accuracy": 2.0
+      },
+      {
+        "parameter": "module_temperature",
+        "unit": "°C",
+        "interval": 60,
+        "interval_unit": "seconds",
+        "accuracy": 1.0
+      },
+      {
+        "parameter": "uv_irradiance",
+        "unit": "W/m²",
+        "interval": 60,
+        "interval_unit": "seconds",
+        "accuracy": 5.0
+      },
+      {
+        "parameter": "voc",
+        "unit": "V",
+        "interval": 300,
+        "interval_unit": "seconds",
+        "accuracy": 0.1
+      },
+      {
+        "parameter": "isc",
+        "unit": "A",
+        "interval": 300,
+        "interval_unit": "seconds",
+        "accuracy": 0.01
+      }
+    ],
+    "periodic_measurements": [
+      {
+        "parameter": "iv_curve",
+        "frequency": 50,
+        "frequency_unit": "cycles",
+        "conditions": "STC"
+      },
+      {
+        "parameter": "insulation_resistance",
+        "frequency": 50,
+        "frequency_unit": "cycles",
+        "min_value": 40,
+        "unit": "MΩ"
+      }
+    ]
+  },
+  "qc_checks": [
+    {
+      "name": "temperature_stability",
+      "description": "Verify chamber temperature stability",
+      "type": "continuous",
+      "threshold": 2.0,
+      "threshold_unit": "°C",
+      "window": 600,
+      "window_unit": "seconds",
+      "action_on_fail": "alert"
+    },
+    {
+      "name": "humidity_stability",
+      "description": "Verify chamber humidity stability",
+      "type": "continuous",
+      "threshold": 5.0,
+      "threshold_unit": "%RH",
+      "window": 600,
+      "window_unit": "seconds",
+      "action_on_fail": "alert"
+    },
+    {
+      "name": "uv_irradiance_stability",
+      "description": "Verify UV irradiance stability during daytime",
+      "type": "continuous",
+      "threshold": 50,
+      "threshold_unit": "W/m²",
+      "window": 600,
+      "window_unit": "seconds",
+      "action_on_fail": "alert"
+    },
+    {
+      "name": "power_degradation_limit",
+      "description": "Check power degradation stays within limits",
+      "type": "periodic",
+      "frequency": 50,
+      "frequency_unit": "cycles",
+      "max_degradation": 5.0,
+      "max_degradation_unit": "%",
+      "action_on_fail": "flag"
+    },
+    {
+      "name": "insulation_resistance_minimum",
+      "description": "Verify insulation resistance meets safety requirements",
+      "type": "periodic",
+      "frequency": 50,
+      "frequency_unit": "cycles",
+      "min_value": 40,
+      "min_value_unit": "MΩ",
+      "action_on_fail": "abort"
+    },
+    {
+      "name": "data_completeness",
+      "description": "Ensure data collection completeness",
+      "type": "continuous",
+      "min_completeness": 95,
+      "min_completeness_unit": "%",
+      "action_on_fail": "alert"
+    }
+  ],
+  "pass_fail_criteria": {
+    "power_retention": {
+      "description": "Maximum acceptable power degradation",
+      "min_value": 95,
+      "unit": "%",
+      "comparison": ">=",
+      "severity": "critical"
+    },
+    "insulation_resistance": {
+      "description": "Minimum insulation resistance after test",
+      "min_value": 40,
+      "unit": "MΩ",
+      "comparison": ">=",
+      "severity": "critical"
+    },
+    "visual_defects": {
+      "description": "Acceptable visual defects",
+      "allowed": [
+        "minor_discoloration"
+      ],
+      "not_allowed": [
+        "delamination",
+        "cell_cracks",
+        "junction_box_damage",
+        "frame_damage",
+        "glass_breakage"
+      ],
+      "severity": "critical"
+    },
+    "hotspot_temperature": {
+      "description": "Maximum hotspot temperature difference",
+      "max_value": 20,
+      "unit": "°C",
+      "comparison": "<=",
+      "severity": "major"
+    }
+  },
+  "report_generation": {
+    "template": "environmental_test_report",
+    "sections": [
+      "test_summary",
+      "test_parameters",
+      "environmental_profile",
+      "performance_trends",
+      "interim_test_results",
+      "final_test_results",
+      "qc_summary",
+      "pass_fail_status",
+      "recommendations"
+    ],
+    "charts": [
+      {
+        "type": "line_chart",
+        "title": "Chamber Temperature Profile",
+        "x_axis": "time",
+        "y_axis": "chamber_temperature",
+        "show_limits": true
+      },
+      {
+        "type": "line_chart",
+        "title": "Chamber Humidity Profile",
+        "x_axis": "time",
+        "y_axis": "chamber_humidity",
+        "show_limits": true
+      },
+      {
+        "type": "line_chart",
+        "title": "Module Temperature Profile",
+        "x_axis": "time",
+        "y_axis": "module_temperature"
+      },
+      {
+        "type": "line_chart",
+        "title": "Power Degradation Over Cycles",
+        "x_axis": "cycle_number",
+        "y_axis": "normalized_power",
+        "show_limits": true
+      },
+      {
+        "type": "scatter_chart",
+        "title": "I-V Curve Comparison",
+        "x_axis": "voltage",
+        "y_axis": "current",
+        "series": [
+          "initial",
+          "interim",
+          "final"
+        ]
+      },
+      {
+        "type": "bar_chart",
+        "title": "QC Check Summary",
+        "x_axis": "check_name",
+        "y_axis": "pass_rate"
+      }
+    ],
+    "export_formats": [
+      "pdf",
+      "html",
+      "xlsx"
+    ]
+  },
+  "integration": {
+    "lims": {
+      "enabled": true,
+      "sync_frequency": "real_time",
+      "data_points": [
+        "test_start",
+        "interim_results",
+        "test_completion",
+        "qc_alerts"
+      ]
+    },
+    "qms": {
+      "enabled": true,
+      "document_links": [
+        "test_procedure",
+        "calibration_certificates",
+        "operator_qualifications"
+      ]
+    },
+    "project_management": {
+      "enabled": true,
+      "milestone_updates": true,
+      "task_completion_tracking": true
+    }
+  },
+  "safety_requirements": {
+    "ppe_required": [
+      "safety_glasses",
+      "heat_resistant_gloves"
+    ],
+    "hazards": [
+      "high_temperature",
+      "uv_exposure",
+      "electrical_shock"
+    ],
+    "emergency_procedures": [
+      "chamber_emergency_stop",
+      "uv_shutdown",
+      "electrical_isolation"
+    ]
+  },
+  "equipment_calibration": {
+    "required_instruments": [
+      {
+        "instrument": "climate_chamber",
+        "calibration_frequency": 12,
+        "calibration_frequency_unit": "months",
+        "parameters": [
+          "temperature",
+          "humidity"
+        ]
+      },
+      {
+        "instrument": "uv_lamp",
+        "calibration_frequency": 6,
+        "calibration_frequency_unit": "months",
+        "parameters": [
+          "irradiance",
+          "spectral_distribution"
+        ]
+      },
+      {
+        "instrument": "solar_simulator",
+        "calibration_frequency": 12,
+        "calibration_frequency_unit": "months",
+        "parameters": [
+          "irradiance",
+          "spectral_match",
+          "uniformity"
+        ]
+      },
+      {
+        "instrument": "insulation_tester",
+        "calibration_frequency": 12,
+        "calibration_frequency_unit": "months",
+        "parameters": [
+          "voltage",
+          "resistance"
+        ]
+      }
+    ]
+  }
+}

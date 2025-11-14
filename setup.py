@@ -1,0 +1,51 @@
+from setuptools import setup, find_packages
+
+setup(
+    name="test-protocols",
+    version="0.1.0",
+    description="Modular PV Testing Protocol Framework",
+    author="ganeshgowri-ASA",
+    author_email="",
+    license="MIT",
+    packages=find_packages(),
+    install_requires=[
+        "streamlit>=1.28.0",
+        "pandas>=2.0.0",
+        "numpy>=1.24.0",
+        "plotly>=5.17.0",
+        "sqlalchemy>=2.0.0",
+        "pydantic>=2.0.0",
+        "python-dotenv>=1.0.0",
+        "psycopg2-binary>=2.9.0",
+        "alembic>=1.12.0",
+        "jsonschema>=4.19.0",
+        "marshmallow>=3.20.0",
+        "python-dateutil>=2.8.2",
+        "pytz>=2023.3",
+        "pyyaml>=6.0",
+        "jinja2>=3.1.2",
+        "reportlab>=4.0.0",
+        "openpyxl>=3.1.0",
+    ],
+    extras_require={
+        "dev": [
+            "pytest>=7.4.0",
+            "pytest-cov>=4.1.0",
+            "pytest-asyncio>=0.21.0",
+            "hypothesis>=6.82.0",
+        ],
+        "api": [
+            "fastapi>=0.103.0",
+            "uvicorn>=0.23.0",
+        ],
+    },
+    python_requires=">=3.9",
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+    ],
+)

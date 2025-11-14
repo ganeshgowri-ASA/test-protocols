@@ -1,0 +1,657 @@
+{
+  "protocol_id": "SEAL-001",
+  "name": "Edge Seal Degradation Protocol",
+  "version": "1.0.0",
+  "category": "degradation",
+  "description": "Accelerated aging test protocol for evaluating PV module edge seal integrity under combined thermal and humidity stress. This protocol assesses the ability of edge seals to prevent moisture ingress and delamination over extended exposure to harsh environmental conditions.",
+  "standards": [
+    {
+      "name": "IEC 61215",
+      "reference": "IEC 61215-2:2021 - Terrestrial photovoltaic (PV) modules - Design qualification and type approval",
+      "sections": ["MQT 13 - Damp heat test", "MQT 14 - Humidity-freeze test"]
+    },
+    {
+      "name": "IEC 61730",
+      "reference": "IEC 61730-2:2016 - Photovoltaic module safety qualification",
+      "sections": ["MST 34 - Bypass diode thermal test"]
+    }
+  ],
+  "equipment": [
+    {
+      "name": "Environmental Chamber",
+      "type": "climate_control",
+      "calibration_required": true,
+      "specifications": {
+        "temperature_range": [-40, 85],
+        "temperature_unit": "°C",
+        "humidity_range": [10, 98],
+        "humidity_unit": "%RH",
+        "temperature_accuracy": "±2°C",
+        "humidity_accuracy": "±5%RH",
+        "ramp_rate_min": "1°C/min",
+        "uniformity": "±3°C"
+      }
+    },
+    {
+      "name": "Visual Inspection System",
+      "type": "imaging",
+      "calibration_required": false,
+      "specifications": {
+        "resolution": "5MP minimum",
+        "lighting": "Diffuse LED lighting",
+        "magnification": "5x - 50x"
+      }
+    },
+    {
+      "name": "Digital Caliper",
+      "type": "measurement",
+      "calibration_required": true,
+      "specifications": {
+        "range": "0-150mm",
+        "accuracy": "±0.02mm",
+        "resolution": "0.01mm"
+      }
+    },
+    {
+      "name": "Moisture Detection System",
+      "type": "inspection",
+      "calibration_required": false,
+      "specifications": {
+        "method": "IR imaging or visual inspection",
+        "sensitivity": "Visible moisture detection"
+      }
+    }
+  ],
+  "sample_requirements": {
+    "quantity": 3,
+    "dimensions": {
+      "min_area": 1.0,
+      "unit": "m²",
+      "note": "Full-size modules or representative cut samples with complete edge seal"
+    },
+    "preparation": [
+      "Clean module surface with isopropyl alcohol",
+      "Document initial condition with photographs",
+      "Photograph all four edges at 45° angle",
+      "Measure and record edge seal width at 8 locations (2 per edge)",
+      "Mark measurement locations for repeatability",
+      "Record module serial numbers and manufacturer details",
+      "Inspect for pre-existing defects and document"
+    ]
+  },
+  "steps": [
+    {
+      "step_id": "SEAL-001-01",
+      "name": "Initial Visual Inspection and Baseline Measurement",
+      "type": "inspection",
+      "description": "Document baseline edge seal condition before environmental conditioning. Measure edge seal width, identify any pre-existing defects, and establish photographic reference.",
+      "parameters": {
+        "measurement_locations": 8,
+        "edges": ["top", "bottom", "left", "right"],
+        "points_per_edge": 2
+      },
+      "measurements": [
+        {
+          "name": "edge_seal_width_top_1",
+          "unit": "mm",
+          "type": "numeric",
+          "validation": {
+            "min": 0,
+            "max": 50,
+            "required": true,
+            "precision": 2
+          }
+        },
+        {
+          "name": "edge_seal_width_top_2",
+          "unit": "mm",
+          "type": "numeric",
+          "validation": {
+            "min": 0,
+            "max": 50,
+            "required": true,
+            "precision": 2
+          }
+        },
+        {
+          "name": "edge_seal_width_bottom_1",
+          "unit": "mm",
+          "type": "numeric",
+          "validation": {
+            "min": 0,
+            "max": 50,
+            "required": true,
+            "precision": 2
+          }
+        },
+        {
+          "name": "edge_seal_width_bottom_2",
+          "unit": "mm",
+          "type": "numeric",
+          "validation": {
+            "min": 0,
+            "max": 50,
+            "required": true,
+            "precision": 2
+          }
+        },
+        {
+          "name": "edge_seal_width_left_1",
+          "unit": "mm",
+          "type": "numeric",
+          "validation": {
+            "min": 0,
+            "max": 50,
+            "required": true,
+            "precision": 2
+          }
+        },
+        {
+          "name": "edge_seal_width_left_2",
+          "unit": "mm",
+          "type": "numeric",
+          "validation": {
+            "min": 0,
+            "max": 50,
+            "required": true,
+            "precision": 2
+          }
+        },
+        {
+          "name": "edge_seal_width_right_1",
+          "unit": "mm",
+          "type": "numeric",
+          "validation": {
+            "min": 0,
+            "max": 50,
+            "required": true,
+            "precision": 2
+          }
+        },
+        {
+          "name": "edge_seal_width_right_2",
+          "unit": "mm",
+          "type": "numeric",
+          "validation": {
+            "min": 0,
+            "max": 50,
+            "required": true,
+            "precision": 2
+          }
+        },
+        {
+          "name": "initial_defects_count",
+          "unit": "count",
+          "type": "numeric",
+          "validation": {
+            "min": 0,
+            "required": true,
+            "precision": 0
+          }
+        },
+        {
+          "name": "initial_defect_description",
+          "unit": "text",
+          "type": "text",
+          "validation": {
+            "required": false
+          }
+        },
+        {
+          "name": "baseline_image_top",
+          "unit": "image",
+          "type": "image",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "name": "baseline_image_bottom",
+          "unit": "image",
+          "type": "image",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "name": "baseline_image_left",
+          "unit": "image",
+          "type": "image",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "name": "baseline_image_right",
+          "unit": "image",
+          "type": "image",
+          "validation": {
+            "required": true
+          }
+        }
+      ]
+    },
+    {
+      "step_id": "SEAL-001-02",
+      "name": "Humidity-Freeze Cycling",
+      "type": "conditioning",
+      "description": "Apply repeated thermal and humidity stress cycles to simulate long-term environmental exposure. Each cycle consists of a high-temperature/high-humidity phase followed by a sub-zero temperature phase.",
+      "parameters": {
+        "total_cycles": 50,
+        "cycle_profile": [
+          {
+            "phase": "Damp Heat",
+            "temperature": 85,
+            "temperature_unit": "°C",
+            "humidity": 85,
+            "humidity_unit": "%RH",
+            "duration_hours": 20,
+            "ramp_rate": "Natural ramp",
+            "tolerance": "±2°C, ±5%RH"
+          },
+          {
+            "phase": "Freeze",
+            "temperature": -40,
+            "temperature_unit": "°C",
+            "humidity": null,
+            "humidity_unit": null,
+            "duration_hours": 4,
+            "ramp_rate": "Natural ramp",
+            "tolerance": "±2°C"
+          }
+        ],
+        "monitoring_frequency": "Every 30 minutes",
+        "checkpoint_cycles": [10, 25, 50]
+      },
+      "measurements": [
+        {
+          "name": "cycle_number",
+          "unit": "count",
+          "type": "numeric",
+          "validation": {
+            "min": 1,
+            "max": 50,
+            "required": true,
+            "precision": 0
+          }
+        },
+        {
+          "name": "actual_temperature_damp_heat",
+          "unit": "°C",
+          "type": "numeric",
+          "validation": {
+            "min": 80,
+            "max": 90,
+            "required": true,
+            "precision": 1
+          }
+        },
+        {
+          "name": "actual_humidity_damp_heat",
+          "unit": "%RH",
+          "type": "numeric",
+          "validation": {
+            "min": 75,
+            "max": 95,
+            "required": true,
+            "precision": 1
+          }
+        },
+        {
+          "name": "actual_temperature_freeze",
+          "unit": "°C",
+          "type": "numeric",
+          "validation": {
+            "min": -45,
+            "max": -35,
+            "required": true,
+            "precision": 1
+          }
+        },
+        {
+          "name": "chamber_deviation_flag",
+          "unit": "boolean",
+          "type": "boolean",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "name": "deviation_notes",
+          "unit": "text",
+          "type": "text",
+          "validation": {
+            "required": false
+          }
+        }
+      ],
+      "qc_criteria": [
+        {
+          "parameter": "actual_temperature_damp_heat",
+          "condition": "deviation_from_target",
+          "threshold": 3,
+          "action": "flag"
+        },
+        {
+          "parameter": "actual_humidity_damp_heat",
+          "condition": "deviation_from_target",
+          "threshold": 7,
+          "action": "flag"
+        },
+        {
+          "parameter": "actual_temperature_freeze",
+          "condition": "deviation_from_target",
+          "threshold": 3,
+          "action": "flag"
+        }
+      ],
+      "duration": {
+        "value": 1200,
+        "unit": "hours",
+        "note": "Total duration for 50 cycles (24 hours per cycle)"
+      }
+    },
+    {
+      "step_id": "SEAL-001-03",
+      "name": "Intermediate Inspection (Cycle 25)",
+      "type": "inspection",
+      "description": "Perform visual inspection and documentation at the midpoint of the conditioning sequence to track progression of degradation.",
+      "dependencies": ["SEAL-001-02"],
+      "parameters": {
+        "checkpoint": "25 cycles",
+        "inspection_timing": "After chamber returns to ambient conditions"
+      },
+      "measurements": [
+        {
+          "name": "intermediate_delamination_length",
+          "unit": "mm",
+          "type": "numeric",
+          "validation": {
+            "min": 0,
+            "required": true,
+            "precision": 1
+          }
+        },
+        {
+          "name": "intermediate_moisture_ingress",
+          "unit": "boolean",
+          "type": "boolean",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "name": "intermediate_visual_defects",
+          "unit": "text",
+          "type": "text",
+          "validation": {
+            "required": false
+          }
+        },
+        {
+          "name": "intermediate_images",
+          "unit": "image",
+          "type": "image",
+          "validation": {
+            "required": true
+          }
+        }
+      ]
+    },
+    {
+      "step_id": "SEAL-001-04",
+      "name": "Final Post-Conditioning Inspection",
+      "type": "inspection",
+      "description": "Comprehensive evaluation of edge seal degradation after completion of all 50 humidity-freeze cycles. Measure delamination, assess moisture ingress, and document final condition.",
+      "dependencies": ["SEAL-001-02"],
+      "parameters": {
+        "stabilization_period": "24 hours at ambient conditions",
+        "inspection_thoroughness": "Comprehensive - all edges"
+      },
+      "measurements": [
+        {
+          "name": "final_delamination_length_top",
+          "unit": "mm",
+          "type": "numeric",
+          "validation": {
+            "min": 0,
+            "required": true,
+            "precision": 1
+          }
+        },
+        {
+          "name": "final_delamination_length_bottom",
+          "unit": "mm",
+          "type": "numeric",
+          "validation": {
+            "min": 0,
+            "required": true,
+            "precision": 1
+          }
+        },
+        {
+          "name": "final_delamination_length_left",
+          "unit": "mm",
+          "type": "numeric",
+          "validation": {
+            "min": 0,
+            "required": true,
+            "precision": 1
+          }
+        },
+        {
+          "name": "final_delamination_length_right",
+          "unit": "mm",
+          "type": "numeric",
+          "validation": {
+            "min": 0,
+            "required": true,
+            "precision": 1
+          }
+        },
+        {
+          "name": "moisture_ingress_detected",
+          "unit": "boolean",
+          "type": "boolean",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "name": "moisture_location",
+          "unit": "text",
+          "type": "text",
+          "validation": {
+            "required": false
+          }
+        },
+        {
+          "name": "adhesion_loss_percentage",
+          "unit": "%",
+          "type": "numeric",
+          "validation": {
+            "min": 0,
+            "max": 100,
+            "required": true,
+            "precision": 1
+          }
+        },
+        {
+          "name": "final_image_top",
+          "unit": "image",
+          "type": "image",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "name": "final_image_bottom",
+          "unit": "image",
+          "type": "image",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "name": "final_image_left",
+          "unit": "image",
+          "type": "image",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "name": "final_image_right",
+          "unit": "image",
+          "type": "image",
+          "validation": {
+            "required": true
+          }
+        },
+        {
+          "name": "final_condition_notes",
+          "unit": "text",
+          "type": "text",
+          "validation": {
+            "required": false
+          }
+        }
+      ]
+    }
+  ],
+  "calculations": [
+    {
+      "name": "average_initial_seal_width",
+      "formula": "(edge_seal_width_top_1 + edge_seal_width_top_2 + edge_seal_width_bottom_1 + edge_seal_width_bottom_2 + edge_seal_width_left_1 + edge_seal_width_left_2 + edge_seal_width_right_1 + edge_seal_width_right_2) / 8",
+      "variables": {
+        "edge_seal_width_top_1": "SEAL-001-01.edge_seal_width_top_1",
+        "edge_seal_width_top_2": "SEAL-001-01.edge_seal_width_top_2",
+        "edge_seal_width_bottom_1": "SEAL-001-01.edge_seal_width_bottom_1",
+        "edge_seal_width_bottom_2": "SEAL-001-01.edge_seal_width_bottom_2",
+        "edge_seal_width_left_1": "SEAL-001-01.edge_seal_width_left_1",
+        "edge_seal_width_left_2": "SEAL-001-01.edge_seal_width_left_2",
+        "edge_seal_width_right_1": "SEAL-001-01.edge_seal_width_right_1",
+        "edge_seal_width_right_2": "SEAL-001-01.edge_seal_width_right_2"
+      },
+      "output_unit": "mm"
+    },
+    {
+      "name": "total_delamination_length",
+      "formula": "final_delamination_length_top + final_delamination_length_bottom + final_delamination_length_left + final_delamination_length_right",
+      "variables": {
+        "final_delamination_length_top": "SEAL-001-04.final_delamination_length_top",
+        "final_delamination_length_bottom": "SEAL-001-04.final_delamination_length_bottom",
+        "final_delamination_length_left": "SEAL-001-04.final_delamination_length_left",
+        "final_delamination_length_right": "SEAL-001-04.final_delamination_length_right"
+      },
+      "output_unit": "mm"
+    },
+    {
+      "name": "max_delamination_length",
+      "formula": "max(final_delamination_length_top, final_delamination_length_bottom, final_delamination_length_left, final_delamination_length_right)",
+      "variables": {
+        "final_delamination_length_top": "SEAL-001-04.final_delamination_length_top",
+        "final_delamination_length_bottom": "SEAL-001-04.final_delamination_length_bottom",
+        "final_delamination_length_left": "SEAL-001-04.final_delamination_length_left",
+        "final_delamination_length_right": "SEAL-001-04.final_delamination_length_right"
+      },
+      "output_unit": "mm"
+    },
+    {
+      "name": "degradation_rate_percentage",
+      "formula": "(max_delamination_length / average_initial_seal_width) * 100",
+      "variables": {
+        "max_delamination_length": "calculated.max_delamination_length",
+        "average_initial_seal_width": "calculated.average_initial_seal_width"
+      },
+      "output_unit": "%"
+    }
+  ],
+  "pass_criteria": [
+    {
+      "parameter": "degradation_rate_percentage",
+      "operator": "<",
+      "value": 10,
+      "severity": "critical",
+      "description": "Degradation rate must be less than 10% of initial seal width"
+    },
+    {
+      "parameter": "max_delamination_length",
+      "operator": "<",
+      "value": 3,
+      "severity": "major",
+      "description": "Maximum delamination length must be less than 3mm"
+    },
+    {
+      "parameter": "moisture_ingress_detected",
+      "operator": "==",
+      "value": false,
+      "severity": "critical",
+      "description": "No moisture ingress shall be detected"
+    },
+    {
+      "parameter": "adhesion_loss_percentage",
+      "operator": "<",
+      "value": 15,
+      "severity": "major",
+      "description": "Adhesion loss must be less than 15%"
+    }
+  ],
+  "reporting": {
+    "template": "degradation_standard",
+    "sections": [
+      "executive_summary",
+      "test_overview",
+      "methodology",
+      "equipment_calibration",
+      "sample_information",
+      "test_conditions",
+      "results_summary",
+      "measurements_table",
+      "calculations",
+      "pass_fail_evaluation",
+      "visual_documentation",
+      "deviations",
+      "conclusions",
+      "recommendations"
+    ],
+    "charts": [
+      {
+        "type": "timeline",
+        "data": "temperature_humidity_profile",
+        "title": "Environmental Conditioning Profile"
+      },
+      {
+        "type": "bar_chart",
+        "data": "delamination_by_edge",
+        "title": "Delamination Length by Edge"
+      },
+      {
+        "type": "comparison",
+        "data": "before_after_images",
+        "title": "Visual Comparison - Baseline vs Post-Conditioning"
+      },
+      {
+        "type": "gauge",
+        "data": "degradation_rate_percentage",
+        "title": "Degradation Rate (%)"
+      }
+    ]
+  },
+  "metadata": {
+    "author": "Quality Engineering Team",
+    "created_date": "2025-01-15",
+    "last_modified": "2025-01-15",
+    "approved_by": null,
+    "approval_date": null,
+    "revision_history": [
+      {
+        "version": "1.0.0",
+        "date": "2025-01-15",
+        "changes": "Initial protocol release",
+        "author": "Quality Engineering Team"
+      }
+    ],
+    "tags": ["degradation", "edge-seal", "humidity-freeze", "IEC-61215", "module-reliability"]
+  }
+}

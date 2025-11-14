@@ -1,0 +1,211 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Test Protocol",
+  "type": "object",
+  "required": ["protocol_id", "name", "version", "category", "steps"],
+  "properties": {
+    "protocol_id": {
+      "type": "string",
+      "pattern": "^[A-Z]+-[0-9]{3}$",
+      "description": "Unique protocol identifier (e.g., SEAL-001)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable protocol name"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Semantic version (e.g., 1.0.0)"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["degradation", "performance", "environmental", "safety"],
+      "description": "Protocol category"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed protocol description"
+    },
+    "standards": {
+      "type": "array",
+      "description": "Applicable industry standards",
+      "items": {
+        "type": "object",
+        "required": ["name", "reference"],
+        "properties": {
+          "name": {"type": "string"},
+          "reference": {"type": "string"},
+          "sections": {
+            "type": "array",
+            "items": {"type": "string"}
+          }
+        }
+      }
+    },
+    "equipment": {
+      "type": "array",
+      "description": "Required equipment",
+      "items": {
+        "type": "object",
+        "required": ["name", "type"],
+        "properties": {
+          "name": {"type": "string"},
+          "type": {"type": "string"},
+          "calibration_required": {"type": "boolean"},
+          "specifications": {"type": "object"}
+        }
+      }
+    },
+    "sample_requirements": {
+      "type": "object",
+      "description": "Sample preparation requirements",
+      "properties": {
+        "quantity": {"type": "integer", "minimum": 1},
+        "dimensions": {"type": "object"},
+        "preparation": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "description": "Protocol test steps",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["step_id", "name", "type"],
+        "properties": {
+          "step_id": {
+            "type": "string",
+            "pattern": "^[A-Z]+-[0-9]{3}-[0-9]{2}$",
+            "description": "Unique step identifier"
+          },
+          "name": {"type": "string"},
+          "type": {
+            "type": "string",
+            "enum": ["measurement", "conditioning", "inspection", "calculation"],
+            "description": "Step type"
+          },
+          "description": {"type": "string"},
+          "parameters": {
+            "type": "object",
+            "description": "Step-specific parameters"
+          },
+          "measurements": {
+            "type": "array",
+            "description": "Data to be collected",
+            "items": {
+              "type": "object",
+              "required": ["name", "unit", "type"],
+              "properties": {
+                "name": {"type": "string"},
+                "unit": {"type": "string"},
+                "type": {
+                  "type": "string",
+                  "enum": ["numeric", "text", "boolean", "image"]
+                },
+                "validation": {
+                  "type": "object",
+                  "properties": {
+                    "min": {"type": "number"},
+                    "max": {"type": "number"},
+                    "required": {"type": "boolean"},
+                    "precision": {"type": "integer"}
+                  }
+                }
+              }
+            }
+          },
+          "qc_criteria": {
+            "type": "array",
+            "description": "Quality control criteria",
+            "items": {
+              "type": "object",
+              "required": ["parameter", "condition", "threshold", "action"],
+              "properties": {
+                "parameter": {"type": "string"},
+                "condition": {"type": "string"},
+                "threshold": {"type": "number"},
+                "action": {
+                  "type": "string",
+                  "enum": ["warn", "fail", "flag"]
+                }
+              }
+            }
+          },
+          "duration": {
+            "type": "object",
+            "properties": {
+              "value": {"type": "number"},
+              "unit": {"type": "string"}
+            }
+          },
+          "dependencies": {
+            "type": "array",
+            "description": "Required prerequisite steps",
+            "items": {"type": "string"}
+          }
+        }
+      }
+    },
+    "calculations": {
+      "type": "array",
+      "description": "Derived calculations",
+      "items": {
+        "type": "object",
+        "required": ["name", "formula", "variables", "output_unit"],
+        "properties": {
+          "name": {"type": "string"},
+          "formula": {"type": "string"},
+          "variables": {"type": "object"},
+          "output_unit": {"type": "string"}
+        }
+      }
+    },
+    "pass_criteria": {
+      "type": "array",
+      "description": "Pass/fail evaluation criteria",
+      "items": {
+        "type": "object",
+        "required": ["parameter", "operator", "value", "severity"],
+        "properties": {
+          "parameter": {"type": "string"},
+          "operator": {
+            "type": "string",
+            "enum": ["<", ">", "<=", ">=", "==", "!="]
+          },
+          "value": {"type": ["number", "boolean"]},
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "major", "minor"]
+          }
+        }
+      }
+    },
+    "reporting": {
+      "type": "object",
+      "description": "Report generation configuration",
+      "properties": {
+        "template": {"type": "string"},
+        "sections": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "charts": {"type": "array"}
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Protocol metadata",
+      "properties": {
+        "author": {"type": "string"},
+        "created_date": {"type": "string", "format": "date"},
+        "last_modified": {"type": "string", "format": "date"},
+        "approved_by": {"type": "string"},
+        "approval_date": {"type": "string", "format": "date"}
+      }
+    }
+  }
+}

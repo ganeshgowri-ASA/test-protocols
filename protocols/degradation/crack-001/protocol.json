@@ -1,0 +1,347 @@
+{
+  "protocol_id": "CRACK-001",
+  "name": "Cell Crack Propagation",
+  "version": "1.0.0",
+  "category": "degradation",
+  "description": "Protocol for testing and monitoring crack propagation in photovoltaic cells under mechanical and thermal stress",
+  "reference_standard": "IEC 61215-2:2021",
+  "author": "GenSpark Labs",
+  "created_date": "2025-11-14",
+  "last_modified": "2025-11-14",
+
+  "test_parameters": {
+    "stress_type": {
+      "type": "enum",
+      "options": ["thermal_cycling", "mechanical_load", "combined"],
+      "default": "thermal_cycling",
+      "description": "Type of stress applied to induce crack propagation"
+    },
+    "thermal_cycles": {
+      "type": "integer",
+      "min": 50,
+      "max": 1000,
+      "default": 200,
+      "unit": "cycles",
+      "description": "Number of thermal cycles (-40°C to +85°C)"
+    },
+    "mechanical_load": {
+      "type": "float",
+      "min": 0,
+      "max": 5400,
+      "default": 2400,
+      "unit": "Pa",
+      "description": "Mechanical load pressure applied"
+    },
+    "measurement_interval": {
+      "type": "integer",
+      "min": 1,
+      "max": 100,
+      "default": 50,
+      "unit": "cycles",
+      "description": "Interval between EL and performance measurements"
+    },
+    "chamber_temp_low": {
+      "type": "float",
+      "min": -50,
+      "max": 0,
+      "default": -40,
+      "unit": "°C",
+      "description": "Lower temperature limit for thermal cycling"
+    },
+    "chamber_temp_high": {
+      "type": "float",
+      "min": 50,
+      "max": 125,
+      "default": 85,
+      "unit": "°C",
+      "description": "Upper temperature limit for thermal cycling"
+    },
+    "dwell_time": {
+      "type": "integer",
+      "min": 10,
+      "max": 60,
+      "default": 30,
+      "unit": "minutes",
+      "description": "Dwell time at each temperature extreme"
+    }
+  },
+
+  "measurements": {
+    "electroluminescence": {
+      "required": true,
+      "frequency": "per_interval",
+      "parameters": {
+        "current": {
+          "type": "float",
+          "value": 9.0,
+          "unit": "A",
+          "description": "Forward bias current for EL imaging"
+        },
+        "exposure_time": {
+          "type": "integer",
+          "value": 5000,
+          "unit": "ms",
+          "description": "Camera exposure time"
+        },
+        "resolution": {
+          "type": "string",
+          "value": "2048x2048",
+          "description": "Image resolution"
+        }
+      },
+      "analysis": ["crack_detection", "crack_length", "crack_area", "cell_isolation"]
+    },
+    "iv_curve": {
+      "required": true,
+      "frequency": "per_interval",
+      "parameters": {
+        "irradiance": {
+          "type": "integer",
+          "value": 1000,
+          "unit": "W/m²",
+          "description": "Standard test condition irradiance"
+        },
+        "temperature": {
+          "type": "float",
+          "value": 25.0,
+          "unit": "°C",
+          "description": "Cell temperature during measurement"
+        },
+        "sweep_points": {
+          "type": "integer",
+          "value": 100,
+          "description": "Number of points in IV sweep"
+        }
+      },
+      "analysis": ["pmax", "voc", "isc", "ff", "rs", "rsh"]
+    },
+    "visual_inspection": {
+      "required": true,
+      "frequency": "start_end",
+      "parameters": {
+        "resolution": {
+          "type": "string",
+          "value": "4K",
+          "description": "Visual inspection camera resolution"
+        }
+      },
+      "analysis": ["surface_defects", "discoloration", "delamination"]
+    },
+    "infrared_thermography": {
+      "required": false,
+      "frequency": "per_interval",
+      "parameters": {
+        "thermal_resolution": {
+          "type": "float",
+          "value": 0.05,
+          "unit": "°C",
+          "description": "Thermal camera resolution"
+        }
+      },
+      "analysis": ["hot_spots", "temperature_distribution"]
+    }
+  },
+
+  "pass_fail_criteria": {
+    "max_power_degradation": {
+      "type": "percentage",
+      "threshold": 5.0,
+      "operator": "less_than",
+      "description": "Maximum allowable power degradation from initial Pmax"
+    },
+    "max_crack_propagation": {
+      "type": "percentage",
+      "threshold": 20.0,
+      "operator": "less_than",
+      "description": "Maximum allowable crack area increase"
+    },
+    "isolated_cells": {
+      "type": "count",
+      "threshold": 0,
+      "operator": "equals",
+      "description": "Number of electrically isolated cells"
+    },
+    "fill_factor_degradation": {
+      "type": "percentage",
+      "threshold": 3.0,
+      "operator": "less_than",
+      "description": "Maximum allowable fill factor degradation"
+    }
+  },
+
+  "data_collection": {
+    "sample_size": {
+      "min": 3,
+      "recommended": 10,
+      "description": "Number of test samples"
+    },
+    "control_group": {
+      "required": true,
+      "size": 2,
+      "description": "Unstressed control samples for comparison"
+    },
+    "metadata": {
+      "required_fields": [
+        "sample_id",
+        "manufacturer",
+        "cell_type",
+        "cell_efficiency",
+        "cell_area",
+        "manufacturing_date",
+        "initial_pmax",
+        "initial_voc",
+        "initial_isc",
+        "initial_ff"
+      ],
+      "optional_fields": [
+        "batch_number",
+        "wafer_type",
+        "texture_type",
+        "metallization_process"
+      ]
+    }
+  },
+
+  "reporting": {
+    "required_plots": [
+      "pmax_vs_cycles",
+      "crack_area_vs_cycles",
+      "el_image_comparison",
+      "iv_curve_evolution",
+      "degradation_rate"
+    ],
+    "required_tables": [
+      "initial_parameters",
+      "final_parameters",
+      "degradation_summary",
+      "pass_fail_status"
+    ],
+    "format": ["pdf", "html"],
+    "include_raw_data": true
+  },
+
+  "safety_requirements": {
+    "ppe": ["safety_glasses", "lab_coat", "insulated_gloves"],
+    "electrical_safety": "Ensure proper grounding and use isolated measurement equipment",
+    "thermal_safety": "Allow samples to stabilize at room temperature before handling",
+    "handling": "Use ESD-safe procedures when handling samples"
+  },
+
+  "equipment_required": [
+    {
+      "name": "Thermal Chamber",
+      "specification": "Temperature range: -40°C to +85°C, ±2°C accuracy",
+      "required": true
+    },
+    {
+      "name": "EL Imaging System",
+      "specification": "Si-CCD camera, 2048x2048 resolution minimum",
+      "required": true
+    },
+    {
+      "name": "Solar Simulator",
+      "specification": "Class AAA, 1000 W/m², AM1.5G spectrum",
+      "required": true
+    },
+    {
+      "name": "IV Tracer",
+      "specification": "4-wire measurement, ±0.5% accuracy",
+      "required": true
+    },
+    {
+      "name": "Mechanical Load Tester",
+      "specification": "Uniform pressure application, 0-5400 Pa",
+      "required": false
+    },
+    {
+      "name": "IR Camera",
+      "specification": "LWIR, ≥320x240 resolution, ≤50 mK NETD",
+      "required": false
+    }
+  ],
+
+  "workflow": {
+    "steps": [
+      {
+        "step": 1,
+        "name": "Initial Characterization",
+        "duration": 120,
+        "unit": "minutes",
+        "actions": [
+          "Visual inspection and documentation",
+          "EL imaging of all samples",
+          "IV curve measurement (STC conditions)",
+          "IR thermography (optional)",
+          "Record baseline parameters"
+        ]
+      },
+      {
+        "step": 2,
+        "name": "Stress Application",
+        "duration": null,
+        "unit": "variable",
+        "actions": [
+          "Load samples into thermal chamber",
+          "Apply thermal cycles or mechanical load per parameters",
+          "Monitor chamber conditions continuously"
+        ]
+      },
+      {
+        "step": 3,
+        "name": "Interim Measurements",
+        "duration": 90,
+        "unit": "minutes",
+        "actions": [
+          "Remove samples at measurement intervals",
+          "Allow temperature stabilization (30 min minimum)",
+          "Perform EL imaging",
+          "Measure IV curves",
+          "Return samples to chamber"
+        ],
+        "repeat": "per_interval"
+      },
+      {
+        "step": 4,
+        "name": "Final Characterization",
+        "duration": 120,
+        "unit": "minutes",
+        "actions": [
+          "Complete final EL imaging",
+          "Final IV curve measurements",
+          "Visual inspection",
+          "IR thermography (optional)",
+          "Document all observations"
+        ]
+      },
+      {
+        "step": 5,
+        "name": "Analysis and Reporting",
+        "duration": 240,
+        "unit": "minutes",
+        "actions": [
+          "Process EL images for crack detection",
+          "Calculate degradation metrics",
+          "Compare with control samples",
+          "Apply pass/fail criteria",
+          "Generate comprehensive report"
+        ]
+      }
+    ]
+  },
+
+  "validation": {
+    "calibration_required": [
+      "thermal_chamber",
+      "solar_simulator",
+      "iv_tracer"
+    ],
+    "calibration_interval": "12 months",
+    "reference_cells": "Required for solar simulator calibration",
+    "uncertainty_budget": {
+      "temperature": "±2°C",
+      "irradiance": "±2%",
+      "current": "±0.5%",
+      "voltage": "±0.5%"
+    }
+  }
+}

@@ -1,0 +1,507 @@
+{
+  "metadata": {
+    "protocol_id": "HOT-001",
+    "name": "Hot Spot Endurance Test Protocol",
+    "version": "1.0.0",
+    "standard": "IEC 61215 MQT 09",
+    "category": "Safety Testing",
+    "description": "Photovoltaic module testing to determine ability to endure hot spot heating effects caused by non-uniform irradiance, cell cracking, or reverse bias conditions"
+  },
+  "parameters": {
+    "test_duration": {
+      "value": 1,
+      "unit": "hours",
+      "description": "Duration of hot spot application per test cell",
+      "standard_requirement": "IEC 61215 MQT 09"
+    },
+    "hot_spot_temperature": {
+      "value": 85,
+      "unit": "°C",
+      "tolerance": "±5",
+      "description": "Target temperature for hot spot testing",
+      "condition": "Measured at module surface near affected cell"
+    },
+    "number_of_cells_tested": {
+      "value": 3,
+      "unit": "cells",
+      "description": "Number of cells to be subjected to hot spot conditions",
+      "standard_requirement": "Minimum 3 cells per IEC 61215"
+    },
+    "bypass_diode_test": {
+      "value": true,
+      "description": "Verify bypass diode activation during hot spot conditions",
+      "standard_requirement": "IEC 61215 MQT 09"
+    },
+    "ambient_temperature": {
+      "value": 25,
+      "unit": "°C",
+      "tolerance": "±5",
+      "description": "Ambient temperature during testing"
+    },
+    "irradiance_level": {
+      "value": 1000,
+      "unit": "W/m²",
+      "tolerance": "±10%",
+      "description": "Solar simulator irradiance for I-V measurements",
+      "condition": "STC conditions: AM1.5, 1000 W/m², 25°C"
+    },
+    "reverse_bias_voltage": {
+      "value": "1.25 × Voc",
+      "unit": "V",
+      "description": "Reverse bias voltage applied to create hot spot conditions",
+      "calculation": "1.25 times open circuit voltage of module"
+    },
+    "current_limit": {
+      "value": "Isc",
+      "unit": "A",
+      "description": "Maximum current during reverse bias application",
+      "condition": "Limited to short circuit current to prevent damage"
+    },
+    "max_power_degradation": {
+      "value": 5,
+      "unit": "%",
+      "description": "Maximum allowable power degradation after test",
+      "standard_requirement": "Pass/fail criterion per IEC 61215"
+    },
+    "insulation_resistance_min": {
+      "value": 400,
+      "unit": "MΩ",
+      "description": "Minimum insulation resistance after testing",
+      "test_voltage": "500V or 2×(Voc+50V), whichever is greater"
+    },
+    "wet_leakage_current_max": {
+      "value": 50,
+      "unit": "µA",
+      "description": "Maximum wet leakage current",
+      "condition": "After wet insulation resistance test"
+    }
+  },
+  "equipment": {
+    "solar_simulator": {
+      "type": "required",
+      "specifications": {
+        "irradiance": "1000 W/m²",
+        "uniformity": "±2%",
+        "temporal_stability": "±2%",
+        "spectral_match": "Class A (IEC 60904-9)"
+      },
+      "calibration": {
+        "interval": 6,
+        "interval_unit": "months",
+        "standard": "Traceable to national/international standard"
+      }
+    },
+    "iv_curve_tracer": {
+      "type": "required",
+      "specifications": {
+        "voltage_accuracy": "±0.5%",
+        "current_accuracy": "±0.5%",
+        "sweep_time": "< 100 ms",
+        "data_points": "> 100 points/curve"
+      },
+      "calibration": {
+        "interval": 12,
+        "interval_unit": "months"
+      }
+    },
+    "temperature_sensors": {
+      "type": "required",
+      "specifications": {
+        "type": "Type K thermocouple or equivalent",
+        "accuracy": "±1°C",
+        "range": "-40°C to +150°C",
+        "response_time": "< 5 seconds"
+      },
+      "quantity": 4,
+      "calibration": {
+        "interval": 12,
+        "interval_unit": "months"
+      }
+    },
+    "power_supply": {
+      "type": "required",
+      "specifications": {
+        "voltage_range": "0 to 1.5 × Voc",
+        "current_range": "0 to 2 × Isc",
+        "voltage_regulation": "±0.1%",
+        "current_regulation": "±0.1%"
+      },
+      "calibration": {
+        "interval": 12,
+        "interval_unit": "months"
+      }
+    },
+    "thermal_imaging_camera": {
+      "type": "required",
+      "specifications": {
+        "temperature_range": "-20°C to +150°C",
+        "accuracy": "±2°C or ±2%",
+        "resolution": "Minimum 320×240 pixels",
+        "thermal_sensitivity": "< 0.1°C"
+      },
+      "calibration": {
+        "interval": 12,
+        "interval_unit": "months"
+      }
+    },
+    "insulation_tester": {
+      "type": "required",
+      "specifications": {
+        "test_voltage": "500V - 1000V DC",
+        "resistance_range": "0.1 MΩ to 1000 MΩ",
+        "accuracy": "±5%"
+      },
+      "calibration": {
+        "interval": 12,
+        "interval_unit": "months"
+      }
+    },
+    "data_logger": {
+      "type": "required",
+      "specifications": {
+        "channels": "Minimum 8",
+        "sampling_rate": "1 Hz minimum",
+        "accuracy": "±0.1% of reading"
+      }
+    }
+  },
+  "test_procedure": {
+    "steps": [
+      {
+        "step": 1,
+        "name": "Initial Visual Inspection",
+        "description": "Perform detailed visual inspection of module for any pre-existing defects",
+        "required": true,
+        "measurements": ["photograph", "defect_log"],
+        "acceptance_criteria": "Document all visible defects including cracks, discoloration, bubbles"
+      },
+      {
+        "step": 2,
+        "name": "Initial I-V Curve Measurement",
+        "description": "Measure initial I-V curve under STC conditions (AM1.5, 1000 W/m², 25°C)",
+        "required": true,
+        "measurements": ["Voc", "Isc", "Vmp", "Imp", "Pmax", "FF"],
+        "acceptance_criteria": "Module performance within manufacturer specifications",
+        "conditions": {
+          "irradiance": "1000 W/m²",
+          "module_temperature": "25°C ±2°C",
+          "spectrum": "AM1.5"
+        }
+      },
+      {
+        "step": 3,
+        "name": "Initial Insulation Resistance Test",
+        "description": "Measure insulation resistance at test voltage",
+        "required": true,
+        "measurements": ["insulation_resistance"],
+        "acceptance_criteria": "≥ 400 MΩ",
+        "test_voltage": "500V or 2×(Voc+50V), whichever greater"
+      },
+      {
+        "step": 4,
+        "name": "Cell Selection and Marking",
+        "description": "Select and mark 3 cells for hot spot testing (typically one from each third of module)",
+        "required": true,
+        "measurements": ["cell_locations", "cell_identifiers"],
+        "notes": "Select cells representing different areas of module for comprehensive testing"
+      },
+      {
+        "step": 5,
+        "name": "Bypass Diode Verification",
+        "description": "Verify bypass diode functionality by shading selected cells and measuring voltage",
+        "required": true,
+        "measurements": ["bypass_voltage_drop", "activation_current"],
+        "acceptance_criteria": "Bypass diodes activate when cells are shaded, limiting reverse voltage"
+      },
+      {
+        "step": 6,
+        "name": "Hot Spot Test Setup",
+        "description": "Configure test setup with power supply, temperature sensors, and thermal camera",
+        "required": true,
+        "configuration": {
+          "mount_module": "Horizontal position with backsheet facing up",
+          "attach_thermocouples": "4 locations - 3 on tested cells, 1 ambient",
+          "connect_power_supply": "To module terminals for reverse bias",
+          "position_thermal_camera": "Facing module backsheet",
+          "setup_data_logger": "Connected to all sensors"
+        }
+      },
+      {
+        "step": 7,
+        "name": "Hot Spot Generation - Cell 1",
+        "description": "Apply reverse bias to create hot spot on first selected cell for 1 hour",
+        "required": true,
+        "measurements": ["temperature_vs_time", "voltage", "current", "thermal_image"],
+        "duration": "1 hour",
+        "monitoring": {
+          "temperature": "Continuous monitoring, record every 30 seconds",
+          "thermal_imaging": "Capture images every 5 minutes",
+          "safety_limits": "Abort if temperature exceeds 120°C or visible smoke/fire"
+        },
+        "conditions": {
+          "reverse_bias": "1.25 × Voc",
+          "current_limit": "Isc",
+          "target_temperature": "85°C ±5°C",
+          "duration": "1 hour"
+        }
+      },
+      {
+        "step": 8,
+        "name": "Hot Spot Generation - Cell 2",
+        "description": "Apply reverse bias to create hot spot on second selected cell for 1 hour",
+        "required": true,
+        "measurements": ["temperature_vs_time", "voltage", "current", "thermal_image"],
+        "duration": "1 hour",
+        "monitoring": {
+          "temperature": "Continuous monitoring, record every 30 seconds",
+          "thermal_imaging": "Capture images every 5 minutes",
+          "safety_limits": "Abort if temperature exceeds 120°C or visible smoke/fire"
+        },
+        "conditions": {
+          "reverse_bias": "1.25 × Voc",
+          "current_limit": "Isc",
+          "target_temperature": "85°C ±5°C",
+          "duration": "1 hour"
+        }
+      },
+      {
+        "step": 9,
+        "name": "Hot Spot Generation - Cell 3",
+        "description": "Apply reverse bias to create hot spot on third selected cell for 1 hour",
+        "required": true,
+        "measurements": ["temperature_vs_time", "voltage", "current", "thermal_image"],
+        "duration": "1 hour",
+        "monitoring": {
+          "temperature": "Continuous monitoring, record every 30 seconds",
+          "thermal_imaging": "Capture images every 5 minutes",
+          "safety_limits": "Abort if temperature exceeds 120°C or visible smoke/fire"
+        },
+        "conditions": {
+          "reverse_bias": "1.25 × Voc",
+          "current_limit": "Isc",
+          "target_temperature": "85°C ±5°C",
+          "duration": "1 hour"
+        }
+      },
+      {
+        "step": 10,
+        "name": "Cool Down Period",
+        "description": "Allow module to cool to ambient temperature",
+        "required": true,
+        "measurements": ["temperature_vs_time"],
+        "acceptance_criteria": "Module temperature within 5°C of ambient",
+        "minimum_duration": "30 minutes"
+      },
+      {
+        "step": 11,
+        "name": "Post-Test Visual Inspection",
+        "description": "Perform detailed visual inspection for damage caused by hot spot testing",
+        "required": true,
+        "measurements": ["photograph", "defect_log", "damage_assessment"],
+        "inspection_points": [
+          "Discoloration or browning at test locations",
+          "Melting or deformation of encapsulant",
+          "Cell cracks or breakage",
+          "Solder joint damage",
+          "Backsheet damage or melting",
+          "Junction box damage",
+          "Bypass diode functionality"
+        ]
+      },
+      {
+        "step": 12,
+        "name": "Final I-V Curve Measurement",
+        "description": "Measure final I-V curve under STC conditions to assess power degradation",
+        "required": true,
+        "measurements": ["Voc", "Isc", "Vmp", "Imp", "Pmax", "FF"],
+        "conditions": {
+          "irradiance": "1000 W/m²",
+          "module_temperature": "25°C ±2°C",
+          "spectrum": "AM1.5"
+        }
+      },
+      {
+        "step": 13,
+        "name": "Final Insulation Resistance Test",
+        "description": "Measure final insulation resistance to verify module integrity",
+        "required": true,
+        "measurements": ["insulation_resistance"],
+        "test_voltage": "500V or 2×(Voc+50V), whichever greater"
+      },
+      {
+        "step": 14,
+        "name": "Wet Leakage Current Test",
+        "description": "Measure leakage current after water immersion test",
+        "required": true,
+        "measurements": ["wet_leakage_current"],
+        "procedure": "Immerse module edges in water solution, apply test voltage, measure current",
+        "acceptance_criteria": "≤ 50 µA"
+      }
+    ]
+  },
+  "pass_fail_criteria": {
+    "power_degradation": {
+      "parameter": "Pmax",
+      "condition": "≤ 5%",
+      "calculation": "((Initial_Pmax - Final_Pmax) / Initial_Pmax) × 100",
+      "critical": true
+    },
+    "visual_inspection": {
+      "parameter": "Physical damage",
+      "condition": "No major defects",
+      "acceptable": [
+          "Minor discoloration at hot spot locations (< 10% of cell area)",
+          "Slight encapsulant yellowing at hot spot"
+      ],
+      "unacceptable": [
+        "Cell cracks or breakage",
+        "Melting or severe deformation of encapsulant",
+        "Backsheet melting or perforation",
+        "Junction box damage or melting",
+        "Open circuit or ground fault",
+        "Bypass diode failure"
+      ],
+      "critical": true
+    },
+    "insulation_resistance": {
+      "parameter": "Insulation resistance",
+      "condition": "≥ 400 MΩ",
+      "critical": true
+    },
+    "wet_leakage_current": {
+      "parameter": "Wet leakage current",
+      "condition": "≤ 50 µA",
+      "critical": true
+    },
+    "bypass_diode": {
+      "parameter": "Bypass diode functionality",
+      "condition": "Operational",
+      "critical": true
+    }
+  },
+  "data_collection": {
+    "measurement_intervals": {
+      "temperature": {
+        "frequency": 30,
+        "unit": "seconds",
+        "parameters": ["hot_spot_temp", "ambient_temp", "module_temp"]
+      },
+      "thermal_images": {
+        "frequency": 5,
+        "unit": "minutes",
+        "format": "JPEG with temperature scale overlay"
+      },
+      "iv_curves": {
+        "frequency": "Before and after test",
+        "points_per_curve": 100,
+        "sweep_time": "< 100 ms"
+      }
+    },
+    "retention_period": {
+      "value": 25,
+      "unit": "years",
+      "standard_requirement": "IEC 61215 data retention requirement"
+    }
+  },
+  "safety_requirements": {
+    "ppe": [
+      "Safety glasses with UV protection",
+      "Insulated gloves rated for test voltage",
+      "Heat-resistant gloves for handling hot modules",
+      "Anti-static wrist strap"
+    ],
+    "safety_limits": {
+      "max_temperature": {
+        "value": 120,
+        "unit": "°C",
+        "action": "Abort test immediately if exceeded"
+      },
+      "smoke_fire": {
+        "action": "Abort test immediately, disconnect power, use fire suppression if needed"
+      }
+    },
+    "environmental_controls": {
+      "ventilation": "Required for smoke/fume extraction",
+      "fire_suppression": "Fire extinguisher rated for electrical fires within reach",
+      "warning_signs": "High voltage warning signs displayed during testing"
+    }
+  },
+  "traceability": {
+    "qr_code": {
+      "enabled": true,
+      "encoding": "test_id,protocol_id,module_serial,date,operator",
+      "placement": "Test report and module label"
+    },
+    "required_fields": {
+      "module_information": [
+        "manufacturer",
+        "model_number",
+        "serial_number",
+        "nameplate_power",
+        "manufacturing_date"
+      ],
+      "test_information": [
+        "test_id",
+        "protocol_version",
+        "test_date",
+        "operator_name",
+        "operator_certification",
+        "test_facility",
+        "ambient_conditions"
+      ],
+      "equipment_information": [
+        "equipment_id",
+        "calibration_date",
+        "calibration_due_date",
+        "calibration_certificate"
+      ]
+    }
+  },
+  "reporting": {
+    "export_formats": ["PDF", "JSON", "CSV"],
+    "required_sections": [
+      "Executive Summary",
+      "Module Information",
+      "Test Conditions",
+      "Equipment Used",
+      "Test Procedure followed",
+      "Measurement Results",
+      "Temperature Profiles",
+      "Thermal Images",
+      "I-V Curve Comparisons",
+      "Power Degradation Analysis",
+      "Visual Inspection Results",
+      "Pass/Fail Determination",
+      "Operator Signature",
+      "Reviewer Signature"
+    ],
+    "charts": [
+      "Temperature vs Time (all 3 cells + ambient)",
+      "Initial vs Final I-V Curves",
+      "Power Degradation Bar Chart",
+      "Thermal Image Montage"
+    ]
+  },
+  "references": {
+    "standards": [
+      {
+        "name": "IEC 61215-1:2021",
+        "title": "Terrestrial photovoltaic (PV) modules - Design qualification and type approval - Part 1: Test requirements",
+        "section": "MQT 09 - Hot-spot endurance test"
+      },
+      {
+        "name": "IEC 61215-2:2021",
+        "title": "Terrestrial photovoltaic (PV) modules - Design qualification and type approval - Part 2: Test procedures",
+        "section": "MQT 09"
+      },
+      {
+        "name": "IEC 60904-1:2020",
+        "title": "Photovoltaic devices - Part 1: Measurement of photovoltaic current-voltage characteristics"
+      },
+      {
+        "name": "IEC 60904-9:2020",
+        "title": "Photovoltaic devices - Part 9: Solar simulator performance requirements"
+      }
+    ]
+  }
+}

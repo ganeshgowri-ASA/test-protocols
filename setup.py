@@ -1,0 +1,38 @@
+from setuptools import setup, find_packages
+
+setup(
+    name="test-protocols",
+    version="1.0.0",
+    description="Modular PV Testing Protocol Framework with SALT-001 Corrosion Test",
+    author="ASA",
+    author_email="info@example.com",
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
+    python_requires=">=3.9",
+    install_requires=[
+        "sqlalchemy>=2.0.0",
+        "alembic>=1.12.0",
+        "streamlit>=1.28.0",
+        "plotly>=5.17.0",
+        "pandas>=2.1.0",
+        "numpy>=1.24.0",
+        "pillow>=10.0.0",
+        "opencv-python>=4.8.0",
+        "pydantic>=2.4.0",
+        "python-dotenv>=1.0.0",
+        "streamlit-option-menu>=0.3.6",
+        "pytest>=7.4.0",
+        "pytest-cov>=4.1.0",
+        "reportlab>=4.0.0",
+        "openpyxl>=3.1.0",
+    ],
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+    ],
+)

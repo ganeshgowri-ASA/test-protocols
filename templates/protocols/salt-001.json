@@ -1,0 +1,378 @@
+{
+  "protocol": {
+    "code": "SALT-001",
+    "name": "Salt Mist Corrosion Test",
+    "version": "1.0.0",
+    "description": "IEC 61701 - Photovoltaic (PV) modules - Salt mist corrosion testing. Evaluates the ability of PV modules to withstand exposure to salt mist corrosion.",
+    "category": "Environmental",
+    "standard": "IEC 61701:2020",
+    "duration_range": {
+      "min_hours": 60,
+      "max_hours": 840,
+      "default_hours": 240
+    },
+    "metadata": {
+      "created_date": "2025-11-14",
+      "last_modified": "2025-11-14",
+      "author": "ASA",
+      "revision": "1.0"
+    },
+    "fields": [
+      {
+        "key": "specimen_id",
+        "label": "Specimen/Module ID",
+        "type": "text",
+        "required": true,
+        "pattern": "^[A-Z0-9\\-]{1,50}$",
+        "description": "Unique identifier for the test specimen or PV module",
+        "example": "PV-MOD-2024-001"
+      },
+      {
+        "key": "module_type",
+        "label": "Module Type",
+        "type": "select",
+        "options": [
+          "Crystalline Silicon",
+          "Thin Film",
+          "CIGS",
+          "CdTe",
+          "Perovskite",
+          "Other"
+        ],
+        "required": true,
+        "description": "Type of photovoltaic module"
+      },
+      {
+        "key": "manufacturer",
+        "label": "Manufacturer",
+        "type": "text",
+        "required": false,
+        "description": "Module manufacturer name"
+      },
+      {
+        "key": "rated_power",
+        "label": "Rated Power (Wp)",
+        "type": "number",
+        "min": 0,
+        "max": 1000,
+        "step": 1,
+        "unit": "Wp",
+        "required": false,
+        "description": "Rated power output in watts-peak"
+      },
+      {
+        "key": "severity_level",
+        "label": "IEC 61701 Severity Level",
+        "type": "select",
+        "options": [
+          "Level 1 - 60 hours",
+          "Level 2 - 120 hours",
+          "Level 3 - 240 hours",
+          "Level 4 - 480 hours",
+          "Level 5 - 840 hours"
+        ],
+        "required": true,
+        "default": "Level 3 - 240 hours",
+        "description": "IEC 61701 severity level determines total exposure duration"
+      },
+      {
+        "key": "salt_concentration",
+        "label": "Salt Solution Concentration (% NaCl)",
+        "type": "number",
+        "min": 4.5,
+        "max": 5.5,
+        "step": 0.1,
+        "default": 5.0,
+        "unit": "%",
+        "required": true,
+        "description": "Sodium chloride (NaCl) concentration in solution. IEC 61701 specifies 5.0 ± 0.5%"
+      },
+      {
+        "key": "chamber_temperature",
+        "label": "Chamber Temperature (°C)",
+        "type": "number",
+        "min": 34.0,
+        "max": 36.0,
+        "step": 0.1,
+        "default": 35.0,
+        "unit": "°C",
+        "required": true,
+        "description": "Test chamber temperature. IEC 61701 specifies 35 ± 1°C"
+      },
+      {
+        "key": "relative_humidity",
+        "label": "Relative Humidity (%)",
+        "type": "number",
+        "min": 93.0,
+        "max": 97.0,
+        "step": 0.5,
+        "default": 95.0,
+        "unit": "%",
+        "required": true,
+        "description": "Relative humidity in chamber. IEC 61701 specifies 95 ± 2%"
+      },
+      {
+        "key": "spray_duration",
+        "label": "Spray Duration per Cycle (hours)",
+        "type": "number",
+        "min": 1.0,
+        "max": 4.0,
+        "step": 0.5,
+        "default": 2.0,
+        "unit": "hours",
+        "required": true,
+        "description": "Salt mist spray duration per 24-hour cycle. Default: 2 hours"
+      },
+      {
+        "key": "dry_duration",
+        "label": "Dry Duration per Cycle (hours)",
+        "type": "number",
+        "min": 20.0,
+        "max": 23.0,
+        "step": 0.5,
+        "default": 22.0,
+        "unit": "hours",
+        "required": true,
+        "description": "Drying duration per 24-hour cycle. Default: 22 hours"
+      },
+      {
+        "key": "iv_measurement_intervals",
+        "label": "I-V Measurement Intervals (hours)",
+        "type": "array",
+        "item_type": "number",
+        "default": [0, 60, 120, 180, 240],
+        "description": "Time points for I-V curve measurements (hours from start)"
+      },
+      {
+        "key": "visual_inspection_intervals",
+        "label": "Visual Inspection Intervals (hours)",
+        "type": "array",
+        "item_type": "number",
+        "default": [0, 24, 48, 96, 144, 192, 240],
+        "description": "Time points for visual inspection and image capture"
+      }
+    ],
+    "measurements": [
+      {
+        "key": "corrosion_rating",
+        "label": "Visual Corrosion Rating",
+        "type": "select",
+        "options": [
+          "0 - No corrosion",
+          "1 - Slight corrosion, <1% of area",
+          "2 - Light corrosion, 1-5% of area",
+          "3 - Moderate corrosion, 5-25% of area",
+          "4 - Heavy corrosion, 25-50% of area",
+          "5 - Severe corrosion, >50% of area"
+        ],
+        "unit": "rating",
+        "description": "IEC 61701 visual corrosion severity rating"
+      },
+      {
+        "key": "surface_images",
+        "label": "Surface Images",
+        "type": "image_array",
+        "description": "Photographic documentation of corrosion progression",
+        "metadata": {
+          "resolution_min": "1920x1080",
+          "format": ["jpg", "png"],
+          "annotation": true
+        }
+      },
+      {
+        "key": "iv_curve",
+        "label": "I-V Curve Measurements",
+        "type": "curve_data",
+        "description": "Current-Voltage characteristic curve",
+        "fields": [
+          {
+            "key": "voltage",
+            "label": "Voltage (V)",
+            "type": "array",
+            "unit": "V"
+          },
+          {
+            "key": "current",
+            "label": "Current (A)",
+            "type": "array",
+            "unit": "A"
+          },
+          {
+            "key": "power",
+            "label": "Power (W)",
+            "type": "array",
+            "unit": "W"
+          }
+        ]
+      },
+      {
+        "key": "max_power",
+        "label": "Maximum Power (Pmax)",
+        "type": "number",
+        "unit": "W",
+        "description": "Maximum power point from I-V curve"
+      },
+      {
+        "key": "open_circuit_voltage",
+        "label": "Open Circuit Voltage (Voc)",
+        "type": "number",
+        "unit": "V",
+        "description": "Open circuit voltage"
+      },
+      {
+        "key": "short_circuit_current",
+        "label": "Short Circuit Current (Isc)",
+        "type": "number",
+        "unit": "A",
+        "description": "Short circuit current"
+      },
+      {
+        "key": "fill_factor",
+        "label": "Fill Factor (FF)",
+        "type": "number",
+        "unit": "%",
+        "description": "Fill factor percentage"
+      },
+      {
+        "key": "power_degradation",
+        "label": "Power Degradation",
+        "type": "number",
+        "unit": "%",
+        "description": "Percentage power loss from initial measurement"
+      },
+      {
+        "key": "chamber_temp_actual",
+        "label": "Actual Chamber Temperature",
+        "type": "number",
+        "unit": "°C",
+        "description": "Measured chamber temperature"
+      },
+      {
+        "key": "chamber_humidity_actual",
+        "label": "Actual Chamber Humidity",
+        "type": "number",
+        "unit": "%",
+        "description": "Measured chamber humidity"
+      },
+      {
+        "key": "salt_concentration_actual",
+        "label": "Actual Salt Concentration",
+        "type": "number",
+        "unit": "%",
+        "description": "Measured salt concentration"
+      },
+      {
+        "key": "spray_rate",
+        "label": "Spray Rate",
+        "type": "number",
+        "unit": "mL/h/80cm²",
+        "description": "Salt mist spray collection rate"
+      }
+    ],
+    "quality_checks": [
+      {
+        "name": "salt_concentration_check",
+        "description": "Verify salt concentration within IEC 61701 limits",
+        "parameter": "salt_concentration",
+        "expected_range": [4.5, 5.5],
+        "tolerance": 0.5,
+        "unit": "%",
+        "frequency": "daily",
+        "critical": true
+      },
+      {
+        "name": "temperature_check",
+        "description": "Verify chamber temperature within IEC 61701 limits",
+        "parameter": "chamber_temperature",
+        "expected_range": [34.0, 36.0],
+        "tolerance": 1.0,
+        "unit": "°C",
+        "frequency": "continuous",
+        "critical": true
+      },
+      {
+        "name": "humidity_check",
+        "description": "Verify relative humidity within IEC 61701 limits",
+        "parameter": "relative_humidity",
+        "expected_range": [93.0, 97.0],
+        "tolerance": 2.0,
+        "unit": "%",
+        "frequency": "continuous",
+        "critical": true
+      },
+      {
+        "name": "spray_rate_check",
+        "description": "Verify spray collection rate",
+        "parameter": "spray_rate",
+        "expected_range": [1.0, 2.0],
+        "tolerance": 0.5,
+        "unit": "mL/h/80cm²",
+        "frequency": "daily",
+        "critical": false
+      },
+      {
+        "name": "power_degradation_check",
+        "description": "Monitor excessive power degradation",
+        "parameter": "power_degradation",
+        "expected_range": [0, 5.0],
+        "tolerance": 1.0,
+        "unit": "%",
+        "frequency": "per_measurement",
+        "critical": false
+      }
+    ],
+    "cycles": {
+      "cycle_type": "spray_dry",
+      "total_cycle_duration": 24.0,
+      "spray_phase": {
+        "duration": 2.0,
+        "temperature": 35.0,
+        "humidity": 95.0,
+        "salt_mist": true
+      },
+      "dry_phase": {
+        "duration": 22.0,
+        "temperature": 35.0,
+        "humidity": 95.0,
+        "salt_mist": false
+      }
+    },
+    "acceptance_criteria": {
+      "max_power_degradation": {
+        "value": 5.0,
+        "unit": "%",
+        "description": "Maximum allowable power degradation"
+      },
+      "max_corrosion_rating": {
+        "value": 2,
+        "description": "Maximum allowable corrosion rating (IEC 61701)"
+      },
+      "no_delamination": {
+        "value": true,
+        "description": "No delamination of encapsulant or backsheet"
+      },
+      "no_electrical_failure": {
+        "value": true,
+        "description": "No electrical failures (open circuit, ground fault)"
+      }
+    },
+    "reporting": {
+      "required_sections": [
+        "Test Parameters",
+        "Environmental Conditions Log",
+        "I-V Curve Progression",
+        "Visual Inspection Images",
+        "Corrosion Rating Progression",
+        "Power Degradation Analysis",
+        "Quality Control Results",
+        "Pass/Fail Determination"
+      ],
+      "required_plots": [
+        "IV_curves_overlay",
+        "power_degradation_over_time",
+        "temperature_humidity_log",
+        "corrosion_progression"
+      ]
+    }
+  }
+}

@@ -1,0 +1,322 @@
+{
+  "protocol_id": "YELLOW-001",
+  "protocol_name": "EVA Yellowing Assessment",
+  "version": "1.0.0",
+  "description": "Accelerated yellowing test for EVA (Ethylene-Vinyl Acetate) in PV modules",
+  "category": "EVA_DEGRADATION",
+  "created_date": "2025-11-14",
+  "last_updated": "2025-11-14",
+  "author": "Test Protocols Framework",
+  "standards_reference": [
+    "IEC 61215",
+    "IEC 61730",
+    "ASTM E313 (Yellowness Index)"
+  ],
+
+  "test_parameters": {
+    "test_type": "ACCELERATED_AGING",
+    "duration_hours": 1000,
+    "temperature_celsius": 85,
+    "temperature_tolerance": 2,
+    "humidity_percent": 60,
+    "humidity_tolerance": 5,
+    "light_intensity_mw_cm2": 100,
+    "light_spectrum": "UV-A 1A",
+    "sample_size": "100mm x 100mm x 3mm",
+    "minimum_samples": 3,
+    "equipment_required": [
+      "Environmental Chamber with UV capability",
+      "UV Simulator (A-1A spectrum or equivalent)",
+      "Color Measurement Spectrometer (e.g., X-Rite Ci7800)",
+      "UV-Vis Spectrophotometer"
+    ],
+    "chamber_conditions": {
+      "air_circulation": "Forced convection",
+      "sample_orientation": "Horizontal, facing UV source",
+      "distance_from_uv_source_mm": 300
+    }
+  },
+
+  "measurements": [
+    {
+      "measurement_id": "yellow_index",
+      "name": "Yellowness Index",
+      "description": "CIE yellowness index (YI) calculated per ASTM E313",
+      "unit": "YI units",
+      "measurement_type": "OPTICAL",
+      "measurement_interval_hours": 100,
+      "range_min": 0,
+      "range_max": 100,
+      "precision": 0.1,
+      "critical_thresholds": {
+        "warning": 10,
+        "fail": 15
+      },
+      "calculation_method": "ASTM E313-20",
+      "illuminant": "D65",
+      "observer": "10-degree"
+    },
+    {
+      "measurement_id": "color_shift",
+      "name": "Color Shift (Delta E)",
+      "description": "Total color difference from baseline (CIE DE2000)",
+      "unit": "Delta E",
+      "measurement_type": "OPTICAL",
+      "measurement_interval_hours": 100,
+      "range_min": 0,
+      "range_max": 50,
+      "precision": 0.01,
+      "critical_thresholds": {
+        "warning": 5,
+        "fail": 8
+      },
+      "calculation_method": "CIE DE2000"
+    },
+    {
+      "measurement_id": "light_transmittance",
+      "name": "Light Transmittance",
+      "description": "Percentage of light transmitted at 550nm wavelength",
+      "unit": "% at 550nm",
+      "measurement_type": "OPTICAL",
+      "measurement_interval_hours": 100,
+      "range_min": 70,
+      "range_max": 100,
+      "precision": 0.1,
+      "critical_thresholds": {
+        "warning": 80,
+        "fail": 75
+      }
+    },
+    {
+      "measurement_id": "l_star",
+      "name": "L* (Lightness)",
+      "description": "CIE L*a*b* lightness component",
+      "unit": "L* units",
+      "measurement_type": "OPTICAL",
+      "measurement_interval_hours": 100,
+      "range_min": 0,
+      "range_max": 100,
+      "precision": 0.1
+    },
+    {
+      "measurement_id": "a_star",
+      "name": "a* (Red-Green)",
+      "description": "CIE L*a*b* red-green component",
+      "unit": "a* units",
+      "measurement_type": "OPTICAL",
+      "measurement_interval_hours": 100,
+      "range_min": -128,
+      "range_max": 128,
+      "precision": 0.1
+    },
+    {
+      "measurement_id": "b_star",
+      "name": "b* (Yellow-Blue)",
+      "description": "CIE L*a*b* yellow-blue component",
+      "unit": "b* units",
+      "measurement_type": "OPTICAL",
+      "measurement_interval_hours": 100,
+      "range_min": -128,
+      "range_max": 128,
+      "precision": 0.1
+    }
+  ],
+
+  "quality_controls": [
+    {
+      "qc_id": "baseline_control",
+      "name": "Baseline Measurement",
+      "type": "INITIAL_REFERENCE",
+      "description": "Establish baseline color measurements before exposure",
+      "acceptance_criteria": "Required before test start",
+      "frequency": "Once at start",
+      "mandatory": true
+    },
+    {
+      "qc_id": "equipment_calibration",
+      "name": "Equipment Calibration Check",
+      "type": "CALIBRATION",
+      "description": "Verify calibration of color measurement equipment",
+      "frequency_hours": 168,
+      "acceptance_criteria": "Calibration within ±2% using certified reference standards",
+      "mandatory": true,
+      "reference_standards": ["White tile", "Green tile", "Gray tile"]
+    },
+    {
+      "qc_id": "reference_sample",
+      "name": "Reference Sample Stability",
+      "type": "REFERENCE",
+      "description": "Monitor unexposed reference sample for measurement stability",
+      "frequency_hours": 100,
+      "acceptance_criteria": "Deviation <5% from baseline",
+      "mandatory": true
+    },
+    {
+      "qc_id": "environmental_monitoring",
+      "name": "Environmental Conditions Monitoring",
+      "type": "ENVIRONMENTAL",
+      "description": "Continuous monitoring of chamber temperature, humidity, UV intensity",
+      "frequency": "Continuous (logged every 15 minutes)",
+      "acceptance_criteria": "Within specified tolerances: T±2°C, RH±5%, UV±10%",
+      "mandatory": true
+    },
+    {
+      "qc_id": "sample_position",
+      "name": "Sample Position Verification",
+      "type": "SETUP",
+      "description": "Verify sample placement and orientation in chamber",
+      "frequency": "At start and after any chamber opening",
+      "acceptance_criteria": "Samples positioned per protocol specifications",
+      "mandatory": true
+    }
+  ],
+
+  "pass_fail_criteria": [
+    {
+      "criteria_id": "yellowing_limit",
+      "description": "Yellowness index must not exceed 15 YI at end of test",
+      "parameter": "yellow_index",
+      "operator": "<=",
+      "value": 15,
+      "severity": "FAIL",
+      "evaluation_point": "END_OF_TEST"
+    },
+    {
+      "criteria_id": "color_shift_limit",
+      "description": "Color shift must remain below 8 Delta E at end of test",
+      "parameter": "color_shift",
+      "operator": "<=",
+      "value": 8,
+      "severity": "FAIL",
+      "evaluation_point": "END_OF_TEST"
+    },
+    {
+      "criteria_id": "transmittance_minimum",
+      "description": "Light transmittance must remain above 75% at end of test",
+      "parameter": "light_transmittance",
+      "operator": ">=",
+      "value": 75,
+      "severity": "FAIL",
+      "evaluation_point": "END_OF_TEST"
+    },
+    {
+      "criteria_id": "yellowing_warning",
+      "description": "Warning threshold for yellowness index",
+      "parameter": "yellow_index",
+      "operator": "<=",
+      "value": 10,
+      "severity": "WARNING",
+      "evaluation_point": "ALL_POINTS"
+    },
+    {
+      "criteria_id": "color_shift_warning",
+      "description": "Warning threshold for color shift",
+      "parameter": "color_shift",
+      "operator": "<=",
+      "value": 5,
+      "severity": "WARNING",
+      "evaluation_point": "ALL_POINTS"
+    }
+  ],
+
+  "data_analysis": {
+    "trending_analysis": {
+      "enabled": true,
+      "methods": ["linear_regression", "exponential_fit"],
+      "calculate_rate_of_change": true,
+      "extrapolation": {
+        "enabled": true,
+        "max_hours": 2000
+      }
+    },
+    "statistical_analysis": {
+      "enabled": true,
+      "methods": ["mean", "std_dev", "coefficient_of_variation"],
+      "confidence_interval": 0.95
+    },
+    "comparative_analysis": {
+      "enabled": true,
+      "compare_to_baseline": true,
+      "compare_across_samples": true,
+      "batch_comparison": true
+    }
+  },
+
+  "reporting": {
+    "include_raw_data": true,
+    "include_charts": true,
+    "chart_types": [
+      "line_trend",
+      "color_trajectory",
+      "comparative_bar",
+      "heatmap"
+    ],
+    "include_statistics": true,
+    "include_qc_summary": true,
+    "include_pass_fail_summary": true,
+    "include_images": {
+      "sample_photos": true,
+      "color_comparison": true
+    },
+    "export_formats": ["PDF", "XLSX", "JSON", "HTML"],
+    "report_sections": [
+      "executive_summary",
+      "test_conditions",
+      "sample_information",
+      "measurement_results",
+      "data_analysis",
+      "qc_results",
+      "pass_fail_determination",
+      "conclusions",
+      "appendix"
+    ]
+  },
+
+  "integration_settings": {
+    "lims_enabled": true,
+    "lims_sample_type": "EVA_SHEET",
+    "lims_test_code": "YELLOW-001",
+    "qms_enabled": true,
+    "qms_document_type": "TEST_REPORT",
+    "pm_enabled": true,
+    "pm_task_category": "PV_MATERIAL_TESTING",
+    "auto_report_generation": true,
+    "auto_data_upload": true,
+    "notification_settings": {
+      "on_test_start": true,
+      "on_test_complete": true,
+      "on_threshold_exceeded": true,
+      "on_qc_failure": true
+    }
+  },
+
+  "safety_and_compliance": {
+    "safety_requirements": [
+      "UV protection (eye and skin) required when accessing chamber",
+      "High temperature warning - allow cool-down before sample handling",
+      "Follow laboratory PPE requirements"
+    ],
+    "compliance_standards": [
+      "IEC 61215-2:2021 (PV module design qualification)",
+      "IEC 61730-2:2016 (PV module safety qualification)",
+      "ASTM E313-20 (Standard Practice for Yellowness Index)"
+    ],
+    "data_retention_years": 10,
+    "audit_trail_required": true
+  },
+
+  "metadata": {
+    "revision_history": [
+      {
+        "version": "1.0.0",
+        "date": "2025-11-14",
+        "author": "Test Protocols Framework",
+        "changes": "Initial protocol definition"
+      }
+    ],
+    "tags": ["EVA", "yellowing", "degradation", "optical", "accelerated-aging", "PV"],
+    "protocol_status": "ACTIVE",
+    "review_date": "2026-11-14",
+    "approved_by": "Quality Assurance"
+  }
+}

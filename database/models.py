@@ -330,8 +330,9 @@ class TestExecution(Base):
 
     # Personnel
     technician_id = Column(Integer, ForeignKey("users.id"))
-    technician_user = relationship("User", back_populates="test_executions")
+    technician_user = relationship("User", foreign_keys=[technician_id], back_populates="test_executions")
     reviewer_id = Column(Integer, ForeignKey("users.id"))
+    reviewer_user = relationship("User", foreign_keys=[reviewer_id])
 
     # Test data
     input_data = Column(JSON)  # Input parameters

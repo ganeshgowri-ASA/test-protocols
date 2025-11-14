@@ -205,3 +205,28 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# PV Testing Protocol Framework Specific
+# Database files
+data/
+*.db
+*.sqlite
+
+# Generated reports
+reports/
+*.pdf
+
+# Uploaded files
+uploads/
+images/
+
+# Temporary analysis files
+temp/
+tmp/
+
+# Test fixtures and sample data
+tests/fixtures/*.db
+tests/fixtures/*.pdf
+
+# Streamlit cache
+.streamlit/

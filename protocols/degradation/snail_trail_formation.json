@@ -1,0 +1,345 @@
+{
+  "protocol_id": "SNAIL-001",
+  "name": "Snail Trail Formation Test",
+  "category": "Degradation",
+  "version": "1.0.0",
+  "description": "Assessment of snail trail formation in PV modules through accelerated environmental exposure. Snail trails are discoloration patterns caused by silver migration from cell contacts, typically appearing under humid conditions.",
+  "standard_reference": "IEC 61215-2:2021 MQT 13 (modified)",
+  "test_conditions": {
+    "temperature_range": {
+      "min_celsius": 20,
+      "max_celsius": 85,
+      "cycling": true,
+      "cycle_description": "85°C/85%RH exposure followed by 20°C ambient cooling"
+    },
+    "humidity_range": {
+      "min_percent": 40,
+      "max_percent": 85,
+      "target_percent": 85
+    },
+    "duration_hours": 1000,
+    "sample_size_min": 3,
+    "sample_size_recommended": 5,
+    "inspection_intervals_hours": [0, 168, 336, 504, 672, 840, 1000],
+    "lighting_conditions": {
+      "ev_imaging": "Electroluminescence imaging at 0h, 500h, 1000h",
+      "visual_inspection": "LED white light, 1000 lux minimum"
+    }
+  },
+  "input_parameters": [
+    {
+      "name": "module_id",
+      "type": "string",
+      "required": true,
+      "description": "Unique identifier for the PV module under test",
+      "validation": {
+        "pattern": "^[A-Z0-9-]+$"
+      }
+    },
+    {
+      "name": "manufacturer",
+      "type": "string",
+      "required": true,
+      "description": "Module manufacturer name"
+    },
+    {
+      "name": "model_number",
+      "type": "string",
+      "required": true,
+      "description": "Module model/part number"
+    },
+    {
+      "name": "cell_technology",
+      "type": "string",
+      "required": true,
+      "description": "Cell technology type",
+      "allowed_values": ["mono-PERC", "poly-Si", "mono-Si", "TOPCon", "HJT", "IBC", "other"]
+    },
+    {
+      "name": "nameplate_power_w",
+      "type": "float",
+      "required": true,
+      "description": "Nameplate power rating in watts",
+      "validation": {
+        "min": 0,
+        "max": 1000
+      },
+      "unit": "W"
+    },
+    {
+      "name": "initial_isc_a",
+      "type": "float",
+      "required": true,
+      "description": "Initial short-circuit current",
+      "unit": "A"
+    },
+    {
+      "name": "initial_voc_v",
+      "type": "float",
+      "required": true,
+      "description": "Initial open-circuit voltage",
+      "unit": "V"
+    },
+    {
+      "name": "initial_pmax_w",
+      "type": "float",
+      "required": true,
+      "description": "Initial maximum power at STC",
+      "unit": "W"
+    },
+    {
+      "name": "initial_ff_percent",
+      "type": "float",
+      "required": true,
+      "description": "Initial fill factor as percentage",
+      "unit": "%"
+    },
+    {
+      "name": "test_start_date",
+      "type": "string",
+      "required": true,
+      "description": "Test start date in ISO format (YYYY-MM-DD)"
+    },
+    {
+      "name": "operator_id",
+      "type": "string",
+      "required": true,
+      "description": "Technician or operator identifier"
+    },
+    {
+      "name": "chamber_id",
+      "type": "string",
+      "required": false,
+      "description": "Environmental chamber identifier"
+    }
+  ],
+  "measurements": [
+    {
+      "name": "inspection_hour",
+      "type": "integer",
+      "required": true,
+      "description": "Hours elapsed since test start",
+      "unit": "hours"
+    },
+    {
+      "name": "visual_snail_trail_severity",
+      "type": "string",
+      "required": true,
+      "description": "Visual assessment of snail trail severity",
+      "allowed_values": ["none", "minor", "moderate", "severe"],
+      "scoring": {
+        "none": 0,
+        "minor": 1,
+        "moderate": 2,
+        "severe": 3
+      }
+    },
+    {
+      "name": "affected_cells_count",
+      "type": "integer",
+      "required": true,
+      "description": "Number of cells showing snail trail formation",
+      "validation": {
+        "min": 0,
+        "max": 144
+      }
+    },
+    {
+      "name": "affected_area_percent",
+      "type": "float",
+      "required": true,
+      "description": "Percentage of total module area affected by snail trails",
+      "unit": "%",
+      "validation": {
+        "min": 0,
+        "max": 100
+      }
+    },
+    {
+      "name": "pmax_w",
+      "type": "float",
+      "required": true,
+      "description": "Maximum power at measurement interval",
+      "unit": "W"
+    },
+    {
+      "name": "isc_a",
+      "type": "float",
+      "required": true,
+      "description": "Short-circuit current at measurement interval",
+      "unit": "A"
+    },
+    {
+      "name": "voc_v",
+      "type": "float",
+      "required": true,
+      "description": "Open-circuit voltage at measurement interval",
+      "unit": "V"
+    },
+    {
+      "name": "ff_percent",
+      "type": "float",
+      "required": true,
+      "description": "Fill factor at measurement interval",
+      "unit": "%"
+    },
+    {
+      "name": "el_image_path",
+      "type": "string",
+      "required": false,
+      "description": "Path to electroluminescence image file"
+    },
+    {
+      "name": "visual_image_path",
+      "type": "string",
+      "required": false,
+      "description": "Path to visual inspection image file"
+    },
+    {
+      "name": "notes",
+      "type": "string",
+      "required": false,
+      "description": "Additional observations or notes"
+    }
+  ],
+  "calculated_metrics": [
+    {
+      "name": "power_degradation_percent",
+      "description": "Percentage power loss from initial value",
+      "formula": "((initial_pmax - current_pmax) / initial_pmax) * 100",
+      "unit": "%"
+    },
+    {
+      "name": "isc_degradation_percent",
+      "description": "Percentage Isc loss from initial value",
+      "formula": "((initial_isc - current_isc) / initial_isc) * 100",
+      "unit": "%"
+    },
+    {
+      "name": "voc_degradation_percent",
+      "description": "Percentage Voc loss from initial value",
+      "formula": "((initial_voc - current_voc) / initial_voc) * 100",
+      "unit": "%"
+    },
+    {
+      "name": "ff_degradation_percent",
+      "description": "Percentage fill factor loss from initial value",
+      "formula": "((initial_ff - current_ff) / initial_ff) * 100",
+      "unit": "%"
+    },
+    {
+      "name": "snail_trail_progression_rate",
+      "description": "Rate of snail trail area increase per hour",
+      "formula": "affected_area_percent / inspection_hour",
+      "unit": "%/hour"
+    }
+  ],
+  "qc_checks": [
+    {
+      "name": "data_completeness",
+      "description": "All required measurements present for each inspection interval",
+      "threshold": 1.0,
+      "severity": "critical"
+    },
+    {
+      "name": "measurement_consistency",
+      "description": "Electrical measurements within physically possible ranges",
+      "checks": [
+        "pmax <= isc * voc",
+        "ff_percent <= 100",
+        "ff_percent >= 50"
+      ],
+      "severity": "critical"
+    },
+    {
+      "name": "monotonic_degradation",
+      "description": "Power degradation should not improve significantly over time",
+      "threshold": 2.0,
+      "threshold_description": "Power improvement > 2% flags warning",
+      "severity": "warning"
+    },
+    {
+      "name": "visual_electrical_correlation",
+      "description": "Severe snail trails should correlate with power loss",
+      "threshold": 5.0,
+      "threshold_description": "Severe snail trails with <5% power loss flags review",
+      "severity": "warning"
+    }
+  ],
+  "pass_fail_criteria": [
+    {
+      "name": "power_degradation_limit",
+      "description": "Maximum acceptable power degradation",
+      "threshold_percent": 5.0,
+      "condition": "power_degradation_percent <= 5.0",
+      "result_if_pass": "PASS - Power degradation within acceptable limits",
+      "result_if_fail": "FAIL - Excessive power degradation due to snail trail formation"
+    },
+    {
+      "name": "affected_area_limit",
+      "description": "Maximum acceptable affected area",
+      "threshold_percent": 10.0,
+      "condition": "affected_area_percent <= 10.0",
+      "result_if_pass": "PASS - Snail trail area within acceptable limits",
+      "result_if_fail": "FAIL - Excessive snail trail coverage"
+    }
+  ],
+  "output_format": "PDF_Report",
+  "report_sections": [
+    "Executive Summary",
+    "Test Conditions",
+    "Module Specifications",
+    "Visual Inspection Results",
+    "Electrical Performance Trends",
+    "Electroluminescence Analysis",
+    "QC Check Results",
+    "Pass/Fail Assessment",
+    "Conclusions and Recommendations"
+  ],
+  "visualization_requirements": [
+    {
+      "chart_type": "line_plot",
+      "title": "Power Degradation Over Time",
+      "x_axis": "inspection_hour",
+      "y_axis": "power_degradation_percent",
+      "description": "Trend of power loss throughout test duration"
+    },
+    {
+      "chart_type": "line_plot",
+      "title": "Snail Trail Area Progression",
+      "x_axis": "inspection_hour",
+      "y_axis": "affected_area_percent",
+      "description": "Growth of snail trail affected area over time"
+    },
+    {
+      "chart_type": "scatter_plot",
+      "title": "Correlation: Snail Trail Severity vs Power Loss",
+      "x_axis": "affected_area_percent",
+      "y_axis": "power_degradation_percent",
+      "description": "Relationship between visual degradation and electrical performance"
+    },
+    {
+      "chart_type": "bar_chart",
+      "title": "Affected Cells Distribution",
+      "x_axis": "inspection_hour",
+      "y_axis": "affected_cells_count",
+      "description": "Number of cells affected at each inspection interval"
+    },
+    {
+      "chart_type": "multi_line_plot",
+      "title": "Electrical Parameters Trend",
+      "x_axis": "inspection_hour",
+      "y_axes": ["isc_degradation_percent", "voc_degradation_percent", "ff_degradation_percent"],
+      "description": "Normalized degradation of all electrical parameters"
+    }
+  ],
+  "metadata": {
+    "created_by": "PV Testing Protocol Framework",
+    "created_date": "2025-01-14",
+    "last_modified": "2025-01-14",
+    "protocol_owner": "Quality Assurance Team",
+    "review_frequency_months": 12,
+    "related_protocols": ["HUMIDITY-FREEZE-001", "TC-200", "DH-1000"],
+    "tags": ["degradation", "snail-trail", "visual-defect", "silver-migration", "reliability"]
+  }
+}

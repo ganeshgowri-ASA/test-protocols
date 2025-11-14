@@ -1,0 +1,842 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "protocol_metadata": {
+    "protocol_id": "INSU-001",
+    "protocol_name": "Insulation Resistance Test",
+    "version": "1.0.0",
+    "category": "safety",
+    "standard_reference": "IEC 61730 MST 01",
+    "description": "Insulation resistance testing for PV modules to verify electrical safety and prevent electric shock hazards. This test measures the resistance between electrically active parts and the frame/ground to ensure adequate insulation.",
+    "tags": ["safety", "insulation", "IEC 61730", "electrical safety", "high voltage", "resistance measurement"]
+  },
+  "standard": {
+    "name": "IEC 61730",
+    "version": "2016+AMD1:2022",
+    "section": "MST 01",
+    "title": "Insulation Resistance Test",
+    "requirements": [
+      "Test voltage shall be 500 V DC or 1000 V DC depending on system voltage class",
+      "Minimum insulation resistance: 40 MΩ·m² (megohms per square meter of module area)",
+      "Test duration: 60 seconds minimum",
+      "Measurements between active parts and accessible conductive parts (frame)",
+      "Test at standard test conditions or as specified",
+      "Module shall be dry and at ambient temperature"
+    ],
+    "references": [
+      "IEC 61730-1:2016 - PV module safety qualification - Part 1: Requirements for construction",
+      "IEC 61730-2:2016 - PV module safety qualification - Part 2: Requirements for testing"
+    ]
+  },
+  "device_under_test": {
+    "required_info": [
+      {
+        "field_id": "dut_manufacturer",
+        "field_name": "Manufacturer",
+        "field_type": "text",
+        "required": true
+      },
+      {
+        "field_id": "dut_model",
+        "field_name": "Model Number",
+        "field_type": "text",
+        "required": true
+      },
+      {
+        "field_id": "dut_serial",
+        "field_name": "Serial Number",
+        "field_type": "text",
+        "required": true
+      },
+      {
+        "field_id": "dut_area",
+        "field_name": "Module Area (m²)",
+        "field_type": "number",
+        "required": true,
+        "unit": "m²",
+        "description": "Total module area for calculation of specific insulation resistance"
+      },
+      {
+        "field_id": "dut_voltage_class",
+        "field_name": "System Voltage Class",
+        "field_type": "select",
+        "required": true,
+        "validation": {
+          "options": ["Class I (<50V)", "Class II (50-600V)", "Class III (>600-1000V)", "Class IV (>1000V)"]
+        }
+      },
+      {
+        "field_id": "dut_technology",
+        "field_name": "Cell Technology",
+        "field_type": "select",
+        "required": false,
+        "validation": {
+          "options": ["Mono-crystalline (PERC)", "Mono-crystalline (TOPCon)", "Mono-crystalline (HJT)", "Multi-crystalline", "Thin Film (CdTe)", "Thin Film (CIGS)", "Thin Film (a-Si)", "Other"]
+        }
+      },
+      {
+        "field_id": "dut_frame_type",
+        "field_name": "Frame Type",
+        "field_type": "select",
+        "required": false,
+        "validation": {
+          "options": ["Aluminum framed", "Frameless", "Other"]
+        }
+      }
+    ]
+  },
+  "general_data": {
+    "fields": [
+      {
+        "field_id": "test_date",
+        "field_name": "Test Date",
+        "field_type": "date",
+        "required": true
+      },
+      {
+        "field_id": "test_operator",
+        "field_name": "Test Operator",
+        "field_type": "text",
+        "required": true,
+        "description": "Name of qualified personnel performing the test"
+      },
+      {
+        "field_id": "test_location",
+        "field_name": "Test Location",
+        "field_type": "text",
+        "required": true,
+        "description": "Laboratory or facility where test is performed"
+      },
+      {
+        "field_id": "service_request_id",
+        "field_name": "Service Request ID",
+        "field_type": "text",
+        "required": false,
+        "description": "Link to service request"
+      },
+      {
+        "field_id": "inspection_id",
+        "field_name": "Inspection ID",
+        "field_type": "text",
+        "required": false,
+        "description": "Link to incoming inspection record"
+      }
+    ]
+  },
+  "protocol_inputs": {
+    "sections": [
+      {
+        "section_id": "environmental_conditions",
+        "section_title": "Environmental Conditions",
+        "fields": [
+          {
+            "field_id": "ambient_temperature",
+            "field_name": "Ambient Temperature",
+            "field_type": "number",
+            "unit": "°C",
+            "required": true,
+            "default_value": 25.0,
+            "validation": {
+              "min": 15.0,
+              "max": 35.0
+            },
+            "description": "Ambient temperature during test (typically 20-30°C)"
+          },
+          {
+            "field_id": "relative_humidity",
+            "field_name": "Relative Humidity",
+            "field_type": "number",
+            "unit": "%",
+            "required": true,
+            "default_value": 45.0,
+            "validation": {
+              "min": 0.0,
+              "max": 100.0
+            },
+            "description": "Relative humidity during test"
+          },
+          {
+            "field_id": "atmospheric_pressure",
+            "field_name": "Atmospheric Pressure",
+            "field_type": "number",
+            "unit": "kPa",
+            "required": false,
+            "default_value": 101.3,
+            "validation": {
+              "min": 80.0,
+              "max": 110.0
+            }
+          },
+          {
+            "field_id": "module_temperature",
+            "field_name": "Module Temperature",
+            "field_type": "number",
+            "unit": "°C",
+            "required": true,
+            "default_value": 25.0,
+            "description": "Module surface temperature before test"
+          },
+          {
+            "field_id": "module_condition",
+            "field_name": "Module Condition",
+            "field_type": "select",
+            "required": true,
+            "validation": {
+              "options": ["Dry", "After cleaning/wiping", "After conditioning"]
+            },
+            "description": "Module must be dry before testing"
+          }
+        ]
+      },
+      {
+        "section_id": "test_equipment",
+        "section_title": "Test Equipment",
+        "fields": [
+          {
+            "field_id": "equipment_id",
+            "field_name": "Insulation Tester ID",
+            "field_type": "text",
+            "required": true,
+            "description": "Equipment identification number"
+          },
+          {
+            "field_id": "equipment_model",
+            "field_name": "Equipment Model",
+            "field_type": "text",
+            "required": true,
+            "description": "Manufacturer and model of insulation tester"
+          },
+          {
+            "field_id": "calibration_date",
+            "field_name": "Last Calibration Date",
+            "field_type": "date",
+            "required": true,
+            "description": "Date of last calibration"
+          },
+          {
+            "field_id": "calibration_due_date",
+            "field_name": "Calibration Due Date",
+            "field_type": "date",
+            "required": true,
+            "description": "Next calibration due date"
+          },
+          {
+            "field_id": "calibration_certificate",
+            "field_name": "Calibration Certificate Number",
+            "field_type": "text",
+            "required": false
+          },
+          {
+            "field_id": "measurement_accuracy",
+            "field_name": "Measurement Accuracy",
+            "field_type": "text",
+            "required": false,
+            "default_value": "±(5% + 3 digits)",
+            "description": "Accuracy specification of the insulation tester"
+          }
+        ]
+      },
+      {
+        "section_id": "test_parameters",
+        "section_title": "Test Parameters",
+        "fields": [
+          {
+            "field_id": "test_voltage",
+            "field_name": "Test Voltage",
+            "field_type": "select",
+            "required": true,
+            "validation": {
+              "options": ["500 V DC", "1000 V DC"]
+            },
+            "description": "DC test voltage - select based on system voltage class"
+          },
+          {
+            "field_id": "test_duration",
+            "field_name": "Test Duration",
+            "field_type": "number",
+            "unit": "seconds",
+            "required": true,
+            "default_value": 60,
+            "validation": {
+              "min": 60,
+              "max": 300
+            },
+            "description": "Minimum 60 seconds per IEC 61730"
+          },
+          {
+            "field_id": "stabilization_time",
+            "field_name": "Voltage Stabilization Time",
+            "field_type": "number",
+            "unit": "seconds",
+            "required": false,
+            "default_value": 5,
+            "validation": {
+              "min": 1,
+              "max": 10
+            },
+            "description": "Time to allow voltage to stabilize before reading"
+          },
+          {
+            "field_id": "discharge_time",
+            "field_name": "Discharge Time After Test",
+            "field_type": "number",
+            "unit": "seconds",
+            "required": false,
+            "default_value": 5,
+            "description": "Time to discharge module after test"
+          }
+        ]
+      },
+      {
+        "section_id": "test_configuration",
+        "section_title": "Test Configuration",
+        "fields": [
+          {
+            "field_id": "terminal_config",
+            "field_name": "Terminal Configuration",
+            "field_type": "select",
+            "required": true,
+            "validation": {
+              "options": ["Positive and negative terminals shorted together", "Separate measurement per terminal", "All circuits connected together"]
+            },
+            "description": "How active parts are connected during test"
+          },
+          {
+            "field_id": "test_points",
+            "field_name": "Test Points",
+            "field_type": "multiselect",
+            "required": true,
+            "validation": {
+              "options": ["Active parts to frame", "Active parts to mounting holes", "Between circuits (if applicable)", "Active parts to protective earth"]
+            },
+            "description": "Measurement points for insulation resistance"
+          },
+          {
+            "field_id": "number_of_measurements",
+            "field_name": "Number of Measurements",
+            "field_type": "number",
+            "required": true,
+            "default_value": 3,
+            "validation": {
+              "min": 1,
+              "max": 10
+            },
+            "description": "Number of repeat measurements for statistical analysis"
+          }
+        ]
+      }
+    ]
+  },
+  "live_readings": {
+    "tables": [
+      {
+        "table_id": "insulation_measurements",
+        "table_name": "Insulation Resistance Measurements",
+        "description": "Record of all insulation resistance measurements",
+        "columns": [
+          {
+            "column_id": "measurement_number",
+            "column_name": "Meas. #",
+            "data_type": "number",
+            "required": true
+          },
+          {
+            "column_id": "test_point",
+            "column_name": "Test Point",
+            "data_type": "text",
+            "required": true,
+            "description": "e.g., 'Active to Frame', 'Circuit A to B'"
+          },
+          {
+            "column_id": "polarity",
+            "column_name": "Polarity",
+            "data_type": "text",
+            "required": true,
+            "description": "+ve to frame or -ve to frame"
+          },
+          {
+            "column_id": "test_voltage_actual",
+            "column_name": "Test Voltage (V)",
+            "data_type": "number",
+            "unit": "V",
+            "required": true
+          },
+          {
+            "column_id": "resistance_reading",
+            "column_name": "Resistance (MΩ)",
+            "data_type": "number",
+            "unit": "MΩ",
+            "required": true,
+            "description": "Insulation resistance in megohms"
+          },
+          {
+            "column_id": "specific_resistance",
+            "column_name": "Specific Resistance (MΩ·m²)",
+            "data_type": "number",
+            "unit": "MΩ·m²",
+            "required": false,
+            "description": "Resistance × Module Area (calculated)"
+          },
+          {
+            "column_id": "stabilization_time_actual",
+            "column_name": "Stabilization Time (s)",
+            "data_type": "number",
+            "unit": "s",
+            "required": false
+          },
+          {
+            "column_id": "timestamp",
+            "column_name": "Timestamp",
+            "data_type": "datetime",
+            "required": true
+          },
+          {
+            "column_id": "notes",
+            "column_name": "Notes",
+            "data_type": "text",
+            "required": false
+          }
+        ],
+        "editable": true,
+        "min_rows": 1
+      }
+    ]
+  },
+  "analysis": {
+    "calculations": [
+      {
+        "calc_id": "specific_insulation_resistance",
+        "calc_name": "Specific Insulation Resistance",
+        "formula": "R_specific = R_measured × A",
+        "description": "Insulation resistance normalized to module area",
+        "output_unit": "MΩ·m²",
+        "dependencies": ["resistance_reading", "dut_area"]
+      },
+      {
+        "calc_id": "average_resistance",
+        "calc_name": "Average Insulation Resistance",
+        "formula": "R_avg = mean(R_measurements)",
+        "description": "Average of all measurements",
+        "output_unit": "MΩ",
+        "dependencies": ["resistance_reading"]
+      },
+      {
+        "calc_id": "minimum_resistance",
+        "calc_name": "Minimum Insulation Resistance",
+        "formula": "R_min = min(R_measurements)",
+        "description": "Lowest measured resistance value",
+        "output_unit": "MΩ",
+        "dependencies": ["resistance_reading"]
+      },
+      {
+        "calc_id": "average_specific_resistance",
+        "calc_name": "Average Specific Insulation Resistance",
+        "formula": "R_specific_avg = mean(R_specific_measurements)",
+        "description": "Average specific resistance",
+        "output_unit": "MΩ·m²",
+        "dependencies": ["specific_resistance"]
+      }
+    ],
+    "statistical_analysis": [
+      {
+        "analysis_type": "mean",
+        "target_field": "resistance_reading",
+        "output_name": "mean_resistance"
+      },
+      {
+        "analysis_type": "std_dev",
+        "target_field": "resistance_reading",
+        "output_name": "std_dev_resistance"
+      },
+      {
+        "analysis_type": "min",
+        "target_field": "resistance_reading",
+        "output_name": "min_resistance"
+      },
+      {
+        "analysis_type": "max",
+        "target_field": "resistance_reading",
+        "output_name": "max_resistance"
+      },
+      {
+        "analysis_type": "min",
+        "target_field": "specific_resistance",
+        "output_name": "min_specific_resistance"
+      }
+    ]
+  },
+  "charts": {
+    "visualizations": [
+      {
+        "chart_id": "resistance_by_test_point",
+        "chart_type": "bar",
+        "title": "Insulation Resistance by Test Point",
+        "x_axis": {
+          "field": "test_point",
+          "label": "Test Point",
+          "unit": ""
+        },
+        "y_axis": {
+          "field": "resistance_reading",
+          "label": "Insulation Resistance",
+          "unit": "MΩ"
+        }
+      },
+      {
+        "chart_id": "specific_resistance_comparison",
+        "chart_type": "bar",
+        "title": "Specific Insulation Resistance vs. IEC Requirement",
+        "x_axis": {
+          "field": "test_point",
+          "label": "Test Point",
+          "unit": ""
+        },
+        "y_axis": {
+          "field": "specific_resistance",
+          "label": "Specific Resistance",
+          "unit": "MΩ·m²"
+        }
+      },
+      {
+        "chart_id": "measurement_repeatability",
+        "chart_type": "scatter",
+        "title": "Measurement Repeatability",
+        "x_axis": {
+          "field": "measurement_number",
+          "label": "Measurement Number",
+          "unit": ""
+        },
+        "y_axis": {
+          "field": "resistance_reading",
+          "label": "Resistance",
+          "unit": "MΩ"
+        }
+      }
+    ]
+  },
+  "quality_control": {
+    "validation_rules": [
+      {
+        "rule_id": "qc_voltage_range",
+        "rule_name": "Test Voltage Verification",
+        "field": "test_voltage_actual",
+        "rule_type": "range",
+        "parameters": {
+          "min": 490,
+          "max": 1050
+        },
+        "severity": "critical",
+        "message": "Test voltage must be within ±2% of nominal (500V or 1000V)"
+      },
+      {
+        "rule_id": "qc_temperature_range",
+        "rule_name": "Temperature Range Check",
+        "field": "ambient_temperature",
+        "rule_type": "range",
+        "parameters": {
+          "min": 15,
+          "max": 35
+        },
+        "severity": "warning",
+        "message": "Ambient temperature should be between 15-35°C for consistent results"
+      },
+      {
+        "rule_id": "qc_humidity_range",
+        "rule_name": "Humidity Range Check",
+        "field": "relative_humidity",
+        "rule_type": "range",
+        "parameters": {
+          "min": 0,
+          "max": 75
+        },
+        "severity": "warning",
+        "message": "High humidity may affect measurements. RH should be <75%"
+      },
+      {
+        "rule_id": "qc_calibration_valid",
+        "rule_name": "Equipment Calibration Status",
+        "field": "calibration_due_date",
+        "rule_type": "comparison",
+        "parameters": {
+          "operator": ">",
+          "threshold": "current_date"
+        },
+        "severity": "critical",
+        "message": "Equipment calibration is overdue. Test results invalid."
+      }
+    ],
+    "acceptance_criteria": [
+      {
+        "criteria_id": "ac_minimum_resistance",
+        "description": "Minimum Specific Insulation Resistance",
+        "pass_condition": "R_specific_min >= 40 MΩ·m²",
+        "reference_standard": "IEC 61730 MST 01",
+        "severity": "critical"
+      },
+      {
+        "criteria_id": "ac_absolute_minimum",
+        "description": "Absolute Minimum Resistance (Safety Threshold)",
+        "pass_condition": "R_min >= 1 MΩ",
+        "reference_standard": "General safety requirement",
+        "severity": "critical"
+      },
+      {
+        "criteria_id": "ac_measurement_stability",
+        "description": "Measurement Repeatability",
+        "pass_condition": "Standard deviation < 20% of mean",
+        "reference_standard": "Good laboratory practice",
+        "severity": "warning"
+      }
+    ]
+  },
+  "safety_interlocks": {
+    "pre_test_checks": [
+      {
+        "check_id": "safety_01",
+        "description": "Verify module is disconnected from any power source",
+        "mandatory": true,
+        "check_type": "manual"
+      },
+      {
+        "check_id": "safety_02",
+        "description": "Verify module surface is dry and clean",
+        "mandatory": true,
+        "check_type": "visual"
+      },
+      {
+        "check_id": "safety_03",
+        "description": "Ensure proper grounding of test equipment",
+        "mandatory": true,
+        "check_type": "manual"
+      },
+      {
+        "check_id": "safety_04",
+        "description": "Verify test operator is wearing appropriate PPE (insulated gloves if required)",
+        "mandatory": true,
+        "check_type": "manual"
+      },
+      {
+        "check_id": "safety_05",
+        "description": "Check that no personnel are in contact with module or frame during test",
+        "mandatory": true,
+        "check_type": "manual"
+      },
+      {
+        "check_id": "safety_06",
+        "description": "Verify insulation tester is calibrated and functioning correctly",
+        "mandatory": true,
+        "check_type": "equipment"
+      }
+    ],
+    "during_test_monitoring": [
+      {
+        "monitor_id": "mon_01",
+        "parameter": "Test Voltage",
+        "threshold": "±5% of nominal",
+        "action": "Abort test if voltage unstable"
+      },
+      {
+        "monitor_id": "mon_02",
+        "parameter": "Operator Distance",
+        "threshold": "Maintain safe distance",
+        "action": "No direct contact during voltage application"
+      }
+    ],
+    "post_test_procedures": [
+      {
+        "procedure_id": "post_01",
+        "description": "Ensure test voltage is removed and module is discharged",
+        "mandatory": true,
+        "min_wait_time_seconds": 5
+      },
+      {
+        "procedure_id": "post_02",
+        "description": "Verify no damage to module or connections",
+        "mandatory": true
+      },
+      {
+        "procedure_id": "post_03",
+        "description": "Document any anomalies or safety concerns",
+        "mandatory": true
+      }
+    ]
+  },
+  "approval_gates": {
+    "gates": [
+      {
+        "gate_id": "gate_setup",
+        "gate_name": "Test Setup Approval",
+        "required_role": "engineer",
+        "stage": "before_test",
+        "approval_criteria": [
+          "Equipment calibration verified",
+          "Environmental conditions within limits",
+          "Safety checks completed"
+        ]
+      },
+      {
+        "gate_id": "gate_execution",
+        "gate_name": "Test Execution Approval",
+        "required_role": "technician",
+        "stage": "during_test",
+        "approval_criteria": [
+          "All measurements recorded",
+          "No safety incidents occurred",
+          "Data quality verified"
+        ]
+      },
+      {
+        "gate_id": "gate_results",
+        "gate_name": "Results Review & Approval",
+        "required_role": "engineer",
+        "stage": "after_test",
+        "approval_criteria": [
+          "All acceptance criteria evaluated",
+          "Pass/Fail determination documented",
+          "Report generated and reviewed"
+        ]
+      }
+    ]
+  },
+  "traceability": {
+    "audit_fields": [
+      "test_operator",
+      "equipment_id",
+      "calibration_certificate",
+      "test_date",
+      "all_measurements"
+    ],
+    "required_documentation": [
+      "Equipment calibration certificate",
+      "Environmental monitoring records",
+      "Test procedure reference",
+      "Measurement data records",
+      "Safety checklist"
+    ],
+    "data_retention_years": 10,
+    "chain_of_custody": true
+  },
+  "integrations": {
+    "lims": {
+      "enabled": true,
+      "export_format": "JSON",
+      "fields_to_export": [
+        "sample_id",
+        "test_result",
+        "min_specific_resistance",
+        "test_date",
+        "test_operator"
+      ]
+    },
+    "qms": {
+      "enabled": true,
+      "document_id": "QMS-IEC61730-MST01",
+      "procedure_reference": "SOP-INSU-001",
+      "auto_nc_creation": true,
+      "nc_trigger_conditions": [
+        "R_specific_min < 40 MΩ·m²",
+        "Calibration overdue",
+        "Test voltage out of range"
+      ]
+    },
+    "equipment_management": {
+      "enabled": true,
+      "track_usage": true,
+      "maintenance_alert": true
+    }
+  },
+  "report_generation": {
+    "auto_generate": true,
+    "template_id": "INSU-001-REPORT-v1",
+    "sections": [
+      {
+        "section_name": "Test Summary",
+        "include_in_report": true,
+        "content_source": "analysis_results"
+      },
+      {
+        "section_name": "Device Under Test Information",
+        "include_in_report": true,
+        "content_source": "device_under_test"
+      },
+      {
+        "section_name": "Test Conditions",
+        "include_in_report": true,
+        "content_source": "protocol_inputs"
+      },
+      {
+        "section_name": "Measurement Data",
+        "include_in_report": true,
+        "content_source": "live_readings"
+      },
+      {
+        "section_name": "Statistical Analysis",
+        "include_in_report": true,
+        "content_source": "statistical_analysis"
+      },
+      {
+        "section_name": "Charts and Graphs",
+        "include_in_report": true,
+        "content_source": "charts"
+      },
+      {
+        "section_name": "Pass/Fail Determination",
+        "include_in_report": true,
+        "content_source": "acceptance_criteria"
+      },
+      {
+        "section_name": "Safety Compliance",
+        "include_in_report": true,
+        "content_source": "safety_interlocks"
+      },
+      {
+        "section_name": "Approvals and Signatures",
+        "include_in_report": true,
+        "content_source": "approval_gates"
+      }
+    ],
+    "export_formats": ["pdf", "excel", "json"],
+    "digital_signature_required": true
+  },
+  "maintenance": {
+    "fields": [
+      {
+        "field_id": "equipment_hours",
+        "field_name": "Equipment Usage Hours",
+        "field_type": "number",
+        "unit": "hours"
+      },
+      {
+        "field_id": "last_verification",
+        "field_name": "Last Verification Check",
+        "field_type": "date"
+      }
+    ],
+    "maintenance_schedule": [
+      {
+        "task": "Calibration verification",
+        "frequency": "Annual",
+        "reference": "ISO/IEC 17025"
+      },
+      {
+        "task": "Test lead inspection",
+        "frequency": "Monthly",
+        "reference": "Good laboratory practice"
+      },
+      {
+        "task": "Insulation tester functional check",
+        "frequency": "Quarterly",
+        "reference": "Manufacturer recommendation"
+      }
+    ]
+  },
+  "nc_register": {
+    "auto_log_failures": true,
+    "nc_categories": [
+      "Failed insulation resistance",
+      "Equipment calibration overdue",
+      "Environmental conditions out of range",
+      "Safety violation",
+      "Data quality issue"
+    ]
+  }
+}

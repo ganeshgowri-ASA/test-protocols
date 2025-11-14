@@ -1,0 +1,145 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Test Protocol Schema",
+  "description": "JSON schema for test protocol definitions in the PV Testing Protocol Framework",
+  "type": "object",
+  "required": [
+    "protocol_id",
+    "protocol_name",
+    "version",
+    "standard",
+    "category",
+    "description",
+    "equipment_required",
+    "test_parameters",
+    "procedure",
+    "data_outputs"
+  ],
+  "properties": {
+    "protocol_id": {
+      "type": "string",
+      "pattern": "^[A-Z]+-[0-9]{3}$",
+      "description": "Unique protocol identifier (e.g., SPEC-001)"
+    },
+    "protocol_name": {
+      "type": "string",
+      "description": "Human-readable protocol name"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Semantic version number"
+    },
+    "standard": {
+      "type": "string",
+      "description": "Relevant standard (e.g., IEC 60904-8)"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["Performance", "Reliability", "Safety", "Characterization", "Other"]
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed protocol description"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "created": {
+          "type": "string",
+          "format": "date"
+        },
+        "author": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "integer"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "equipment_required": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "type", "required"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "specifications": {
+            "type": "object"
+          },
+          "required": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "test_parameters": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object"
+      }
+    },
+    "sample_info": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object"
+      }
+    },
+    "procedure": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["step", "action", "description"],
+        "properties": {
+          "step": {
+            "type": "integer"
+          },
+          "action": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "parameters": {
+            "type": "object"
+          },
+          "outputs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "data_outputs": {
+      "type": "object"
+    },
+    "qc_criteria": {
+      "type": "object"
+    },
+    "analysis": {
+      "type": "object"
+    },
+    "report_template": {
+      "type": "object"
+    },
+    "integrations": {
+      "type": "object"
+    }
+  }
+}

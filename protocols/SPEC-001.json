@@ -1,0 +1,444 @@
+{
+  "protocol_id": "SPEC-001",
+  "protocol_name": "Spectral Response Test",
+  "version": "1.0.0",
+  "standard": "IEC 60904-8",
+  "category": "Performance",
+  "description": "Measures the spectral response of photovoltaic devices as a function of wavelength according to IEC 60904-8 standard",
+  "metadata": {
+    "created": "2025-01-14",
+    "author": "Test Protocols Framework",
+    "revision": 1,
+    "tags": ["spectral", "optical", "performance", "characterization"]
+  },
+  "equipment_required": [
+    {
+      "id": "monochromator",
+      "name": "Monochromator System",
+      "type": "optical",
+      "specifications": {
+        "wavelength_range": [300, 1200],
+        "wavelength_accuracy": "±1 nm",
+        "spectral_bandwidth": "≤10 nm"
+      },
+      "required": true
+    },
+    {
+      "id": "light_source",
+      "name": "Broadband Light Source",
+      "type": "illumination",
+      "specifications": {
+        "type": "Xenon or Quartz-Halogen",
+        "power": "≥150W",
+        "stability": "±0.5%"
+      },
+      "required": true
+    },
+    {
+      "id": "reference_detector",
+      "name": "Calibrated Reference Detector",
+      "type": "detector",
+      "specifications": {
+        "calibration": "NIST or equivalent traceable",
+        "wavelength_range": [300, 1200],
+        "uncertainty": "≤2%"
+      },
+      "required": true
+    },
+    {
+      "id": "dut_holder",
+      "name": "Device Under Test Holder",
+      "type": "mechanical",
+      "specifications": {
+        "temperature_control": "25±2°C",
+        "alignment": "perpendicular to beam"
+      },
+      "required": true
+    },
+    {
+      "id": "bias_light",
+      "name": "Bias Light Source",
+      "type": "illumination",
+      "specifications": {
+        "spectrum": "AM1.5G or equivalent",
+        "adjustable_intensity": true
+      },
+      "required": false
+    },
+    {
+      "id": "source_meter",
+      "name": "Source Measure Unit",
+      "type": "electrical",
+      "specifications": {
+        "current_range": "pA to A",
+        "voltage_range": "±20V",
+        "accuracy": "0.1%"
+      },
+      "required": true
+    }
+  ],
+  "test_parameters": {
+    "wavelength": {
+      "type": "range",
+      "label": "Wavelength Range",
+      "unit": "nm",
+      "min": 300,
+      "max": 1200,
+      "default_start": 300,
+      "default_end": 1200,
+      "step_size": {
+        "type": "number",
+        "label": "Step Size",
+        "unit": "nm",
+        "default": 10,
+        "min": 1,
+        "max": 50
+      },
+      "required": true
+    },
+    "temperature": {
+      "type": "number",
+      "label": "Test Temperature",
+      "unit": "°C",
+      "default": 25,
+      "min": -40,
+      "max": 85,
+      "tolerance": 2,
+      "required": true
+    },
+    "bias_voltage": {
+      "type": "number",
+      "label": "Bias Voltage",
+      "unit": "V",
+      "default": 0,
+      "min": -10,
+      "max": 10,
+      "description": "DC bias voltage applied to DUT",
+      "required": false
+    },
+    "bias_light_intensity": {
+      "type": "number",
+      "label": "Bias Light Intensity",
+      "unit": "W/m²",
+      "default": 0,
+      "min": 0,
+      "max": 1000,
+      "description": "Background illumination intensity",
+      "required": false
+    },
+    "chopper_frequency": {
+      "type": "number",
+      "label": "Chopper Frequency",
+      "unit": "Hz",
+      "default": 13,
+      "min": 1,
+      "max": 1000,
+      "description": "Mechanical chopper frequency for lock-in detection",
+      "required": false
+    },
+    "integration_time": {
+      "type": "number",
+      "label": "Integration Time",
+      "unit": "ms",
+      "default": 100,
+      "min": 10,
+      "max": 10000,
+      "description": "Signal integration time per wavelength point",
+      "required": true
+    },
+    "averaging": {
+      "type": "integer",
+      "label": "Number of Averages",
+      "default": 3,
+      "min": 1,
+      "max": 100,
+      "description": "Number of measurements to average per wavelength",
+      "required": true
+    }
+  },
+  "sample_info": {
+    "sample_id": {
+      "type": "string",
+      "label": "Sample ID",
+      "required": true,
+      "validation": "^[A-Z0-9-]+$"
+    },
+    "sample_type": {
+      "type": "select",
+      "label": "Sample Type",
+      "options": ["Solar Cell", "Solar Module", "Photodetector", "Other"],
+      "required": true
+    },
+    "area": {
+      "type": "number",
+      "label": "Active Area",
+      "unit": "cm²",
+      "min": 0.01,
+      "max": 10000,
+      "required": true
+    },
+    "technology": {
+      "type": "select",
+      "label": "Technology Type",
+      "options": ["c-Si", "mc-Si", "CdTe", "CIGS", "Perovskite", "GaAs", "Organic", "Other"],
+      "required": true
+    }
+  },
+  "procedure": [
+    {
+      "step": 1,
+      "action": "initialize_equipment",
+      "description": "Initialize and warm up all equipment",
+      "parameters": {
+        "warmup_time": 30,
+        "unit": "minutes"
+      }
+    },
+    {
+      "step": 2,
+      "action": "calibrate_reference",
+      "description": "Calibrate measurement system with reference detector",
+      "parameters": {
+        "wavelength_range": ["$wavelength.default_start", "$wavelength.default_end"],
+        "step_size": "$wavelength.step_size.default"
+      }
+    },
+    {
+      "step": 3,
+      "action": "mount_sample",
+      "description": "Mount DUT in holder and verify alignment",
+      "parameters": {
+        "alignment_tolerance": 2,
+        "unit": "degrees"
+      }
+    },
+    {
+      "step": 4,
+      "action": "stabilize_temperature",
+      "description": "Stabilize sample temperature",
+      "parameters": {
+        "target_temperature": "$temperature",
+        "tolerance": 2,
+        "stabilization_time": 10,
+        "unit": "minutes"
+      }
+    },
+    {
+      "step": 5,
+      "action": "apply_bias",
+      "description": "Apply bias voltage and/or bias light if specified",
+      "parameters": {
+        "voltage": "$bias_voltage",
+        "light_intensity": "$bias_light_intensity"
+      }
+    },
+    {
+      "step": 6,
+      "action": "measure_spectral_response",
+      "description": "Sweep wavelength and measure photocurrent response",
+      "parameters": {
+        "wavelength_start": "$wavelength.default_start",
+        "wavelength_end": "$wavelength.default_end",
+        "step_size": "$wavelength.step_size.default",
+        "integration_time": "$integration_time",
+        "averaging": "$averaging"
+      },
+      "outputs": ["wavelength", "photocurrent", "reference_signal", "timestamp"]
+    },
+    {
+      "step": 7,
+      "action": "calculate_sr",
+      "description": "Calculate spectral response from raw data",
+      "formula": "SR(λ) = I_sample(λ) / (I_ref(λ) × SR_ref(λ))",
+      "outputs": ["spectral_response", "external_quantum_efficiency"]
+    },
+    {
+      "step": 8,
+      "action": "generate_report",
+      "description": "Generate test report and plots",
+      "outputs": ["report", "sr_plot", "eqe_plot", "data_file"]
+    }
+  ],
+  "data_outputs": {
+    "raw_data": {
+      "wavelength": {
+        "type": "array",
+        "unit": "nm",
+        "description": "Wavelength points"
+      },
+      "photocurrent_sample": {
+        "type": "array",
+        "unit": "A",
+        "description": "Measured photocurrent from sample"
+      },
+      "photocurrent_reference": {
+        "type": "array",
+        "unit": "A",
+        "description": "Measured photocurrent from reference detector"
+      },
+      "temperature": {
+        "type": "array",
+        "unit": "°C",
+        "description": "Temperature readings during measurement"
+      },
+      "timestamp": {
+        "type": "array",
+        "unit": "s",
+        "description": "Time stamp for each measurement point"
+      }
+    },
+    "calculated_data": {
+      "spectral_response": {
+        "type": "array",
+        "unit": "A/W",
+        "description": "Spectral response (current per watt incident power)"
+      },
+      "external_quantum_efficiency": {
+        "type": "array",
+        "unit": "%",
+        "description": "External quantum efficiency"
+      },
+      "integrated_jsc": {
+        "type": "number",
+        "unit": "mA/cm²",
+        "description": "Integrated short-circuit current density under AM1.5G"
+      },
+      "peak_wavelength": {
+        "type": "number",
+        "unit": "nm",
+        "description": "Wavelength at peak response"
+      },
+      "peak_eqe": {
+        "type": "number",
+        "unit": "%",
+        "description": "Peak external quantum efficiency"
+      }
+    }
+  },
+  "qc_criteria": {
+    "noise_level": {
+      "description": "Maximum acceptable noise in SR measurement",
+      "threshold": 0.02,
+      "unit": "A/W",
+      "action_on_fail": "warning"
+    },
+    "reference_stability": {
+      "description": "Reference detector signal stability",
+      "threshold": 1.0,
+      "unit": "%",
+      "action_on_fail": "error"
+    },
+    "temperature_stability": {
+      "description": "Temperature variation during test",
+      "threshold": 2.0,
+      "unit": "°C",
+      "action_on_fail": "warning"
+    },
+    "min_eqe": {
+      "description": "Minimum acceptable peak EQE for valid measurement",
+      "threshold": 5.0,
+      "unit": "%",
+      "action_on_fail": "warning"
+    },
+    "data_completeness": {
+      "description": "Percentage of wavelength points successfully measured",
+      "threshold": 95.0,
+      "unit": "%",
+      "action_on_fail": "error"
+    }
+  },
+  "analysis": {
+    "plots": [
+      {
+        "type": "line",
+        "title": "Spectral Response vs Wavelength",
+        "x_axis": "wavelength",
+        "y_axis": "spectral_response",
+        "x_label": "Wavelength (nm)",
+        "y_label": "Spectral Response (A/W)"
+      },
+      {
+        "type": "line",
+        "title": "External Quantum Efficiency vs Wavelength",
+        "x_axis": "wavelength",
+        "y_axis": "external_quantum_efficiency",
+        "x_label": "Wavelength (nm)",
+        "y_label": "EQE (%)"
+      },
+      {
+        "type": "line",
+        "title": "Raw Photocurrent Data",
+        "x_axis": "wavelength",
+        "y_axis": ["photocurrent_sample", "photocurrent_reference"],
+        "x_label": "Wavelength (nm)",
+        "y_label": "Photocurrent (A)",
+        "y_scale": "log"
+      }
+    ],
+    "calculations": [
+      {
+        "name": "spectral_response",
+        "formula": "SR(λ) = I_sample(λ) / [I_ref(λ) × SR_ref(λ)]",
+        "description": "Spectral response in A/W"
+      },
+      {
+        "name": "external_quantum_efficiency",
+        "formula": "EQE(λ) = SR(λ) × (hc/qλ) × 100%",
+        "description": "External quantum efficiency in %",
+        "constants": {
+          "h": "6.62607015e-34",
+          "c": "2.99792458e8",
+          "q": "1.602176634e-19"
+        }
+      },
+      {
+        "name": "integrated_jsc",
+        "formula": "Jsc = ∫ SR(λ) × AM15G(λ) dλ / Area",
+        "description": "Integrated short-circuit current density under AM1.5G spectrum"
+      }
+    ]
+  },
+  "report_template": {
+    "sections": [
+      {
+        "title": "Test Information",
+        "content": ["protocol_id", "standard", "sample_id", "test_date", "operator"]
+      },
+      {
+        "title": "Test Conditions",
+        "content": ["temperature", "bias_voltage", "bias_light_intensity", "wavelength_range"]
+      },
+      {
+        "title": "Results Summary",
+        "content": ["peak_wavelength", "peak_eqe", "integrated_jsc"]
+      },
+      {
+        "title": "Quality Control",
+        "content": ["qc_results", "pass_fail_status"]
+      },
+      {
+        "title": "Plots",
+        "content": ["sr_plot", "eqe_plot"]
+      },
+      {
+        "title": "Raw Data",
+        "content": ["data_table", "data_file_link"]
+      }
+    ]
+  },
+  "integrations": {
+    "lims": {
+      "enabled": true,
+      "fields_to_sync": ["sample_id", "test_date", "peak_eqe", "integrated_jsc", "qc_status"]
+    },
+    "qms": {
+      "enabled": true,
+      "document_reference": "IEC-60904-8",
+      "approval_required": false
+    },
+    "project_management": {
+      "enabled": true,
+      "link_to_project": true
+    }
+  }
+}

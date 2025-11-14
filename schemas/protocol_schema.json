@@ -1,0 +1,231 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PV Test Protocol Schema",
+  "description": "JSON schema for photovoltaic module test protocols",
+  "type": "object",
+  "required": ["protocol_id", "protocol_name", "version", "category", "standard", "parameters", "measurements", "pass_criteria"],
+  "properties": {
+    "protocol_id": {
+      "type": "string",
+      "description": "Unique identifier for the protocol (e.g., GROUND-001)",
+      "pattern": "^[A-Z]+-[0-9]+$"
+    },
+    "protocol_name": {
+      "type": "string",
+      "description": "Human-readable name of the test protocol"
+    },
+    "version": {
+      "type": "string",
+      "description": "Protocol version following semantic versioning",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "category": {
+      "type": "string",
+      "description": "Test category",
+      "enum": ["Safety", "Performance", "Environmental", "Mechanical", "Electrical"]
+    },
+    "standard": {
+      "type": "object",
+      "description": "Reference to applicable standards",
+      "required": ["name", "section"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Standard name (e.g., IEC 61730-2)"
+        },
+        "section": {
+          "type": "string",
+          "description": "Specific section or test number (e.g., MST 13)"
+        },
+        "edition": {
+          "type": "string",
+          "description": "Edition or year of the standard"
+        }
+      }
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of the test purpose and procedure"
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Test parameters and settings",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["value", "unit", "type"],
+        "properties": {
+          "value": {
+            "description": "Parameter value (can be number, string, or formula)"
+          },
+          "unit": {
+            "type": "string",
+            "description": "Unit of measurement"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["input", "calculated", "constant"]
+          },
+          "formula": {
+            "type": "string",
+            "description": "Formula for calculated parameters"
+          },
+          "min": {
+            "type": "number",
+            "description": "Minimum allowed value"
+          },
+          "max": {
+            "type": "number",
+            "description": "Maximum allowed value"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "measurements": {
+      "type": "array",
+      "description": "List of measurements to be taken",
+      "items": {
+        "type": "object",
+        "required": ["name", "unit", "type"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Measurement name"
+          },
+          "unit": {
+            "type": "string",
+            "description": "Unit of measurement"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["analog", "digital", "boolean", "string"]
+          },
+          "description": {
+            "type": "string"
+          },
+          "min": {
+            "type": "number",
+            "description": "Minimum expected value"
+          },
+          "max": {
+            "type": "number",
+            "description": "Maximum expected value"
+          }
+        }
+      }
+    },
+    "pass_criteria": {
+      "type": "array",
+      "description": "Criteria for test pass/fail determination",
+      "items": {
+        "type": "object",
+        "required": ["condition", "description"],
+        "properties": {
+          "condition": {
+            "type": "string",
+            "description": "Boolean expression for pass condition"
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable description of the criterion"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "major", "minor"],
+            "default": "critical"
+          }
+        }
+      }
+    },
+    "safety_limits": {
+      "type": "object",
+      "description": "Safety limits and emergency stop conditions",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["value", "action"],
+        "properties": {
+          "value": {
+            "description": "Limit value"
+          },
+          "action": {
+            "type": "string",
+            "enum": ["stop", "alarm", "log"]
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "equipment": {
+      "type": "array",
+      "description": "Required equipment and instruments",
+      "items": {
+        "type": "object",
+        "required": ["name", "type"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "specifications": {
+            "type": "object"
+          },
+          "calibration_required": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      }
+    },
+    "procedure": {
+      "type": "array",
+      "description": "Step-by-step test procedure",
+      "items": {
+        "type": "object",
+        "required": ["step", "action"],
+        "properties": {
+          "step": {
+            "type": "integer"
+          },
+          "action": {
+            "type": "string"
+          },
+          "expected_result": {
+            "type": "string"
+          },
+          "safety_note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional metadata",
+      "properties": {
+        "created_date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "modified_date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "author": {
+          "type": "string"
+        },
+        "reviewer": {
+          "type": "string"
+        },
+        "approved_by": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

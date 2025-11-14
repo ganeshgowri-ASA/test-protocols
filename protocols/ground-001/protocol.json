@@ -1,0 +1,271 @@
+{
+  "protocol_id": "GROUND-001",
+  "protocol_name": "Ground Continuity Test (Equipotential Bonding)",
+  "version": "1.0.0",
+  "category": "Safety",
+  "standard": {
+    "name": "IEC 61730-2",
+    "section": "MST 13",
+    "edition": "2023-09"
+  },
+  "description": "This test verifies the continuity of equipotential bonding between the module frame and accessible conductive parts. It ensures that protective grounding connections are adequate to prevent electric shock hazards and provide a safe path for fault currents.",
+  "parameters": {
+    "max_overcurrent_protection": {
+      "value": null,
+      "unit": "A",
+      "type": "input",
+      "description": "Maximum overcurrent protection device rating for the module",
+      "min": 0.1,
+      "max": 100
+    },
+    "test_current": {
+      "value": null,
+      "unit": "A",
+      "type": "calculated",
+      "formula": "2.5 * max_overcurrent_protection",
+      "description": "Test current shall be 2.5 times the maximum overcurrent protection rating",
+      "min": 0.25,
+      "max": 250
+    },
+    "test_duration": {
+      "value": 120,
+      "unit": "s",
+      "type": "constant",
+      "description": "Duration for which the test current is applied"
+    },
+    "voltage_limit": {
+      "value": 12,
+      "unit": "V",
+      "type": "constant",
+      "description": "Maximum allowable voltage drop during test"
+    },
+    "max_resistance": {
+      "value": 0.1,
+      "unit": "Ω",
+      "type": "constant",
+      "description": "Maximum allowable resistance for equipotential bonding"
+    },
+    "ambient_temperature": {
+      "value": null,
+      "unit": "°C",
+      "type": "input",
+      "description": "Ambient temperature during test",
+      "min": -10,
+      "max": 50
+    },
+    "relative_humidity": {
+      "value": null,
+      "unit": "%",
+      "type": "input",
+      "description": "Relative humidity during test",
+      "min": 0,
+      "max": 95
+    }
+  },
+  "measurements": [
+    {
+      "name": "voltage_drop",
+      "unit": "V",
+      "type": "analog",
+      "description": "Voltage drop measured across the bonding connection under test current",
+      "min": 0,
+      "max": 12
+    },
+    {
+      "name": "measured_resistance",
+      "unit": "Ω",
+      "type": "analog",
+      "description": "Calculated resistance from voltage drop and test current (R = V / I)",
+      "min": 0,
+      "max": 0.5
+    },
+    {
+      "name": "test_current_actual",
+      "unit": "A",
+      "type": "analog",
+      "description": "Actual test current applied during the test",
+      "min": 0,
+      "max": 250
+    },
+    {
+      "name": "test_start_time",
+      "unit": "ISO8601",
+      "type": "string",
+      "description": "Timestamp when test started"
+    },
+    {
+      "name": "test_end_time",
+      "unit": "ISO8601",
+      "type": "string",
+      "description": "Timestamp when test ended"
+    },
+    {
+      "name": "test_duration_actual",
+      "unit": "s",
+      "type": "analog",
+      "description": "Actual duration of test",
+      "min": 0,
+      "max": 300
+    }
+  ],
+  "pass_criteria": [
+    {
+      "condition": "measured_resistance <= max_resistance",
+      "description": "Measured resistance must be ≤ 0.1 Ω",
+      "severity": "critical"
+    },
+    {
+      "condition": "voltage_drop <= voltage_limit",
+      "description": "Voltage drop must be ≤ 12 V",
+      "severity": "critical"
+    },
+    {
+      "condition": "test_duration_actual >= test_duration",
+      "description": "Test must be conducted for at least 120 seconds",
+      "severity": "critical"
+    },
+    {
+      "condition": "abs(test_current_actual - test_current) / test_current <= 0.05",
+      "description": "Actual test current must be within ±5% of calculated test current",
+      "severity": "major"
+    }
+  ],
+  "safety_limits": {
+    "max_voltage": {
+      "value": 15,
+      "action": "stop",
+      "description": "Emergency stop if voltage exceeds 15V"
+    },
+    "max_current": {
+      "value": 300,
+      "action": "stop",
+      "description": "Emergency stop if current exceeds 300A"
+    },
+    "max_temperature": {
+      "value": 100,
+      "action": "alarm",
+      "description": "Alarm if connection temperature exceeds 100°C"
+    }
+  },
+  "equipment": [
+    {
+      "name": "Ground Continuity Tester",
+      "type": "Test Instrument",
+      "specifications": {
+        "current_range": "0.1 A - 300 A DC",
+        "voltage_measurement_range": "0 - 15 V",
+        "resistance_measurement_range": "0.001 Ω - 1 Ω",
+        "accuracy": "±1% of reading"
+      },
+      "calibration_required": true
+    },
+    {
+      "name": "Digital Multimeter",
+      "type": "Measurement Device",
+      "specifications": {
+        "voltage_range": "0 - 1000 V",
+        "current_range": "0 - 10 A",
+        "resistance_range": "0 - 100 Ω"
+      },
+      "calibration_required": true
+    },
+    {
+      "name": "Temperature Sensor",
+      "type": "Environmental Monitor",
+      "specifications": {
+        "range": "-20°C to 150°C",
+        "accuracy": "±0.5°C"
+      },
+      "calibration_required": true
+    },
+    {
+      "name": "Humidity Sensor",
+      "type": "Environmental Monitor",
+      "specifications": {
+        "range": "0% to 100% RH",
+        "accuracy": "±2% RH"
+      },
+      "calibration_required": false
+    }
+  ],
+  "procedure": [
+    {
+      "step": 1,
+      "action": "Verify that the module is disconnected from all power sources and grounded",
+      "expected_result": "Module is safely isolated",
+      "safety_note": "Use lockout/tagout procedures to ensure no power is present"
+    },
+    {
+      "step": 2,
+      "action": "Record ambient temperature and relative humidity",
+      "expected_result": "Environmental conditions within acceptable range"
+    },
+    {
+      "step": 3,
+      "action": "Identify all accessible conductive parts that should be bonded to the module frame",
+      "expected_result": "All bonding points identified and documented"
+    },
+    {
+      "step": 4,
+      "action": "Clean all test contact points to ensure good electrical connection",
+      "expected_result": "Contact surfaces free of oxidation and contamination"
+    },
+    {
+      "step": 5,
+      "action": "Connect ground continuity tester positive terminal to module frame ground point",
+      "expected_result": "Secure connection established"
+    },
+    {
+      "step": 6,
+      "action": "Connect ground continuity tester negative terminal to accessible conductive part under test",
+      "expected_result": "Secure connection established"
+    },
+    {
+      "step": 7,
+      "action": "Calculate test current as 2.5 times the maximum overcurrent protection rating",
+      "expected_result": "Test current value determined"
+    },
+    {
+      "step": 8,
+      "action": "Set ground continuity tester to calculated test current",
+      "expected_result": "Tester configured correctly"
+    },
+    {
+      "step": 9,
+      "action": "Apply test current for 120 seconds",
+      "expected_result": "Current applied without interruption",
+      "safety_note": "Monitor for signs of overheating or arcing"
+    },
+    {
+      "step": 10,
+      "action": "Measure and record voltage drop across the bonding connection",
+      "expected_result": "Voltage measurement recorded"
+    },
+    {
+      "step": 11,
+      "action": "Calculate resistance using Ohm's law: R = V / I",
+      "expected_result": "Resistance value calculated"
+    },
+    {
+      "step": 12,
+      "action": "Compare measured resistance against pass criteria (≤ 0.1 Ω)",
+      "expected_result": "Pass/fail determination made"
+    },
+    {
+      "step": 13,
+      "action": "Repeat test for all additional bonding points",
+      "expected_result": "All bonding points tested"
+    },
+    {
+      "step": 14,
+      "action": "Document all results and generate test report",
+      "expected_result": "Complete test documentation"
+    }
+  ],
+  "metadata": {
+    "created_date": "2025-11-14T00:00:00Z",
+    "author": "PV Test Protocol Framework",
+    "reviewer": "Quality Assurance",
+    "approved_by": "Engineering Manager"
+  }
+}

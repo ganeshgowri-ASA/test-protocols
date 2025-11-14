@@ -1,0 +1,448 @@
+{
+  "protocol_id": "ENER-001",
+  "version": "1.0.0",
+  "name": "Energy Rating Test",
+  "category": "performance",
+  "description": "Test protocol for measuring PV module energy rating under various irradiance and temperature conditions according to IEC 61853 standards. This protocol determines the energy output characteristics of photovoltaic modules under different operating conditions to provide a comprehensive energy rating.",
+
+  "metadata": {
+    "author": "ASA Testing Laboratory",
+    "created_date": "2025-11-14",
+    "last_modified": "2025-11-14",
+    "standards": [
+      "IEC 61853-1: Performance testing and energy rating of terrestrial PV modules",
+      "IEC 61853-2: Spectral responsivity, incidence angle and module operating temperature measurements",
+      "IEC 61853-3: Energy rating of PV modules",
+      "IEC 61215: Terrestrial photovoltaic (PV) modules - Design qualification and type approval"
+    ],
+    "equipment_required": [
+      "Class AAA solar simulator",
+      "Precision IV curve tracer",
+      "Calibrated reference cell",
+      "Temperature sensors (Type K or PT100)",
+      "Irradiance sensor (pyranometer or reference cell)",
+      "Environmental chamber or temperature control system",
+      "Data acquisition system"
+    ],
+    "test_duration": {
+      "value": 300,
+      "unit": "seconds",
+      "description": "Stabilization time per test point"
+    }
+  },
+
+  "test_conditions": {
+    "irradiance_levels": {
+      "description": "Irradiance test matrix as per IEC 61853-1",
+      "unit": "W/m²",
+      "values": [100, 200, 400, 600, 800, 1000, 1100],
+      "tolerance": 2,
+      "note": "Additional irradiance levels may be tested for comprehensive characterization"
+    },
+    "temperature_matrix": {
+      "description": "Module temperature test points",
+      "unit": "°C",
+      "values": [15, 25, 50, 75],
+      "tolerance": 2,
+      "note": "Temperature range covers typical operational conditions"
+    },
+    "ambient_conditions": {
+      "air_mass": {
+        "value": 1.5,
+        "description": "Standard air mass for terrestrial PV testing"
+      },
+      "spectrum": "AM1.5G",
+      "wind_speed": {
+        "max": 1.0,
+        "unit": "m/s",
+        "description": "Maximum allowable wind speed during indoor testing"
+      }
+    },
+    "stabilization": {
+      "voltage_stability": {
+        "threshold": 0.5,
+        "unit": "%",
+        "duration": 60,
+        "duration_unit": "seconds"
+      },
+      "current_stability": {
+        "threshold": 0.5,
+        "unit": "%",
+        "duration": 60,
+        "duration_unit": "seconds"
+      },
+      "temperature_stability": {
+        "threshold": 1.0,
+        "unit": "°C",
+        "duration": 120,
+        "duration_unit": "seconds"
+      }
+    }
+  },
+
+  "parameters": [
+    {
+      "id": "irradiance",
+      "name": "Irradiance",
+      "description": "Incident irradiance on module plane",
+      "type": "float",
+      "unit": "W/m²",
+      "required": true,
+      "validation": {
+        "min": 0,
+        "max": 1400
+      },
+      "measurement_uncertainty": 2.0
+    },
+    {
+      "id": "module_temp",
+      "name": "Module Temperature",
+      "description": "Average module temperature from multiple points",
+      "type": "float",
+      "unit": "°C",
+      "required": true,
+      "validation": {
+        "min": -40,
+        "max": 85
+      },
+      "measurement_points": 4,
+      "measurement_uncertainty": 1.0
+    },
+    {
+      "id": "ambient_temp",
+      "name": "Ambient Temperature",
+      "description": "Ambient air temperature",
+      "type": "float",
+      "unit": "°C",
+      "required": true,
+      "validation": {
+        "min": -40,
+        "max": 60
+      }
+    },
+    {
+      "id": "voltage",
+      "name": "Voltage",
+      "description": "Module terminal voltage",
+      "type": "float",
+      "unit": "V",
+      "required": true,
+      "validation": {
+        "min": 0,
+        "max": 1500
+      },
+      "measurement_uncertainty": 0.5
+    },
+    {
+      "id": "current",
+      "name": "Current",
+      "description": "Module output current",
+      "type": "float",
+      "unit": "A",
+      "required": true,
+      "validation": {
+        "min": -1,
+        "max": 30
+      },
+      "measurement_uncertainty": 0.5
+    },
+    {
+      "id": "timestamp",
+      "name": "Timestamp",
+      "description": "Measurement timestamp",
+      "type": "string",
+      "unit": "ISO8601",
+      "required": true
+    },
+    {
+      "id": "module_area",
+      "name": "Module Area",
+      "description": "Total module area",
+      "type": "float",
+      "unit": "m²",
+      "required": true,
+      "validation": {
+        "min": 0.1,
+        "max": 5.0
+      }
+    },
+    {
+      "id": "rated_power",
+      "name": "Rated Power (STC)",
+      "description": "Module rated power at STC conditions",
+      "type": "float",
+      "unit": "W",
+      "required": true,
+      "validation": {
+        "min": 1,
+        "max": 1000
+      }
+    }
+  ],
+
+  "outputs": [
+    {
+      "id": "max_power",
+      "name": "Maximum Power",
+      "description": "Maximum power point from I-V curve",
+      "type": "float",
+      "unit": "W",
+      "calculation": "voltage * current at MPP"
+    },
+    {
+      "id": "voc",
+      "name": "Open Circuit Voltage",
+      "description": "Voltage at zero current",
+      "type": "float",
+      "unit": "V"
+    },
+    {
+      "id": "isc",
+      "name": "Short Circuit Current",
+      "description": "Current at zero voltage",
+      "type": "float",
+      "unit": "A"
+    },
+    {
+      "id": "vmpp",
+      "name": "Voltage at MPP",
+      "description": "Voltage at maximum power point",
+      "type": "float",
+      "unit": "V"
+    },
+    {
+      "id": "impp",
+      "name": "Current at MPP",
+      "description": "Current at maximum power point",
+      "type": "float",
+      "unit": "A"
+    },
+    {
+      "id": "fill_factor",
+      "name": "Fill Factor",
+      "description": "Ratio of maximum power to product of Voc and Isc",
+      "type": "float",
+      "unit": "%",
+      "calculation": "(Pmpp / (Voc * Isc)) * 100"
+    },
+    {
+      "id": "efficiency",
+      "name": "Module Efficiency",
+      "description": "Conversion efficiency of the module",
+      "type": "float",
+      "unit": "%",
+      "calculation": "(Pmpp / (Irradiance * Area)) * 100"
+    },
+    {
+      "id": "energy_rating",
+      "name": "Energy Rating",
+      "description": "Annual energy output per kWp under standard climate conditions",
+      "type": "float",
+      "unit": "kWh/kWp",
+      "calculation": "Integrated energy from test matrix normalized to rated power"
+    },
+    {
+      "id": "performance_ratio",
+      "name": "Performance Ratio",
+      "description": "Ratio of actual to theoretical energy output",
+      "type": "float",
+      "unit": "%"
+    },
+    {
+      "id": "temperature_coefficient_pmax",
+      "name": "Temperature Coefficient of Pmax",
+      "description": "Change in maximum power per degree Celsius",
+      "type": "float",
+      "unit": "%/°C"
+    },
+    {
+      "id": "temperature_coefficient_voc",
+      "name": "Temperature Coefficient of Voc",
+      "description": "Change in open circuit voltage per degree Celsius",
+      "type": "float",
+      "unit": "%/°C"
+    },
+    {
+      "id": "temperature_coefficient_isc",
+      "name": "Temperature Coefficient of Isc",
+      "description": "Change in short circuit current per degree Celsius",
+      "type": "float",
+      "unit": "%/°C"
+    }
+  ],
+
+  "quality_checks": [
+    {
+      "id": "qc_001",
+      "name": "Irradiance Stability Check",
+      "type": "threshold",
+      "parameter": "irradiance",
+      "condition": "std_dev < 2%",
+      "severity": "error",
+      "description": "Irradiance must remain stable within ±2% during measurement"
+    },
+    {
+      "id": "qc_002",
+      "name": "Temperature Range Validation",
+      "type": "range",
+      "parameter": "module_temp",
+      "min": 10,
+      "max": 80,
+      "severity": "error",
+      "description": "Module temperature must be within operational limits"
+    },
+    {
+      "id": "qc_003",
+      "name": "Temperature Stability Check",
+      "type": "threshold",
+      "parameter": "module_temp",
+      "condition": "std_dev < 1°C",
+      "severity": "warning",
+      "description": "Module temperature should stabilize before measurement"
+    },
+    {
+      "id": "qc_004",
+      "name": "IV Curve Smoothness",
+      "type": "derivative",
+      "parameter": "current",
+      "condition": "monotonic_decrease",
+      "severity": "warning",
+      "description": "IV curve should be smooth and monotonically decreasing"
+    },
+    {
+      "id": "qc_005",
+      "name": "Fill Factor Range",
+      "type": "range",
+      "parameter": "fill_factor",
+      "min": 60,
+      "max": 85,
+      "severity": "warning",
+      "description": "Fill factor should be within typical range for crystalline silicon modules"
+    },
+    {
+      "id": "qc_006",
+      "name": "Efficiency Reasonability",
+      "type": "range",
+      "parameter": "efficiency",
+      "min": 5,
+      "max": 25,
+      "severity": "error",
+      "description": "Module efficiency must be within physically reasonable limits"
+    },
+    {
+      "id": "qc_007",
+      "name": "Data Completeness",
+      "type": "completeness",
+      "condition": "all_test_points_present",
+      "severity": "error",
+      "description": "All irradiance-temperature combinations must be tested"
+    },
+    {
+      "id": "qc_008",
+      "name": "Measurement Uncertainty",
+      "type": "uncertainty",
+      "condition": "combined_uncertainty < 5%",
+      "severity": "warning",
+      "description": "Total measurement uncertainty should be less than 5%"
+    }
+  ],
+
+  "charts": [
+    {
+      "id": "iv_curve",
+      "type": "line",
+      "title": "I-V Characteristics",
+      "x_axis": "voltage",
+      "y_axis": "current",
+      "x_label": "Voltage (V)",
+      "y_label": "Current (A)",
+      "group_by": "irradiance",
+      "description": "Current-Voltage curves at different irradiance levels"
+    },
+    {
+      "id": "pv_curve",
+      "type": "line",
+      "title": "P-V Characteristics",
+      "x_axis": "voltage",
+      "y_axis": "max_power",
+      "x_label": "Voltage (V)",
+      "y_label": "Power (W)",
+      "group_by": "irradiance",
+      "description": "Power-Voltage curves at different irradiance levels"
+    },
+    {
+      "id": "power_vs_irradiance",
+      "type": "scatter",
+      "title": "Maximum Power vs Irradiance",
+      "x_axis": "irradiance",
+      "y_axis": "max_power",
+      "x_label": "Irradiance (W/m²)",
+      "y_label": "Maximum Power (W)",
+      "group_by": "module_temp",
+      "trendline": true,
+      "description": "MPP power as function of irradiance at different temperatures"
+    },
+    {
+      "id": "power_vs_temperature",
+      "type": "scatter",
+      "title": "Maximum Power vs Temperature",
+      "x_axis": "module_temp",
+      "y_axis": "max_power",
+      "x_label": "Module Temperature (°C)",
+      "y_label": "Maximum Power (W)",
+      "group_by": "irradiance",
+      "trendline": true,
+      "description": "MPP power as function of temperature at different irradiance levels"
+    },
+    {
+      "id": "efficiency_map",
+      "type": "heatmap",
+      "title": "Efficiency Map",
+      "x_axis": "irradiance",
+      "y_axis": "module_temp",
+      "z_axis": "efficiency",
+      "x_label": "Irradiance (W/m²)",
+      "y_label": "Module Temperature (°C)",
+      "z_label": "Efficiency (%)",
+      "description": "Module efficiency across irradiance-temperature matrix"
+    },
+    {
+      "id": "energy_rating_contribution",
+      "type": "bar",
+      "title": "Energy Rating Contribution by Operating Conditions",
+      "x_axis": "condition",
+      "y_axis": "energy_contribution",
+      "x_label": "Operating Condition",
+      "y_label": "Energy Contribution (kWh/kWp)",
+      "description": "Breakdown of energy rating by different operating conditions"
+    }
+  ],
+
+  "report_sections": [
+    "executive_summary",
+    "test_information",
+    "module_specifications",
+    "test_conditions",
+    "measurement_data",
+    "iv_characteristics",
+    "performance_parameters",
+    "temperature_coefficients",
+    "energy_rating",
+    "quality_checks",
+    "charts_and_graphs",
+    "uncertainty_analysis",
+    "conclusions",
+    "appendices"
+  ],
+
+  "calculations": {
+    "energy_rating_method": "IEC 61853-3",
+    "reference_conditions": {
+      "climate": "moderate",
+      "location": "mid-latitude",
+      "annual_irradiation": 1700,
+      "annual_irradiation_unit": "kWh/m²"
+    },
+    "normalization": "per_kWp_rated_power"
+  }
+}

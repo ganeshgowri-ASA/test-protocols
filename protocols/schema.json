@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Test Protocol Schema",
+  "description": "JSON schema for PV testing protocol definitions",
+  "type": "object",
+  "required": [
+    "protocol_id",
+    "version",
+    "name",
+    "category",
+    "description",
+    "metadata",
+    "test_conditions",
+    "parameters",
+    "outputs"
+  ],
+  "properties": {
+    "protocol_id": {
+      "type": "string",
+      "pattern": "^[A-Z]+-[0-9]{3}$",
+      "description": "Unique protocol identifier (e.g., ENER-001)"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Protocol version in semver format"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable protocol name"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["performance", "safety", "durability", "environmental", "electrical", "mechanical"],
+      "description": "Protocol category"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed protocol description"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["author", "created_date", "standards"],
+      "properties": {
+        "author": {"type": "string"},
+        "created_date": {"type": "string", "format": "date"},
+        "last_modified": {"type": "string", "format": "date"},
+        "standards": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Applicable industry standards"
+        },
+        "equipment_required": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "test_conditions": {
+      "type": "object",
+      "description": "Test conditions and requirements"
+    },
+    "parameters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "type", "unit", "required"],
+        "properties": {
+          "id": {"type": "string"},
+          "name": {"type": "string"},
+          "type": {"type": "string", "enum": ["float", "int", "string", "boolean"]},
+          "unit": {"type": "string"},
+          "required": {"type": "boolean"},
+          "validation": {
+            "type": "object",
+            "properties": {
+              "min": {"type": "number"},
+              "max": {"type": "number"},
+              "pattern": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "type", "unit"],
+        "properties": {
+          "id": {"type": "string"},
+          "name": {"type": "string"},
+          "type": {"type": "string"},
+          "unit": {"type": "string"},
+          "calculation": {"type": "string"}
+        }
+      }
+    },
+    "quality_checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "type"],
+        "properties": {
+          "id": {"type": "string"},
+          "name": {"type": "string"},
+          "type": {"type": "string"},
+          "parameter": {"type": "string"},
+          "condition": {"type": "string"}
+        }
+      }
+    },
+    "charts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "title"],
+        "properties": {
+          "id": {"type": "string"},
+          "type": {"type": "string"},
+          "title": {"type": "string"},
+          "x_axis": {"type": "string"},
+          "y_axis": {"type": "string"}
+        }
+      }
+    },
+    "report_sections": {
+      "type": "array",
+      "items": {"type": "string"}
+    }
+  }
+}

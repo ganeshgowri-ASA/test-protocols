@@ -1,0 +1,863 @@
+{
+  "metadata": {
+    "protocol_id": "PVTP-015",
+    "protocol_name": "Dark I-V / Shunt Resistance Analysis",
+    "version": "1.0.0",
+    "effective_date": "2025-01-01",
+    "category": "Electrical Performance",
+    "subcategory": "Dark Characterization & Defect Analysis",
+    "standard_references": [
+      "IEC 60904-1:2020",
+      "IEC TS 60904-1-2:2019",
+      "ASTM E948-16"
+    ],
+    "author": "PV Testing Lab",
+    "approver": null,
+    "approval_date": null,
+    "revision_history": [
+      {
+        "version": "1.0.0",
+        "date": "2025-01-01",
+        "changes": "Initial version",
+        "author": "PV Testing Lab"
+      }
+    ]
+  },
+  "inputs": {
+    "required": {
+      "sample_id": {
+        "type": "string",
+        "label": "Sample ID",
+        "description": "Unique identifier for the PV module or cell",
+        "validation": {
+          "pattern": "^[A-Z0-9-]+$",
+          "min_length": 5,
+          "max_length": 50
+        }
+      },
+      "sample_type": {
+        "type": "select",
+        "label": "Sample Type",
+        "options": ["Full Module", "Cell", "Mini-module", "Substring"],
+        "default": "Full Module"
+      },
+      "manufacturer": {
+        "type": "string",
+        "label": "Manufacturer"
+      },
+      "model": {
+        "type": "string",
+        "label": "Model Number"
+      },
+      "serial_number": {
+        "type": "string",
+        "label": "Serial Number"
+      },
+      "technology": {
+        "type": "select",
+        "label": "Cell Technology",
+        "options": [
+          "mono-Si",
+          "multi-Si",
+          "PERC",
+          "HJT",
+          "TOPCon",
+          "IBC",
+          "CdTe",
+          "CIGS",
+          "a-Si",
+          "Perovskite",
+          "Other"
+        ]
+      },
+      "test_date": {
+        "type": "date",
+        "label": "Test Date",
+        "default": "today"
+      },
+      "operator": {
+        "type": "string",
+        "label": "Test Operator"
+      },
+      "test_mode": {
+        "type": "select",
+        "label": "Test Mode",
+        "options": [
+          "Forward Bias Only",
+          "Reverse Bias Only",
+          "Full Range (Forward + Reverse)"
+        ],
+        "default": "Full Range (Forward + Reverse)"
+      }
+    },
+    "optional": {
+      "project_id": {
+        "type": "string",
+        "label": "Project ID"
+      },
+      "customer": {
+        "type": "string",
+        "label": "Customer Name"
+      },
+      "cell_count": {
+        "type": "integer",
+        "label": "Number of Cells",
+        "validation": {"min": 1, "max": 200}
+      },
+      "cell_area": {
+        "type": "number",
+        "label": "Active Cell Area (cm²)",
+        "unit": "cm²",
+        "description": "For current density calculations"
+      },
+      "expected_voc": {
+        "type": "number",
+        "label": "Expected Voc (V)",
+        "unit": "V",
+        "description": "From light I-V, for comparison"
+      },
+      "defect_analysis": {
+        "type": "boolean",
+        "label": "Perform Defect Analysis",
+        "default": true,
+        "description": "Enable detailed defect identification"
+      },
+      "notes": {
+        "type": "text",
+        "label": "Test Notes"
+      }
+    }
+  },
+  "measurements": {
+    "test_conditions": {
+      "label": "Test Conditions",
+      "fields": {
+        "temperature": {
+          "type": "number",
+          "label": "Module/Cell Temperature (°C)",
+          "unit": "°C",
+          "target": 25.0,
+          "tolerance": 2.0,
+          "uncertainty": "±0.5",
+          "required": true,
+          "description": "Critical for accurate recombination analysis"
+        },
+        "ambient_temperature": {
+          "type": "number",
+          "label": "Ambient Temperature (°C)",
+          "unit": "°C",
+          "uncertainty": "±0.5"
+        },
+        "light_shielding": {
+          "type": "select",
+          "label": "Light Shielding Method",
+          "options": ["Light-tight box", "Dark room", "Covered module", "Other"],
+          "required": true
+        },
+        "ambient_light_level": {
+          "type": "number",
+          "label": "Residual Light Level (lux)",
+          "unit": "lux",
+          "validation": {"max": 1},
+          "severity": "warning_if_exceeded"
+        }
+      }
+    },
+    "forward_bias_data": {
+      "label": "Forward Bias I-V Measurement",
+      "description": "Measure from 0V to near Voc in dark",
+      "fields": {
+        "voltage_range": {
+          "type": "object",
+          "fields": {
+            "v_min": {
+              "type": "number",
+              "label": "Minimum Voltage (V)",
+              "unit": "V",
+              "default": 0,
+              "validation": {"min": -1, "max": 0}
+            },
+            "v_max": {
+              "type": "number",
+              "label": "Maximum Voltage (V)",
+              "unit": "V",
+              "default": 50,
+              "validation": {"min": 0, "max": 100},
+              "description": "Typically slightly above expected Voc"
+            },
+            "step_size": {
+              "type": "number",
+              "label": "Voltage Step Size (V)",
+              "unit": "V",
+              "default": 0.1,
+              "validation": {"min": 0.001, "max": 1}
+            }
+          }
+        },
+        "data_points": {
+          "type": "array",
+          "label": "Dark I-V Data (Forward Bias)",
+          "min_points": 50,
+          "structure": {
+            "voltage": {
+              "type": "number",
+              "unit": "V",
+              "uncertainty": "±0.5%"
+            },
+            "current": {
+              "type": "number",
+              "unit": "A",
+              "uncertainty": "±1%",
+              "range": "auto"
+            },
+            "current_density": {
+              "type": "calculated",
+              "unit": "mA/cm²",
+              "requires": "cell_area"
+            }
+          }
+        },
+        "sweep_direction": {
+          "type": "select",
+          "label": "Sweep Direction",
+          "options": ["Forward (0→Vmax)", "Reverse (Vmax→0)", "Bidirectional"]
+        }
+      }
+    },
+    "reverse_bias_data": {
+      "label": "Reverse Bias I-V Measurement",
+      "description": "Measure reverse characteristics for shunt analysis",
+      "fields": {
+        "voltage_range": {
+          "type": "object",
+          "fields": {
+            "v_min": {
+              "type": "number",
+              "label": "Minimum Voltage (V)",
+              "unit": "V",
+              "default": -15,
+              "validation": {"min": -50, "max": 0},
+              "description": "Negative voltage"
+            },
+            "v_max": {
+              "type": "number",
+              "label": "Maximum Voltage (V)",
+              "unit": "V",
+              "default": 0,
+              "validation": {"min": -5, "max": 5}
+            },
+            "step_size": {
+              "type": "number",
+              "label": "Voltage Step Size (V)",
+              "unit": "V",
+              "default": 0.1,
+              "validation": {"min": 0.001, "max": 1}
+            }
+          }
+        },
+        "data_points": {
+          "type": "array",
+          "label": "Dark I-V Data (Reverse Bias)",
+          "min_points": 30,
+          "structure": {
+            "voltage": {
+              "type": "number",
+              "unit": "V",
+              "uncertainty": "±0.5%"
+            },
+            "current": {
+              "type": "number",
+              "unit": "A",
+              "uncertainty": "±1%"
+            }
+          }
+        },
+        "breakdown_detection": {
+          "type": "boolean",
+          "label": "Breakdown Detected",
+          "description": "Auto-detected if current increases rapidly"
+        },
+        "breakdown_voltage": {
+          "type": "number",
+          "label": "Breakdown Voltage (V)",
+          "unit": "V",
+          "conditional": "breakdown_detection == true"
+        }
+      }
+    },
+    "low_voltage_resolution": {
+      "label": "High-Resolution Low Voltage Measurement",
+      "description": "Detailed measurement near 0V for accurate Rsh determination",
+      "optional": true,
+      "fields": {
+        "voltage_range": {
+          "v_min": -0.5,
+          "v_max": 0.5,
+          "step_size": 0.01,
+          "unit": "V"
+        },
+        "current_resolution": {
+          "type": "number",
+          "label": "Current Measurement Resolution",
+          "unit": "A",
+          "description": "Minimum detectable current"
+        }
+      }
+    }
+  },
+  "analysis": {
+    "diode_parameters": {
+      "label": "Diode Model Parameter Extraction",
+      "description": "Extract parameters from single/two-diode model",
+      "models": {
+        "single_diode": {
+          "enabled": true,
+          "label": "Single Diode Model",
+          "equation": "I = I0 * [exp(qV/nkT) - 1] + V/Rsh",
+          "parameters": {
+            "saturation_current": {
+              "label": "Reverse Saturation Current (I0)",
+              "unit": "A",
+              "method": "log_linear_fit",
+              "region": "mid_voltage_range",
+              "description": "Recombination in space charge region"
+            },
+            "ideality_factor": {
+              "label": "Diode Ideality Factor (n)",
+              "unit": "",
+              "method": "slope_of_semilog_plot",
+              "expected_range": [1, 2],
+              "interpretation": {
+                "n_near_1": "Diffusion recombination dominated",
+                "n_near_2": "Recombination in depletion region",
+                "n_greater_2": "High recombination or series resistance effects"
+              }
+            },
+            "series_resistance": {
+              "label": "Series Resistance (Rs)",
+              "unit": "Ω",
+              "method": "high_voltage_slope",
+              "description": "Total series resistance"
+            },
+            "shunt_resistance": {
+              "label": "Shunt Resistance (Rsh)",
+              "unit": "Ω",
+              "method": "slope_near_zero_voltage",
+              "description": "Parallel resistance / shunt paths"
+            }
+          },
+          "fitting": {
+            "method": "nonlinear_least_squares",
+            "voltage_range": "auto",
+            "convergence_tolerance": 1e-6
+          }
+        },
+        "two_diode": {
+          "enabled": false,
+          "label": "Two Diode Model",
+          "equation": "I = I01*[exp(qV/n1kT)-1] + I02*[exp(qV/n2kT)-1] + V/Rsh",
+          "parameters": [
+            "I01", "n1", "I02", "n2", "Rs", "Rsh"
+          ]
+        }
+      },
+      "quality_metrics": {
+        "r_squared": {
+          "label": "Fit Quality (R²)",
+          "threshold": 0.999,
+          "severity": "warning_if_below"
+        },
+        "residual_analysis": {
+          "enabled": true,
+          "method": "chi_squared_test"
+        }
+      }
+    },
+    "shunt_analysis": {
+      "label": "Shunt Resistance Analysis",
+      "description": "Detailed analysis of parallel resistance and leakage paths",
+      "measurements": {
+        "rsh_parallel": {
+          "label": "Parallel Shunt Resistance (Rsh)",
+          "unit": "Ω",
+          "method": "dV/dI at V=0",
+          "uncertainty": "±5%"
+        },
+        "rsh_area_normalized": {
+          "label": "Area-Normalized Rsh",
+          "unit": "Ω·cm²",
+          "requires": "cell_area",
+          "description": "For technology comparison"
+        },
+        "conductance": {
+          "label": "Shunt Conductance (Gsh)",
+          "unit": "S",
+          "formula": "1 / Rsh"
+        },
+        "leakage_current_density": {
+          "label": "Leakage Current Density at -15V",
+          "unit": "mA/cm²",
+          "description": "Measure of shunt severity"
+        }
+      },
+      "classification": {
+        "excellent": "Rsh > 10000 Ω·cm²",
+        "good": "Rsh: 1000-10000 Ω·cm²",
+        "acceptable": "Rsh: 500-1000 Ω·cm²",
+        "poor": "Rsh: 100-500 Ω·cm²",
+        "failed": "Rsh < 100 Ω·cm²"
+      }
+    },
+    "recombination_analysis": {
+      "label": "Recombination Mechanism Analysis",
+      "description": "Identify dominant recombination mechanisms",
+      "analyses": {
+        "semilog_plot_analysis": {
+          "label": "Semi-logarithmic Plot Analysis",
+          "description": "ln(I) vs V to identify recombination regions",
+          "regions": {
+            "low_voltage": {
+              "label": "Low Voltage Region (V < 0.2*Voc)",
+              "mechanism": "Shunt resistance dominated",
+              "characteristic": "Linear in semi-log"
+            },
+            "mid_voltage": {
+              "label": "Mid Voltage Region",
+              "mechanism": "Recombination (SRH, depletion)",
+              "characteristic": "Exponential with ideality n≈1-2"
+            },
+            "high_voltage": {
+              "label": "High Voltage Region (V > 0.8*Voc)",
+              "mechanism": "Series resistance effects",
+              "characteristic": "Deviation from exponential"
+            }
+          }
+        },
+        "j0_extraction": {
+          "label": "Recombination Current Density (J0)",
+          "unit": "fA/cm²",
+          "description": "Measure of recombination quality",
+          "typical_values": {
+            "excellent_Si": "< 10 fA/cm²",
+            "good_Si": "10-100 fA/cm²",
+            "average_Si": "100-1000 fA/cm²"
+          }
+        },
+        "implied_voc": {
+          "label": "Implied Voc from Dark I-V",
+          "unit": "V",
+          "formula": "Voc = (nkT/q) * ln(Isc/I0 + 1)",
+          "requires": "isc_from_light_measurement",
+          "description": "Maximum achievable Voc"
+        }
+      }
+    },
+    "defect_identification": {
+      "label": "Defect Identification and Classification",
+      "conditional": "defect_analysis == true",
+      "methods": {
+        "breakdown_analysis": {
+          "label": "Reverse Breakdown Analysis",
+          "detection": "Rapid current increase in reverse bias",
+          "types": {
+            "avalanche_breakdown": {
+              "description": "Uniform breakdown across cell",
+              "characteristic": "Sharp increase at defined voltage"
+            },
+            "localized_breakdown": {
+              "description": "Hot spots due to defects",
+              "characteristic": "Gradual increase, lower voltage"
+            }
+          }
+        },
+        "shunt_type_classification": {
+          "label": "Shunt Type Classification",
+          "types": {
+            "ohmic_shunt": {
+              "description": "Linear I-V relationship",
+              "causes": ["Edge damage", "Saw damage", "Metallization defects"]
+            },
+            "non_ohmic_shunt": {
+              "description": "Non-linear I-V",
+              "causes": ["Crystal defects", "Grain boundaries", "Process issues"]
+            },
+            "junction_shunt": {
+              "description": "Voltage-dependent",
+              "causes": ["P-N junction defects"]
+            }
+          },
+          "method": "Analysis of reverse I-V linearity"
+        },
+        "series_resistance_localization": {
+          "label": "Series Resistance Issues",
+          "indicators": [
+            "High Rs value",
+            "Non-uniform current distribution",
+            "Contact resistance problems"
+          ]
+        }
+      }
+    },
+    "comparison_to_light_iv": {
+      "label": "Comparison to Light I-V Characteristics",
+      "description": "Validate dark I-V against illuminated measurements",
+      "analyses": {
+        "voc_comparison": {
+          "label": "Voc Comparison",
+          "description": "Dark I-V at Isc should match light Voc",
+          "tolerance": 5,
+          "unit": "%"
+        },
+        "superposition_principle": {
+          "label": "Superposition Principle Check",
+          "description": "I_light(V) ≈ I_dark(V) - Isc",
+          "method": "Overlay curves"
+        }
+      }
+    },
+    "temperature_dependence": {
+      "label": "Temperature Dependence (if measured)",
+      "optional": true,
+      "analyses": {
+        "i0_temperature": {
+          "description": "I0(T) = I0(T0) * exp[Eg/k * (1/T0 - 1/T)]"
+        },
+        "bandgap_estimation": {
+          "description": "Estimate bandgap from I0 temperature dependence"
+        }
+      }
+    }
+  },
+  "charts": {
+    "dark_iv_full": {
+      "type": "line",
+      "title": "Complete Dark I-V Curve",
+      "x_axis": "Voltage (V)",
+      "y_axis": "Current (A)",
+      "series": ["Measured", "Single Diode Fit"],
+      "annotations": ["Voc@Isc"],
+      "y_scale": "linear"
+    },
+    "dark_iv_semilog": {
+      "type": "line",
+      "title": "Dark I-V (Semi-logarithmic)",
+      "x_axis": "Voltage (V)",
+      "y_axis": "log(Current) (A)",
+      "series": ["Measured", "Linear Fit (mid-range)"],
+      "y_scale": "logarithmic",
+      "annotations": ["n (ideality)", "I0"]
+    },
+    "reverse_bias_detail": {
+      "type": "line",
+      "title": "Reverse Bias Characteristics",
+      "x_axis": "Voltage (V)",
+      "y_axis": "Current (A)",
+      "series": ["Measured"],
+      "annotations": ["Breakdown Point"],
+      "x_range": "reverse_only"
+    },
+    "shunt_resistance_determination": {
+      "type": "scatter_with_fit",
+      "title": "Shunt Resistance Determination (Near 0V)",
+      "x_axis": "Voltage (V)",
+      "y_axis": "Current (A)",
+      "fit_type": "linear",
+      "region": "±0.5V",
+      "show_equation": true,
+      "annotation": "Rsh = 1/slope"
+    },
+    "series_resistance_determination": {
+      "type": "scatter_with_fit",
+      "title": "Series Resistance Determination (High Forward Bias)",
+      "x_axis": "Current (A)",
+      "y_axis": "Voltage (V)",
+      "fit_type": "linear",
+      "region": "high_current",
+      "show_equation": true,
+      "annotation": "Rs = slope"
+    },
+    "residuals_plot": {
+      "type": "scatter",
+      "title": "Model Fit Residuals",
+      "x_axis": "Voltage (V)",
+      "y_axis": "Residual (I_measured - I_fit)",
+      "show_zero_line": true
+    },
+    "dark_vs_light_comparison": {
+      "type": "multi_line",
+      "title": "Dark I-V vs Light I-V Comparison",
+      "x_axis": "Voltage (V)",
+      "y_axis": "Current (A)",
+      "series": ["Dark I-V", "Light I-V", "Light I-V + Isc (shifted)"],
+      "description": "Validate superposition principle"
+    },
+    "recombination_regions": {
+      "type": "annotated_line",
+      "title": "Recombination Mechanisms by Voltage Region",
+      "x_axis": "Voltage (V)",
+      "y_axis": "log(Current)",
+      "regions": ["Shunt Dominated", "Recombination", "Series R"],
+      "color_coded": true
+    },
+    "parameter_comparison": {
+      "type": "bar",
+      "title": "Extracted Parameters vs Expected",
+      "x_axis": "Parameter",
+      "y_axis": "Value",
+      "series": ["Measured", "Expected", "Acceptable Range"],
+      "parameters": ["I0", "n", "Rs", "Rsh"]
+    }
+  },
+  "qc_checks": {
+    "automatic": [
+      {
+        "check_id": "QC-015-001",
+        "parameter": "shunt_resistance",
+        "condition": "greater_than",
+        "threshold": 500,
+        "unit": "Ω·cm²",
+        "severity": "warning",
+        "message": "Low shunt resistance indicates leakage paths"
+      },
+      {
+        "check_id": "QC-015-002",
+        "parameter": "ideality_factor",
+        "condition": "within_range",
+        "range": [1, 2.5],
+        "severity": "warning",
+        "message": "Ideality factor outside normal range"
+      },
+      {
+        "check_id": "QC-015-003",
+        "parameter": "saturation_current",
+        "condition": "less_than",
+        "threshold": 1e-9,
+        "unit": "A",
+        "severity": "info",
+        "message": "Check I0 value reasonable for technology"
+      },
+      {
+        "check_id": "QC-015-004",
+        "parameter": "fit_quality_r_squared",
+        "condition": "greater_than",
+        "threshold": 0.999,
+        "severity": "critical",
+        "message": "Poor model fit quality"
+      },
+      {
+        "check_id": "QC-015-005",
+        "parameter": "breakdown_detected",
+        "condition": "equals",
+        "value": false,
+        "severity": "critical",
+        "message": "Reverse breakdown detected - module defect"
+      },
+      {
+        "check_id": "QC-015-006",
+        "parameter": "voc_deviation",
+        "condition": "within_tolerance",
+        "tolerance": 5,
+        "unit": "%",
+        "severity": "warning",
+        "message": "Dark I-V Voc deviates from light I-V"
+      }
+    ],
+    "manual": [
+      {
+        "check_id": "QC-015-M01",
+        "description": "Verify complete darkness (no light leaks)",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "check_id": "QC-015-M02",
+        "description": "Confirm temperature stable during measurement",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "check_id": "QC-015-M03",
+        "description": "Check for contact issues or poor connections",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "check_id": "QC-015-M04",
+        "description": "Visual inspection for physical defects",
+        "type": "boolean",
+        "required": false
+      }
+    ]
+  },
+  "maintenance": {
+    "equipment": [
+      {
+        "equipment_id": "source_measure_unit",
+        "name": "Source-Measure Unit (SMU) / Parameter Analyzer",
+        "calibration_required": true,
+        "calibration_interval_days": 365,
+        "verification_checks": [
+          "voltage_accuracy",
+          "current_accuracy_all_ranges",
+          "low_current_resolution"
+        ]
+      },
+      {
+        "equipment_id": "dark_box",
+        "name": "Light-Tight Enclosure",
+        "calibration_required": false,
+        "maintenance_interval_days": 180,
+        "checks": ["light_leak_test", "interior_cleanliness"]
+      },
+      {
+        "equipment_id": "temperature_controller",
+        "name": "Temperature Control System",
+        "calibration_required": true,
+        "calibration_interval_days": 365
+      },
+      {
+        "equipment_id": "contact_system",
+        "name": "Electrical Contact System",
+        "calibration_required": false,
+        "maintenance_interval_days": 90,
+        "checks": ["contact_resistance", "spring_pressure"]
+      }
+    ],
+    "preventive_maintenance": [
+      {
+        "task": "Verify SMU low-current measurement accuracy",
+        "frequency_days": 90,
+        "estimated_time_minutes": 30,
+        "method": "Use precision resistors"
+      },
+      {
+        "task": "Check dark box light leakage",
+        "frequency_days": 30,
+        "estimated_time_minutes": 15,
+        "method": "Use sensitive photodetector"
+      },
+      {
+        "task": "Clean and inspect electrical contacts",
+        "frequency_days": 30,
+        "estimated_time_minutes": 20
+      }
+    ]
+  },
+  "project_management": {
+    "estimated_duration_minutes": 45,
+    "required_personnel": 1,
+    "required_skills": [
+      "pv_testing",
+      "dark_characterization",
+      "semiconductor_physics",
+      "data_analysis"
+    ],
+    "safety_requirements": [
+      "Electrical safety training",
+      "PPE: Safety glasses, insulated gloves",
+      "Understanding of high voltage hazards in reverse bias"
+    ],
+    "dependencies": {
+      "required_protocols": [],
+      "optional_protocols": ["PVTP-010", "PVTP-011"],
+      "blocking_conditions": [
+        "SMU calibration expired",
+        "Dark box light leakage",
+        "Temperature not stable"
+      ]
+    },
+    "deliverables": [
+      {
+        "type": "test_report",
+        "format": "PDF",
+        "template": "PVTP-015_report_template.html",
+        "includes": [
+          "dark_iv_curves",
+          "extracted_parameters",
+          "defect_analysis",
+          "comparison_to_light"
+        ]
+      },
+      {
+        "type": "data_export",
+        "format": "CSV",
+        "includes": ["dark_iv_data", "fitted_parameters"]
+      },
+      {
+        "type": "data_export",
+        "format": "Excel",
+        "includes": [
+          "raw_data",
+          "analysis_results",
+          "charts",
+          "defect_classification"
+        ]
+      }
+    ],
+    "dashboard_metrics": [
+      "shunt_resistance",
+      "series_resistance",
+      "ideality_factor",
+      "saturation_current",
+      "defect_status"
+    ]
+  },
+  "nonconformance": {
+    "triggers": [
+      {
+        "condition": "low_shunt_resistance",
+        "threshold": 100,
+        "unit": "Ω·cm²",
+        "severity": "critical",
+        "nc_category": "shunt_defect"
+      },
+      {
+        "condition": "high_series_resistance",
+        "threshold": 5.0,
+        "unit": "Ω",
+        "severity": "major",
+        "nc_category": "contact_resistance"
+      },
+      {
+        "condition": "breakdown_detected",
+        "severity": "critical",
+        "nc_category": "junction_breakdown"
+      },
+      {
+        "condition": "abnormal_ideality_factor",
+        "range": [0.8, 3.0],
+        "severity": "major",
+        "nc_category": "recombination_anomaly"
+      },
+      {
+        "condition": "poor_fit_quality",
+        "threshold_r_squared": 0.99,
+        "severity": "major",
+        "nc_category": "measurement_quality"
+      },
+      {
+        "condition": "voc_mismatch",
+        "threshold": 10,
+        "unit": "%",
+        "severity": "major",
+        "nc_category": "measurement_inconsistency"
+      }
+    ],
+    "workflow": {
+      "auto_create_nc": true,
+      "require_investigation": true,
+      "require_root_cause": true,
+      "require_corrective_action": true,
+      "notification_roles": ["lab_manager", "quality_manager", "engineering"]
+    },
+    "documentation_required": [
+      "dark_iv_curves",
+      "parameter_extraction_results",
+      "defect_analysis",
+      "comparison_to_light_iv",
+      "root_cause_analysis",
+      "corrective_actions",
+      "visual_inspection_photos"
+    ]
+  }
+}

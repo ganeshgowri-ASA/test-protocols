@@ -1,0 +1,486 @@
+{
+  "protocol_id": "UVID-001",
+  "name": "UV-Induced Degradation Protocol",
+  "description": "Test protocol for evaluating photovoltaic module degradation under accelerated UV exposure conditions. Measures efficiency retention and electrical parameter changes.",
+  "version": "1.0.0",
+  "category": "Degradation",
+  "test_type": "Environmental Stress Test",
+  "standard_reference": "IEC 61215-2:2021 MQT 10",
+  "revision_date": "2025-11-14",
+  "author": "PV Testing Laboratory",
+
+  "test_parameters": {
+    "uv_irradiance": {
+      "type": "float",
+      "unit": "W/m²",
+      "description": "UV irradiance at wavelength 280-400nm",
+      "min_value": 0.5,
+      "max_value": 1.5,
+      "default_value": 1.0,
+      "tolerance": 0.1,
+      "required": true
+    },
+    "chamber_temperature": {
+      "type": "float",
+      "unit": "°C",
+      "description": "Environmental chamber temperature during UV exposure",
+      "min_value": 55,
+      "max_value": 65,
+      "default_value": 60,
+      "tolerance": 2.0,
+      "required": true
+    },
+    "exposure_duration": {
+      "type": "integer",
+      "unit": "hours",
+      "description": "Total UV exposure duration",
+      "min_value": 100,
+      "max_value": 2000,
+      "default_value": 1000,
+      "required": true
+    },
+    "measurement_interval": {
+      "type": "integer",
+      "unit": "hours",
+      "description": "Interval between intermediate measurements",
+      "min_value": 50,
+      "max_value": 500,
+      "default_value": 250,
+      "required": false
+    },
+    "relative_humidity": {
+      "type": "float",
+      "unit": "%",
+      "description": "Relative humidity in test chamber",
+      "min_value": 0,
+      "max_value": 75,
+      "default_value": 50,
+      "tolerance": 5.0,
+      "required": false
+    }
+  },
+
+  "specimen_requirements": {
+    "min_specimens": 2,
+    "recommended_specimens": 3,
+    "specimen_type": "PV Module",
+    "pre_conditioning": {
+      "required": true,
+      "temperature": 25,
+      "duration_hours": 24,
+      "description": "Stabilize at STC conditions before initial measurement"
+    }
+  },
+
+  "measurement_points": [
+    {
+      "id": "initial",
+      "sequence": 0,
+      "name": "Initial Characterization",
+      "description": "Baseline measurements before UV exposure",
+      "timing": "Before test start",
+      "required": true,
+      "measurements": [
+        {
+          "parameter": "pmax",
+          "name": "Maximum Power",
+          "unit": "W",
+          "tolerance": 0.02,
+          "method": "I-V curve trace at STC"
+        },
+        {
+          "parameter": "voc",
+          "name": "Open Circuit Voltage",
+          "unit": "V",
+          "tolerance": 0.01,
+          "method": "I-V curve measurement"
+        },
+        {
+          "parameter": "isc",
+          "name": "Short Circuit Current",
+          "unit": "A",
+          "tolerance": 0.02,
+          "method": "I-V curve measurement"
+        },
+        {
+          "parameter": "vmp",
+          "name": "Voltage at Maximum Power",
+          "unit": "V",
+          "tolerance": 0.02,
+          "method": "I-V curve trace"
+        },
+        {
+          "parameter": "imp",
+          "name": "Current at Maximum Power",
+          "unit": "A",
+          "tolerance": 0.02,
+          "method": "I-V curve trace"
+        },
+        {
+          "parameter": "fill_factor",
+          "name": "Fill Factor",
+          "unit": "%",
+          "tolerance": 0.01,
+          "method": "Calculated from I-V curve"
+        },
+        {
+          "parameter": "efficiency",
+          "name": "Conversion Efficiency",
+          "unit": "%",
+          "tolerance": 0.01,
+          "method": "Calculated from Pmax and module area"
+        }
+      ]
+    },
+    {
+      "id": "intermediate_250h",
+      "sequence": 1,
+      "name": "Intermediate Check (250h)",
+      "description": "Mid-test characterization at 250 hours",
+      "timing": "After 250 hours exposure",
+      "required": false,
+      "measurements": [
+        {
+          "parameter": "pmax",
+          "name": "Maximum Power",
+          "unit": "W",
+          "tolerance": 0.02,
+          "method": "I-V curve trace at STC"
+        },
+        {
+          "parameter": "voc",
+          "name": "Open Circuit Voltage",
+          "unit": "V",
+          "tolerance": 0.01,
+          "method": "I-V curve measurement"
+        },
+        {
+          "parameter": "isc",
+          "name": "Short Circuit Current",
+          "unit": "A",
+          "tolerance": 0.02,
+          "method": "I-V curve measurement"
+        },
+        {
+          "parameter": "fill_factor",
+          "name": "Fill Factor",
+          "unit": "%",
+          "tolerance": 0.01,
+          "method": "Calculated from I-V curve"
+        }
+      ]
+    },
+    {
+      "id": "intermediate_500h",
+      "sequence": 2,
+      "name": "Intermediate Check (500h)",
+      "description": "Mid-test characterization at 500 hours",
+      "timing": "After 500 hours exposure",
+      "required": false,
+      "measurements": [
+        {
+          "parameter": "pmax",
+          "name": "Maximum Power",
+          "unit": "W",
+          "tolerance": 0.02,
+          "method": "I-V curve trace at STC"
+        },
+        {
+          "parameter": "voc",
+          "name": "Open Circuit Voltage",
+          "unit": "V",
+          "tolerance": 0.01,
+          "method": "I-V curve measurement"
+        },
+        {
+          "parameter": "isc",
+          "name": "Short Circuit Current",
+          "unit": "A",
+          "tolerance": 0.02,
+          "method": "I-V curve measurement"
+        },
+        {
+          "parameter": "fill_factor",
+          "name": "Fill Factor",
+          "unit": "%",
+          "tolerance": 0.01,
+          "method": "Calculated from I-V curve"
+        }
+      ]
+    },
+    {
+      "id": "intermediate_750h",
+      "sequence": 3,
+      "name": "Intermediate Check (750h)",
+      "description": "Mid-test characterization at 750 hours",
+      "timing": "After 750 hours exposure",
+      "required": false,
+      "measurements": [
+        {
+          "parameter": "pmax",
+          "name": "Maximum Power",
+          "unit": "W",
+          "tolerance": 0.02,
+          "method": "I-V curve trace at STC"
+        },
+        {
+          "parameter": "voc",
+          "name": "Open Circuit Voltage",
+          "unit": "V",
+          "tolerance": 0.01,
+          "method": "I-V curve measurement"
+        },
+        {
+          "parameter": "isc",
+          "name": "Short Circuit Current",
+          "unit": "A",
+          "tolerance": 0.02,
+          "method": "I-V curve measurement"
+        },
+        {
+          "parameter": "fill_factor",
+          "name": "Fill Factor",
+          "unit": "%",
+          "tolerance": 0.01,
+          "method": "Calculated from I-V curve"
+        }
+      ]
+    },
+    {
+      "id": "final",
+      "sequence": 4,
+      "name": "Final Characterization",
+      "description": "Complete characterization after full UV exposure",
+      "timing": "After complete exposure duration",
+      "required": true,
+      "measurements": [
+        {
+          "parameter": "pmax",
+          "name": "Maximum Power",
+          "unit": "W",
+          "tolerance": 0.02,
+          "method": "I-V curve trace at STC"
+        },
+        {
+          "parameter": "voc",
+          "name": "Open Circuit Voltage",
+          "unit": "V",
+          "tolerance": 0.01,
+          "method": "I-V curve measurement"
+        },
+        {
+          "parameter": "isc",
+          "name": "Short Circuit Current",
+          "unit": "A",
+          "tolerance": 0.02,
+          "method": "I-V curve measurement"
+        },
+        {
+          "parameter": "vmp",
+          "name": "Voltage at Maximum Power",
+          "unit": "V",
+          "tolerance": 0.02,
+          "method": "I-V curve trace"
+        },
+        {
+          "parameter": "imp",
+          "name": "Current at Maximum Power",
+          "unit": "A",
+          "tolerance": 0.02,
+          "method": "I-V curve trace"
+        },
+        {
+          "parameter": "fill_factor",
+          "name": "Fill Factor",
+          "unit": "%",
+          "tolerance": 0.01,
+          "method": "Calculated from I-V curve"
+        },
+        {
+          "parameter": "efficiency",
+          "name": "Conversion Efficiency",
+          "unit": "%",
+          "tolerance": 0.01,
+          "method": "Calculated from Pmax and module area"
+        },
+        {
+          "parameter": "visual_inspection",
+          "name": "Visual Defects",
+          "unit": "categorical",
+          "tolerance": null,
+          "method": "Visual inspection per IEC 61215"
+        }
+      ]
+    }
+  ],
+
+  "pass_fail_criteria": {
+    "pmax_retention": {
+      "type": "percentage_retention",
+      "parameter": "pmax",
+      "min_retention": 95.0,
+      "description": "Maximum power must retain at least 95% of initial value",
+      "severity": "critical",
+      "standard_reference": "IEC 61215-2 Table 1"
+    },
+    "efficiency_retention": {
+      "type": "percentage_retention",
+      "parameter": "efficiency",
+      "min_retention": 95.0,
+      "description": "Efficiency must retain at least 95% of initial value",
+      "severity": "critical",
+      "standard_reference": "IEC 61215-2"
+    },
+    "voc_retention": {
+      "type": "percentage_retention",
+      "parameter": "voc",
+      "min_retention": 90.0,
+      "description": "Open circuit voltage retention requirement",
+      "severity": "major",
+      "standard_reference": "Internal requirement"
+    },
+    "isc_retention": {
+      "type": "percentage_retention",
+      "parameter": "isc",
+      "min_retention": 90.0,
+      "description": "Short circuit current retention requirement",
+      "severity": "major",
+      "standard_reference": "Internal requirement"
+    },
+    "fill_factor_retention": {
+      "type": "percentage_retention",
+      "parameter": "fill_factor",
+      "min_retention": 92.0,
+      "description": "Fill factor retention requirement",
+      "severity": "major",
+      "standard_reference": "Internal requirement"
+    },
+    "no_major_visual_defects": {
+      "type": "boolean",
+      "description": "No cracks, broken cells, delamination, or bubbles allowed",
+      "severity": "critical",
+      "standard_reference": "IEC 61215-2:2021 10.1"
+    }
+  },
+
+  "qc_rules": {
+    "measurement_repeatability": {
+      "type": "coefficient_of_variation",
+      "max_cv": 0.02,
+      "description": "Repeated measurements must have CV < 2%",
+      "applies_to": ["pmax", "voc", "isc"]
+    },
+    "temperature_stability": {
+      "type": "range_check",
+      "max_deviation": 2.0,
+      "description": "Chamber temperature must remain within ±2°C",
+      "applies_to": "chamber_temperature"
+    },
+    "irradiance_stability": {
+      "type": "range_check",
+      "max_deviation": 0.1,
+      "description": "UV irradiance must remain within ±0.1 W/m²",
+      "applies_to": "uv_irradiance"
+    },
+    "data_completeness": {
+      "type": "completeness_check",
+      "min_completeness": 0.95,
+      "description": "At least 95% of scheduled measurements must be recorded"
+    }
+  },
+
+  "report_templates": {
+    "summary": {
+      "name": "Executive Summary Report",
+      "sections": ["test_info", "pass_fail_summary", "key_findings", "recommendations"],
+      "format": ["pdf", "html"]
+    },
+    "detailed": {
+      "name": "Detailed Technical Report",
+      "sections": [
+        "test_info",
+        "specimen_details",
+        "test_conditions",
+        "measurement_data",
+        "iv_curves",
+        "degradation_trends",
+        "statistical_analysis",
+        "pass_fail_evaluation",
+        "qc_checks",
+        "raw_data_appendix"
+      ],
+      "format": ["pdf", "html", "docx"]
+    },
+    "data_export": {
+      "name": "Raw Data Export",
+      "sections": ["all_measurements"],
+      "format": ["xlsx", "csv", "json"]
+    }
+  },
+
+  "equipment_requirements": [
+    {
+      "equipment": "UV Test Chamber",
+      "specification": "UV-A irradiance 0.5-1.5 W/m², temperature control 55-65°C",
+      "calibration_required": true,
+      "calibration_interval_months": 12
+    },
+    {
+      "equipment": "Solar Simulator",
+      "specification": "Class AAA, STC conditions (1000 W/m², AM1.5, 25°C)",
+      "calibration_required": true,
+      "calibration_interval_months": 6
+    },
+    {
+      "equipment": "I-V Curve Tracer",
+      "specification": "Accuracy ±1% for current and voltage measurements",
+      "calibration_required": true,
+      "calibration_interval_months": 12
+    },
+    {
+      "equipment": "Thermocouples",
+      "specification": "Type K, accuracy ±0.5°C",
+      "calibration_required": true,
+      "calibration_interval_months": 12
+    },
+    {
+      "equipment": "UV Radiometer",
+      "specification": "280-400nm range, accuracy ±5%",
+      "calibration_required": true,
+      "calibration_interval_months": 12
+    }
+  ],
+
+  "safety_requirements": {
+    "ppe_required": ["safety_glasses", "heat_resistant_gloves", "lab_coat"],
+    "hazards": [
+      "High voltage from PV modules",
+      "UV radiation exposure",
+      "High temperature surfaces",
+      "Electrical shock hazard"
+    ],
+    "emergency_procedures": "Refer to Lab Safety Manual Section 4.2",
+    "training_required": ["UV safety", "High voltage safety", "Equipment operation"]
+  },
+
+  "data_retention": {
+    "raw_data_years": 25,
+    "reports_years": 25,
+    "backup_frequency": "daily",
+    "archive_location": "LIMS and QMS document control"
+  },
+
+  "metadata": {
+    "tags": ["degradation", "UV", "environmental", "IEC61215", "qualification"],
+    "related_protocols": ["HTID-001", "TCID-001", "HMID-001"],
+    "supersedes": null,
+    "change_history": [
+      {
+        "version": "1.0.0",
+        "date": "2025-11-14",
+        "author": "PV Testing Lab",
+        "changes": "Initial protocol release"
+      }
+    ]
+  }
+}

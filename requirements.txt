@@ -1,0 +1,32 @@
+# PV Test Protocol Framework - Requirements
+# Version: 1.0.0
+# Python: >=3.8
+
+# Core dependencies
+numpy>=1.24.0,<2.0.0
+pandas>=2.0.0,<3.0.0
+
+# Database
+SQLAlchemy>=2.0.0,<3.0.0
+
+# UI Framework
+streamlit>=1.30.0,<2.0.0
+
+# Data visualization
+plotly>=5.18.0,<6.0.0
+
+# Testing
+pytest>=7.4.0,<8.0.0
+pytest-cov>=4.1.0,<5.0.0
+
+# Development
+black>=23.0.0,<24.0.0
+flake8>=6.1.0,<7.0.0
+mypy>=1.7.0,<2.0.0
+
+# Optional: For advanced features
+# python-dateutil>=2.8.2
+# pydantic>=2.5.0  # For enhanced data validation
+# alembic>=1.13.0  # For database migrations
+# fastapi>=0.108.0  # For REST API
+# uvicorn>=0.25.0  # For API server

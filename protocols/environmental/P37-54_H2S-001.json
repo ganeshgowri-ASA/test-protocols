@@ -1,0 +1,640 @@
+{
+  "protocol": {
+    "id": "P37-54",
+    "code": "H2S-001",
+    "name": "Hydrogen Sulfide Exposure Test",
+    "category": "Environmental",
+    "subcategory": "Chemical Exposure",
+    "version": "1.0.0",
+    "status": "active",
+    "effective_date": "2025-11-14",
+    "revision_history": [
+      {
+        "version": "1.0.0",
+        "date": "2025-11-14",
+        "author": "Test Protocol Framework",
+        "changes": "Initial protocol definition"
+      }
+    ]
+  },
+  "description": {
+    "summary": "Test protocol for evaluating photovoltaic module performance and integrity under hydrogen sulfide (H2S) exposure conditions",
+    "purpose": "To assess the resistance of PV modules to hydrogen sulfide gas exposure, simulating environmental conditions in geothermal, volcanic, or industrial areas",
+    "scope": "Applicable to crystalline silicon, thin-film, and other PV module technologies",
+    "references": [
+      "IEC 61701:2020 - Salt mist corrosion testing of photovoltaic modules",
+      "IEC 61646:2008 - Thin-film terrestrial photovoltaic modules",
+      "IEC 60068-2-42:2003 - Environmental testing - Hydrogen sulfide test",
+      "ASTM G198 - Standard Test Method for Determining Atmospheric Chloride Deposition Rate"
+    ]
+  },
+  "equipment": {
+    "required": [
+      {
+        "name": "H2S Exposure Chamber",
+        "specification": "Temperature range: -10°C to 85°C, H2S concentration control: 1-100 ppm",
+        "calibration": "Annual calibration required",
+        "quantity": 1
+      },
+      {
+        "name": "H2S Gas Analyzer",
+        "specification": "Range: 0-100 ppm, Accuracy: ±2% of reading",
+        "calibration": "Quarterly calibration required",
+        "quantity": 1
+      },
+      {
+        "name": "IV Curve Tracer",
+        "specification": "Voltage range: 0-1000V, Current range: 0-15A",
+        "calibration": "Semi-annual calibration required",
+        "quantity": 1
+      },
+      {
+        "name": "Solar Simulator",
+        "specification": "Class AAA, 1000 W/m², AM1.5G spectrum",
+        "calibration": "Annual calibration required",
+        "quantity": 1
+      },
+      {
+        "name": "Insulation Tester",
+        "specification": "Test voltage: 500-1000V DC",
+        "calibration": "Annual calibration required",
+        "quantity": 1
+      },
+      {
+        "name": "EL Imaging System",
+        "specification": "Resolution: min 1024x1024 pixels",
+        "calibration": "Annual calibration required",
+        "quantity": 1
+      }
+    ],
+    "optional": [
+      {
+        "name": "Humidity Control System",
+        "specification": "Range: 20-95% RH",
+        "quantity": 1
+      },
+      {
+        "name": "Data Logger",
+        "specification": "Multi-channel, logging interval: 1 min",
+        "quantity": 1
+      }
+    ]
+  },
+  "test_conditions": {
+    "environmental": {
+      "h2s_concentration": {
+        "value": 10,
+        "unit": "ppm",
+        "tolerance": "±2",
+        "notes": "Nominal concentration, adjustable based on severity level"
+      },
+      "temperature": {
+        "value": 40,
+        "unit": "°C",
+        "tolerance": "±3",
+        "control_method": "Chamber temperature control"
+      },
+      "relative_humidity": {
+        "value": 85,
+        "unit": "%",
+        "tolerance": "±5",
+        "control_method": "Humidity control system"
+      },
+      "exposure_duration": {
+        "value": 96,
+        "unit": "hours",
+        "tolerance": "±2",
+        "notes": "Total exposure time, can be extended for severity testing"
+      },
+      "cycles": {
+        "value": 1,
+        "unit": "cycle",
+        "notes": "Number of exposure cycles"
+      }
+    },
+    "severity_levels": [
+      {
+        "level": 1,
+        "h2s_concentration": 5,
+        "duration": 48,
+        "description": "Low severity - Light industrial areas"
+      },
+      {
+        "level": 2,
+        "h2s_concentration": 10,
+        "duration": 96,
+        "description": "Medium severity - Standard test condition"
+      },
+      {
+        "level": 3,
+        "h2s_concentration": 25,
+        "duration": 168,
+        "description": "High severity - Geothermal/volcanic areas"
+      },
+      {
+        "level": 4,
+        "h2s_concentration": 50,
+        "duration": 240,
+        "description": "Extreme severity - Specialized applications"
+      }
+    ]
+  },
+  "test_procedure": {
+    "phases": [
+      {
+        "phase": 1,
+        "name": "Pre-Test Inspection and Baseline Measurements",
+        "duration": "4 hours",
+        "steps": [
+          {
+            "step": "1.1",
+            "action": "Visual Inspection",
+            "description": "Inspect module for physical defects, damage, or irregularities",
+            "acceptance_criteria": "No visible defects or damage",
+            "data_collection": "Photograph all surfaces, document any anomalies"
+          },
+          {
+            "step": "1.2",
+            "action": "Dimensional Verification",
+            "description": "Measure and record module dimensions",
+            "acceptance_criteria": "Dimensions within manufacturer specifications",
+            "data_collection": "Length, width, thickness measurements"
+          },
+          {
+            "step": "1.3",
+            "action": "Electrical Characterization",
+            "description": "Perform IV curve measurement at STC (1000 W/m², 25°C cell temperature, AM1.5G)",
+            "parameters": {
+              "irradiance": "1000 W/m²",
+              "spectrum": "AM1.5G",
+              "cell_temperature": "25°C"
+            },
+            "data_collection": "Voc, Isc, Vmp, Imp, Pmax, FF",
+            "acceptance_criteria": "Pmax within ±3% of nameplate rating"
+          },
+          {
+            "step": "1.4",
+            "action": "Insulation Resistance Test",
+            "description": "Measure insulation resistance between short-circuited terminals and frame",
+            "parameters": {
+              "test_voltage": "500V DC",
+              "duration": "60 seconds"
+            },
+            "data_collection": "Insulation resistance (MΩ)",
+            "acceptance_criteria": "≥ 400 MΩ or 40 MΩ·m² (whichever is lower)"
+          },
+          {
+            "step": "1.5",
+            "action": "Electroluminescence Imaging",
+            "description": "Capture EL images to establish baseline cell and interconnect condition",
+            "parameters": {
+              "injection_current": "Approximately Isc",
+              "exposure_time": "As required for clear imaging"
+            },
+            "data_collection": "EL images, defect count and classification",
+            "acceptance_criteria": "No critical defects (cracks, dead cells)"
+          },
+          {
+            "step": "1.6",
+            "action": "Weight Measurement",
+            "description": "Record module weight for moisture ingress assessment",
+            "data_collection": "Module weight (kg)",
+            "acceptance_criteria": "Record baseline value"
+          }
+        ]
+      },
+      {
+        "phase": 2,
+        "name": "Chamber Preparation and Conditioning",
+        "duration": "2 hours",
+        "steps": [
+          {
+            "step": "2.1",
+            "action": "Chamber Cleaning",
+            "description": "Clean exposure chamber to remove any residual contaminants",
+            "acceptance_criteria": "Chamber clean and ready for use"
+          },
+          {
+            "step": "2.2",
+            "action": "Calibration Verification",
+            "description": "Verify H2S gas analyzer and chamber controls are calibrated",
+            "acceptance_criteria": "All equipment within calibration period",
+            "data_collection": "Calibration certificates, verification records"
+          },
+          {
+            "step": "2.3",
+            "action": "Chamber Conditioning",
+            "description": "Pre-condition chamber to target temperature and humidity without H2S",
+            "parameters": {
+              "temperature": "40°C ± 3°C",
+              "humidity": "85% ± 5% RH",
+              "stabilization_time": "1 hour minimum"
+            },
+            "acceptance_criteria": "Chamber conditions stable within tolerances"
+          }
+        ]
+      },
+      {
+        "phase": 3,
+        "name": "H2S Exposure",
+        "duration": "96 hours (standard)",
+        "steps": [
+          {
+            "step": "3.1",
+            "action": "Module Placement",
+            "description": "Place module in exposure chamber in vertical orientation",
+            "notes": "Ensure adequate spacing for gas circulation"
+          },
+          {
+            "step": "3.2",
+            "action": "H2S Introduction",
+            "description": "Introduce H2S gas to achieve target concentration",
+            "parameters": {
+              "h2s_concentration": "10 ppm ± 2 ppm",
+              "ramp_time": "30 minutes maximum"
+            },
+            "data_collection": "H2S concentration vs time",
+            "acceptance_criteria": "Target concentration achieved within 30 minutes"
+          },
+          {
+            "step": "3.3",
+            "action": "Continuous Monitoring",
+            "description": "Monitor and log chamber conditions throughout exposure",
+            "parameters": {
+              "logging_interval": "15 minutes",
+              "monitored_parameters": [
+                "H2S concentration (ppm)",
+                "Temperature (°C)",
+                "Relative humidity (%)",
+                "Elapsed time (hours)"
+              ]
+            },
+            "data_collection": "Time-series data for all parameters",
+            "acceptance_criteria": "All parameters within specified tolerances for ≥95% of exposure time"
+          },
+          {
+            "step": "3.4",
+            "action": "Exposure Completion",
+            "description": "After designated exposure duration, cease H2S flow and purge chamber",
+            "parameters": {
+              "purge_duration": "60 minutes minimum",
+              "purge_method": "Dry air or nitrogen"
+            },
+            "acceptance_criteria": "H2S concentration < 1 ppm after purge"
+          }
+        ]
+      },
+      {
+        "phase": 4,
+        "name": "Post-Exposure Recovery and Conditioning",
+        "duration": "24 hours",
+        "steps": [
+          {
+            "step": "4.1",
+            "action": "Module Removal",
+            "description": "Remove module from chamber and allow ambient temperature equilibration",
+            "parameters": {
+              "equilibration_time": "2 hours minimum",
+              "conditions": "Laboratory ambient (23°C ± 5°C, 50% ± 20% RH)"
+            }
+          },
+          {
+            "step": "4.2",
+            "action": "Surface Cleaning",
+            "description": "Clean module surfaces per manufacturer recommendations",
+            "notes": "Use soft cloth and deionized water, no abrasive materials"
+          },
+          {
+            "step": "4.3",
+            "action": "Stabilization Period",
+            "description": "Allow module to stabilize before post-test measurements",
+            "parameters": {
+              "duration": "24 hours minimum",
+              "conditions": "Laboratory ambient"
+            }
+          }
+        ]
+      },
+      {
+        "phase": 5,
+        "name": "Post-Test Measurements and Analysis",
+        "duration": "4 hours",
+        "steps": [
+          {
+            "step": "5.1",
+            "action": "Visual Inspection",
+            "description": "Inspect module for corrosion, discoloration, delamination, or other degradation",
+            "data_collection": "Photographs, detailed description of any changes",
+            "acceptance_criteria": "No significant visual degradation"
+          },
+          {
+            "step": "5.2",
+            "action": "Weight Measurement",
+            "description": "Record post-test module weight",
+            "data_collection": "Module weight (kg), weight change from baseline",
+            "acceptance_criteria": "Weight change < 1% of baseline"
+          },
+          {
+            "step": "5.3",
+            "action": "Electrical Characterization",
+            "description": "Repeat IV curve measurement at STC",
+            "parameters": "Same as step 1.3",
+            "data_collection": "Voc, Isc, Vmp, Imp, Pmax, FF",
+            "acceptance_criteria": "Power degradation < 5% of baseline Pmax"
+          },
+          {
+            "step": "5.4",
+            "action": "Insulation Resistance Test",
+            "description": "Repeat insulation resistance measurement",
+            "parameters": "Same as step 1.4",
+            "data_collection": "Insulation resistance (MΩ)",
+            "acceptance_criteria": "≥ 400 MΩ or 40 MΩ·m² (whichever is lower)"
+          },
+          {
+            "step": "5.5",
+            "action": "Electroluminescence Imaging",
+            "description": "Capture post-test EL images",
+            "parameters": "Same as step 1.5",
+            "data_collection": "EL images, comparison with baseline",
+            "acceptance_criteria": "No new critical defects"
+          },
+          {
+            "step": "5.6",
+            "action": "Performance Degradation Analysis",
+            "description": "Calculate degradation for all electrical parameters",
+            "calculations": [
+              "ΔPmax (%) = [(Pmax_post - Pmax_pre) / Pmax_pre] × 100",
+              "ΔVoc (%) = [(Voc_post - Voc_pre) / Voc_pre] × 100",
+              "ΔIsc (%) = [(Isc_post - Isc_pre) / Isc_pre] × 100",
+              "ΔFF (%) = [(FF_post - FF_pre) / FF_pre] × 100"
+            ],
+            "data_collection": "All calculated degradation values"
+          }
+        ]
+      }
+    ]
+  },
+  "acceptance_criteria": {
+    "primary": [
+      {
+        "parameter": "Maximum Power Degradation",
+        "requirement": "≤ 5%",
+        "criticality": "critical",
+        "measurement": "ΔPmax from baseline"
+      },
+      {
+        "parameter": "Insulation Resistance",
+        "requirement": "≥ 400 MΩ or 40 MΩ·m²",
+        "criticality": "critical",
+        "measurement": "Post-test insulation resistance"
+      }
+    ],
+    "secondary": [
+      {
+        "parameter": "Open Circuit Voltage Degradation",
+        "requirement": "≤ 3%",
+        "criticality": "major",
+        "measurement": "ΔVoc from baseline"
+      },
+      {
+        "parameter": "Short Circuit Current Degradation",
+        "requirement": "≤ 3%",
+        "criticality": "major",
+        "measurement": "ΔIsc from baseline"
+      },
+      {
+        "parameter": "Fill Factor Degradation",
+        "requirement": "≤ 5%",
+        "criticality": "major",
+        "measurement": "ΔFF from baseline"
+      },
+      {
+        "parameter": "Visual Degradation",
+        "requirement": "No significant corrosion, delamination, or discoloration",
+        "criticality": "major",
+        "measurement": "Visual inspection comparison"
+      },
+      {
+        "parameter": "Weight Change",
+        "requirement": "< 1%",
+        "criticality": "minor",
+        "measurement": "Weight difference from baseline"
+      }
+    ]
+  },
+  "data_collection": {
+    "required_fields": [
+      {
+        "field": "module_id",
+        "type": "string",
+        "description": "Unique module identifier",
+        "required": true
+      },
+      {
+        "field": "manufacturer",
+        "type": "string",
+        "description": "Module manufacturer",
+        "required": true
+      },
+      {
+        "field": "model",
+        "type": "string",
+        "description": "Module model number",
+        "required": true
+      },
+      {
+        "field": "technology",
+        "type": "enum",
+        "options": ["mono-Si", "poly-Si", "CdTe", "CIGS", "a-Si", "other"],
+        "description": "PV technology type",
+        "required": true
+      },
+      {
+        "field": "nameplate_power",
+        "type": "number",
+        "unit": "W",
+        "description": "Rated maximum power",
+        "required": true
+      },
+      {
+        "field": "test_date",
+        "type": "date",
+        "description": "Test execution date",
+        "required": true
+      },
+      {
+        "field": "operator",
+        "type": "string",
+        "description": "Test operator name",
+        "required": true
+      },
+      {
+        "field": "severity_level",
+        "type": "integer",
+        "range": [1, 4],
+        "description": "Test severity level",
+        "required": true
+      }
+    ],
+    "measurement_tables": [
+      {
+        "table": "baseline_electrical",
+        "fields": ["Voc", "Isc", "Vmp", "Imp", "Pmax", "FF"],
+        "units": ["V", "A", "V", "A", "W", "dimensionless"]
+      },
+      {
+        "table": "post_test_electrical",
+        "fields": ["Voc", "Isc", "Vmp", "Imp", "Pmax", "FF"],
+        "units": ["V", "A", "V", "A", "W", "dimensionless"]
+      },
+      {
+        "table": "environmental_log",
+        "fields": ["timestamp", "h2s_ppm", "temperature_c", "humidity_rh"],
+        "sampling_rate": "15 minutes"
+      },
+      {
+        "table": "insulation_resistance",
+        "fields": ["baseline_MOhm", "post_test_MOhm"],
+        "units": ["MΩ", "MΩ"]
+      },
+      {
+        "table": "physical_measurements",
+        "fields": ["baseline_weight_kg", "post_test_weight_kg", "weight_change_pct"],
+        "units": ["kg", "kg", "%"]
+      }
+    ]
+  },
+  "quality_control": {
+    "checkpoints": [
+      {
+        "checkpoint": "Equipment Calibration",
+        "timing": "Before test start",
+        "requirement": "All equipment within calibration period",
+        "verified_by": "Test operator"
+      },
+      {
+        "checkpoint": "Chamber Condition Verification",
+        "timing": "During exposure (hourly)",
+        "requirement": "Temperature, humidity, H2S concentration within tolerances",
+        "verified_by": "Automated monitoring system"
+      },
+      {
+        "checkpoint": "Data Completeness",
+        "timing": "After each phase",
+        "requirement": "All required data fields populated",
+        "verified_by": "Test operator"
+      },
+      {
+        "checkpoint": "Measurement Repeatability",
+        "timing": "Post-test",
+        "requirement": "IV measurements repeated if variation > 2%",
+        "verified_by": "Test operator"
+      }
+    ],
+    "validation_rules": [
+      {
+        "rule": "Exposure Time Validation",
+        "condition": "actual_exposure_time >= (target_duration * 0.98)",
+        "action": "Flag if condition not met"
+      },
+      {
+        "rule": "Environmental Stability",
+        "condition": "parameters_within_tolerance_pct >= 95",
+        "action": "Invalidate test if condition not met"
+      },
+      {
+        "rule": "Baseline Power Verification",
+        "condition": "abs(baseline_Pmax - nameplate_power) / nameplate_power <= 0.03",
+        "action": "Flag for review if condition not met"
+      }
+    ]
+  },
+  "safety": {
+    "hazards": [
+      {
+        "hazard": "Hydrogen Sulfide Gas",
+        "risk_level": "High",
+        "controls": [
+          "Use H2S in well-ventilated area or fume hood",
+          "H2S gas detector with audible alarm (threshold: 10 ppm)",
+          "Emergency eyewash and shower within 10 seconds",
+          "Proper PPE: Safety glasses, gloves, lab coat",
+          "Emergency response plan for H2S exposure"
+        ]
+      },
+      {
+        "hazard": "Electrical Shock",
+        "risk_level": "Medium",
+        "controls": [
+          "Use insulated tools",
+          "Verify module is not generating power before handling",
+          "Follow lockout/tagout procedures",
+          "Insulation testing performed by qualified personnel"
+        ]
+      },
+      {
+        "hazard": "Module Handling",
+        "risk_level": "Low",
+        "controls": [
+          "Use proper lifting techniques",
+          "Wear cut-resistant gloves",
+          "Secure module during transport"
+        ]
+      }
+    ],
+    "ppe_requirements": [
+      "Safety glasses or goggles",
+      "Chemical-resistant gloves",
+      "Lab coat or protective clothing",
+      "Closed-toe shoes",
+      "Respirator (if H2S levels exceed 10 ppm)"
+    ],
+    "emergency_procedures": {
+      "h2s_exposure": "Immediately move to fresh air. Seek medical attention if symptoms occur (eye irritation, respiratory distress). Notify supervisor and safety personnel.",
+      "electrical_shock": "De-energize equipment if safe to do so. Call emergency services. Administer first aid if trained.",
+      "spill_or_leak": "Evacuate area. Activate H2S alarm. Ventilate area. Only qualified personnel should address leak."
+    }
+  },
+  "reporting": {
+    "required_sections": [
+      "Executive Summary",
+      "Module Information",
+      "Test Conditions",
+      "Baseline Measurements",
+      "Exposure Log",
+      "Post-Test Measurements",
+      "Performance Degradation Analysis",
+      "Pass/Fail Determination",
+      "Observations and Anomalies",
+      "Photographs and Images",
+      "Appendices (calibration certificates, raw data)"
+    ],
+    "data_visualization": [
+      "IV curves (baseline vs post-test overlay)",
+      "Environmental conditions time series (H2S, temp, RH)",
+      "EL image comparison (baseline vs post-test)",
+      "Bar chart of degradation by parameter",
+      "Pass/fail summary by acceptance criteria"
+    ]
+  },
+  "integration": {
+    "lims": {
+      "export_format": "JSON",
+      "required_fields": ["protocol_id", "module_id", "test_date", "pass_fail", "pmax_degradation"],
+      "api_endpoint": "/api/v1/test-results"
+    },
+    "qms": {
+      "quality_events": ["Non-conformance", "Calibration due", "Safety incident"],
+      "traceability_required": true,
+      "document_control": "Automatic versioning"
+    }
+  },
+  "metadata": {
+    "created_by": "Test Protocol Framework",
+    "created_date": "2025-11-14",
+    "last_modified": "2025-11-14",
+    "schema_version": "1.0",
+    "keywords": ["hydrogen sulfide", "H2S", "corrosion", "environmental testing", "PV modules", "reliability"],
+    "applicable_standards": ["IEC 60068-2-42", "IEC 61701", "IEC 61646"]
+  }
+}

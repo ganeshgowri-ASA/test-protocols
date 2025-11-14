@@ -1,0 +1,469 @@
+{
+  "protocol_id": "SAND-001",
+  "protocol_name": "Sand and Dust Resistance Test",
+  "version": "1.0.0",
+  "category": "Environmental",
+  "standard": {
+    "name": "IEC 60068-2-68",
+    "title": "Environmental testing - Part 2-68: Tests - Test L: Dust and sand",
+    "year": "2024",
+    "clauses": ["4.1", "4.2", "5.1", "5.2", "6.1"]
+  },
+  "description": "Test method for determining the ability of photovoltaic modules and components to withstand exposure to dust and sand particles, simulating desert and arid environmental conditions.",
+  "applicability": {
+    "component_types": ["PV Module", "Junction Box", "Connector", "Frame", "Enclosure"],
+    "environments": ["Desert", "Arid", "Coastal", "Industrial"]
+  },
+  "test_parameters": {
+    "dust_chamber": {
+      "type": "object",
+      "required": true,
+      "properties": {
+        "chamber_volume": {
+          "type": "number",
+          "unit": "m³",
+          "min": 0.5,
+          "description": "Internal volume of dust chamber"
+        },
+        "chamber_type": {
+          "type": "string",
+          "enum": ["Blow-off", "Dust circulation", "Dust cloud"],
+          "default": "Dust circulation"
+        }
+      }
+    },
+    "test_dust": {
+      "type": "object",
+      "required": true,
+      "properties": {
+        "dust_type": {
+          "type": "string",
+          "enum": ["Arizona Test Dust", "ISO 12103-1 A2", "ISO 12103-1 A3", "ISO 12103-1 A4", "Quartz sand"],
+          "default": "Arizona Test Dust",
+          "description": "Standard test dust specification"
+        },
+        "particle_size_range": {
+          "type": "object",
+          "properties": {
+            "min_microns": {"type": "number", "unit": "μm"},
+            "max_microns": {"type": "number", "unit": "μm"},
+            "median_microns": {"type": "number", "unit": "μm"}
+          }
+        },
+        "dust_concentration": {
+          "type": "number",
+          "unit": "kg/m³",
+          "min": 0.001,
+          "max": 0.1,
+          "default": 0.01,
+          "description": "Dust concentration in test chamber"
+        },
+        "particle_composition": {
+          "type": "object",
+          "properties": {
+            "SiO2_percent": {"type": "number", "min": 0, "max": 100},
+            "Al2O3_percent": {"type": "number", "min": 0, "max": 100},
+            "Fe2O3_percent": {"type": "number", "min": 0, "max": 100},
+            "other_percent": {"type": "number", "min": 0, "max": 100}
+          }
+        }
+      }
+    },
+    "environmental_conditions": {
+      "type": "object",
+      "required": true,
+      "properties": {
+        "temperature": {
+          "type": "number",
+          "unit": "°C",
+          "min": -10,
+          "max": 85,
+          "default": 25,
+          "tolerance": 3,
+          "description": "Test chamber temperature"
+        },
+        "relative_humidity": {
+          "type": "number",
+          "unit": "%",
+          "min": 0,
+          "max": 95,
+          "max_recommended": 75,
+          "tolerance": 5,
+          "description": "Relative humidity during test"
+        },
+        "air_velocity": {
+          "type": "number",
+          "unit": "m/s",
+          "min": 0.5,
+          "max": 15,
+          "default": 2,
+          "tolerance": 0.5,
+          "description": "Air circulation velocity in chamber"
+        },
+        "atmospheric_pressure": {
+          "type": "number",
+          "unit": "kPa",
+          "min": 86,
+          "max": 106,
+          "default": 101.325,
+          "description": "Atmospheric pressure"
+        }
+      }
+    },
+    "test_duration": {
+      "type": "object",
+      "required": true,
+      "properties": {
+        "exposure_time": {
+          "type": "number",
+          "unit": "hours",
+          "min": 1,
+          "default": 8,
+          "description": "Total exposure time to dust/sand"
+        },
+        "cycles": {
+          "type": "integer",
+          "min": 1,
+          "default": 1,
+          "description": "Number of test cycles"
+        },
+        "settling_time": {
+          "type": "number",
+          "unit": "hours",
+          "min": 0.5,
+          "default": 1,
+          "description": "Settling time after exposure"
+        }
+      }
+    },
+    "particle_tracking": {
+      "type": "object",
+      "properties": {
+        "tracking_enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable real-time particle tracking"
+        },
+        "sampling_interval": {
+          "type": "number",
+          "unit": "seconds",
+          "min": 1,
+          "max": 300,
+          "default": 60,
+          "description": "Particle measurement interval"
+        },
+        "measurement_points": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "point_id": {"type": "string"},
+              "location": {"type": "string"},
+              "x_coordinate": {"type": "number", "unit": "mm"},
+              "y_coordinate": {"type": "number", "unit": "mm"},
+              "z_coordinate": {"type": "number", "unit": "mm"}
+            }
+          },
+          "min_items": 3,
+          "description": "Particle measurement locations"
+        },
+        "particle_counters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "counter_id": {"type": "string"},
+              "counter_type": {"type": "string", "enum": ["Optical", "Gravimetric", "Laser"]},
+              "size_channels": {"type": "array", "items": {"type": "number"}},
+              "measurement_range": {"type": "string"}
+            }
+          },
+          "description": "Particle counting devices"
+        }
+      }
+    }
+  },
+  "measurement_sequence": [
+    {
+      "step": 1,
+      "name": "Pre-conditioning",
+      "duration_hours": 2,
+      "actions": [
+        "Inspect specimen for visible defects",
+        "Record initial dimensions and weight",
+        "Perform electrical characterization (if applicable)",
+        "Photograph specimen from all angles",
+        "Measure initial surface roughness"
+      ],
+      "measurements": {
+        "visual_inspection": {"required": true, "type": "qualitative"},
+        "weight": {"required": true, "unit": "g", "precision": 0.01},
+        "dimensions": {"required": true, "unit": "mm", "precision": 0.1},
+        "electrical_params": {"required": false, "type": "array"},
+        "surface_roughness": {"required": true, "unit": "μm", "precision": 0.01}
+      }
+    },
+    {
+      "step": 2,
+      "name": "Chamber Preparation",
+      "duration_hours": 0.5,
+      "actions": [
+        "Clean dust chamber thoroughly",
+        "Calibrate environmental sensors",
+        "Load test dust into dispersion system",
+        "Verify dust concentration measurement system",
+        "Position specimen in chamber",
+        "Install particle counters at measurement points"
+      ],
+      "measurements": {
+        "chamber_cleanliness": {"required": true, "type": "pass/fail"},
+        "sensor_calibration": {"required": true, "type": "pass/fail"},
+        "dust_weight": {"required": true, "unit": "kg", "precision": 0.001}
+      }
+    },
+    {
+      "step": 3,
+      "name": "Environmental Stabilization",
+      "duration_hours": 1,
+      "actions": [
+        "Set target temperature",
+        "Set target humidity",
+        "Set air circulation velocity",
+        "Monitor until stable conditions achieved",
+        "Record baseline particle count"
+      ],
+      "measurements": {
+        "temperature": {"required": true, "unit": "°C", "sampling_rate": "1/min"},
+        "humidity": {"required": true, "unit": "%", "sampling_rate": "1/min"},
+        "air_velocity": {"required": true, "unit": "m/s", "sampling_rate": "1/min"},
+        "baseline_particles": {"required": true, "type": "count", "sampling_rate": "1/min"}
+      }
+    },
+    {
+      "step": 4,
+      "name": "Dust Exposure",
+      "duration_variable": true,
+      "actions": [
+        "Activate dust dispersion system",
+        "Monitor dust concentration continuously",
+        "Track particle distribution in real-time",
+        "Record environmental parameters",
+        "Monitor specimen condition (if visible)",
+        "Log particle deposition on surfaces"
+      ],
+      "measurements": {
+        "dust_concentration": {"required": true, "unit": "kg/m³", "sampling_rate": "1/min"},
+        "particle_count_by_size": {"required": true, "type": "array", "sampling_rate": "1/min"},
+        "particle_distribution": {"required": true, "type": "3D_map", "sampling_rate": "1/5min"},
+        "temperature": {"required": true, "unit": "°C", "sampling_rate": "1/min"},
+        "humidity": {"required": true, "unit": "%", "sampling_rate": "1/min"},
+        "deposition_rate": {"required": true, "unit": "g/m²/h", "sampling_rate": "1/min"}
+      },
+      "alerts": [
+        {
+          "parameter": "dust_concentration",
+          "condition": "out_of_range",
+          "action": "notify_operator"
+        },
+        {
+          "parameter": "temperature",
+          "condition": "exceeds_tolerance",
+          "action": "pause_test"
+        },
+        {
+          "parameter": "particle_distribution",
+          "condition": "non_uniform",
+          "action": "adjust_circulation"
+        }
+      ]
+    },
+    {
+      "step": 5,
+      "name": "Settling Period",
+      "duration_variable": true,
+      "actions": [
+        "Deactivate dust dispersion",
+        "Maintain environmental conditions",
+        "Allow particles to settle",
+        "Monitor residual particle concentration",
+        "Record final deposition pattern"
+      ],
+      "measurements": {
+        "airborne_particles": {"required": true, "type": "count", "sampling_rate": "1/min"},
+        "settled_dust_weight": {"required": true, "unit": "g/m²", "precision": 0.1},
+        "deposition_pattern": {"required": true, "type": "image"}
+      }
+    },
+    {
+      "step": 6,
+      "name": "Post-Exposure Assessment",
+      "duration_hours": 2,
+      "actions": [
+        "Remove specimen from chamber",
+        "Photograph with dust deposits",
+        "Perform visual inspection per IEC criteria",
+        "Measure deposited dust weight",
+        "Remove loose dust per standard procedure",
+        "Inspect for dust ingress",
+        "Measure final weight and dimensions",
+        "Perform electrical characterization",
+        "Measure surface roughness changes",
+        "Document any degradation or damage"
+      ],
+      "measurements": {
+        "deposited_dust_weight": {"required": true, "unit": "g", "precision": 0.01},
+        "weight_after_cleaning": {"required": true, "unit": "g", "precision": 0.01},
+        "ingress_locations": {"required": true, "type": "array"},
+        "ingress_severity": {"required": true, "type": "qualitative"},
+        "electrical_params_post": {"required": false, "type": "array"},
+        "surface_roughness_post": {"required": true, "unit": "μm", "precision": 0.01},
+        "degradation_assessment": {"required": true, "type": "qualitative"}
+      }
+    }
+  ],
+  "acceptance_criteria": {
+    "dust_ingress": {
+      "description": "Dust shall not penetrate into areas that would impair function or safety",
+      "severity_levels": {
+        "level_1": "No visible dust ingress",
+        "level_2": "Superficial dust, easily removable, no functional impact",
+        "level_3": "Dust ingress but no impairment of function",
+        "level_4": "Dust ingress causing partial functional impairment",
+        "level_5": "Dust ingress causing complete functional failure"
+      },
+      "pass_criteria": "Level ≤ 3"
+    },
+    "electrical_performance": {
+      "description": "Electrical parameters shall remain within specified limits",
+      "parameters": {
+        "insulation_resistance": {"min": 40, "unit": "MΩ", "condition": "at 500V DC"},
+        "power_degradation": {"max": 5, "unit": "%", "description": "Maximum acceptable power loss"},
+        "Isc_change": {"max": 3, "unit": "%"},
+        "Voc_change": {"max": 3, "unit": "%"},
+        "FF_change": {"max": 5, "unit": "%"}
+      }
+    },
+    "physical_integrity": {
+      "description": "Specimen shall maintain physical integrity",
+      "criteria": [
+        "No cracks in protective covers",
+        "No delamination",
+        "No corrosion of metallic parts",
+        "Seals remain intact",
+        "No abrasion beyond acceptable limits"
+      ]
+    },
+    "surface_degradation": {
+      "description": "Surface changes shall be within acceptable limits",
+      "max_roughness_increase": {"value": 2, "unit": "μm"},
+      "max_transmittance_loss": {"value": 2, "unit": "%"}
+    }
+  },
+  "data_collection": {
+    "real_time_monitoring": {
+      "enabled": true,
+      "parameters": [
+        "dust_concentration",
+        "particle_size_distribution",
+        "temperature",
+        "humidity",
+        "air_velocity",
+        "particle_counts_by_location"
+      ],
+      "storage": {
+        "database": "time_series",
+        "retention_period": "10_years",
+        "backup_frequency": "daily"
+      }
+    },
+    "particle_tracking": {
+      "enabled": true,
+      "tracking_method": "multi_point_sensing",
+      "data_points": {
+        "location": {"type": "3D_coordinates"},
+        "particle_size": {"type": "distribution"},
+        "concentration": {"type": "number"},
+        "velocity": {"type": "vector"},
+        "timestamp": {"type": "datetime"}
+      }
+    },
+    "image_capture": {
+      "enabled": true,
+      "frequency": "pre/during/post",
+      "resolution": "high",
+      "storage_format": "PNG",
+      "metadata": ["timestamp", "test_phase", "environmental_conditions"]
+    }
+  },
+  "reporting": {
+    "report_sections": [
+      "Test Identification",
+      "Specimen Details",
+      "Test Equipment and Calibration",
+      "Test Conditions Summary",
+      "Particle Tracking Data",
+      "Environmental Monitoring Charts",
+      "Visual Inspection Results",
+      "Electrical Test Results",
+      "Physical Measurements",
+      "Acceptance Criteria Evaluation",
+      "Deviations and Observations",
+      "Conclusions",
+      "Appendices (Raw Data, Images, Certificates)"
+    ],
+    "required_charts": [
+      "Dust concentration vs time",
+      "Particle size distribution",
+      "Temperature and humidity profile",
+      "Particle deposition map",
+      "Electrical parameter comparison (pre/post)"
+    ],
+    "traceability": {
+      "specimen_traceability": "required",
+      "equipment_calibration": "required",
+      "dust_lot_number": "required",
+      "operator_id": "required",
+      "environmental_conditions": "required",
+      "measurement_uncertainty": "required"
+    }
+  },
+  "quality_control": {
+    "pre_test_checks": [
+      "Equipment calibration valid",
+      "Test dust certification current",
+      "Chamber cleanliness verified",
+      "Specimen condition documented",
+      "Measurement systems functional"
+    ],
+    "during_test_checks": [
+      "Environmental parameters within tolerance",
+      "Dust concentration stable",
+      "Particle distribution uniform",
+      "Data acquisition functioning",
+      "No equipment malfunctions"
+    ],
+    "post_test_checks": [
+      "All data collected and saved",
+      "Images captured and stored",
+      "Measurements complete",
+      "Specimen properly handled",
+      "Chamber cleaned for next test"
+    ]
+  },
+  "metadata": {
+    "created_date": "2025-11-14",
+    "created_by": "Claude AI Assistant",
+    "last_modified": "2025-11-14",
+    "revision_history": [
+      {
+        "version": "1.0.0",
+        "date": "2025-11-14",
+        "changes": "Initial protocol creation",
+        "author": "Claude AI"
+      }
+    ],
+    "approvals": [],
+    "tags": ["environmental", "dust", "sand", "IEC-60068", "resistance", "PV"],
+    "related_protocols": ["SALT-001", "HUMIDITY-001", "THERMAL-CYCLE-001"]
+  }
+}

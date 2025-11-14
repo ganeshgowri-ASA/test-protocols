@@ -1,0 +1,27 @@
+# Core dependencies for SAND-001 Sand/Dust Resistance Test Protocol
+# Python 3.7+
+
+# Data processing and analysis
+numpy>=1.19.0
+pandas>=1.1.0
+
+# UI and visualization
+streamlit>=1.20.0
+plotly>=5.0.0
+
+# Database connectivity (optional)
+sqlalchemy>=1.4.0
+mysql-connector-python>=8.0.0
+psycopg2-binary>=2.9.0  # For PostgreSQL
+
+# Testing
+pytest>=6.2.0
+pytest-cov>=2.12.0
+
+# Utilities
+python-dateutil>=2.8.0
+pytz>=2021.1
+
+# Documentation
+sphinx>=4.0.0  # Optional for doc generation
+sphinx-rtd-theme>=0.5.0  # Optional

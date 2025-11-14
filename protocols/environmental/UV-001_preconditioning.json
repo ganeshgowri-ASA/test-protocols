@@ -1,0 +1,410 @@
+{
+  "protocol_id": "UV-001",
+  "protocol_name": "UV Preconditioning Protocol",
+  "category": "Environmental",
+  "standard": "IEC 61215 MQT 10",
+  "version": "1.0",
+  "status": "active",
+  "description": "UV preconditioning test for photovoltaic modules as per IEC 61215 MQT 10 standard. Exposes modules to UV radiation to assess degradation resistance.",
+  "objective": "To determine the ability of the module to withstand exposure to UV radiation",
+
+  "test_parameters": {
+    "total_uv_dose": {
+      "value": 15,
+      "unit": "kWh/m²",
+      "tolerance": "+/- 2%",
+      "description": "Total UV irradiation dose in wavelength range 280-400 nm"
+    },
+    "wavelength_range": {
+      "min": 280,
+      "max": 400,
+      "unit": "nm",
+      "description": "UV wavelength range (UVA and UVB)"
+    },
+    "peak_wavelength": {
+      "value": 340,
+      "unit": "nm",
+      "tolerance": "+/- 20 nm",
+      "description": "Peak spectral irradiance wavelength"
+    },
+    "irradiance_level": {
+      "min": 250,
+      "max": 400,
+      "nominal": 300,
+      "unit": "W/m²",
+      "description": "UV irradiance level during exposure"
+    },
+    "chamber_temperature": {
+      "value": 60,
+      "unit": "°C",
+      "tolerance": "+/- 5",
+      "description": "Module temperature during UV exposure"
+    },
+    "ambient_temperature": {
+      "value": 25,
+      "unit": "°C",
+      "tolerance": "+/- 10",
+      "description": "Ambient chamber temperature"
+    },
+    "relative_humidity": {
+      "max": 75,
+      "unit": "%",
+      "description": "Maximum relative humidity during test"
+    },
+    "air_velocity": {
+      "min": 0.5,
+      "max": 2.0,
+      "unit": "m/s",
+      "description": "Air circulation velocity around modules"
+    },
+    "spectral_distribution": {
+      "uv_b_range": {
+        "wavelength": "280-320 nm",
+        "percentage": "5-10%",
+        "description": "UVB spectral content"
+      },
+      "uv_a_range": {
+        "wavelength": "320-400 nm",
+        "percentage": "90-95%",
+        "description": "UVA spectral content"
+      }
+    }
+  },
+
+  "sample_requirements": {
+    "sample_type": "complete PV module",
+    "sample_quantity": {
+      "min": 1,
+      "recommended": 2,
+      "description": "Number of test modules"
+    },
+    "mounting_configuration": {
+      "orientation": "face-up",
+      "tilt_angle": {
+        "value": 0,
+        "unit": "degrees",
+        "description": "Horizontal mounting for uniform exposure"
+      },
+      "support_method": "edge-supported or full-back support",
+      "description": "Module mounting to ensure uniform UV exposure"
+    },
+    "sample_preparation": [
+      "Clean module surface with isopropyl alcohol",
+      "Inspect for any pre-existing defects and document",
+      "Measure initial electrical parameters (Isc, Voc, Pmax, FF)",
+      "Take visual documentation (photos) before test",
+      "Ensure connectors are properly sealed or protected"
+    ]
+  },
+
+  "measurement_points": {
+    "pre_conditioning": {
+      "electrical_parameters": [
+        "Open circuit voltage (Voc)",
+        "Short circuit current (Isc)",
+        "Maximum power (Pmax)",
+        "Fill factor (FF)",
+        "I-V curve"
+      ],
+      "visual_inspection": [
+        "Surface appearance",
+        "Edge seal integrity",
+        "Cell interconnection",
+        "Junction box condition"
+      ],
+      "environmental_conditions": [
+        "Temperature",
+        "Humidity",
+        "Barometric pressure"
+      ]
+    },
+    "during_exposure": {
+      "monitoring_frequency": {
+        "uv_irradiance": {
+          "interval": 5,
+          "unit": "minutes",
+          "description": "Continuous UV irradiance monitoring"
+        },
+        "module_temperature": {
+          "interval": 5,
+          "unit": "minutes",
+          "description": "Surface temperature monitoring"
+        },
+        "chamber_conditions": {
+          "interval": 10,
+          "unit": "minutes",
+          "description": "Ambient temperature and humidity"
+        },
+        "spectral_data": {
+          "interval": 60,
+          "unit": "minutes",
+          "description": "Spectral irradiance distribution"
+        }
+      },
+      "calculated_values": [
+        "Cumulative UV dose (kWh/m²)",
+        "Average irradiance (W/m²)",
+        "Exposure duration (hours)",
+        "Temperature deviation"
+      ]
+    },
+    "post_conditioning": {
+      "stabilization_period": {
+        "duration": 4,
+        "unit": "hours",
+        "conditions": "Standard Test Conditions (STC)",
+        "description": "Recovery time before final measurements"
+      },
+      "electrical_parameters": [
+        "Open circuit voltage (Voc)",
+        "Short circuit current (Isc)",
+        "Maximum power (Pmax)",
+        "Fill factor (FF)",
+        "I-V curve"
+      ],
+      "visual_inspection": [
+        "Discoloration",
+        "Delamination",
+        "Bubbles or blisters",
+        "Edge seal degradation",
+        "Cell interconnection integrity",
+        "Junction box condition"
+      ],
+      "degradation_analysis": [
+        "Power degradation (%)",
+        "Efficiency change (%)",
+        "Spectral response change",
+        "Series resistance change"
+      ]
+    }
+  },
+
+  "equipment_requirements": {
+    "uv_chamber": {
+      "type": "UV exposure chamber with controlled environment",
+      "lamp_type": "Xenon arc or metal halide with UV filter",
+      "uniformity": "+/- 10% across test plane",
+      "area": "sufficient for module size"
+    },
+    "uv_radiometer": {
+      "type": "Spectral radiometer or calibrated UV sensor",
+      "wavelength_range": "280-400 nm",
+      "accuracy": "+/- 3%",
+      "calibration": "annually traceable to national standard"
+    },
+    "temperature_sensors": {
+      "type": "Thermocouples or RTDs",
+      "quantity": "minimum 4 per module (corners)",
+      "accuracy": "+/- 1°C",
+      "calibration": "annually"
+    },
+    "humidity_sensor": {
+      "range": "0-100% RH",
+      "accuracy": "+/- 3% RH"
+    },
+    "spectroradiometer": {
+      "wavelength_range": "280-400 nm",
+      "resolution": "5 nm or better",
+      "description": "For spectral distribution verification"
+    },
+    "solar_simulator": {
+      "class": "Class A (IEC 60904-9)",
+      "description": "For pre and post electrical characterization"
+    },
+    "data_acquisition_system": {
+      "channels": "minimum 8",
+      "sampling_rate": "1 Hz or better",
+      "description": "Automated logging of all parameters"
+    }
+  },
+
+  "procedure_steps": [
+    {
+      "step": 1,
+      "title": "Pre-Test Preparation",
+      "duration": "2 hours",
+      "actions": [
+        "Calibrate UV radiometer and temperature sensors",
+        "Verify chamber functionality and uniformity",
+        "Clean and inspect test modules",
+        "Document initial condition with photographs"
+      ]
+    },
+    {
+      "step": 2,
+      "title": "Initial Electrical Characterization",
+      "duration": "1 hour",
+      "actions": [
+        "Measure I-V curves at STC (1000 W/m², 25°C, AM1.5 spectrum)",
+        "Record Voc, Isc, Pmax, FF, efficiency",
+        "Measure insulation resistance",
+        "Document baseline performance"
+      ]
+    },
+    {
+      "step": 3,
+      "title": "Module Installation",
+      "duration": "1 hour",
+      "actions": [
+        "Mount modules in UV chamber (face-up, horizontal)",
+        "Attach temperature sensors (center and corners)",
+        "Position UV radiometer at module plane",
+        "Verify uniform exposure area",
+        "Connect data acquisition system"
+      ]
+    },
+    {
+      "step": 4,
+      "title": "UV Exposure Sequence",
+      "duration": "50-60 hours (variable based on irradiance)",
+      "actions": [
+        "Set chamber temperature to 60°C +/- 5°C",
+        "Start UV lamps and allow 30-minute stabilization",
+        "Verify irradiance level (300 W/m² nominal)",
+        "Begin automated data logging",
+        "Monitor cumulative dose until 15 kWh/m² achieved",
+        "Record any interruptions or anomalies"
+      ]
+    },
+    {
+      "step": 5,
+      "title": "Post-Exposure Stabilization",
+      "duration": "4 hours",
+      "actions": [
+        "Power off UV lamps",
+        "Remove modules from chamber",
+        "Allow cooling to ambient temperature",
+        "Store in dark conditions at STC environment"
+      ]
+    },
+    {
+      "step": 6,
+      "title": "Final Electrical Characterization",
+      "duration": "1 hour",
+      "actions": [
+        "Measure I-V curves at STC",
+        "Record Voc, Isc, Pmax, FF, efficiency",
+        "Calculate power degradation percentage",
+        "Measure insulation resistance"
+      ]
+    },
+    {
+      "step": 7,
+      "title": "Visual Inspection and Documentation",
+      "duration": "1 hour",
+      "actions": [
+        "Inspect for discoloration, delamination, bubbles",
+        "Check edge seals and junction box",
+        "Photograph any defects or changes",
+        "Document findings in test report"
+      ]
+    },
+    {
+      "step": 8,
+      "title": "Data Analysis and Reporting",
+      "duration": "2 hours",
+      "actions": [
+        "Analyze UV dose profiles and uniformity",
+        "Calculate degradation percentages",
+        "Generate performance comparison charts",
+        "Complete test report with pass/fail determination"
+      ]
+    }
+  ],
+
+  "acceptance_criteria": {
+    "power_degradation": {
+      "maximum": 5,
+      "unit": "%",
+      "description": "Maximum allowable power degradation from initial value"
+    },
+    "visual_defects": {
+      "major_defects": "none allowed",
+      "minor_defects": "acceptable if no performance impact",
+      "description": "No major visual defects (delamination, broken cells, etc.)"
+    },
+    "insulation_resistance": {
+      "minimum": 40,
+      "unit": "MΩ",
+      "description": "Minimum insulation resistance after test"
+    }
+  },
+
+  "data_outputs": {
+    "real_time_monitoring": [
+      "UV irradiance (W/m²)",
+      "Cumulative UV dose (kWh/m²)",
+      "Module surface temperature (°C)",
+      "Chamber ambient temperature (°C)",
+      "Relative humidity (%)",
+      "Elapsed time (hours)"
+    ],
+    "calculated_metrics": [
+      "Average irradiance (W/m²)",
+      "Total exposure duration (hours)",
+      "Temperature uniformity across module",
+      "UV dose rate (kWh/m²/hour)",
+      "Spectral distribution compliance"
+    ],
+    "performance_data": [
+      "Initial and final I-V curves",
+      "Power degradation (%)",
+      "Efficiency change (%)",
+      "Fill factor change (%)",
+      "Current-voltage parameter changes"
+    ],
+    "quality_indicators": [
+      "Test completion status",
+      "Parameter compliance flags",
+      "Out-of-spec incidents",
+      "Data quality metrics"
+    ]
+  },
+
+  "safety_requirements": [
+    "UV protective eyewear required when chamber is open",
+    "Thermal gloves for handling hot modules",
+    "Electrical safety lockout/tagout procedures",
+    "Chamber ventilation verification",
+    "Emergency stop procedures documented",
+    "UV lamp cool-down period before access"
+  ],
+
+  "quality_control": {
+    "calibration_requirements": {
+      "uv_radiometer": "annually, traceable",
+      "temperature_sensors": "annually",
+      "solar_simulator": "quarterly",
+      "spectroradiometer": "annually"
+    },
+    "reference_standards": [
+      "IEC 61215:2021 - Terrestrial PV modules - Design qualification and type approval",
+      "IEC 60904-9:2020 - Solar simulator performance requirements",
+      "ISO 9060:2018 - Solar irradiance classification"
+    ],
+    "documentation_requirements": [
+      "Calibration certificates",
+      "Environmental monitoring logs",
+      "Test data with timestamps",
+      "Photographic evidence",
+      "Deviation reports",
+      "Test report signed by qualified personnel"
+    ]
+  },
+
+  "metadata": {
+    "created_date": "2025-11-14",
+    "author": "PV Testing Laboratory",
+    "review_frequency": "annual",
+    "last_reviewed": "2025-11-14",
+    "approved_by": "Quality Manager",
+    "revision_history": [
+      {
+        "version": "1.0",
+        "date": "2025-11-14",
+        "changes": "Initial protocol creation based on IEC 61215 MQT 10",
+        "author": "Protocol Development Team"
+      }
+    ]
+  }
+}

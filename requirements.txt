@@ -1,0 +1,28 @@
+# UV-001 UV Preconditioning Protocol Requirements
+# Python 3.8+
+
+# Core dependencies
+numpy>=1.21.0
+pandas>=1.3.0
+
+# Database
+sqlalchemy>=1.4.0
+pymysql>=1.0.0  # MySQL connector
+
+# Visualization and UI
+plotly>=5.0.0
+streamlit>=1.20.0
+
+# Testing
+pytest>=7.0.0
+pytest-cov>=3.0.0
+
+# Data validation
+pydantic>=1.9.0
+
+# Utilities
+python-dateutil>=2.8.0
+
+# Optional: Advanced features
+# scipy>=1.7.0  # For advanced statistical analysis
+# matplotlib>=3.4.0  # Alternative plotting

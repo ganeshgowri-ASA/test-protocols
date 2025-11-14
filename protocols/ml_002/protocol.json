@@ -1,0 +1,631 @@
+{
+  "metadata": {
+    "protocol_id": "ML-002",
+    "name": "Mechanical Load Dynamic Test (1000Pa Cyclic)",
+    "version": "1.0.0",
+    "description": "Dynamic mechanical load testing for photovoltaic modules with 1000Pa cyclic loading per IEC 61215-2:2021 MQT 16",
+    "created_date": "2025-11-14",
+    "last_modified": "2025-11-14",
+    "author": "ganeshgowri-ASA",
+    "test_type": "mechanical_load",
+    "standard": "IEC 61215-2:2021",
+    "test_sequence": "MQT 16",
+    "category": "Mechanical"
+  },
+
+  "parameters": {
+    "load_configuration": {
+      "test_load_pa": {
+        "type": "number",
+        "value": 1000,
+        "unit": "Pa",
+        "description": "Cyclic test load pressure",
+        "tolerance": 50
+      },
+      "max_load_pa": {
+        "type": "number",
+        "value": 5400,
+        "unit": "Pa",
+        "description": "Maximum load per IEC 61215",
+        "notes": "Safety limit - test stops if exceeded"
+      },
+      "load_application": {
+        "type": "string",
+        "value": "uniform",
+        "description": "Load distribution across module surface",
+        "options": ["uniform", "point_load", "edge_load"]
+      },
+      "load_direction": {
+        "type": "string",
+        "value": "front",
+        "description": "Direction of load application",
+        "options": ["front", "rear", "alternating"]
+      }
+    },
+
+    "cycle_parameters": {
+      "cycle_count": {
+        "type": "integer",
+        "value": 1000,
+        "description": "Total number of load cycles",
+        "min": 100,
+        "max": 10000
+      },
+      "cycle_duration_seconds": {
+        "type": "number",
+        "value": 10,
+        "description": "Duration of each load cycle",
+        "min": 5,
+        "max": 60
+      },
+      "load_rate_pa_per_sec": {
+        "type": "number",
+        "value": 100,
+        "description": "Rate of load application",
+        "tolerance": 20
+      },
+      "unload_rate_pa_per_sec": {
+        "type": "number",
+        "value": 100,
+        "description": "Rate of load removal",
+        "tolerance": 20
+      },
+      "hold_time_at_peak_seconds": {
+        "type": "number",
+        "value": 2,
+        "description": "Duration to hold peak load",
+        "min": 0,
+        "max": 10
+      },
+      "rest_time_between_cycles_seconds": {
+        "type": "number",
+        "value": 1,
+        "description": "Rest period between cycles",
+        "min": 0,
+        "max": 5
+      }
+    },
+
+    "test_duration": {
+      "total_duration_seconds": {
+        "type": "integer",
+        "calculated": true,
+        "description": "Total test duration (calculated)",
+        "formula": "cycle_count * (cycle_duration_seconds + rest_time_between_cycles_seconds)"
+      },
+      "estimated_hours": {
+        "type": "number",
+        "calculated": true,
+        "description": "Estimated test duration in hours"
+      }
+    },
+
+    "environmental_conditions": {
+      "temperature_celsius": {
+        "type": "number",
+        "min": 15,
+        "max": 35,
+        "target": 25,
+        "unit": "°C",
+        "description": "Ambient temperature during test",
+        "tolerance": 5
+      },
+      "humidity_percent": {
+        "type": "number",
+        "min": 45,
+        "max": 75,
+        "target": 50,
+        "unit": "%RH",
+        "description": "Relative humidity during test",
+        "tolerance": 10
+      },
+      "atmospheric_pressure_kpa": {
+        "type": "number",
+        "min": 86,
+        "max": 106,
+        "unit": "kPa",
+        "description": "Atmospheric pressure",
+        "tolerance": 5
+      }
+    },
+
+    "module_mounting": {
+      "support_configuration": {
+        "type": "string",
+        "value": "four_point",
+        "description": "Module support configuration",
+        "options": ["four_point", "edge_clamped", "frame_supported"]
+      },
+      "edge_clearance_mm": {
+        "type": "number",
+        "value": 25,
+        "unit": "mm",
+        "description": "Distance from edge to support point"
+      },
+      "pre_load_verification": {
+        "type": "boolean",
+        "value": true,
+        "description": "Verify module positioning before test"
+      }
+    }
+  },
+
+  "data_collection": {
+    "sensor_mappings": [
+      {
+        "sensor_id": "load_cell_1",
+        "sensor_type": "load_cell",
+        "parameter": "applied_load",
+        "unit": "Pa",
+        "sample_rate_hz": 10,
+        "resolution": 1,
+        "calibration_required": true,
+        "calibration_interval_days": 365,
+        "description": "Primary load measurement sensor"
+      },
+      {
+        "sensor_id": "displacement_center",
+        "sensor_type": "lvdt",
+        "parameter": "deflection_center",
+        "unit": "mm",
+        "sample_rate_hz": 10,
+        "resolution": 0.01,
+        "calibration_required": true,
+        "calibration_interval_days": 180,
+        "description": "Center point deflection measurement"
+      },
+      {
+        "sensor_id": "displacement_corner_1",
+        "sensor_type": "lvdt",
+        "parameter": "deflection_corner_1",
+        "unit": "mm",
+        "sample_rate_hz": 10,
+        "resolution": 0.01,
+        "description": "Corner 1 deflection measurement"
+      },
+      {
+        "sensor_id": "displacement_corner_2",
+        "sensor_type": "lvdt",
+        "parameter": "deflection_corner_2",
+        "unit": "mm",
+        "sample_rate_hz": 10,
+        "resolution": 0.01,
+        "description": "Corner 2 deflection measurement"
+      },
+      {
+        "sensor_id": "temp_sensor_ambient",
+        "sensor_type": "thermocouple",
+        "parameter": "ambient_temperature",
+        "unit": "°C",
+        "sample_rate_hz": 0.1,
+        "resolution": 0.1,
+        "description": "Ambient temperature sensor"
+      },
+      {
+        "sensor_id": "humidity_sensor",
+        "sensor_type": "hygrometer",
+        "parameter": "relative_humidity",
+        "unit": "%RH",
+        "sample_rate_hz": 0.1,
+        "resolution": 0.5,
+        "description": "Relative humidity sensor"
+      },
+      {
+        "sensor_id": "strain_gauge_1",
+        "sensor_type": "strain_gauge",
+        "parameter": "strain_measurement",
+        "unit": "microstrain",
+        "sample_rate_hz": 10,
+        "resolution": 1,
+        "description": "Optional strain gauge for detailed analysis"
+      }
+    ],
+
+    "sampling_strategy": {
+      "mode": "continuous",
+      "description": "Continuous data collection throughout test",
+      "data_points_per_cycle": {
+        "calculated": true,
+        "description": "Calculated based on cycle duration and sample rate"
+      },
+      "total_data_points": {
+        "calculated": true,
+        "description": "Estimated total data points for test"
+      }
+    },
+
+    "data_storage": {
+      "storage_type": "database",
+      "backup_enabled": true,
+      "backup_interval_cycles": 100,
+      "retention_period_days": 2555,
+      "compression_enabled": true
+    },
+
+    "visual_inspection": {
+      "inspection_intervals": [
+        {
+          "interval_type": "pre_test",
+          "description": "Visual inspection before test",
+          "capture_images": true,
+          "inspection_points": ["cell_cracks", "delamination", "frame_integrity", "junction_box"]
+        },
+        {
+          "interval_type": "mid_test",
+          "cycle_number": 500,
+          "description": "Inspection at 50% completion",
+          "capture_images": true,
+          "inspection_points": ["cell_cracks", "delamination"]
+        },
+        {
+          "interval_type": "post_test",
+          "description": "Visual inspection after test completion",
+          "capture_images": true,
+          "inspection_points": ["cell_cracks", "delamination", "frame_integrity", "junction_box", "backsheet_damage"]
+        }
+      ]
+    }
+  },
+
+  "quality_control": {
+    "acceptance_criteria": [
+      {
+        "criteria_id": "no_visible_defects",
+        "description": "No cracks, delamination, or other visible defects on module",
+        "pass_value": true,
+        "is_critical": true,
+        "evaluation_method": "visual_inspection"
+      },
+      {
+        "criteria_id": "deflection_linearity",
+        "description": "Load vs deflection linearity (R² ≥ 0.95)",
+        "parameter": "deflection_center",
+        "min_r_squared": 0.95,
+        "is_critical": true,
+        "evaluation_method": "statistical_analysis"
+      },
+      {
+        "criteria_id": "max_deflection_limit",
+        "description": "Maximum deflection at 1000Pa shall not exceed design limit",
+        "parameter": "deflection_center",
+        "max_value_mm": 30,
+        "unit": "mm",
+        "is_critical": true,
+        "evaluation_method": "threshold_check"
+      },
+      {
+        "criteria_id": "deflection_consistency",
+        "description": "Deflection variation between cycles ≤ 10%",
+        "parameter": "deflection_center",
+        "max_variation_percent": 10,
+        "is_critical": true,
+        "evaluation_method": "coefficient_of_variation"
+      },
+      {
+        "criteria_id": "load_accuracy",
+        "description": "Applied load accuracy within ±5% of target",
+        "parameter": "applied_load",
+        "tolerance_percent": 5,
+        "is_critical": true,
+        "evaluation_method": "accuracy_check"
+      },
+      {
+        "criteria_id": "environmental_stability",
+        "description": "Environmental conditions within specified ranges",
+        "parameters": ["ambient_temperature", "relative_humidity"],
+        "is_critical": false,
+        "evaluation_method": "range_check"
+      },
+      {
+        "criteria_id": "no_permanent_deformation",
+        "description": "Permanent deflection after unloading ≤ 0.5mm",
+        "parameter": "deflection_center",
+        "max_permanent_deflection_mm": 0.5,
+        "unit": "mm",
+        "is_critical": true,
+        "evaluation_method": "residual_measurement"
+      }
+    ],
+
+    "failure_conditions": [
+      {
+        "condition_id": "module_cracking",
+        "description": "Cell cracking or module breakage detected",
+        "stop_test": true,
+        "alert_level": "critical",
+        "notification_required": true
+      },
+      {
+        "condition_id": "excessive_deflection",
+        "description": "Deflection exceeds safety limit (50mm)",
+        "parameter": "deflection_center",
+        "threshold_mm": 50,
+        "stop_test": true,
+        "alert_level": "critical"
+      },
+      {
+        "condition_id": "load_overshoot",
+        "description": "Applied load exceeds maximum allowed",
+        "parameter": "applied_load",
+        "threshold_pa": 5400,
+        "stop_test": true,
+        "alert_level": "critical"
+      },
+      {
+        "condition_id": "sensor_failure",
+        "description": "Critical sensor malfunction detected",
+        "stop_test": true,
+        "alert_level": "warning",
+        "retry_count": 3
+      },
+      {
+        "condition_id": "environmental_deviation",
+        "description": "Environmental conditions outside acceptable range",
+        "stop_test": false,
+        "alert_level": "warning",
+        "grace_period_minutes": 5
+      }
+    ],
+
+    "calibration_verification": {
+      "pre_test_check": true,
+      "zero_load_verification": true,
+      "known_load_verification": true,
+      "known_load_value_pa": 500,
+      "deflection_zero_check": true
+    }
+  },
+
+  "data_processing": {
+    "analysis_steps": [
+      {
+        "step_id": "deflection_analysis",
+        "type": "statistical_analysis",
+        "input": ["deflection_center", "deflection_corner_1", "deflection_corner_2"],
+        "calculations": [
+          "mean",
+          "std_dev",
+          "max_deflection",
+          "min_deflection",
+          "range",
+          "coefficient_of_variation"
+        ],
+        "output": "deflection_statistics"
+      },
+      {
+        "step_id": "linearity_analysis",
+        "type": "regression",
+        "input_x": "applied_load",
+        "input_y": "deflection_center",
+        "regression_type": "linear",
+        "output": "load_deflection_linearity",
+        "calculations": ["r_squared", "slope", "intercept", "std_error"]
+      },
+      {
+        "step_id": "cyclic_behavior_analysis",
+        "type": "time_series_analysis",
+        "input": "deflection_center",
+        "calculations": [
+          "peak_to_peak_variation",
+          "cycle_to_cycle_variation",
+          "trend_analysis",
+          "fatigue_indicator"
+        ],
+        "output": "cyclic_behavior"
+      },
+      {
+        "step_id": "permanent_deformation_check",
+        "type": "residual_analysis",
+        "input": "deflection_center",
+        "calculation": "zero_load_deflection_after_test",
+        "output": "permanent_deformation"
+      },
+      {
+        "step_id": "environmental_correlation",
+        "type": "correlation_analysis",
+        "input_x": ["ambient_temperature", "relative_humidity"],
+        "input_y": "deflection_center",
+        "output": "environmental_effects"
+      },
+      {
+        "step_id": "load_control_quality",
+        "type": "control_analysis",
+        "input": "applied_load",
+        "target_value": 1000,
+        "calculations": ["mean_error", "std_error", "max_deviation"],
+        "output": "load_control_performance"
+      }
+    ],
+
+    "data_filtering": {
+      "outlier_detection": true,
+      "outlier_method": "iqr",
+      "outlier_threshold": 3.0,
+      "smoothing_enabled": false,
+      "smoothing_window": 5
+    }
+  },
+
+  "reporting": {
+    "report_sections": [
+      "executive_summary",
+      "test_identification",
+      "sample_information",
+      "test_parameters",
+      "environmental_conditions",
+      "test_procedure_summary",
+      "raw_data_summary",
+      "statistical_analysis",
+      "load_deflection_analysis",
+      "cyclic_behavior_analysis",
+      "quality_control_assessment",
+      "acceptance_criteria_evaluation",
+      "pass_fail_determination",
+      "visual_inspection_results",
+      "conclusions",
+      "recommendations",
+      "appendix_raw_data",
+      "appendix_calibration_certificates"
+    ],
+
+    "charts": [
+      {
+        "chart_id": "load_vs_deflection",
+        "chart_type": "scatter",
+        "title": "Load vs Deflection (All Cycles)",
+        "x_axis": "applied_load",
+        "x_label": "Applied Load (Pa)",
+        "y_axis": "deflection_center",
+        "y_label": "Center Deflection (mm)",
+        "include_regression_line": true,
+        "show_r_squared": true
+      },
+      {
+        "chart_id": "load_vs_time",
+        "chart_type": "line",
+        "title": "Applied Load vs Time",
+        "x_axis": "time_seconds",
+        "x_label": "Time (seconds)",
+        "y_axis": "applied_load",
+        "y_label": "Applied Load (Pa)",
+        "show_target_line": true,
+        "target_value": 1000
+      },
+      {
+        "chart_id": "deflection_vs_time",
+        "chart_type": "line",
+        "title": "Deflection vs Time",
+        "x_axis": "time_seconds",
+        "x_label": "Time (seconds)",
+        "y_axis": "deflection_center",
+        "y_label": "Center Deflection (mm)"
+      },
+      {
+        "chart_id": "deflection_by_cycle",
+        "chart_type": "line",
+        "title": "Maximum Deflection per Cycle",
+        "x_axis": "cycle_number",
+        "x_label": "Cycle Number",
+        "y_axis": "max_deflection_per_cycle",
+        "y_label": "Maximum Deflection (mm)",
+        "show_control_limits": true
+      },
+      {
+        "chart_id": "environmental_conditions",
+        "chart_type": "dual_axis",
+        "title": "Environmental Conditions During Test",
+        "x_axis": "time_seconds",
+        "x_label": "Time (seconds)",
+        "y_axis_left": "ambient_temperature",
+        "y_label_left": "Temperature (°C)",
+        "y_axis_right": "relative_humidity",
+        "y_label_right": "Relative Humidity (%RH)"
+      },
+      {
+        "chart_id": "deflection_distribution",
+        "chart_type": "histogram",
+        "title": "Deflection Distribution at 1000Pa",
+        "x_axis": "deflection_center",
+        "x_label": "Center Deflection (mm)",
+        "y_axis": "frequency",
+        "y_label": "Frequency",
+        "bins": 50
+      },
+      {
+        "chart_id": "hysteresis_plot",
+        "chart_type": "scatter",
+        "title": "Load-Deflection Hysteresis (Sample Cycle)",
+        "x_axis": "deflection_center",
+        "x_label": "Center Deflection (mm)",
+        "y_axis": "applied_load",
+        "y_label": "Applied Load (Pa)",
+        "description": "Shows loading and unloading paths"
+      }
+    ],
+
+    "export_formats": ["pdf", "html", "json", "csv"],
+    "default_format": "pdf",
+    "include_raw_data": true,
+    "include_images": true,
+    "include_calibration_data": true
+  },
+
+  "integrations": {
+    "lims": {
+      "enabled": true,
+      "sample_tracking": true,
+      "result_upload": true,
+      "auto_upload": false,
+      "fields_map": {
+        "module_id": "sample_id",
+        "test_date": "test_start_time",
+        "pass_fail": "test_result",
+        "max_deflection": "max_deflection_mm",
+        "r_squared": "linearity_coefficient"
+      }
+    },
+
+    "qms": {
+      "enabled": true,
+      "traceability": true,
+      "non_conformance_tracking": true,
+      "auto_create_ncr": true,
+      "ncr_triggers": ["module_cracking", "excessive_deflection", "failed_acceptance_criteria"]
+    },
+
+    "project_management": {
+      "enabled": false,
+      "project_tracking": false,
+      "milestone_updates": false
+    },
+
+    "equipment_management": {
+      "enabled": true,
+      "equipment_log": true,
+      "calibration_tracking": true,
+      "maintenance_alerts": true
+    }
+  },
+
+  "safety": {
+    "safety_requirements": [
+      "Ensure module is properly secured before test",
+      "Verify emergency stop functionality",
+      "Ensure load application system is calibrated",
+      "Wear appropriate PPE (safety glasses, gloves)",
+      "Keep hands clear of load application area",
+      "Monitor for unusual sounds or movements"
+    ],
+
+    "emergency_procedures": {
+      "emergency_stop_available": true,
+      "automatic_shutdown_on_failure": true,
+      "operator_notification": true,
+      "incident_logging": true
+    }
+  },
+
+  "notes": {
+    "test_purpose": "Evaluate module structural integrity under cyclic mechanical loading representative of wind and snow loads",
+    "applicable_standards": ["IEC 61215-2:2021 MQT 16", "IEC 61730"],
+    "typical_duration": "Approximately 3-4 hours for 1000 cycles",
+    "operator_skill_level": "Trained technician with mechanical testing experience",
+    "equipment_required": [
+      "Load application system (pneumatic or mechanical)",
+      "Load cell (calibrated, ±1% accuracy)",
+      "LVDT displacement sensors (±0.01mm resolution)",
+      "Environmental monitoring sensors",
+      "Data acquisition system (min 10Hz sampling)",
+      "Module mounting fixture",
+      "Camera for visual inspection"
+    ],
+    "revision_history": [
+      {
+        "version": "1.0.0",
+        "date": "2025-11-14",
+        "author": "ganeshgowri-ASA",
+        "changes": "Initial protocol definition for 1000Pa cyclic load testing"
+      }
+    ]
+  }
+}

@@ -1,0 +1,458 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://test-protocols.example.com/schemas/ml-002.json",
+  "title": "ML-002 Mechanical Load Dynamic Test Protocol Schema",
+  "description": "JSON Schema for validating ML-002 protocol definitions",
+  "type": "object",
+  "required": ["metadata", "parameters", "data_collection", "quality_control", "reporting"],
+
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["protocol_id", "name", "version", "test_type"],
+      "properties": {
+        "protocol_id": {
+          "type": "string",
+          "pattern": "^ML-[0-9]{3}$",
+          "description": "Protocol identifier in format ML-XXX"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 200
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Semantic version number"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 10
+        },
+        "created_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "last_modified": {
+          "type": "string",
+          "format": "date"
+        },
+        "author": {
+          "type": "string"
+        },
+        "test_type": {
+          "type": "string",
+          "enum": ["mechanical_load", "thermal", "humidity", "electrical", "combined"]
+        },
+        "standard": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["Mechanical", "Thermal", "Electrical", "Environmental", "Combined"]
+        }
+      }
+    },
+
+    "parameters": {
+      "type": "object",
+      "required": ["load_configuration", "cycle_parameters", "environmental_conditions"],
+      "properties": {
+        "load_configuration": {
+          "type": "object",
+          "required": ["test_load_pa"],
+          "properties": {
+            "test_load_pa": {
+              "type": "object",
+              "required": ["type", "value", "unit"],
+              "properties": {
+                "type": {"type": "string"},
+                "value": {"type": "number", "minimum": 0, "maximum": 10000},
+                "unit": {"type": "string", "enum": ["Pa", "kPa"]},
+                "tolerance": {"type": "number", "minimum": 0}
+              }
+            },
+            "max_load_pa": {
+              "type": "object",
+              "properties": {
+                "value": {"type": "number", "minimum": 0}
+              }
+            },
+            "load_application": {
+              "type": "object",
+              "properties": {
+                "value": {"type": "string", "enum": ["uniform", "point_load", "edge_load"]}
+              }
+            },
+            "load_direction": {
+              "type": "object",
+              "properties": {
+                "value": {"type": "string", "enum": ["front", "rear", "alternating"]}
+              }
+            }
+          }
+        },
+
+        "cycle_parameters": {
+          "type": "object",
+          "required": ["cycle_count"],
+          "properties": {
+            "cycle_count": {
+              "type": "object",
+              "required": ["type", "value"],
+              "properties": {
+                "type": {"type": "string"},
+                "value": {"type": "integer", "minimum": 1, "maximum": 100000},
+                "min": {"type": "integer"},
+                "max": {"type": "integer"}
+              }
+            },
+            "cycle_duration_seconds": {
+              "type": "object",
+              "properties": {
+                "value": {"type": "number", "minimum": 1}
+              }
+            },
+            "load_rate_pa_per_sec": {
+              "type": "object",
+              "properties": {
+                "value": {"type": "number", "minimum": 1}
+              }
+            }
+          }
+        },
+
+        "environmental_conditions": {
+          "type": "object",
+          "required": ["temperature_celsius"],
+          "properties": {
+            "temperature_celsius": {
+              "type": "object",
+              "required": ["type", "min", "max"],
+              "properties": {
+                "type": {"type": "string"},
+                "min": {"type": "number", "minimum": -50, "maximum": 100},
+                "max": {"type": "number", "minimum": -50, "maximum": 100},
+                "target": {"type": "number"},
+                "unit": {"type": "string"},
+                "tolerance": {"type": "number"}
+              }
+            },
+            "humidity_percent": {
+              "type": "object",
+              "properties": {
+                "min": {"type": "number", "minimum": 0, "maximum": 100},
+                "max": {"type": "number", "minimum": 0, "maximum": 100}
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "data_collection": {
+      "type": "object",
+      "required": ["sensor_mappings", "sampling_strategy"],
+      "properties": {
+        "sensor_mappings": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["sensor_id", "sensor_type", "parameter", "unit", "sample_rate_hz"],
+            "properties": {
+              "sensor_id": {
+                "type": "string",
+                "pattern": "^[a-z0-9_]+$"
+              },
+              "sensor_type": {
+                "type": "string",
+                "enum": ["load_cell", "lvdt", "strain_gauge", "thermocouple", "hygrometer", "pressure_sensor"]
+              },
+              "parameter": {
+                "type": "string"
+              },
+              "unit": {
+                "type": "string"
+              },
+              "sample_rate_hz": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 10000
+              },
+              "resolution": {
+                "type": "number",
+                "minimum": 0
+              },
+              "calibration_required": {
+                "type": "boolean"
+              },
+              "calibration_interval_days": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        },
+
+        "sampling_strategy": {
+          "type": "object",
+          "required": ["mode"],
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": ["continuous", "periodic", "event_triggered"]
+            }
+          }
+        },
+
+        "data_storage": {
+          "type": "object",
+          "properties": {
+            "storage_type": {
+              "type": "string",
+              "enum": ["database", "file", "cloud", "hybrid"]
+            },
+            "backup_enabled": {"type": "boolean"},
+            "retention_period_days": {"type": "integer", "minimum": 1}
+          }
+        },
+
+        "visual_inspection": {
+          "type": "object",
+          "properties": {
+            "inspection_intervals": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["interval_type", "description"],
+                "properties": {
+                  "interval_type": {"type": "string"},
+                  "cycle_number": {"type": "integer"},
+                  "capture_images": {"type": "boolean"},
+                  "inspection_points": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "quality_control": {
+      "type": "object",
+      "required": ["acceptance_criteria"],
+      "properties": {
+        "acceptance_criteria": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["criteria_id", "description", "is_critical"],
+            "properties": {
+              "criteria_id": {
+                "type": "string",
+                "pattern": "^[a-z0-9_]+$"
+              },
+              "description": {
+                "type": "string",
+                "minLength": 5
+              },
+              "is_critical": {
+                "type": "boolean"
+              },
+              "parameter": {
+                "type": "string"
+              },
+              "min_r_squared": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "max_value_mm": {
+                "type": "number"
+              },
+              "evaluation_method": {
+                "type": "string"
+              }
+            }
+          }
+        },
+
+        "failure_conditions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["condition_id", "description", "stop_test", "alert_level"],
+            "properties": {
+              "condition_id": {"type": "string"},
+              "description": {"type": "string"},
+              "stop_test": {"type": "boolean"},
+              "alert_level": {
+                "type": "string",
+                "enum": ["info", "warning", "critical"]
+              },
+              "parameter": {"type": "string"},
+              "threshold_mm": {"type": "number"},
+              "threshold_pa": {"type": "number"}
+            }
+          }
+        },
+
+        "calibration_verification": {
+          "type": "object",
+          "properties": {
+            "pre_test_check": {"type": "boolean"},
+            "zero_load_verification": {"type": "boolean"},
+            "known_load_verification": {"type": "boolean"}
+          }
+        }
+      }
+    },
+
+    "data_processing": {
+      "type": "object",
+      "properties": {
+        "analysis_steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["step_id", "type"],
+            "properties": {
+              "step_id": {"type": "string"},
+              "type": {
+                "type": "string",
+                "enum": ["statistical_analysis", "regression", "time_series_analysis", "residual_analysis", "correlation_analysis", "control_analysis"]
+              },
+              "input": {
+                "oneOf": [
+                  {"type": "string"},
+                  {"type": "array", "items": {"type": "string"}}
+                ]
+              },
+              "calculations": {
+                "type": "array",
+                "items": {"type": "string"}
+              },
+              "output": {"type": "string"}
+            }
+          }
+        },
+
+        "data_filtering": {
+          "type": "object",
+          "properties": {
+            "outlier_detection": {"type": "boolean"},
+            "outlier_method": {
+              "type": "string",
+              "enum": ["iqr", "zscore", "mad", "isolation_forest"]
+            },
+            "smoothing_enabled": {"type": "boolean"}
+          }
+        }
+      }
+    },
+
+    "reporting": {
+      "type": "object",
+      "required": ["report_sections", "charts"],
+      "properties": {
+        "report_sections": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+
+        "charts": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["chart_id", "chart_type", "title"],
+            "properties": {
+              "chart_id": {
+                "type": "string",
+                "pattern": "^[a-z0-9_]+$"
+              },
+              "chart_type": {
+                "type": "string",
+                "enum": ["line", "scatter", "bar", "histogram", "box", "heatmap", "dual_axis"]
+              },
+              "title": {
+                "type": "string",
+                "minLength": 3
+              },
+              "x_axis": {"type": "string"},
+              "y_axis": {"type": "string"},
+              "x_label": {"type": "string"},
+              "y_label": {"type": "string"}
+            }
+          }
+        },
+
+        "export_formats": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["pdf", "html", "json", "csv", "xlsx"]
+          }
+        },
+
+        "default_format": {
+          "type": "string",
+          "enum": ["pdf", "html", "json"]
+        }
+      }
+    },
+
+    "integrations": {
+      "type": "object",
+      "properties": {
+        "lims": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "sample_tracking": {"type": "boolean"},
+            "result_upload": {"type": "boolean"},
+            "fields_map": {
+              "type": "object",
+              "additionalProperties": {"type": "string"}
+            }
+          }
+        },
+
+        "qms": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "traceability": {"type": "boolean"},
+            "non_conformance_tracking": {"type": "boolean"}
+          }
+        }
+      }
+    },
+
+    "safety": {
+      "type": "object",
+      "properties": {
+        "safety_requirements": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "emergency_procedures": {
+          "type": "object",
+          "properties": {
+            "emergency_stop_available": {"type": "boolean"},
+            "automatic_shutdown_on_failure": {"type": "boolean"}
+          }
+        }
+      }
+    }
+  }
+}

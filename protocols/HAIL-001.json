@@ -1,0 +1,322 @@
+{
+  "protocol_id": "HAIL-001",
+  "version": "1.0.0",
+  "title": "Hail Impact Test",
+  "category": "Mechanical",
+  "standard": {
+    "name": "IEC 61215 MQT 17",
+    "reference": "IEC 61215-2:2021",
+    "section": "MQT 17",
+    "extended_standard": "IEC TS 63397:2022"
+  },
+  "description": "Test to verify that PV modules can withstand the impact of hailstones at specified velocities and temperatures",
+  "objective": "Determine the ability of the module to withstand the impact of ice balls simulating hailstones",
+  "scope": "Crystalline silicon terrestrial photovoltaic (PV) modules",
+  "test_parameters": {
+    "standard_test": {
+      "hailstone_diameter_mm": 25,
+      "hailstone_weight_g": 7.53,
+      "impact_velocity_kmh": 80,
+      "impact_velocity_ms": 23,
+      "hailstone_temperature_c": -4,
+      "temperature_tolerance_c": 2,
+      "time_limit_seconds": 60,
+      "impact_locations": 11,
+      "impact_location_description": "11 specified points on module surface including edges, center, and corners"
+    },
+    "extended_test": {
+      "hailstone_diameter_range_mm": [25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80],
+      "diameter_increment_mm": 5,
+      "reference_standard": "IEC TS 63397:2022"
+    },
+    "environmental_conditions": {
+      "ambient_temperature_c": 25,
+      "ambient_tolerance_c": 10,
+      "relative_humidity_percent": 50,
+      "humidity_tolerance_percent": 20
+    }
+  },
+  "equipment_required": [
+    {
+      "id": "EQ-001",
+      "name": "Hail Impact Tester",
+      "description": "Pneumatic launcher capable of propelling ice balls at controlled velocities",
+      "specifications": {
+        "velocity_range_kmh": "0-120",
+        "velocity_accuracy": "±2 km/h",
+        "ice_ball_sizes_mm": [25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80]
+      }
+    },
+    {
+      "id": "EQ-002",
+      "name": "Cold Storage Container",
+      "description": "Freezer for ice ball conditioning",
+      "specifications": {
+        "temperature_range_c": "-20 to 0",
+        "temperature_stability_c": "±1"
+      }
+    },
+    {
+      "id": "EQ-003",
+      "name": "IV Curve Tracer",
+      "description": "For measuring Pmax before and after test",
+      "specifications": {
+        "accuracy": "±1%",
+        "measurement_range": "Module-dependent"
+      }
+    },
+    {
+      "id": "EQ-004",
+      "name": "Insulation Resistance Tester",
+      "description": "Megohmmeter for insulation testing",
+      "specifications": {
+        "test_voltage_V": 1000,
+        "measurement_range_MOhm": "0.1-1000"
+      }
+    },
+    {
+      "id": "EQ-005",
+      "name": "Thermal Camera/Infrared Imager",
+      "description": "Optional: For detecting hotspots or internal damage",
+      "specifications": {
+        "temperature_range_c": "-20 to 150",
+        "thermal_sensitivity_c": "0.1"
+      }
+    },
+    {
+      "id": "EQ-006",
+      "name": "High-Speed Camera",
+      "description": "Optional: For recording impact events",
+      "specifications": {
+        "frame_rate_fps": "≥1000",
+        "resolution": "HD or higher"
+      }
+    }
+  ],
+  "test_procedure": {
+    "pre_test": [
+      {
+        "step": 1,
+        "action": "Visual Inspection",
+        "description": "Perform visual inspection of module and document any pre-existing defects",
+        "acceptance_criteria": "Module shall be free of defects that could affect test results",
+        "data_to_collect": ["visual_defects", "photographs"]
+      },
+      {
+        "step": 2,
+        "action": "Initial IV Curve Measurement",
+        "description": "Measure and record initial Pmax under STC conditions",
+        "acceptance_criteria": "Pmax within manufacturer specifications",
+        "data_to_collect": ["Pmax_initial", "Voc", "Isc", "Vmp", "Imp", "fill_factor"]
+      },
+      {
+        "step": 3,
+        "action": "Initial Insulation Resistance",
+        "description": "Measure insulation resistance at 1000V DC",
+        "acceptance_criteria": "≥40 MΩ·m² (typically ≥400 MΩ for standard module)",
+        "data_to_collect": ["insulation_resistance_initial"]
+      },
+      {
+        "step": 4,
+        "action": "Ice Ball Preparation",
+        "description": "Prepare ice balls and condition to -4°C ±2°C in cold storage",
+        "acceptance_criteria": "Ice balls at proper temperature and size",
+        "data_to_collect": ["ice_ball_temperature", "ice_ball_diameter", "ice_ball_weight"]
+      },
+      {
+        "step": 5,
+        "action": "Module Mounting",
+        "description": "Mount module in test fixture at appropriate angle",
+        "acceptance_criteria": "Module securely mounted and ready for impact testing",
+        "data_to_collect": ["mounting_configuration", "tilt_angle"]
+      },
+      {
+        "step": 6,
+        "action": "Impact Location Marking",
+        "description": "Mark 11 impact locations on module surface",
+        "acceptance_criteria": "Locations marked according to standard distribution pattern",
+        "data_to_collect": ["impact_location_map"]
+      }
+    ],
+    "test_execution": [
+      {
+        "step": 1,
+        "action": "Launcher Calibration",
+        "description": "Calibrate launcher to achieve 80 km/h ±2 km/h impact velocity",
+        "acceptance_criteria": "Velocity within tolerance",
+        "data_to_collect": ["launcher_pressure", "calibration_velocity"]
+      },
+      {
+        "step": 2,
+        "action": "Impact Testing - Location 1-11",
+        "description": "For each impact location: retrieve ice ball from storage, launch within 60 seconds, monitor for open-circuit",
+        "acceptance_criteria": "No open-circuit detected during impact",
+        "data_to_collect": [
+          "impact_number",
+          "impact_location",
+          "ice_ball_retrieval_time",
+          "impact_time",
+          "time_delta_seconds",
+          "actual_velocity_kmh",
+          "open_circuit_detected",
+          "visual_damage",
+          "impact_video",
+          "impact_photos"
+        ],
+        "repeat": 11
+      },
+      {
+        "step": 3,
+        "action": "Post-Impact Monitoring",
+        "description": "Monitor module for delayed failures (optional: thermal imaging)",
+        "acceptance_criteria": "No delayed electrical failures",
+        "data_to_collect": ["thermal_image", "electrical_continuity"]
+      }
+    ],
+    "post_test": [
+      {
+        "step": 1,
+        "action": "Visual Inspection",
+        "description": "Detailed visual inspection for cracks, delamination, backsheet damage",
+        "acceptance_criteria": "No major visual defects, no backsheet cracks allowing water ingress",
+        "data_to_collect": [
+          "front_glass_cracks",
+          "cell_cracks",
+          "backsheet_cracks",
+          "delamination",
+          "junction_box_damage",
+          "frame_damage",
+          "post_test_photos"
+        ]
+      },
+      {
+        "step": 2,
+        "action": "Final IV Curve Measurement",
+        "description": "Measure Pmax under STC conditions",
+        "acceptance_criteria": "Pmax degradation ≤5% compared to initial",
+        "data_to_collect": ["Pmax_final", "Voc", "Isc", "Vmp", "Imp", "fill_factor"]
+      },
+      {
+        "step": 3,
+        "action": "Final Insulation Resistance",
+        "description": "Measure insulation resistance at 1000V DC",
+        "acceptance_criteria": "≥40 MΩ·m² (no significant degradation)",
+        "data_to_collect": ["insulation_resistance_final"]
+      },
+      {
+        "step": 4,
+        "action": "Electroluminescence Imaging",
+        "description": "Optional: Perform EL imaging to detect microcracks",
+        "acceptance_criteria": "No significant increase in inactive cell areas",
+        "data_to_collect": ["el_image", "crack_analysis"]
+      }
+    ]
+  },
+  "pass_fail_criteria": {
+    "visual_inspection": {
+      "criterion": "No major visual defects",
+      "details": [
+        "No cracks in front glass that could allow water ingress",
+        "No cracks in backsheet that could allow water ingress",
+        "No delamination exceeding allowable limits",
+        "No broken solder bonds visible",
+        "No junction box damage"
+      ]
+    },
+    "electrical_performance": {
+      "criterion": "Pmax degradation ≤5%",
+      "calculation": "((Pmax_initial - Pmax_final) / Pmax_initial) × 100% ≤ 5%"
+    },
+    "insulation_resistance": {
+      "criterion": "≥40 MΩ·m²",
+      "details": "No significant degradation from initial measurement"
+    },
+    "open_circuit_test": {
+      "criterion": "No intermittent open-circuit during impact test",
+      "details": "Continuous electrical monitoring during all 11 impacts"
+    }
+  },
+  "data_analysis": {
+    "required_calculations": [
+      {
+        "name": "Power Degradation",
+        "formula": "((Pmax_initial - Pmax_final) / Pmax_initial) × 100",
+        "unit": "%",
+        "pass_threshold": "≤5"
+      },
+      {
+        "name": "Impact Time Compliance",
+        "formula": "impact_time - ice_ball_retrieval_time",
+        "unit": "seconds",
+        "pass_threshold": "≤60"
+      },
+      {
+        "name": "Velocity Accuracy",
+        "formula": "abs(actual_velocity - target_velocity)",
+        "unit": "km/h",
+        "pass_threshold": "≤2"
+      }
+    ],
+    "statistical_analysis": [
+      "Impact velocity mean and standard deviation",
+      "Time compliance for all 11 impacts",
+      "Correlation between impact location and damage severity"
+    ]
+  },
+  "reporting_requirements": {
+    "test_report_sections": [
+      "Test Identification",
+      "Module Information",
+      "Equipment Used",
+      "Test Conditions",
+      "Pre-test Measurements",
+      "Impact Test Data (all 11 locations)",
+      "Post-test Measurements",
+      "Visual Inspection Results",
+      "Pass/Fail Determination",
+      "Photographs and Videos",
+      "Deviations and Notes"
+    ],
+    "required_data_tables": [
+      "Pre-test electrical parameters",
+      "Impact test data (11 rows)",
+      "Post-test electrical parameters",
+      "Pass/fail criteria evaluation"
+    ],
+    "required_charts": [
+      "IV curves (pre vs post)",
+      "Impact velocity distribution",
+      "Power degradation calculation",
+      "Impact location diagram"
+    ]
+  },
+  "safety_considerations": [
+    "Eye protection required for all personnel during impact testing",
+    "Ice balls can ricochet - maintain safe distance",
+    "High voltage equipment - follow electrical safety procedures",
+    "Compressed air system - follow pressure vessel safety protocols",
+    "Handle ice balls with insulated gloves to prevent cold burns"
+  ],
+  "references": [
+    {
+      "standard": "IEC 61215-2:2021",
+      "title": "Terrestrial photovoltaic (PV) modules - Design qualification and type approval - Part 2: Test procedures"
+    },
+    {
+      "standard": "IEC TS 63397:2022",
+      "title": "Photovoltaic (PV) modules - Extended hail impact testing"
+    },
+    {
+      "standard": "IEC 61730",
+      "title": "Photovoltaic (PV) module safety qualification"
+    }
+  ],
+  "revision_history": [
+    {
+      "version": "1.0.0",
+      "date": "2025-11-14",
+      "author": "Claude",
+      "changes": "Initial protocol implementation"
+    }
+  ]
+}

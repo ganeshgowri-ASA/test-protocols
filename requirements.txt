@@ -1,0 +1,36 @@
+# PV Testing Protocol Framework - Dependencies
+
+# Core Framework
+streamlit>=1.28.0
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Data Visualization
+plotly>=5.17.0
+matplotlib>=3.7.0
+
+# Database
+psycopg2-binary>=2.9.0  # PostgreSQL adapter
+sqlalchemy>=2.0.0       # ORM (optional)
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+unittest-xml-reporting>=3.2.0
+
+# Data Validation
+jsonschema>=4.19.0
+
+# Documentation
+markdown>=3.4.0
+
+# Utilities
+python-dateutil>=2.8.0
+pytz>=2023.3
+
+# Optional: Advanced Features
+# pillow>=10.0.0          # Image processing for test photos
+# opencv-python>=4.8.0    # Video processing for impact recordings
+# reportlab>=4.0.0        # PDF report generation
+# openpyxl>=3.1.0         # Excel export
+# requests>=2.31.0        # API integration (LIMS/QMS)

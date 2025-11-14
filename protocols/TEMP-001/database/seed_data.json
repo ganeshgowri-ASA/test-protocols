@@ -1,0 +1,245 @@
+{
+  "description": "Sample test data for TEMP-001 Temperature Coefficient Testing",
+  "test_info": {
+    "test_number": "TEMP-001-2025-001",
+    "test_date": "2025-11-14T10:00:00Z",
+    "operator": "John Doe",
+    "laboratory": "ASA PV Testing Laboratory",
+    "module_id": "TEST-MODULE-001",
+    "module_manufacturer": "SolarTech Inc.",
+    "module_model": "ST-300-60P",
+    "module_serial_number": "SN123456789",
+    "status": "completed"
+  },
+  "measurements": [
+    {
+      "measurement_number": 1,
+      "module_temperature": 20.0,
+      "ambient_temperature": 18.5,
+      "irradiance": 1000.0,
+      "voc": 38.50,
+      "isc": 9.20,
+      "vmp": 31.50,
+      "imp": 8.25,
+      "pmax": 259.88,
+      "fill_factor": 73.40,
+      "series_resistance": 0.0245,
+      "shunt_resistance": 850.5,
+      "measurement_quality": "good",
+      "notes": "First measurement at lowest temperature"
+    },
+    {
+      "measurement_number": 2,
+      "module_temperature": 30.0,
+      "ambient_temperature": 28.2,
+      "irradiance": 1005.0,
+      "voc": 37.80,
+      "isc": 9.25,
+      "vmp": 30.85,
+      "imp": 8.17,
+      "pmax": 252.05,
+      "fill_factor": 72.10,
+      "series_resistance": 0.0248,
+      "shunt_resistance": 845.2,
+      "measurement_quality": "good"
+    },
+    {
+      "measurement_number": 3,
+      "module_temperature": 40.0,
+      "ambient_temperature": 38.1,
+      "irradiance": 998.0,
+      "voc": 37.10,
+      "isc": 9.30,
+      "vmp": 30.20,
+      "imp": 8.09,
+      "pmax": 244.32,
+      "fill_factor": 70.80,
+      "series_resistance": 0.0252,
+      "shunt_resistance": 840.1,
+      "measurement_quality": "good"
+    },
+    {
+      "measurement_number": 4,
+      "module_temperature": 50.0,
+      "ambient_temperature": 47.9,
+      "irradiance": 1002.0,
+      "voc": 36.40,
+      "isc": 9.35,
+      "vmp": 29.55,
+      "imp": 8.01,
+      "pmax": 236.70,
+      "fill_factor": 69.50,
+      "series_resistance": 0.0255,
+      "shunt_resistance": 835.8,
+      "measurement_quality": "good"
+    },
+    {
+      "measurement_number": 5,
+      "module_temperature": 60.0,
+      "ambient_temperature": 57.8,
+      "irradiance": 997.0,
+      "voc": 35.70,
+      "isc": 9.40,
+      "vmp": 28.90,
+      "imp": 7.93,
+      "pmax": 229.18,
+      "fill_factor": 68.30,
+      "series_resistance": 0.0258,
+      "shunt_resistance": 830.5,
+      "measurement_quality": "good"
+    },
+    {
+      "measurement_number": 6,
+      "module_temperature": 70.0,
+      "ambient_temperature": 67.5,
+      "irradiance": 1001.0,
+      "voc": 35.00,
+      "isc": 9.45,
+      "vmp": 28.25,
+      "imp": 7.85,
+      "pmax": 221.76,
+      "fill_factor": 67.10,
+      "series_resistance": 0.0262,
+      "shunt_resistance": 825.3,
+      "measurement_quality": "good"
+    }
+  ],
+  "expected_results": {
+    "alpha_pmp_relative": -0.4015,
+    "alpha_pmp_absolute": -1.603,
+    "beta_voc_relative": -0.3200,
+    "beta_voc_absolute": -0.0700,
+    "alpha_isc_relative": 0.0543,
+    "alpha_isc_absolute": 0.0050,
+    "r_squared_pmp": 0.9998,
+    "r_squared_voc": 0.9999,
+    "r_squared_isc": 0.9997,
+    "pmp_at_stc": 244.02,
+    "voc_at_stc": 37.10,
+    "isc_at_stc": 9.325,
+    "temperature_range": 50.0,
+    "num_points": 6
+  },
+  "equipment": [
+    {
+      "equipment_id": "SS-001",
+      "equipment_name": "Solar Simulator",
+      "equipment_type": "Class AAA Solar Simulator",
+      "manufacturer": "Pasan SA",
+      "model": "SunSim 3B",
+      "serial_number": "SS-2023-045",
+      "calibration_date": "2025-06-15",
+      "calibration_due_date": "2026-06-15",
+      "calibration_status": "valid",
+      "calibration_certificate": "CAL-2025-SS-045.pdf"
+    },
+    {
+      "equipment_id": "TC-001",
+      "equipment_name": "Temperature Chamber",
+      "equipment_type": "Environmental Chamber",
+      "manufacturer": "Weiss Technik",
+      "model": "LabEvent T/180/70",
+      "serial_number": "WE-2022-112",
+      "calibration_date": "2025-05-20",
+      "calibration_due_date": "2026-05-20",
+      "calibration_status": "valid",
+      "calibration_certificate": "CAL-2025-TC-112.pdf"
+    },
+    {
+      "equipment_id": "IV-001",
+      "equipment_name": "I-V Curve Tracer",
+      "equipment_type": "I-V Tracer",
+      "manufacturer": "Keysight",
+      "model": "EL30000",
+      "serial_number": "KS-2023-089",
+      "calibration_date": "2025-08-10",
+      "calibration_due_date": "2026-02-10",
+      "calibration_status": "valid",
+      "calibration_certificate": "CAL-2025-IV-089.pdf"
+    },
+    {
+      "equipment_id": "TS-001",
+      "equipment_name": "Temperature Sensors (PT100)",
+      "equipment_type": "RTD Temperature Sensor",
+      "manufacturer": "Omega Engineering",
+      "model": "RTD-NPT-72-E",
+      "serial_number": "OM-2023-234",
+      "calibration_date": "2025-07-01",
+      "calibration_due_date": "2026-07-01",
+      "calibration_status": "valid",
+      "calibration_certificate": "CAL-2025-TS-234.pdf"
+    }
+  ],
+  "quality_checks": [
+    {
+      "check_id": "qc_data_completeness",
+      "check_name": "Data Completeness Check",
+      "status": "pass",
+      "severity": "critical",
+      "message": "All required fields present and complete"
+    },
+    {
+      "check_id": "qc_temperature_range",
+      "check_name": "Temperature Range Check",
+      "status": "pass",
+      "severity": "critical",
+      "message": "Temperature range 50.0°C meets requirement (≥30°C)"
+    },
+    {
+      "check_id": "qc_measurement_count",
+      "check_name": "Measurement Count Check",
+      "status": "pass",
+      "severity": "critical",
+      "message": "6 measurements acquired (minimum: 5)"
+    },
+    {
+      "check_id": "qc_irradiance_stability",
+      "check_name": "Irradiance Stability Check",
+      "status": "pass",
+      "severity": "warning",
+      "message": "Irradiance stable within 0.35%"
+    },
+    {
+      "check_id": "qc_r_squared_pmp",
+      "check_name": "Power Regression Quality",
+      "status": "pass",
+      "severity": "info",
+      "message": "Excellent fit (R² = 0.9998)"
+    },
+    {
+      "check_id": "qc_r_squared_voc",
+      "check_name": "Voltage Regression Quality",
+      "status": "pass",
+      "severity": "info",
+      "message": "Excellent fit (R² = 0.9999)"
+    },
+    {
+      "check_id": "qc_r_squared_isc",
+      "check_name": "Current Regression Quality",
+      "status": "pass",
+      "severity": "info",
+      "message": "Excellent fit (R² = 0.9997)"
+    },
+    {
+      "check_id": "qc_coefficient_range_alpha_pmp",
+      "check_name": "Power Coefficient Range Check",
+      "status": "pass",
+      "severity": "warning",
+      "message": "Value -0.4015%/°C within typical range"
+    },
+    {
+      "check_id": "qc_coefficient_range_beta_voc",
+      "check_name": "Voltage Coefficient Range Check",
+      "status": "pass",
+      "severity": "warning",
+      "message": "Value -0.3200%/°C within typical range"
+    },
+    {
+      "check_id": "qc_coefficient_range_alpha_isc",
+      "check_name": "Current Coefficient Range Check",
+      "status": "pass",
+      "severity": "warning",
+      "message": "Value 0.0543%/°C within typical range"
+    }
+  ]
+}

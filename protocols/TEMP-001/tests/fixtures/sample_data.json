@@ -1,0 +1,20 @@
+{
+  "description": "Sample test data for unit testing TEMP-001 protocol",
+  "measurements": {
+    "module_temperature": [20.0, 30.0, 40.0, 50.0, 60.0, 70.0],
+    "ambient_temperature": [18.5, 28.2, 38.1, 47.9, 57.8, 67.5],
+    "irradiance": [1000.0, 1005.0, 998.0, 1002.0, 997.0, 1001.0],
+    "voc": [38.50, 37.80, 37.10, 36.40, 35.70, 35.00],
+    "isc": [9.20, 9.25, 9.30, 9.35, 9.40, 9.45],
+    "vmp": [31.50, 30.85, 30.20, 29.55, 28.90, 28.25],
+    "imp": [8.25, 8.17, 8.09, 8.01, 7.93, 7.85],
+    "pmax": [259.88, 252.05, 244.32, 236.70, 229.18, 221.76],
+    "fill_factor": [73.40, 72.10, 70.80, 69.50, 68.30, 67.10]
+  },
+  "expected_results": {
+    "alpha_pmp_relative": -0.4015,
+    "beta_voc_relative": -0.3200,
+    "alpha_isc_relative": 0.0543,
+    "r_squared_threshold": 0.99
+  }
+}

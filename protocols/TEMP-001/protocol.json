@@ -1,0 +1,734 @@
+{
+  "metadata": {
+    "protocol_id": "TEMP-001",
+    "protocol_name": "Temperature Coefficient Testing",
+    "version": "1.0.0",
+    "category": "Performance",
+    "author": "ASA PV Testing",
+    "date_created": "2025-11-14",
+    "description": "Measures temperature coefficients of photovoltaic modules according to IEC 60891 procedures",
+    "standard_reference": "IEC 60891:2021",
+    "tags": ["temperature", "coefficients", "performance", "IEC60891"]
+  },
+
+  "objectives": [
+    "Measure temperature coefficient of maximum power (α_Pmp or γ)",
+    "Measure temperature coefficient of open circuit voltage (β_Voc)",
+    "Measure temperature coefficient of short circuit current (α_Isc)",
+    "Determine temperature-corrected performance characteristics",
+    "Validate module performance under varying temperature conditions"
+  ],
+
+  "standard_requirements": {
+    "iec_60891": {
+      "reference_temperature": {
+        "value": 25,
+        "unit": "°C",
+        "description": "Standard Test Conditions (STC) reference temperature"
+      },
+      "reference_irradiance": {
+        "value": 1000,
+        "unit": "W/m²",
+        "description": "Standard Test Conditions (STC) reference irradiance"
+      },
+      "minimum_temperature_range": {
+        "value": 30,
+        "unit": "°C",
+        "description": "Minimum temperature range for coefficient determination"
+      },
+      "required_measurement_points": {
+        "value": 5,
+        "description": "Minimum number of temperature measurement points"
+      }
+    }
+  },
+
+  "equipment": [
+    {
+      "id": "SOLAR_SIM",
+      "name": "Solar Simulator",
+      "specification": "Class AAA, 1000 W/m² ± 2%",
+      "calibration_required": true,
+      "calibration_interval": "12 months",
+      "critical": true
+    },
+    {
+      "id": "THERMAL_CHAMBER",
+      "name": "Temperature Control Chamber",
+      "specification": "Range: -20°C to +80°C, Uniformity: ±2°C",
+      "calibration_required": true,
+      "calibration_interval": "12 months",
+      "critical": true
+    },
+    {
+      "id": "IV_TRACER",
+      "name": "I-V Curve Tracer",
+      "specification": "Voltage: 0-100V, Current: 0-20A, Accuracy: ±0.5%",
+      "calibration_required": true,
+      "calibration_interval": "6 months",
+      "critical": true
+    },
+    {
+      "id": "TEMP_SENSOR",
+      "name": "Temperature Sensor (PT100/Thermocouple)",
+      "specification": "Accuracy: ±0.1°C, Response time: <1s",
+      "calibration_required": true,
+      "calibration_interval": "12 months",
+      "critical": true
+    },
+    {
+      "id": "PYRANOMETER",
+      "name": "Reference Cell/Pyranometer",
+      "specification": "Spectral match: Class A, Accuracy: ±1%",
+      "calibration_required": true,
+      "calibration_interval": "12 months",
+      "critical": true
+    }
+  ],
+
+  "test_parameters": {
+    "temperature_range": {
+      "min": 15,
+      "max": 75,
+      "unit": "°C",
+      "recommended_step": 10,
+      "description": "Temperature range for coefficient measurements"
+    },
+    "irradiance": {
+      "value": 1000,
+      "unit": "W/m²",
+      "tolerance": 2,
+      "description": "Target irradiance during measurements"
+    },
+    "stabilization_time": {
+      "value": 30,
+      "unit": "minutes",
+      "description": "Minimum stabilization time at each temperature"
+    },
+    "measurement_interval": {
+      "value": 60,
+      "unit": "seconds",
+      "description": "Time between I-V curve measurements"
+    },
+    "number_of_measurements": {
+      "min": 5,
+      "max": 10,
+      "recommended": 7,
+      "description": "Number of temperature points for linear regression"
+    }
+  },
+
+  "data_fields": [
+    {
+      "id": "measurement_timestamp",
+      "name": "Measurement Timestamp",
+      "type": "datetime",
+      "required": true,
+      "description": "Date and time of measurement"
+    },
+    {
+      "id": "module_temperature",
+      "name": "Module Temperature",
+      "type": "float",
+      "unit": "°C",
+      "required": true,
+      "validation": {
+        "min": -20,
+        "max": 90,
+        "decimals": 2
+      },
+      "description": "Average module back-surface temperature"
+    },
+    {
+      "id": "ambient_temperature",
+      "name": "Ambient Temperature",
+      "type": "float",
+      "unit": "°C",
+      "required": true,
+      "validation": {
+        "min": -30,
+        "max": 60,
+        "decimals": 2
+      }
+    },
+    {
+      "id": "irradiance",
+      "name": "Irradiance",
+      "type": "float",
+      "unit": "W/m²",
+      "required": true,
+      "validation": {
+        "min": 800,
+        "max": 1200,
+        "decimals": 1
+      },
+      "description": "Measured irradiance at plane of array"
+    },
+    {
+      "id": "voc",
+      "name": "Open Circuit Voltage",
+      "type": "float",
+      "unit": "V",
+      "required": true,
+      "validation": {
+        "min": 0,
+        "max": 100,
+        "decimals": 3
+      },
+      "description": "Open circuit voltage at measurement conditions"
+    },
+    {
+      "id": "isc",
+      "name": "Short Circuit Current",
+      "type": "float",
+      "unit": "A",
+      "required": true,
+      "validation": {
+        "min": 0,
+        "max": 20,
+        "decimals": 3
+      },
+      "description": "Short circuit current at measurement conditions"
+    },
+    {
+      "id": "vmp",
+      "name": "Maximum Power Voltage",
+      "type": "float",
+      "unit": "V",
+      "required": true,
+      "validation": {
+        "min": 0,
+        "max": 100,
+        "decimals": 3
+      },
+      "description": "Voltage at maximum power point"
+    },
+    {
+      "id": "imp",
+      "name": "Maximum Power Current",
+      "type": "float",
+      "unit": "A",
+      "required": true,
+      "validation": {
+        "min": 0,
+        "max": 20,
+        "decimals": 3
+      },
+      "description": "Current at maximum power point"
+    },
+    {
+      "id": "pmax",
+      "name": "Maximum Power",
+      "type": "float",
+      "unit": "W",
+      "required": true,
+      "validation": {
+        "min": 0,
+        "max": 600,
+        "decimals": 2
+      },
+      "description": "Maximum power output"
+    },
+    {
+      "id": "fill_factor",
+      "name": "Fill Factor",
+      "type": "float",
+      "unit": "%",
+      "required": false,
+      "validation": {
+        "min": 50,
+        "max": 90,
+        "decimals": 2
+      },
+      "description": "Fill factor of I-V curve"
+    },
+    {
+      "id": "series_resistance",
+      "name": "Series Resistance",
+      "type": "float",
+      "unit": "Ω",
+      "required": false,
+      "validation": {
+        "min": 0,
+        "max": 10,
+        "decimals": 4
+      }
+    },
+    {
+      "id": "shunt_resistance",
+      "name": "Shunt Resistance",
+      "type": "float",
+      "unit": "Ω",
+      "required": false,
+      "validation": {
+        "min": 0,
+        "max": 10000,
+        "decimals": 2
+      }
+    }
+  ],
+
+  "calculations": [
+    {
+      "id": "alpha_pmp",
+      "name": "Temperature Coefficient of Maximum Power",
+      "symbol": "α_Pmp (γ)",
+      "formula": "Linear regression: (Pmp - Pmp_ref) / (Pmp_ref × (T_module - T_ref))",
+      "unit": "%/°C",
+      "decimals": 4,
+      "typical_range": {
+        "min": -0.65,
+        "max": -0.25
+      },
+      "description": "IEC 60891 procedure 2 - Temperature coefficient of maximum power"
+    },
+    {
+      "id": "beta_voc",
+      "name": "Temperature Coefficient of Open Circuit Voltage",
+      "symbol": "β_Voc",
+      "formula": "Linear regression: (Voc - Voc_ref) / (Voc_ref × (T_module - T_ref))",
+      "unit": "%/°C",
+      "decimals": 4,
+      "typical_range": {
+        "min": -0.50,
+        "max": -0.20
+      },
+      "description": "Temperature coefficient of Voc per IEC 60891"
+    },
+    {
+      "id": "beta_voc_absolute",
+      "name": "Temperature Coefficient of Voc (Absolute)",
+      "symbol": "β_Voc",
+      "formula": "Linear regression slope: dVoc/dT",
+      "unit": "V/°C",
+      "decimals": 5,
+      "typical_range": {
+        "min": -0.20,
+        "max": -0.05
+      }
+    },
+    {
+      "id": "alpha_isc",
+      "name": "Temperature Coefficient of Short Circuit Current",
+      "symbol": "α_Isc",
+      "formula": "Linear regression: (Isc - Isc_ref) / (Isc_ref × (T_module - T_ref))",
+      "unit": "%/°C",
+      "decimals": 4,
+      "typical_range": {
+        "min": 0.00,
+        "max": 0.10
+      },
+      "description": "Temperature coefficient of Isc per IEC 60891"
+    },
+    {
+      "id": "alpha_isc_absolute",
+      "name": "Temperature Coefficient of Isc (Absolute)",
+      "symbol": "α_Isc",
+      "formula": "Linear regression slope: dIsc/dT",
+      "unit": "A/°C",
+      "decimals": 5,
+      "typical_range": {
+        "min": 0.000,
+        "max": 0.010
+      }
+    },
+    {
+      "id": "r_squared_pmp",
+      "name": "R² for Power Regression",
+      "formula": "Coefficient of determination for Pmp vs Temperature",
+      "unit": "dimensionless",
+      "decimals": 4,
+      "acceptance_threshold": 0.95,
+      "description": "Quality metric for linear fit"
+    },
+    {
+      "id": "r_squared_voc",
+      "name": "R² for Voc Regression",
+      "formula": "Coefficient of determination for Voc vs Temperature",
+      "unit": "dimensionless",
+      "decimals": 4,
+      "acceptance_threshold": 0.95
+    },
+    {
+      "id": "r_squared_isc",
+      "name": "R² for Isc Regression",
+      "formula": "Coefficient of determination for Isc vs Temperature",
+      "unit": "dimensionless",
+      "decimals": 4,
+      "acceptance_threshold": 0.95
+    },
+    {
+      "id": "pmp_at_stc",
+      "name": "Power at STC (25°C, 1000 W/m²)",
+      "formula": "Temperature and irradiance corrected using IEC 60891 procedure",
+      "unit": "W",
+      "decimals": 2,
+      "description": "Corrected maximum power at Standard Test Conditions"
+    },
+    {
+      "id": "voc_at_stc",
+      "name": "Voc at STC",
+      "formula": "Voc_STC = Voc_measured + β_Voc × (25 - T_module)",
+      "unit": "V",
+      "decimals": 3
+    },
+    {
+      "id": "isc_at_stc",
+      "name": "Isc at STC",
+      "formula": "Isc_STC = Isc_measured × (1000/G_measured) × [1 + α_Isc × (25 - T_module)]",
+      "unit": "A",
+      "decimals": 3
+    }
+  ],
+
+  "quality_checks": [
+    {
+      "id": "qc_data_completeness",
+      "name": "Data Completeness Check",
+      "rule": "All required fields populated for minimum number of measurements",
+      "severity": "critical",
+      "auto_check": true
+    },
+    {
+      "id": "qc_temperature_range",
+      "name": "Temperature Range Check",
+      "rule": "Temperature span >= 30°C (IEC 60891 requirement)",
+      "severity": "critical",
+      "threshold": 30,
+      "unit": "°C",
+      "auto_check": true
+    },
+    {
+      "id": "qc_measurement_count",
+      "name": "Measurement Count Check",
+      "rule": "Minimum 5 temperature points acquired",
+      "severity": "critical",
+      "threshold": 5,
+      "auto_check": true
+    },
+    {
+      "id": "qc_irradiance_stability",
+      "name": "Irradiance Stability Check",
+      "rule": "Irradiance variation < 2% during test",
+      "severity": "warning",
+      "threshold": 2,
+      "unit": "%",
+      "auto_check": true
+    },
+    {
+      "id": "qc_linear_fit_quality",
+      "name": "Linear Fit Quality Check",
+      "rule": "R² >= 0.95 for all coefficient calculations",
+      "severity": "warning",
+      "threshold": 0.95,
+      "auto_check": true,
+      "description": "Ensures linear regression is statistically valid"
+    },
+    {
+      "id": "qc_coefficient_range_pmp",
+      "name": "Power Coefficient Range Check",
+      "rule": "-0.65%/°C <= α_Pmp <= -0.25%/°C",
+      "severity": "warning",
+      "min": -0.65,
+      "max": -0.25,
+      "unit": "%/°C",
+      "auto_check": true,
+      "description": "Typical range for crystalline silicon modules"
+    },
+    {
+      "id": "qc_coefficient_range_voc",
+      "name": "Voc Coefficient Range Check",
+      "rule": "-0.50%/°C <= β_Voc <= -0.20%/°C",
+      "severity": "warning",
+      "min": -0.50,
+      "max": -0.20,
+      "unit": "%/°C",
+      "auto_check": true
+    },
+    {
+      "id": "qc_coefficient_range_isc",
+      "name": "Isc Coefficient Range Check",
+      "rule": "0.00%/°C <= α_Isc <= 0.10%/°C",
+      "severity": "warning",
+      "min": 0.00,
+      "max": 0.10,
+      "unit": "%/°C",
+      "auto_check": true
+    },
+    {
+      "id": "qc_equipment_calibration",
+      "name": "Equipment Calibration Check",
+      "rule": "All critical equipment within calibration period",
+      "severity": "critical",
+      "auto_check": false,
+      "description": "Manual verification required"
+    },
+    {
+      "id": "qc_thermal_stability",
+      "name": "Thermal Stability Check",
+      "rule": "Module temperature stable (±1°C) for 30 min before measurement",
+      "severity": "warning",
+      "threshold": 1,
+      "unit": "°C",
+      "auto_check": false
+    }
+  ],
+
+  "test_procedure": {
+    "steps": [
+      {
+        "step": 1,
+        "title": "Pre-Test Preparation",
+        "actions": [
+          "Verify all equipment calibration status",
+          "Clean module surface (IEC 61215 cleaning procedure)",
+          "Attach temperature sensors to module back surface (minimum 4 points)",
+          "Install module in thermal chamber",
+          "Connect I-V tracer leads with proper polarity"
+        ]
+      },
+      {
+        "step": 2,
+        "title": "Initial Stabilization",
+        "actions": [
+          "Set thermal chamber to starting temperature (typically 15-20°C)",
+          "Allow module to stabilize for minimum 30 minutes",
+          "Verify temperature uniformity across module (±2°C)",
+          "Set irradiance to 1000 W/m² ± 2%"
+        ]
+      },
+      {
+        "step": 3,
+        "title": "Data Collection",
+        "actions": [
+          "Record ambient conditions",
+          "Measure and record module temperature at all sensor points",
+          "Measure irradiance with calibrated reference cell",
+          "Acquire I-V curve",
+          "Record Voc, Isc, Vmp, Imp, Pmax",
+          "Repeat measurements 3 times and average"
+        ]
+      },
+      {
+        "step": 4,
+        "title": "Temperature Increment",
+        "actions": [
+          "Increase chamber temperature by 10°C",
+          "Wait for thermal stabilization (30 minutes minimum)",
+          "Verify temperature stability (±1°C for 5 minutes)",
+          "Repeat Step 3"
+        ]
+      },
+      {
+        "step": 5,
+        "title": "Complete Temperature Series",
+        "actions": [
+          "Continue Steps 3-4 until maximum temperature reached (typically 75°C)",
+          "Ensure minimum 5 temperature points collected",
+          "Ensure total temperature span >= 30°C",
+          "Verify data quality throughout"
+        ]
+      },
+      {
+        "step": 6,
+        "title": "Data Analysis",
+        "actions": [
+          "Normalize all measurements to 1000 W/m² if needed",
+          "Perform linear regression: Pmp vs Temperature",
+          "Perform linear regression: Voc vs Temperature",
+          "Perform linear regression: Isc vs Temperature",
+          "Calculate temperature coefficients per IEC 60891",
+          "Calculate R² for each regression",
+          "Correct measurements to STC (25°C, 1000 W/m²)"
+        ]
+      },
+      {
+        "step": 7,
+        "title": "Quality Assessment",
+        "actions": [
+          "Run all automated quality checks",
+          "Review R² values (must be >= 0.95)",
+          "Compare coefficients to typical ranges",
+          "Identify any outliers or anomalies",
+          "Document any deviations from procedure"
+        ]
+      },
+      {
+        "step": 8,
+        "title": "Report Generation",
+        "actions": [
+          "Generate test report with all results",
+          "Include plots: Pmp vs T, Voc vs T, Isc vs T",
+          "Include regression equations and R² values",
+          "Include quality check results",
+          "Review and approve report"
+        ]
+      }
+    ]
+  },
+
+  "report_config": {
+    "template": "IEC_60891_Temperature_Coefficients",
+    "sections": [
+      {
+        "id": "executive_summary",
+        "title": "Executive Summary",
+        "include": true,
+        "content": ["test_date", "module_id", "key_results", "pass_fail_status"]
+      },
+      {
+        "id": "test_conditions",
+        "title": "Test Conditions",
+        "include": true,
+        "content": ["equipment_list", "environmental_conditions", "test_standard"]
+      },
+      {
+        "id": "raw_data_table",
+        "title": "Measured Data",
+        "include": true,
+        "content": ["all_measurements_table"]
+      },
+      {
+        "id": "temperature_coefficients",
+        "title": "Temperature Coefficients",
+        "include": true,
+        "content": ["alpha_pmp", "beta_voc", "alpha_isc", "regression_statistics"]
+      },
+      {
+        "id": "stc_corrections",
+        "title": "STC-Corrected Performance",
+        "include": true,
+        "content": ["pmp_at_stc", "voc_at_stc", "isc_at_stc"]
+      },
+      {
+        "id": "quality_assessment",
+        "title": "Quality Assessment",
+        "include": true,
+        "content": ["all_qc_results", "data_quality_metrics"]
+      },
+      {
+        "id": "charts",
+        "title": "Graphical Analysis",
+        "include": true,
+        "content": ["regression_plots", "residual_plots"]
+      },
+      {
+        "id": "conclusions",
+        "title": "Conclusions and Recommendations",
+        "include": true,
+        "content": ["summary_statement", "anomalies", "recommendations"]
+      },
+      {
+        "id": "appendix",
+        "title": "Appendix",
+        "include": true,
+        "content": ["calibration_certificates", "raw_iv_curves", "calculation_details"]
+      }
+    ],
+    "charts": [
+      {
+        "id": "pmp_vs_temp",
+        "type": "scatter_with_regression",
+        "title": "Maximum Power vs Module Temperature",
+        "x_axis": {
+          "field": "module_temperature",
+          "label": "Module Temperature (°C)"
+        },
+        "y_axis": {
+          "field": "pmax",
+          "label": "Maximum Power (W)"
+        },
+        "show_regression_line": true,
+        "show_equation": true,
+        "show_r_squared": true,
+        "show_confidence_interval": true
+      },
+      {
+        "id": "voc_vs_temp",
+        "type": "scatter_with_regression",
+        "title": "Open Circuit Voltage vs Module Temperature",
+        "x_axis": {
+          "field": "module_temperature",
+          "label": "Module Temperature (°C)"
+        },
+        "y_axis": {
+          "field": "voc",
+          "label": "Voc (V)"
+        },
+        "show_regression_line": true,
+        "show_equation": true,
+        "show_r_squared": true
+      },
+      {
+        "id": "isc_vs_temp",
+        "type": "scatter_with_regression",
+        "title": "Short Circuit Current vs Module Temperature",
+        "x_axis": {
+          "field": "module_temperature",
+          "label": "Module Temperature (°C)"
+        },
+        "y_axis": {
+          "field": "isc",
+          "label": "Isc (A)"
+        },
+        "show_regression_line": true,
+        "show_equation": true,
+        "show_r_squared": true
+      },
+      {
+        "id": "normalized_pmp",
+        "type": "line",
+        "title": "Normalized Maximum Power vs Temperature",
+        "x_axis": {
+          "field": "module_temperature",
+          "label": "Module Temperature (°C)"
+        },
+        "y_axis": {
+          "field": "pmax_normalized",
+          "label": "Normalized Pmax (%)"
+        },
+        "description": "Power normalized to value at 25°C"
+      },
+      {
+        "id": "residuals_pmp",
+        "type": "scatter",
+        "title": "Residual Plot - Power Regression",
+        "x_axis": {
+          "field": "module_temperature",
+          "label": "Module Temperature (°C)"
+        },
+        "y_axis": {
+          "field": "pmax_residual",
+          "label": "Residual (W)"
+        },
+        "description": "Residuals should be randomly distributed around zero"
+      }
+    ],
+    "export_formats": ["PDF", "JSON", "CSV", "Excel"]
+  },
+
+  "data_retention": {
+    "raw_data": "10 years",
+    "reports": "10 years",
+    "iv_curves": "10 years",
+    "metadata": "permanent"
+  },
+
+  "references": [
+    {
+      "standard": "IEC 60891:2021",
+      "title": "Photovoltaic devices - Procedures for temperature and irradiance corrections to measured I-V characteristics",
+      "url": "https://webstore.iec.ch/publication/67770"
+    },
+    {
+      "standard": "IEC 61215-2:2021",
+      "title": "Terrestrial photovoltaic (PV) modules - Design qualification and type approval - Part 2: Test procedures",
+      "url": "https://webstore.iec.ch/publication/61347"
+    },
+    {
+      "standard": "IEC 61853-1:2011",
+      "title": "Photovoltaic (PV) module performance testing and energy rating - Part 1: Irradiance and temperature performance measurements and power rating",
+      "url": "https://webstore.iec.ch/publication/6035"
+    }
+  ]
+}

@@ -1,0 +1,226 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "protocol_id": "CONC-001",
+  "version": "1.0.0",
+  "name": "Concentration Testing Protocol",
+  "description": "Standard protocol for photovoltaic cell concentration testing to measure performance under varying light intensity conditions",
+  "metadata": {
+    "created": "2025-11-14",
+    "author": "GenSpark Testing Framework",
+    "category": "Performance",
+    "equipment_required": [
+      "solar_simulator",
+      "reference_cell",
+      "temperature_chamber",
+      "spectral_measurement_system",
+      "data_acquisition_system"
+    ],
+    "estimated_duration_hours": 8,
+    "safety_requirements": [
+      "PPE required",
+      "High intensity light protection",
+      "Temperature handling protocols"
+    ]
+  },
+  "schema": {
+    "type": "object",
+    "required": [
+      "test_run_id",
+      "sample_id",
+      "timestamp",
+      "operator",
+      "measurements"
+    ],
+    "properties": {
+      "test_run_id": {
+        "type": "string",
+        "pattern": "^CONC-001-[0-9]{8}-[0-9]{4}$",
+        "description": "Unique test run identifier"
+      },
+      "sample_id": {
+        "type": "string",
+        "description": "PV cell sample identifier"
+      },
+      "timestamp": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Test execution timestamp"
+      },
+      "operator": {
+        "type": "string",
+        "description": "Test operator name"
+      },
+      "equipment": {
+        "type": "object",
+        "properties": {
+          "solar_simulator_id": {
+            "type": "string"
+          },
+          "reference_cell_id": {
+            "type": "string"
+          },
+          "calibration_date": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "required": ["solar_simulator_id", "reference_cell_id", "calibration_date"]
+      },
+      "measurements": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "object",
+          "required": [
+            "concentration_suns",
+            "temperature_c",
+            "voc",
+            "isc",
+            "vmp",
+            "imp",
+            "fill_factor",
+            "efficiency"
+          ],
+          "properties": {
+            "concentration_suns": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 5000,
+              "description": "Concentration level in suns (1 sun = 1000 W/m²)"
+            },
+            "temperature_c": {
+              "type": "number",
+              "minimum": -40,
+              "maximum": 200,
+              "description": "Cell temperature in Celsius"
+            },
+            "voc": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Open circuit voltage (V)"
+            },
+            "isc": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Short circuit current (A)"
+            },
+            "vmp": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Maximum power voltage (V)"
+            },
+            "imp": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Maximum power current (A)"
+            },
+            "fill_factor": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Fill factor (dimensionless)"
+            },
+            "efficiency": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Conversion efficiency (%)"
+            },
+            "spectral_mismatch": {
+              "type": "number",
+              "description": "Spectral mismatch correction factor"
+            }
+          }
+        }
+      },
+      "environmental_conditions": {
+        "type": "object",
+        "properties": {
+          "ambient_temperature_c": {
+            "type": "number"
+          },
+          "humidity_percent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "atmospheric_pressure_kpa": {
+            "type": "number"
+          }
+        }
+      },
+      "notes": {
+        "type": "string",
+        "description": "Additional observations or notes"
+      }
+    }
+  },
+  "qc_criteria": {
+    "temperature_stability": {
+      "max_deviation_c": 2.0,
+      "description": "Maximum allowed temperature deviation during test"
+    },
+    "measurement_repeatability": {
+      "max_coefficient_variation": 0.05,
+      "description": "Maximum coefficient of variation for repeated measurements"
+    },
+    "intensity_accuracy": {
+      "tolerance_percent": 2.0,
+      "description": "Allowed tolerance for intensity setting accuracy"
+    },
+    "fill_factor_minimum": {
+      "value": 0.65,
+      "description": "Minimum acceptable fill factor"
+    },
+    "spectral_mismatch": {
+      "max_value": 0.05,
+      "description": "Maximum acceptable spectral mismatch"
+    }
+  },
+  "calibration_requirements": {
+    "reference_cell": {
+      "frequency_days": 365,
+      "traceable_to": "NIST or equivalent"
+    },
+    "solar_simulator": {
+      "frequency_days": 180,
+      "class_requirement": "Class AAA"
+    },
+    "temperature_sensors": {
+      "frequency_days": 180,
+      "accuracy": "±0.5°C"
+    }
+  },
+  "report_template": {
+    "sections": [
+      "executive_summary",
+      "test_conditions",
+      "measurements_table",
+      "efficiency_vs_concentration_plot",
+      "temperature_coefficient_analysis",
+      "qc_verification",
+      "equipment_calibration_status",
+      "conclusions_recommendations"
+    ],
+    "charts": [
+      {
+        "type": "line",
+        "title": "Efficiency vs Concentration",
+        "x_axis": "concentration_suns",
+        "y_axis": "efficiency"
+      },
+      {
+        "type": "line",
+        "title": "Fill Factor vs Concentration",
+        "x_axis": "concentration_suns",
+        "y_axis": "fill_factor"
+      },
+      {
+        "type": "scatter",
+        "title": "Power Output vs Concentration",
+        "x_axis": "concentration_suns",
+        "y_axis": "power_output"
+      }
+    ]
+  }
+}

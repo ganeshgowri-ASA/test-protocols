@@ -1,0 +1,55 @@
+{
+  "protocol_id": "CONC-001",
+  "test_configuration": {
+    "concentration_levels_suns": [
+      1,
+      10,
+      25,
+      50,
+      100,
+      200,
+      300,
+      400,
+      500
+    ],
+    "temperature_setpoints_c": [
+      25,
+      50,
+      75
+    ],
+    "stabilization_time_seconds": 300,
+    "measurement_averaging_samples": 10,
+    "sweep_delay_ms": 100
+  },
+  "iv_curve_parameters": {
+    "voltage_points": 100,
+    "voltage_start": 0,
+    "voltage_end": "voc + 0.1",
+    "current_compliance_a": 50,
+    "integration_time_ms": 10
+  },
+  "data_collection": {
+    "sampling_rate_hz": 10,
+    "buffer_size": 1000,
+    "auto_save_interval_minutes": 5,
+    "backup_enabled": true
+  },
+  "safety_limits": {
+    "max_temperature_c": 150,
+    "max_current_a": 40,
+    "max_voltage_v": 20,
+    "emergency_shutdown_enabled": true
+  },
+  "calibration_check": {
+    "verify_before_test": true,
+    "reference_cell_check": true,
+    "intensity_verification_points": [0.5, 1.0, 2.0],
+    "temperature_verification_points": [25, 50, 75]
+  },
+  "output_format": {
+    "primary": "json",
+    "additional": ["csv", "xlsx"],
+    "include_raw_data": true,
+    "compression": "zip"
+  }
+}

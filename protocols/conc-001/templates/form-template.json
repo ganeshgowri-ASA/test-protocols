@@ -1,0 +1,230 @@
+{
+  "form_id": "conc-001-data-entry",
+  "title": "CONC-001 Concentration Testing - Data Entry",
+  "sections": [
+    {
+      "section_id": "test_info",
+      "title": "Test Information",
+      "fields": [
+        {
+          "field_id": "test_run_id",
+          "label": "Test Run ID",
+          "type": "text",
+          "required": true,
+          "pattern": "^CONC-001-[0-9]{8}-[0-9]{4}$",
+          "placeholder": "CONC-001-20251114-0001",
+          "help_text": "Format: CONC-001-YYYYMMDD-####"
+        },
+        {
+          "field_id": "sample_id",
+          "label": "Sample ID",
+          "type": "text",
+          "required": true,
+          "placeholder": "PV-SAMPLE-001"
+        },
+        {
+          "field_id": "operator",
+          "label": "Operator Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "field_id": "timestamp",
+          "label": "Test Date & Time",
+          "type": "datetime",
+          "required": true,
+          "default": "now"
+        }
+      ]
+    },
+    {
+      "section_id": "equipment",
+      "title": "Equipment Information",
+      "fields": [
+        {
+          "field_id": "solar_simulator_id",
+          "label": "Solar Simulator ID",
+          "type": "select",
+          "required": true,
+          "options": [
+            "SIM-001-ClassAAA",
+            "SIM-002-ClassAAA",
+            "SIM-003-ClassABA"
+          ]
+        },
+        {
+          "field_id": "reference_cell_id",
+          "label": "Reference Cell ID",
+          "type": "select",
+          "required": true,
+          "options": [
+            "REF-CELL-001",
+            "REF-CELL-002",
+            "REF-CELL-003"
+          ]
+        },
+        {
+          "field_id": "calibration_date",
+          "label": "Last Calibration Date",
+          "type": "date",
+          "required": true,
+          "validation": "must_be_within_365_days"
+        }
+      ]
+    },
+    {
+      "section_id": "environmental",
+      "title": "Environmental Conditions",
+      "fields": [
+        {
+          "field_id": "ambient_temperature_c",
+          "label": "Ambient Temperature (°C)",
+          "type": "number",
+          "required": true,
+          "min": 15,
+          "max": 35,
+          "step": 0.1
+        },
+        {
+          "field_id": "humidity_percent",
+          "label": "Humidity (%)",
+          "type": "number",
+          "required": true,
+          "min": 0,
+          "max": 100,
+          "step": 1
+        },
+        {
+          "field_id": "atmospheric_pressure_kpa",
+          "label": "Atmospheric Pressure (kPa)",
+          "type": "number",
+          "required": false,
+          "min": 80,
+          "max": 110,
+          "step": 0.1
+        }
+      ]
+    },
+    {
+      "section_id": "measurements",
+      "title": "Concentration Measurements",
+      "type": "repeatable",
+      "min_entries": 1,
+      "fields": [
+        {
+          "field_id": "concentration_suns",
+          "label": "Concentration (suns)",
+          "type": "number",
+          "required": true,
+          "min": 0.1,
+          "max": 5000,
+          "step": 0.1,
+          "help_text": "1 sun = 1000 W/m²"
+        },
+        {
+          "field_id": "temperature_c",
+          "label": "Cell Temperature (°C)",
+          "type": "number",
+          "required": true,
+          "min": -40,
+          "max": 200,
+          "step": 0.1
+        },
+        {
+          "field_id": "voc",
+          "label": "Open Circuit Voltage (V)",
+          "type": "number",
+          "required": true,
+          "min": 0,
+          "step": 0.001
+        },
+        {
+          "field_id": "isc",
+          "label": "Short Circuit Current (A)",
+          "type": "number",
+          "required": true,
+          "min": 0,
+          "step": 0.001
+        },
+        {
+          "field_id": "vmp",
+          "label": "Max Power Voltage (V)",
+          "type": "number",
+          "required": true,
+          "min": 0,
+          "step": 0.001
+        },
+        {
+          "field_id": "imp",
+          "label": "Max Power Current (A)",
+          "type": "number",
+          "required": true,
+          "min": 0,
+          "step": 0.001
+        },
+        {
+          "field_id": "fill_factor",
+          "label": "Fill Factor",
+          "type": "number",
+          "required": true,
+          "min": 0,
+          "max": 1,
+          "step": 0.001,
+          "calculated": true,
+          "formula": "(vmp * imp) / (voc * isc)"
+        },
+        {
+          "field_id": "efficiency",
+          "label": "Efficiency (%)",
+          "type": "number",
+          "required": true,
+          "min": 0,
+          "max": 100,
+          "step": 0.01
+        },
+        {
+          "field_id": "spectral_mismatch",
+          "label": "Spectral Mismatch Factor",
+          "type": "number",
+          "required": false,
+          "step": 0.001
+        }
+      ]
+    },
+    {
+      "section_id": "notes",
+      "title": "Additional Notes",
+      "fields": [
+        {
+          "field_id": "notes",
+          "label": "Observations and Notes",
+          "type": "textarea",
+          "required": false,
+          "placeholder": "Enter any observations, anomalies, or additional information..."
+        }
+      ]
+    }
+  ],
+  "validation_rules": {
+    "cross_field": [
+      {
+        "rule": "calibration_within_range",
+        "description": "Calibration date must be within 365 days",
+        "fields": ["calibration_date", "timestamp"]
+      },
+      {
+        "rule": "fill_factor_consistency",
+        "description": "Fill factor should be between 0.65 and 0.90 for valid cells",
+        "fields": ["fill_factor"],
+        "warning_only": true
+      }
+    ]
+  },
+  "ui_configuration": {
+    "theme": "professional",
+    "layout": "vertical",
+    "show_progress": true,
+    "auto_save": true,
+    "save_interval_seconds": 60
+  }
+}

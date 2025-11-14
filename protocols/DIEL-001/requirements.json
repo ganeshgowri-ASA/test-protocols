@@ -1,0 +1,260 @@
+{
+  "standard": "IEC 61730-2:2016",
+  "test_designation": "MST 15",
+  "test_name": "Dielectric Withstand Test",
+  "objective": "To verify that the electrical insulation of a PV module can withstand the specified test voltage without breakdown or excessive leakage current",
+
+  "scope": "This test applies to all crystalline silicon and thin-film PV modules intended for use in Class A and Class B applications",
+
+  "requirements": {
+    "test_voltage": {
+      "specification": "1000 V + (2 × maximum system voltage)",
+      "voltage_type": "AC sinusoidal",
+      "frequency": "50 Hz or 60 Hz",
+      "tolerance": "±50 V or ±3%, whichever is greater",
+      "note": "For modules rated up to 1000V; higher voltages may require different calculation"
+    },
+
+    "test_duration": {
+      "minimum": 60,
+      "unit": "seconds",
+      "note": "Voltage must be maintained steady for full duration"
+    },
+
+    "voltage_application": {
+      "ramp_up_rate": {
+        "maximum": 500,
+        "unit": "V/s"
+      },
+      "ramp_down_rate": {
+        "maximum": 1000,
+        "unit": "V/s"
+      }
+    },
+
+    "insulation_resistance": {
+      "minimum_before_test": {
+        "value": 40,
+        "unit": "MΩ/m²",
+        "test_voltage": "500-1000 V DC"
+      },
+      "minimum_after_test": {
+        "value": 40,
+        "unit": "MΩ/m²",
+        "test_voltage": "500-1000 V DC"
+      }
+    },
+
+    "leakage_current": {
+      "maximum_allowable": 50,
+      "unit": "mA",
+      "note": "Current trip or alarm typically set at this level"
+    },
+
+    "pass_criteria": [
+      "No dielectric breakdown or flashover during test",
+      "No visible signs of tracking on module surface",
+      "Maximum leakage current ≤ 50 mA during test",
+      "Initial insulation resistance ≥ 40 MΩ/m²",
+      "Final insulation resistance ≥ 40 MΩ/m²",
+      "No visible damage to module after test",
+      "No delamination, bubbling, or burn marks"
+    ],
+
+    "fail_criteria": [
+      "Dielectric breakdown occurs during test",
+      "Evidence of surface tracking",
+      "Leakage current exceeds 50 mA",
+      "Initial insulation resistance < 40 MΩ/m²",
+      "Final insulation resistance < 40 MΩ/m²",
+      "Visible damage, burn marks, or delamination after test"
+    ]
+  },
+
+  "test_configuration": {
+    "module_conditioning": {
+      "prior_tests": [
+        "Visual inspection",
+        "Electrical performance characterization (recommended)"
+      ],
+      "stabilization": "Allow module to stabilize to ambient conditions before test"
+    },
+
+    "electrical_connections": {
+      "active_parts": "All electrically active parts (terminals, frames, cells, metallic parts) short-circuited together",
+      "test_voltage_application": "Between short-circuited active parts and grounded test plate/ground reference",
+      "grounding": "Test plate must be connected to protective earth"
+    },
+
+    "test_plate": {
+      "material": "Conductive metal",
+      "size": "Must be larger than module in all dimensions",
+      "surface": "Flat, clean, and free of sharp edges",
+      "grounding": "Connected to earth ground with low impedance connection"
+    }
+  },
+
+  "environmental_requirements": {
+    "temperature": {
+      "minimum": 15,
+      "maximum": 35,
+      "unit": "°C",
+      "standard_test_condition": 25
+    },
+    "relative_humidity": {
+      "minimum": 25,
+      "maximum": 75,
+      "unit": "%"
+    },
+    "atmospheric_pressure": {
+      "minimum": 86,
+      "maximum": 106,
+      "unit": "kPa",
+      "note": "Equivalent to altitudes from sea level to approximately 1500m"
+    }
+  },
+
+  "equipment_requirements": {
+    "dielectric_strength_tester": {
+      "voltage_range": "0 to at least 1.5 × maximum test voltage",
+      "voltage_accuracy": "±5% or better",
+      "current_measurement": "0.1 mA to 100 mA range",
+      "current_accuracy": "±10% or better",
+      "frequency_stability": "±1% for AC testing",
+      "trip_setting": "Adjustable current trip",
+      "voltage_control": "Automated ramp up/down capability",
+      "safety_features": [
+        "Emergency stop",
+        "Automatic discharge circuit",
+        "Ground fault detection",
+        "Door/access interlocks"
+      ]
+    },
+
+    "insulation_resistance_tester": {
+      "test_voltages": "500 V, 1000 V DC",
+      "measurement_range": "0.1 MΩ to 10 GΩ minimum",
+      "accuracy": "±10% or better"
+    },
+
+    "calibration": {
+      "frequency": "Annual minimum",
+      "traceability": "Calibration must be traceable to national/international standards",
+      "documentation": "Current calibration certificates required"
+    }
+  },
+
+  "safety_requirements": {
+    "personnel_qualifications": [
+      "High voltage safety training",
+      "Authorized to work on high voltage equipment",
+      "CPR/First aid certified (recommended)"
+    ],
+
+    "personal_protective_equipment": [
+      "Insulated gloves rated for test voltage",
+      "Safety glasses or face shield",
+      "Insulated footwear",
+      "Flame-resistant clothing (recommended)"
+    ],
+
+    "test_area_requirements": [
+      "Restricted access during energized testing",
+      "High voltage warning signs posted",
+      "Non-conductive flooring or mats",
+      "Adequate working space around test setup",
+      "Emergency stop accessible",
+      "Fire extinguisher nearby"
+    ],
+
+    "safety_procedures": [
+      "Lock out/tag out procedures",
+      "Two-person rule for high voltage work (recommended)",
+      "Verify de-energized before touching",
+      "Ground and discharge before and after test",
+      "Keep one hand behind back during energized operations"
+    ]
+  },
+
+  "documentation_requirements": {
+    "test_record_must_include": [
+      "Module identification (manufacturer, model, serial number)",
+      "Test date and time",
+      "Operator name",
+      "Equipment used (make, model, serial number)",
+      "Equipment calibration due dates",
+      "Environmental conditions (temperature, humidity)",
+      "Test voltage (calculated and applied)",
+      "Test duration",
+      "Initial insulation resistance",
+      "Final insulation resistance",
+      "Maximum leakage current during test",
+      "Any anomalies or observations",
+      "Pass/fail result",
+      "Operator signature",
+      "Reviewer signature (if applicable)"
+    ],
+
+    "photographic_documentation": [
+      "Module before test (overall and any defects)",
+      "Test setup showing connections",
+      "Module after test (overall and any new defects)"
+    ]
+  },
+
+  "quality_assurance": {
+    "verification_points": [
+      "Equipment calibration current before test",
+      "Environmental conditions within limits",
+      "Proper test setup and connections",
+      "Test voltage within tolerance",
+      "Test duration meets minimum",
+      "All data recorded accurately",
+      "Post-test inspection completed"
+    ],
+
+    "acceptance_sampling": {
+      "note": "Sample size and acceptance criteria per specific qualification standard or customer requirements",
+      "typical": "IEC 61215 typically requires testing minimum number of modules from production lot"
+    }
+  },
+
+  "reference_standards": [
+    {
+      "standard": "IEC 61730-2:2016",
+      "title": "Photovoltaic (PV) module safety qualification - Part 2: Requirements for testing"
+    },
+    {
+      "standard": "IEC 61215-2:2016",
+      "title": "Terrestrial photovoltaic (PV) modules - Design qualification and type approval"
+    },
+    {
+      "standard": "IEC 60664-1",
+      "title": "Insulation coordination for equipment within low-voltage systems"
+    },
+    {
+      "standard": "IEC 61140",
+      "title": "Protection against electric shock - Common aspects for installation and equipment"
+    }
+  ],
+
+  "test_limitations": {
+    "notes": [
+      "This test verifies insulation integrity at one point in time; ongoing degradation not assessed",
+      "Test is destructive if module fails; failed modules typically cannot be repaired",
+      "Test does not simulate all field conditions (UV, thermal cycling, mechanical stress)",
+      "Results applicable to tested sample only; not predictive of entire production",
+      "Test voltage based on rated system voltage; actual field stress may vary"
+    ]
+  },
+
+  "related_tests": {
+    "typically_performed_with": [
+      "MST 14 - Damp Heat Test (if part of qualification sequence)",
+      "MST 16 - Robustness of Terminations Test",
+      "MQT 01 - Electrical Performance Characterization",
+      "MQT 17 - Wet Leakage Current Test"
+    ],
+    "sequence_dependency": "Should be performed after conditioning tests if part of qualification sequence"
+  }
+}

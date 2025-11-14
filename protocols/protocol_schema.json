@@ -1,0 +1,312 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://test-protocols.example.com/protocol-schema.json",
+  "title": "Test Protocol Schema",
+  "description": "JSON Schema for validating PV test protocol definitions",
+  "type": "object",
+  "required": [
+    "protocol_id",
+    "protocol_name",
+    "version",
+    "standard",
+    "category",
+    "description",
+    "test_parameters",
+    "acceptance_criteria",
+    "data_points",
+    "test_procedure",
+    "safety_requirements"
+  ],
+  "properties": {
+    "protocol_id": {
+      "type": "string",
+      "pattern": "^[A-Z]+-[0-9]{3}$",
+      "description": "Unique protocol identifier (e.g., DIEL-001)"
+    },
+    "protocol_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable protocol name"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Semantic version number"
+    },
+    "standard": {
+      "type": "string",
+      "description": "Reference standard (e.g., IEC 61730 MST 15)"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["safety", "performance", "reliability", "environmental", "mechanical", "electrical"],
+      "description": "Test category"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Detailed protocol description"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "created_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "author": {
+          "type": "string"
+        },
+        "review_status": {
+          "type": "string",
+          "enum": ["draft", "review", "approved", "deprecated"]
+        },
+        "effective_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "revision_history": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "version": {"type": "string"},
+              "date": {"type": "string", "format": "date"},
+              "changes": {"type": "string"}
+            },
+            "required": ["version", "date", "changes"]
+          }
+        }
+      }
+    },
+    "reference_documents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "standard": {"type": "string"},
+          "section": {"type": "string"},
+          "title": {"type": "string"}
+        },
+        "required": ["standard", "title"]
+      }
+    },
+    "equipment": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string"},
+          "name": {"type": "string"},
+          "type": {"type": "string"},
+          "specifications": {"type": "object"},
+          "calibration_required": {"type": "boolean"},
+          "calibration_interval_days": {"type": "integer", "minimum": 1},
+          "required": {"type": "boolean"}
+        },
+        "required": ["id", "name", "type", "required"]
+      }
+    },
+    "environmental_conditions": {
+      "type": "object",
+      "properties": {
+        "temperature": {
+          "type": "object",
+          "properties": {
+            "min": {"type": "number"},
+            "max": {"type": "number"},
+            "unit": {"type": "string"},
+            "description": {"type": "string"}
+          },
+          "required": ["min", "max", "unit"]
+        },
+        "relative_humidity": {
+          "type": "object",
+          "properties": {
+            "min": {"type": "number"},
+            "max": {"type": "number"},
+            "unit": {"type": "string"},
+            "description": {"type": "string"}
+          },
+          "required": ["min", "max", "unit"]
+        }
+      }
+    },
+    "test_parameters": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": true,
+      "description": "Test-specific parameters and settings"
+    },
+    "test_setup": {
+      "type": "object",
+      "description": "Physical test setup requirements"
+    },
+    "acceptance_criteria": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": true,
+      "description": "Pass/fail criteria for the test"
+    },
+    "data_points": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "Field name (snake_case)"
+          },
+          "label": {
+            "type": "string",
+            "description": "Human-readable label"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["string", "number", "boolean", "date", "datetime", "text", "array", "select"],
+            "description": "Data type"
+          },
+          "unit": {
+            "type": "string",
+            "description": "Unit of measurement"
+          },
+          "required": {
+            "type": "boolean",
+            "description": "Whether field is required"
+          },
+          "min": {
+            "type": "number",
+            "description": "Minimum value (for numbers)"
+          },
+          "max": {
+            "type": "number",
+            "description": "Maximum value (for numbers)"
+          },
+          "default": {
+            "description": "Default value"
+          },
+          "validation": {
+            "type": "string",
+            "description": "Validation rule"
+          },
+          "description": {
+            "type": "string",
+            "description": "Field description"
+          },
+          "calculated": {
+            "type": "boolean",
+            "description": "Whether value is calculated"
+          },
+          "formula": {
+            "type": "string",
+            "description": "Calculation formula"
+          },
+          "options": {
+            "type": "array",
+            "description": "Options for select type"
+          }
+        },
+        "required": ["field", "label", "type", "required"]
+      }
+    },
+    "test_procedure": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "step": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "actions": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "safety_notes": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "expected_duration": {
+            "type": "object",
+            "properties": {
+              "value": {"type": "number"},
+              "unit": {"type": "string"}
+            }
+          }
+        },
+        "required": ["step", "title", "description", "actions"]
+      }
+    },
+    "safety_requirements": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      },
+      "description": "List of safety requirements"
+    },
+    "reporting": {
+      "type": "object",
+      "properties": {
+        "template": {"type": "string"},
+        "required_charts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {"type": "string"},
+              "title": {"type": "string"},
+              "x_axis": {"type": "string"},
+              "y_axis": {"type": "string"},
+              "description": {"type": "string"}
+            }
+          }
+        },
+        "required_sections": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "attachments": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "quality_control": {
+      "type": "object",
+      "properties": {
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {"type": "string"},
+              "name": {"type": "string"},
+              "description": {"type": "string"},
+              "critical": {"type": "boolean"}
+            },
+            "required": ["id", "name", "description"]
+          }
+        }
+      }
+    },
+    "revision_control": {
+      "type": "object",
+      "properties": {
+        "change_approval_required": {"type": "boolean"},
+        "review_frequency_months": {"type": "integer", "minimum": 1},
+        "next_review_date": {"type": "string", "format": "date"}
+      }
+    }
+  }
+}

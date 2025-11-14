@@ -1,0 +1,113 @@
+# Application Configuration
+# Test Protocols Framework
+
+app:
+  name: "PV Testing Protocol Framework"
+  version: "1.0.0"
+  environment: "development"  # development, staging, production
+  debug: true
+
+# UI Configuration
+ui:
+  page_title: "PV Test Protocols"
+  page_icon: "⚡"
+  layout: "wide"
+  theme: "light"
+  sidebar_state: "expanded"
+
+# Protocol Settings
+protocols:
+  base_path: "./protocols"
+  validation_enabled: true
+  auto_save_interval: 300  # seconds
+  cache_enabled: true
+
+# Database Configuration
+database:
+  type: "postgresql"
+  host: "${DB_HOST:localhost}"
+  port: 5432
+  name: "${DB_NAME:test_protocols}"
+  user: "${DB_USER:postgres}"
+  password: "${DB_PASSWORD}"
+  pool_size: 10
+  pool_timeout: 30
+  echo_sql: false
+
+# File Storage
+storage:
+  base_path: "./data"
+  raw_data_path: "./data/raw"
+  processed_data_path: "./data/processed"
+  reports_path: "./data/reports"
+  exports_path: "./data/exports"
+  max_file_size_mb: 100
+
+# Logging Configuration
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file_path: "./logs/app.log"
+  max_file_size_mb: 10
+  backup_count: 5
+  console_output: true
+
+# LIMS Integration (optional)
+lims:
+  enabled: false
+  api_url: "${LIMS_API_URL}"
+  api_key: "${LIMS_API_KEY}"
+  timeout: 30
+  retry_attempts: 3
+
+# QMS Integration (optional)
+qms:
+  enabled: false
+  api_url: "${QMS_API_URL}"
+  api_key: "${QMS_API_KEY}"
+  timeout: 30
+
+# Email Notifications (optional)
+email:
+  enabled: false
+  smtp_server: "${SMTP_SERVER}"
+  smtp_port: 587
+  username: "${SMTP_USERNAME}"
+  password: "${SMTP_PASSWORD}"
+  from_address: "${EMAIL_FROM}"
+  use_tls: true
+
+# Report Generation
+reports:
+  template_path: "./templates"
+  default_format: "pdf"
+  include_charts: true
+  include_raw_data: false
+  logo_path: "./assets/logo.png"
+
+# Security
+security:
+  session_timeout_minutes: 60
+  require_authentication: false
+  allowed_file_types:
+    - ".json"
+    - ".csv"
+    - ".xlsx"
+    - ".pdf"
+    - ".png"
+    - ".jpg"
+
+# Performance
+performance:
+  enable_caching: true
+  cache_ttl_seconds: 3600
+  max_concurrent_tests: 10
+  async_processing: false
+
+# Features
+features:
+  enable_data_export: true
+  enable_batch_processing: true
+  enable_audit_log: true
+  enable_version_control: true
+  enable_advanced_analytics: true

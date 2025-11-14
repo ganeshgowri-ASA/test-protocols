@@ -1,0 +1,604 @@
+{
+  "protocol_id": "DIEL-001",
+  "protocol_name": "Dielectric Withstand Test",
+  "version": "1.0.0",
+  "standard": "IEC 61730 MST 15",
+  "category": "safety",
+  "description": "Dielectric withstand voltage test to verify electrical insulation integrity of PV modules under high voltage stress conditions",
+
+  "metadata": {
+    "created_date": "2025-11-14",
+    "author": "Test Protocol Team",
+    "review_status": "approved",
+    "effective_date": "2025-11-14",
+    "revision_history": [
+      {
+        "version": "1.0.0",
+        "date": "2025-11-14",
+        "changes": "Initial release based on IEC 61730-2:2016 MST 15"
+      }
+    ]
+  },
+
+  "reference_documents": [
+    {
+      "standard": "IEC 61730-2:2016",
+      "section": "MST 15",
+      "title": "Dielectric Withstand Test"
+    },
+    {
+      "standard": "IEC 61215-2:2016",
+      "section": "MQT 01",
+      "title": "Electrical Performance at STC"
+    }
+  ],
+
+  "equipment": [
+    {
+      "id": "EQ-001",
+      "name": "Dielectric Strength Tester",
+      "type": "High Voltage Tester",
+      "specifications": {
+        "voltage_range": "0-5000 V AC",
+        "accuracy": "±5%",
+        "leakage_current_detection": "0.1-100 mA"
+      },
+      "calibration_required": true,
+      "calibration_interval_days": 365,
+      "required": true
+    },
+    {
+      "id": "EQ-002",
+      "name": "Insulation Resistance Tester",
+      "type": "Megohmmeter",
+      "specifications": {
+        "voltage_range": "250-1000 V DC",
+        "resistance_range": "0.1 MΩ - 10 GΩ"
+      },
+      "calibration_required": true,
+      "calibration_interval_days": 365,
+      "required": true
+    },
+    {
+      "id": "EQ-003",
+      "name": "Digital Multimeter",
+      "type": "Measurement Device",
+      "specifications": {
+        "voltage_accuracy": "±0.5%",
+        "current_accuracy": "±1%"
+      },
+      "calibration_required": true,
+      "calibration_interval_days": 365,
+      "required": false
+    }
+  ],
+
+  "environmental_conditions": {
+    "temperature": {
+      "min": 15,
+      "max": 35,
+      "unit": "°C",
+      "description": "Ambient temperature during test"
+    },
+    "relative_humidity": {
+      "min": 25,
+      "max": 75,
+      "unit": "%",
+      "description": "Relative humidity during test"
+    },
+    "atmospheric_pressure": {
+      "min": 86,
+      "max": 106,
+      "unit": "kPa",
+      "description": "Atmospheric pressure during test"
+    }
+  },
+
+  "test_parameters": {
+    "test_voltage": {
+      "formula": "1000 + (2 * max_system_voltage)",
+      "description": "Test voltage = 1000V + (2 × maximum system voltage)",
+      "unit": "V",
+      "tolerance": "±50 V",
+      "note": "For modules rated up to 1000V system voltage"
+    },
+    "test_voltage_type": {
+      "value": "AC",
+      "frequency": 50,
+      "frequency_unit": "Hz",
+      "alternative_frequency": 60,
+      "note": "50 Hz or 60 Hz sinusoidal waveform"
+    },
+    "test_duration": {
+      "value": 60,
+      "unit": "seconds",
+      "description": "Duration to maintain test voltage"
+    },
+    "voltage_ramp_up_rate": {
+      "max": 500,
+      "unit": "V/s",
+      "description": "Maximum rate of voltage increase"
+    },
+    "voltage_ramp_down_rate": {
+      "max": 1000,
+      "unit": "V/s",
+      "description": "Maximum rate of voltage decrease"
+    },
+    "leakage_current_limit": {
+      "max": 50,
+      "unit": "mA",
+      "description": "Maximum allowable leakage current during test"
+    }
+  },
+
+  "test_setup": {
+    "module_orientation": "As installed in normal use",
+    "connection_points": [
+      "All electrically active parts (terminals, frames, cells) short-circuited together",
+      "Test voltage applied between shorted active parts and ground/test plate"
+    ],
+    "test_plate": {
+      "material": "Conductive metal",
+      "size": "Larger than module dimensions",
+      "grounding": "Connected to earth ground"
+    }
+  },
+
+  "acceptance_criteria": {
+    "insulation_resistance_initial": {
+      "min_value": 40,
+      "unit": "MΩ/m²",
+      "condition": "greater_than_or_equal",
+      "description": "Initial insulation resistance before withstand test"
+    },
+    "insulation_resistance_final": {
+      "min_value": 40,
+      "unit": "MΩ/m²",
+      "condition": "greater_than_or_equal",
+      "description": "Final insulation resistance after withstand test"
+    },
+    "dielectric_breakdown": {
+      "allowed": false,
+      "description": "No dielectric breakdown or flashover during test"
+    },
+    "surface_tracking": {
+      "allowed": false,
+      "description": "No evidence of surface tracking"
+    },
+    "leakage_current": {
+      "max_value": 50,
+      "unit": "mA",
+      "condition": "less_than_or_equal",
+      "description": "Leakage current within acceptable limits"
+    },
+    "visual_inspection": {
+      "no_visible_damage": true,
+      "no_burn_marks": true,
+      "no_delamination": true,
+      "description": "Module shows no signs of damage after test"
+    }
+  },
+
+  "data_points": [
+    {
+      "field": "module_id",
+      "label": "Module ID",
+      "type": "string",
+      "required": true,
+      "validation": "regex:^[A-Z0-9-]+$",
+      "description": "Unique identifier for the module under test"
+    },
+    {
+      "field": "module_manufacturer",
+      "label": "Module Manufacturer",
+      "type": "string",
+      "required": true,
+      "description": "Manufacturer name"
+    },
+    {
+      "field": "module_model",
+      "label": "Module Model",
+      "type": "string",
+      "required": true,
+      "description": "Module model number"
+    },
+    {
+      "field": "module_serial_number",
+      "label": "Module Serial Number",
+      "type": "string",
+      "required": true,
+      "description": "Module serial number"
+    },
+    {
+      "field": "module_area",
+      "label": "Module Area",
+      "type": "number",
+      "unit": "m²",
+      "required": true,
+      "min": 0.1,
+      "max": 10,
+      "description": "Total module area in square meters"
+    },
+    {
+      "field": "max_system_voltage",
+      "label": "Maximum System Voltage",
+      "type": "number",
+      "unit": "V",
+      "required": true,
+      "min": 0,
+      "max": 1500,
+      "description": "Maximum rated system voltage for the module"
+    },
+    {
+      "field": "test_voltage_calculated",
+      "label": "Calculated Test Voltage",
+      "type": "number",
+      "unit": "V",
+      "required": true,
+      "calculated": true,
+      "formula": "1000 + (2 * max_system_voltage)",
+      "description": "Calculated test voltage per IEC 61730"
+    },
+    {
+      "field": "test_voltage_applied",
+      "label": "Applied Test Voltage",
+      "type": "number",
+      "unit": "V",
+      "required": true,
+      "description": "Actual test voltage applied during test"
+    },
+    {
+      "field": "test_duration",
+      "label": "Test Duration",
+      "type": "number",
+      "unit": "seconds",
+      "required": true,
+      "min": 60,
+      "default": 60,
+      "description": "Duration voltage was maintained"
+    },
+    {
+      "field": "insulation_resistance_initial",
+      "label": "Initial Insulation Resistance",
+      "type": "number",
+      "unit": "MΩ",
+      "required": true,
+      "min": 0,
+      "description": "Insulation resistance before withstand test"
+    },
+    {
+      "field": "insulation_resistance_final",
+      "label": "Final Insulation Resistance",
+      "type": "number",
+      "unit": "MΩ",
+      "required": true,
+      "min": 0,
+      "description": "Insulation resistance after withstand test"
+    },
+    {
+      "field": "leakage_current_max",
+      "label": "Maximum Leakage Current",
+      "type": "number",
+      "unit": "mA",
+      "required": true,
+      "min": 0,
+      "description": "Maximum leakage current observed during test"
+    },
+    {
+      "field": "breakdown_occurred",
+      "label": "Breakdown Occurred",
+      "type": "boolean",
+      "required": true,
+      "default": false,
+      "description": "Whether dielectric breakdown occurred"
+    },
+    {
+      "field": "ambient_temperature",
+      "label": "Ambient Temperature",
+      "type": "number",
+      "unit": "°C",
+      "required": true,
+      "min": 15,
+      "max": 35,
+      "description": "Ambient temperature during test"
+    },
+    {
+      "field": "relative_humidity",
+      "label": "Relative Humidity",
+      "type": "number",
+      "unit": "%",
+      "required": true,
+      "min": 25,
+      "max": 75,
+      "description": "Relative humidity during test"
+    },
+    {
+      "field": "test_date",
+      "label": "Test Date",
+      "type": "date",
+      "required": true,
+      "description": "Date when test was performed"
+    },
+    {
+      "field": "operator_name",
+      "label": "Operator Name",
+      "type": "string",
+      "required": true,
+      "description": "Name of test operator"
+    },
+    {
+      "field": "equipment_ids",
+      "label": "Equipment IDs",
+      "type": "array",
+      "required": true,
+      "description": "List of equipment IDs used in test"
+    },
+    {
+      "field": "visual_inspection_pass",
+      "label": "Visual Inspection Pass",
+      "type": "boolean",
+      "required": true,
+      "default": true,
+      "description": "Module passed post-test visual inspection"
+    },
+    {
+      "field": "notes",
+      "label": "Test Notes",
+      "type": "text",
+      "required": false,
+      "description": "Additional observations or notes"
+    }
+  ],
+
+  "test_procedure": [
+    {
+      "step": 1,
+      "title": "Pre-Test Inspection",
+      "description": "Inspect module for any visible damage, cracks, or defects",
+      "actions": [
+        "Check module for physical damage",
+        "Verify module identification matches test order",
+        "Document any pre-existing defects"
+      ],
+      "safety_notes": []
+    },
+    {
+      "step": 2,
+      "title": "Environmental Verification",
+      "description": "Verify environmental conditions are within acceptable range",
+      "actions": [
+        "Measure and record ambient temperature",
+        "Measure and record relative humidity",
+        "Verify conditions meet requirements (15-35°C, 25-75% RH)"
+      ],
+      "safety_notes": []
+    },
+    {
+      "step": 3,
+      "title": "Equipment Setup",
+      "description": "Set up test equipment and verify calibration",
+      "actions": [
+        "Verify equipment calibration is current",
+        "Connect dielectric strength tester",
+        "Set up grounding connections",
+        "Configure test parameters"
+      ],
+      "safety_notes": [
+        "Ensure proper grounding of all equipment",
+        "Verify emergency stop functionality"
+      ]
+    },
+    {
+      "step": 4,
+      "title": "Module Preparation",
+      "description": "Prepare module for testing",
+      "actions": [
+        "Place module on grounded metal test plate",
+        "Short-circuit all electrically active parts together",
+        "Connect test leads to shorted active parts",
+        "Measure and record module area"
+      ],
+      "safety_notes": [
+        "Wear insulated gloves during setup",
+        "Ensure test area is clear of personnel"
+      ]
+    },
+    {
+      "step": 5,
+      "title": "Initial Insulation Resistance",
+      "description": "Measure initial insulation resistance",
+      "actions": [
+        "Use insulation resistance tester (500-1000V DC)",
+        "Measure resistance between active parts and ground",
+        "Record initial insulation resistance",
+        "Verify resistance ≥ 40 MΩ/m²"
+      ],
+      "safety_notes": [
+        "Allow module to discharge before handling"
+      ]
+    },
+    {
+      "step": 6,
+      "title": "Dielectric Withstand Test",
+      "description": "Apply high voltage test",
+      "actions": [
+        "Calculate test voltage: 1000V + (2 × max system voltage)",
+        "Clear all personnel from test area",
+        "Ramp up voltage at ≤ 500 V/s to test voltage",
+        "Maintain test voltage for 60 seconds",
+        "Monitor leakage current continuously",
+        "Ramp down voltage at ≤ 1000 V/s",
+        "Record maximum leakage current",
+        "Note any breakdown or flashover events"
+      ],
+      "safety_notes": [
+        "Post warning signs around test area",
+        "Activate safety interlocks",
+        "Wear appropriate PPE",
+        "Never touch module during energized test",
+        "Have emergency stop readily accessible"
+      ]
+    },
+    {
+      "step": 7,
+      "title": "Final Insulation Resistance",
+      "description": "Measure final insulation resistance",
+      "actions": [
+        "Allow module to fully discharge (min 5 minutes)",
+        "Measure insulation resistance using same method as step 5",
+        "Record final insulation resistance",
+        "Compare with initial measurement"
+      ],
+      "safety_notes": [
+        "Verify complete discharge before handling"
+      ]
+    },
+    {
+      "step": 8,
+      "title": "Post-Test Inspection",
+      "description": "Inspect module for damage",
+      "actions": [
+        "Visual inspection for burn marks, tracking, or damage",
+        "Check for delamination or bubbling",
+        "Inspect junction box and connectors",
+        "Document any defects found"
+      ],
+      "safety_notes": []
+    },
+    {
+      "step": 9,
+      "title": "Test Evaluation",
+      "description": "Evaluate test results against acceptance criteria",
+      "actions": [
+        "Verify no dielectric breakdown occurred",
+        "Confirm leakage current ≤ 50 mA",
+        "Verify final insulation resistance ≥ 40 MΩ/m²",
+        "Check visual inspection passed",
+        "Determine overall pass/fail result"
+      ],
+      "safety_notes": []
+    },
+    {
+      "step": 10,
+      "title": "Documentation",
+      "description": "Complete test documentation",
+      "actions": [
+        "Record all test data and measurements",
+        "Generate test report",
+        "Sign and date test record",
+        "File documentation per QMS requirements"
+      ],
+      "safety_notes": []
+    }
+  ],
+
+  "safety_requirements": [
+    "All personnel must be trained in high voltage safety procedures",
+    "Wear insulated gloves rated for test voltage",
+    "Wear safety glasses or face shield",
+    "Post high voltage warning signs around test area",
+    "Implement safety interlocks to prevent access during test",
+    "Ensure emergency stop button is functional and accessible",
+    "Maintain minimum safe distance during energized testing",
+    "Verify proper grounding of all equipment and test fixtures",
+    "Allow complete discharge time before handling module after test",
+    "Use properly rated test leads and connections",
+    "Never bypass safety features or interlocks"
+  ],
+
+  "reporting": {
+    "template": "templates/dielectric_test_report.html",
+    "required_charts": [
+      {
+        "type": "time_series",
+        "title": "Voltage vs Time",
+        "x_axis": "Time (seconds)",
+        "y_axis": "Voltage (V)",
+        "description": "Voltage profile during test"
+      },
+      {
+        "type": "time_series",
+        "title": "Leakage Current vs Time",
+        "x_axis": "Time (seconds)",
+        "y_axis": "Leakage Current (mA)",
+        "description": "Leakage current during test"
+      },
+      {
+        "type": "bar",
+        "title": "Insulation Resistance Comparison",
+        "x_axis": "Measurement",
+        "y_axis": "Resistance (MΩ/m²)",
+        "categories": ["Initial", "Final", "Minimum Required"],
+        "description": "Before/after insulation resistance"
+      }
+    ],
+    "required_sections": [
+      "Executive Summary",
+      "Test Information",
+      "Module Information",
+      "Equipment Used",
+      "Environmental Conditions",
+      "Test Setup",
+      "Measurements and Results",
+      "Quality Control Checks",
+      "Visual Inspection Results",
+      "Pass/Fail Determination",
+      "Conclusion",
+      "Operator Signature",
+      "Reviewer Signature"
+    ],
+    "attachments": [
+      "Equipment calibration certificates",
+      "Pre-test module photographs",
+      "Post-test module photographs",
+      "Raw data files"
+    ]
+  },
+
+  "quality_control": {
+    "checks": [
+      {
+        "id": "QC-001",
+        "name": "Equipment Calibration Valid",
+        "description": "Verify all equipment calibration is current",
+        "critical": true
+      },
+      {
+        "id": "QC-002",
+        "name": "Environmental Conditions",
+        "description": "Verify temperature and humidity within limits",
+        "critical": true
+      },
+      {
+        "id": "QC-003",
+        "name": "Test Voltage Accuracy",
+        "description": "Verify applied voltage within ±50V of calculated value",
+        "critical": true
+      },
+      {
+        "id": "QC-004",
+        "name": "Test Duration",
+        "description": "Verify test duration ≥ 60 seconds",
+        "critical": true
+      },
+      {
+        "id": "QC-005",
+        "name": "Insulation Resistance Minimum",
+        "description": "Verify both initial and final resistance ≥ 40 MΩ/m²",
+        "critical": true
+      },
+      {
+        "id": "QC-006",
+        "name": "Data Completeness",
+        "description": "Verify all required data fields are populated",
+        "critical": false
+      }
+    ]
+  },
+
+  "revision_control": {
+    "change_approval_required": true,
+    "review_frequency_months": 12,
+    "next_review_date": "2026-11-14"
+  }
+}

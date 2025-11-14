@@ -1,0 +1,472 @@
+{
+  "checklist_id": "SAFETY-DIEL-001",
+  "checklist_name": "Dielectric Withstand Test Safety Checklist",
+  "version": "1.0.0",
+  "last_updated": "2025-11-14",
+  "mandatory": true,
+  "description": "Mandatory safety checklist to be completed before, during, and after dielectric withstand testing",
+
+  "pre_test_checks": [
+    {
+      "id": "PRE-001",
+      "category": "Personnel",
+      "item": "Operator has completed high voltage safety training",
+      "verification": "checkbox",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "PRE-002",
+      "category": "Personnel",
+      "item": "Operator is authorized to perform high voltage testing",
+      "verification": "checkbox",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "PRE-003",
+      "category": "PPE",
+      "item": "Insulated gloves available and inspected (no damage)",
+      "verification": "checkbox",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "PRE-004",
+      "category": "PPE",
+      "item": "Safety glasses or face shield available",
+      "verification": "checkbox",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "PRE-005",
+      "category": "PPE",
+      "item": "Insulated footwear worn",
+      "verification": "checkbox",
+      "required": true,
+      "critical": false
+    },
+    {
+      "id": "PRE-006",
+      "category": "Equipment",
+      "item": "Dielectric strength tester calibration is current",
+      "verification": "checkbox_with_date",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "PRE-007",
+      "category": "Equipment",
+      "item": "Insulation resistance tester calibration is current",
+      "verification": "checkbox_with_date",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "PRE-008",
+      "category": "Equipment",
+      "item": "All test leads and cables inspected (no damage, proper rating)",
+      "verification": "checkbox",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "PRE-009",
+      "category": "Equipment",
+      "item": "Ground connection verified with continuity test",
+      "verification": "checkbox",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "PRE-010",
+      "category": "Equipment",
+      "item": "Emergency stop button tested and functional",
+      "verification": "checkbox",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "PRE-011",
+      "category": "Test Area",
+      "item": "Test area cleared of unnecessary personnel",
+      "verification": "checkbox",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "PRE-012",
+      "category": "Test Area",
+      "item": "High voltage warning signs posted",
+      "verification": "checkbox",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "PRE-013",
+      "category": "Test Area",
+      "item": "Barriers or interlocks in place to prevent access",
+      "verification": "checkbox",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "PRE-014",
+      "category": "Test Area",
+      "item": "Fire extinguisher readily accessible",
+      "verification": "checkbox",
+      "required": true,
+      "critical": false
+    },
+    {
+      "id": "PRE-015",
+      "category": "Test Setup",
+      "item": "Module properly positioned on grounded test plate",
+      "verification": "checkbox",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "PRE-016",
+      "category": "Test Setup",
+      "item": "All active parts properly short-circuited together",
+      "verification": "checkbox",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "PRE-017",
+      "category": "Test Setup",
+      "item": "Test connections secure and properly insulated",
+      "verification": "checkbox",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "PRE-018",
+      "category": "Test Setup",
+      "item": "No loose wires or exposed conductors",
+      "verification": "checkbox",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "PRE-019",
+      "category": "Environment",
+      "item": "Temperature within limits (15-35°C)",
+      "verification": "measurement",
+      "required": true,
+      "critical": false
+    },
+    {
+      "id": "PRE-020",
+      "category": "Environment",
+      "item": "Humidity within limits (25-75%)",
+      "verification": "measurement",
+      "required": true,
+      "critical": false
+    },
+    {
+      "id": "PRE-021",
+      "category": "Documentation",
+      "item": "Test procedure reviewed and understood",
+      "verification": "checkbox",
+      "required": true,
+      "critical": false
+    }
+  ],
+
+  "during_test_checks": [
+    {
+      "id": "DUR-001",
+      "category": "Safety",
+      "item": "All personnel maintain safe distance from energized equipment",
+      "verification": "continuous_monitoring",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "DUR-002",
+      "category": "Safety",
+      "item": "No one touches or approaches test setup during energized test",
+      "verification": "continuous_monitoring",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "DUR-003",
+      "category": "Monitoring",
+      "item": "Monitor leakage current continuously",
+      "verification": "continuous_monitoring",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "DUR-004",
+      "category": "Monitoring",
+      "item": "Watch for signs of arcing, smoke, or unusual sounds",
+      "verification": "continuous_monitoring",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "DUR-005",
+      "category": "Monitoring",
+      "item": "Verify test voltage maintained within tolerance",
+      "verification": "continuous_monitoring",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "DUR-006",
+      "category": "Monitoring",
+      "item": "Verify test duration timer functioning",
+      "verification": "continuous_monitoring",
+      "required": true,
+      "critical": false
+    },
+    {
+      "id": "DUR-007",
+      "category": "Emergency Response",
+      "item": "Be prepared to activate emergency stop if needed",
+      "verification": "readiness",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "DUR-008",
+      "category": "Emergency Response",
+      "item": "Know location of emergency stop button",
+      "verification": "readiness",
+      "required": true,
+      "critical": true
+    }
+  ],
+
+  "post_test_checks": [
+    {
+      "id": "POST-001",
+      "category": "De-energization",
+      "item": "Voltage ramped down in controlled manner",
+      "verification": "checkbox",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "POST-002",
+      "category": "De-energization",
+      "item": "Wait minimum 5 minutes for module discharge",
+      "verification": "timed_checkbox",
+      "required": true,
+      "critical": true,
+      "min_time_seconds": 300
+    },
+    {
+      "id": "POST-003",
+      "category": "De-energization",
+      "item": "Verify module is fully discharged before touching",
+      "verification": "checkbox",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "POST-004",
+      "category": "De-energization",
+      "item": "Discharge/ground module with properly rated discharge stick",
+      "verification": "checkbox",
+      "required": true,
+      "critical": true
+    },
+    {
+      "id": "POST-005",
+      "category": "Inspection",
+      "item": "Module inspected for visible damage",
+      "verification": "checkbox",
+      "required": true,
+      "critical": false
+    },
+    {
+      "id": "POST-006",
+      "category": "Inspection",
+      "item": "No signs of tracking, burning, or arcing",
+      "verification": "checkbox",
+      "required": true,
+      "critical": false
+    },
+    {
+      "id": "POST-007",
+      "category": "Inspection",
+      "item": "No delamination or bubbling observed",
+      "verification": "checkbox",
+      "required": true,
+      "critical": false
+    },
+    {
+      "id": "POST-008",
+      "category": "Equipment",
+      "item": "Test equipment properly shut down",
+      "verification": "checkbox",
+      "required": true,
+      "critical": false
+    },
+    {
+      "id": "POST-009",
+      "category": "Equipment",
+      "item": "Test leads disconnected and stored safely",
+      "verification": "checkbox",
+      "required": true,
+      "critical": false
+    },
+    {
+      "id": "POST-010",
+      "category": "Test Area",
+      "item": "Warning signs removed",
+      "verification": "checkbox",
+      "required": true,
+      "critical": false
+    },
+    {
+      "id": "POST-011",
+      "category": "Test Area",
+      "item": "Test area cleaned and organized",
+      "verification": "checkbox",
+      "required": false,
+      "critical": false
+    },
+    {
+      "id": "POST-012",
+      "category": "Documentation",
+      "item": "All safety checklist items documented",
+      "verification": "checkbox",
+      "required": true,
+      "critical": false
+    },
+    {
+      "id": "POST-013",
+      "category": "Documentation",
+      "item": "Any safety incidents or near-misses reported",
+      "verification": "checkbox",
+      "required": true,
+      "critical": false
+    }
+  ],
+
+  "emergency_procedures": {
+    "breakdown_or_flashover": {
+      "immediate_actions": [
+        "Press emergency stop button immediately",
+        "Do not approach equipment until fully de-energized",
+        "Allow module to discharge (minimum 5 minutes)",
+        "Verify equipment is de-energized with appropriate meter",
+        "Inspect for damage before handling"
+      ],
+      "notification": [
+        "Notify supervisor immediately",
+        "Document incident in safety log",
+        "Complete incident report per QMS requirements"
+      ]
+    },
+
+    "fire_or_smoke": {
+      "immediate_actions": [
+        "Press emergency stop button",
+        "Evacuate personnel from immediate area",
+        "Use appropriate fire extinguisher if safe to do so (Class C for electrical fires)",
+        "Do not use water on energized equipment",
+        "Call emergency services if fire cannot be quickly controlled"
+      ],
+      "notification": [
+        "Notify supervisor and safety officer immediately",
+        "Notify emergency services if required",
+        "Complete incident report"
+      ]
+    },
+
+    "electrical_shock": {
+      "immediate_actions": [
+        "Do not touch victim if still in contact with energized equipment",
+        "Press emergency stop button to de-energize",
+        "If victim is clear of electrical source, begin first aid/CPR if trained",
+        "Call emergency services immediately",
+        "Do not move victim unless necessary for safety"
+      ],
+      "notification": [
+        "Call emergency services (911 or local equivalent)",
+        "Notify supervisor and safety officer",
+        "Complete incident report after victim is stabilized"
+      ]
+    },
+
+    "equipment_malfunction": {
+      "immediate_actions": [
+        "Stop test immediately using normal shutdown if possible",
+        "Use emergency stop if normal shutdown fails",
+        "Tag equipment as out of service",
+        "Do not attempt to repair energized equipment",
+        "Notify equipment owner/supervisor"
+      ],
+      "notification": [
+        "Notify supervisor",
+        "Tag equipment for repair",
+        "Document malfunction in equipment log"
+      ]
+    }
+  },
+
+  "emergency_contacts": {
+    "on_site": [
+      {
+        "role": "Test Supervisor",
+        "contact_method": "Phone/Radio",
+        "note": "Site-specific contact to be filled in"
+      },
+      {
+        "role": "Safety Officer",
+        "contact_method": "Phone/Radio",
+        "note": "Site-specific contact to be filled in"
+      },
+      {
+        "role": "Facility Manager",
+        "contact_method": "Phone/Radio",
+        "note": "Site-specific contact to be filled in"
+      }
+    ],
+    "emergency_services": [
+      {
+        "service": "Emergency (Fire/Medical/Police)",
+        "number": "911",
+        "note": "US/Canada - adjust for local jurisdiction"
+      },
+      {
+        "service": "Poison Control",
+        "number": "1-800-222-1222",
+        "note": "US - adjust for local jurisdiction"
+      }
+    ]
+  },
+
+  "sign_off": {
+    "operator_acknowledgment": "I have reviewed this safety checklist, understand all requirements, and will comply with all safety procedures during testing.",
+    "required_signatures": [
+      {
+        "role": "Test Operator",
+        "signature_type": "electronic_or_physical",
+        "date_required": true,
+        "time_required": true
+      },
+      {
+        "role": "Test Supervisor",
+        "signature_type": "electronic_or_physical",
+        "date_required": true,
+        "required_for_high_risk": true
+      }
+    ]
+  },
+
+  "review_schedule": {
+    "frequency": "Annual",
+    "next_review_date": "2026-11-14",
+    "responsible_party": "Safety Officer / Lab Manager"
+  }
+}

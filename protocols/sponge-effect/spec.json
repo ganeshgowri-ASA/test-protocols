@@ -1,0 +1,625 @@
+{
+  "protocol_id": "SPONGE-001",
+  "protocol_name": "Sponge Effect Testing",
+  "version": "1.0.0",
+  "category": "degradation",
+  "subcategory": "moisture_absorption",
+  "standard_references": [
+    "IEC 61215-2:2021",
+    "IEC 61730",
+    "UL 1703"
+  ],
+  "description": "Evaluates the reversible and irreversible effects of moisture absorption and desorption cycles on PV module performance. Tests the 'sponge effect' where modules absorb moisture under humid conditions and release it under dry conditions, potentially causing performance degradation.",
+  "metadata": {
+    "created_date": "2025-11-14",
+    "author": "Test Protocols Team",
+    "review_status": "approved",
+    "required_equipment": [
+      "Climate chamber with humidity control",
+      "IV curve tracer or solar simulator",
+      "Precision balance (±0.01g)",
+      "Thermocouples (Type K)",
+      "Humidity sensors",
+      "Data acquisition system"
+    ],
+    "safety_requirements": [
+      "High voltage safety precautions",
+      "Climate chamber operation training",
+      "Handling of potentially degraded modules"
+    ],
+    "estimated_duration_hours": 720,
+    "sample_size_min": 3
+  },
+  "test_parameters": {
+    "humidity_cycles": {
+      "type": "integer",
+      "default": 10,
+      "min": 5,
+      "max": 50,
+      "unit": "cycles",
+      "description": "Number of humidity absorption/desorption cycles"
+    },
+    "humid_phase_temperature": {
+      "type": "float",
+      "default": 85.0,
+      "min": 60.0,
+      "max": 95.0,
+      "unit": "°C",
+      "description": "Temperature during humid phase"
+    },
+    "humid_phase_rh": {
+      "type": "float",
+      "default": 85.0,
+      "min": 60.0,
+      "max": 95.0,
+      "unit": "%RH",
+      "description": "Relative humidity during humid phase"
+    },
+    "humid_phase_duration": {
+      "type": "integer",
+      "default": 24,
+      "min": 12,
+      "max": 168,
+      "unit": "hours",
+      "description": "Duration of humid phase per cycle"
+    },
+    "dry_phase_temperature": {
+      "type": "float",
+      "default": 25.0,
+      "min": 20.0,
+      "max": 40.0,
+      "unit": "°C",
+      "description": "Temperature during dry phase"
+    },
+    "dry_phase_rh": {
+      "type": "float",
+      "default": 10.0,
+      "min": 5.0,
+      "max": 30.0,
+      "unit": "%RH",
+      "description": "Relative humidity during dry phase"
+    },
+    "dry_phase_duration": {
+      "type": "integer",
+      "default": 24,
+      "min": 12,
+      "max": 168,
+      "unit": "hours",
+      "description": "Duration of dry phase per cycle"
+    },
+    "measurement_interval": {
+      "type": "integer",
+      "default": 60,
+      "min": 1,
+      "max": 1440,
+      "unit": "minutes",
+      "description": "Interval between environmental measurements"
+    }
+  },
+  "measurement_points": [
+    {
+      "point_id": "MP-01",
+      "name": "Initial Characterization",
+      "timing": "Before cycle 1",
+      "measurements": [
+        {
+          "parameter": "weight",
+          "method": "precision_balance",
+          "unit": "g",
+          "precision": 0.01,
+          "replicates": 3
+        },
+        {
+          "parameter": "pmax",
+          "method": "iv_curve",
+          "unit": "W",
+          "test_conditions": "STC",
+          "precision": 0.1,
+          "replicates": 3
+        },
+        {
+          "parameter": "voc",
+          "method": "iv_curve",
+          "unit": "V",
+          "test_conditions": "STC",
+          "precision": 0.01,
+          "replicates": 3
+        },
+        {
+          "parameter": "isc",
+          "method": "iv_curve",
+          "unit": "A",
+          "test_conditions": "STC",
+          "precision": 0.01,
+          "replicates": 3
+        },
+        {
+          "parameter": "ff",
+          "method": "calculated",
+          "unit": "%",
+          "precision": 0.1,
+          "replicates": 3
+        },
+        {
+          "parameter": "visual_inspection",
+          "method": "el_imaging",
+          "defects": ["cracks", "delamination", "corrosion", "discoloration"]
+        }
+      ]
+    },
+    {
+      "point_id": "MP-02",
+      "name": "Post-Humid Phase",
+      "timing": "After each humid phase",
+      "measurements": [
+        {
+          "parameter": "weight",
+          "method": "precision_balance",
+          "unit": "g",
+          "precision": 0.01,
+          "replicates": 3
+        },
+        {
+          "parameter": "temperature",
+          "method": "thermocouple",
+          "unit": "°C",
+          "precision": 0.1,
+          "continuous": true
+        },
+        {
+          "parameter": "relative_humidity",
+          "method": "humidity_sensor",
+          "unit": "%RH",
+          "precision": 0.5,
+          "continuous": true
+        }
+      ]
+    },
+    {
+      "point_id": "MP-03",
+      "name": "Post-Dry Phase",
+      "timing": "After each dry phase",
+      "measurements": [
+        {
+          "parameter": "weight",
+          "method": "precision_balance",
+          "unit": "g",
+          "precision": 0.01,
+          "replicates": 3
+        },
+        {
+          "parameter": "pmax",
+          "method": "iv_curve",
+          "unit": "W",
+          "test_conditions": "STC",
+          "precision": 0.1,
+          "replicates": 3
+        },
+        {
+          "parameter": "voc",
+          "method": "iv_curve",
+          "unit": "V",
+          "test_conditions": "STC",
+          "precision": 0.01,
+          "replicates": 3
+        },
+        {
+          "parameter": "isc",
+          "method": "iv_curve",
+          "unit": "A",
+          "test_conditions": "STC",
+          "precision": 0.01,
+          "replicates": 3
+        },
+        {
+          "parameter": "ff",
+          "method": "calculated",
+          "unit": "%",
+          "precision": 0.1,
+          "replicates": 3
+        }
+      ]
+    },
+    {
+      "point_id": "MP-04",
+      "name": "Final Characterization",
+      "timing": "After all cycles complete",
+      "measurements": [
+        {
+          "parameter": "weight",
+          "method": "precision_balance",
+          "unit": "g",
+          "precision": 0.01,
+          "replicates": 3
+        },
+        {
+          "parameter": "pmax",
+          "method": "iv_curve",
+          "unit": "W",
+          "test_conditions": "STC",
+          "precision": 0.1,
+          "replicates": 3
+        },
+        {
+          "parameter": "voc",
+          "method": "iv_curve",
+          "unit": "V",
+          "test_conditions": "STC",
+          "precision": 0.01,
+          "replicates": 3
+        },
+        {
+          "parameter": "isc",
+          "method": "iv_curve",
+          "unit": "A",
+          "test_conditions": "STC",
+          "precision": 0.01,
+          "replicates": 3
+        },
+        {
+          "parameter": "ff",
+          "method": "calculated",
+          "unit": "%",
+          "precision": 0.1,
+          "replicates": 3
+        },
+        {
+          "parameter": "visual_inspection",
+          "method": "el_imaging",
+          "defects": ["cracks", "delamination", "corrosion", "discoloration"]
+        },
+        {
+          "parameter": "insulation_resistance",
+          "method": "megohmmeter",
+          "unit": "MΩ",
+          "test_voltage": 1000,
+          "precision": 1
+        }
+      ]
+    }
+  ],
+  "data_analysis": {
+    "metrics": [
+      {
+        "metric_id": "moisture_absorption",
+        "name": "Moisture Absorption Rate",
+        "formula": "((weight_humid - weight_initial) / weight_initial) * 100",
+        "unit": "%",
+        "description": "Percentage weight increase after humid phase"
+      },
+      {
+        "metric_id": "moisture_desorption",
+        "name": "Moisture Desorption Rate",
+        "formula": "((weight_humid - weight_dry) / weight_humid) * 100",
+        "unit": "%",
+        "description": "Percentage weight decrease after dry phase"
+      },
+      {
+        "metric_id": "pmax_degradation",
+        "name": "Maximum Power Degradation",
+        "formula": "((pmax_initial - pmax_final) / pmax_initial) * 100",
+        "unit": "%",
+        "description": "Percentage decrease in maximum power from initial to final"
+      },
+      {
+        "metric_id": "reversible_degradation",
+        "name": "Reversible Performance Loss",
+        "formula": "((pmax_post_humid - pmax_post_dry) / pmax_initial) * 100",
+        "unit": "%",
+        "description": "Temporary performance loss due to moisture presence"
+      },
+      {
+        "metric_id": "irreversible_degradation",
+        "name": "Irreversible Performance Loss",
+        "formula": "((pmax_initial - pmax_dry_equilibrium) / pmax_initial) * 100",
+        "unit": "%",
+        "description": "Permanent performance loss after moisture removal"
+      },
+      {
+        "metric_id": "sponge_coefficient",
+        "name": "Sponge Effect Coefficient",
+        "formula": "moisture_absorption / moisture_desorption",
+        "unit": "dimensionless",
+        "description": "Ratio of absorption to desorption, indicates hysteresis"
+      }
+    ],
+    "statistical_methods": [
+      "descriptive_statistics",
+      "trend_analysis",
+      "regression_analysis",
+      "anova"
+    ],
+    "charts": [
+      {
+        "chart_id": "CH-01",
+        "type": "line",
+        "title": "Weight vs. Cycle Number",
+        "x_axis": "cycle_number",
+        "y_axis": "weight_g",
+        "series": ["sample_1", "sample_2", "sample_3"]
+      },
+      {
+        "chart_id": "CH-02",
+        "type": "line",
+        "title": "Pmax Degradation Over Cycles",
+        "x_axis": "cycle_number",
+        "y_axis": "pmax_normalized_%",
+        "series": ["sample_1", "sample_2", "sample_3"]
+      },
+      {
+        "chart_id": "CH-03",
+        "type": "bar",
+        "title": "Moisture Absorption vs. Desorption",
+        "x_axis": "cycle_number",
+        "y_axis": "weight_change_%",
+        "series": ["absorption", "desorption"]
+      },
+      {
+        "chart_id": "CH-04",
+        "type": "scatter",
+        "title": "Correlation: Moisture Content vs. Pmax",
+        "x_axis": "moisture_content_%",
+        "y_axis": "pmax_W",
+        "regression": true
+      },
+      {
+        "chart_id": "CH-05",
+        "type": "line",
+        "title": "Environmental Conditions",
+        "x_axis": "time_hours",
+        "y_axis_left": "temperature_C",
+        "y_axis_right": "relative_humidity_%"
+      }
+    ]
+  },
+  "quality_control": {
+    "acceptance_criteria": [
+      {
+        "parameter": "pmax_degradation",
+        "threshold": 5.0,
+        "comparison": "less_than",
+        "unit": "%",
+        "severity": "fail",
+        "description": "Maximum power degradation must be less than 5%"
+      },
+      {
+        "parameter": "moisture_absorption",
+        "threshold": 2.0,
+        "comparison": "less_than",
+        "unit": "%",
+        "severity": "warning",
+        "description": "Moisture absorption should be less than 2% for good encapsulation"
+      },
+      {
+        "parameter": "insulation_resistance",
+        "threshold": 40.0,
+        "comparison": "greater_than",
+        "unit": "MΩ",
+        "severity": "fail",
+        "description": "Insulation resistance must remain above 40 MΩ"
+      },
+      {
+        "parameter": "visual_defects",
+        "threshold": 0,
+        "comparison": "equals",
+        "unit": "count",
+        "severity": "warning",
+        "description": "No new visual defects should appear"
+      }
+    ],
+    "data_validation": [
+      {
+        "check": "temperature_stability",
+        "rule": "std_dev < 2.0",
+        "unit": "°C",
+        "description": "Temperature must remain stable within ±2°C"
+      },
+      {
+        "check": "humidity_stability",
+        "rule": "std_dev < 3.0",
+        "unit": "%RH",
+        "description": "Relative humidity must remain stable within ±3%RH"
+      },
+      {
+        "check": "measurement_completeness",
+        "rule": "missing_data < 5%",
+        "description": "Less than 5% of measurements can be missing"
+      },
+      {
+        "check": "weight_monotonicity_humid",
+        "rule": "weight increases or stable during humid phase",
+        "description": "Weight should increase during moisture absorption"
+      },
+      {
+        "check": "weight_monotonicity_dry",
+        "rule": "weight decreases or stable during dry phase",
+        "description": "Weight should decrease during moisture desorption"
+      }
+    ]
+  },
+  "reporting": {
+    "sections": [
+      {
+        "section_id": "S-01",
+        "title": "Executive Summary",
+        "content": [
+          "test_summary",
+          "key_findings",
+          "pass_fail_status",
+          "recommendations"
+        ]
+      },
+      {
+        "section_id": "S-02",
+        "title": "Test Configuration",
+        "content": [
+          "protocol_details",
+          "test_parameters",
+          "sample_information",
+          "equipment_list"
+        ]
+      },
+      {
+        "section_id": "S-03",
+        "title": "Environmental Data",
+        "content": [
+          "temperature_humidity_plots",
+          "environmental_stability_analysis",
+          "deviations_log"
+        ]
+      },
+      {
+        "section_id": "S-04",
+        "title": "Performance Results",
+        "content": [
+          "iv_curves",
+          "pmax_degradation_analysis",
+          "electrical_parameters_table",
+          "degradation_trends"
+        ]
+      },
+      {
+        "section_id": "S-05",
+        "title": "Moisture Analysis",
+        "content": [
+          "weight_change_plots",
+          "absorption_desorption_rates",
+          "sponge_coefficient_analysis",
+          "moisture_correlation_analysis"
+        ]
+      },
+      {
+        "section_id": "S-06",
+        "title": "Quality Control",
+        "content": [
+          "acceptance_criteria_check",
+          "data_validation_results",
+          "anomalies_identified"
+        ]
+      },
+      {
+        "section_id": "S-07",
+        "title": "Visual Inspection",
+        "content": [
+          "el_images_comparison",
+          "defect_documentation",
+          "degradation_modes"
+        ]
+      },
+      {
+        "section_id": "S-08",
+        "title": "Conclusions",
+        "content": [
+          "summary_of_findings",
+          "compliance_statement",
+          "failure_modes_identified",
+          "recommendations"
+        ]
+      },
+      {
+        "section_id": "S-09",
+        "title": "Appendices",
+        "content": [
+          "raw_data_tables",
+          "calibration_certificates",
+          "standard_references",
+          "test_deviations_log"
+        ]
+      }
+    ],
+    "export_formats": ["PDF", "HTML", "CSV", "JSON"],
+    "certification_fields": {
+      "tested_by": "string",
+      "reviewed_by": "string",
+      "approved_by": "string",
+      "test_date": "date",
+      "report_date": "date",
+      "lab_name": "string",
+      "lab_accreditation": "string"
+    }
+  },
+  "database_schema": {
+    "tables": [
+      {
+        "table_name": "sponge_tests",
+        "primary_key": "test_id",
+        "fields": [
+          {"name": "test_id", "type": "UUID", "nullable": false},
+          {"name": "protocol_version", "type": "VARCHAR(20)", "nullable": false},
+          {"name": "start_date", "type": "TIMESTAMP", "nullable": false},
+          {"name": "end_date", "type": "TIMESTAMP", "nullable": true},
+          {"name": "status", "type": "VARCHAR(50)", "nullable": false},
+          {"name": "operator_id", "type": "VARCHAR(100)", "nullable": false},
+          {"name": "chamber_id", "type": "VARCHAR(100)", "nullable": false},
+          {"name": "notes", "type": "TEXT", "nullable": true}
+        ]
+      },
+      {
+        "table_name": "sponge_samples",
+        "primary_key": "sample_id",
+        "foreign_keys": [{"field": "test_id", "references": "sponge_tests.test_id"}],
+        "fields": [
+          {"name": "sample_id", "type": "UUID", "nullable": false},
+          {"name": "test_id", "type": "UUID", "nullable": false},
+          {"name": "sample_serial", "type": "VARCHAR(100)", "nullable": false},
+          {"name": "manufacturer", "type": "VARCHAR(200)", "nullable": true},
+          {"name": "model", "type": "VARCHAR(200)", "nullable": true},
+          {"name": "initial_weight_g", "type": "DECIMAL(10,2)", "nullable": true},
+          {"name": "initial_pmax_w", "type": "DECIMAL(10,2)", "nullable": true},
+          {"name": "final_weight_g", "type": "DECIMAL(10,2)", "nullable": true},
+          {"name": "final_pmax_w", "type": "DECIMAL(10,2)", "nullable": true}
+        ]
+      },
+      {
+        "table_name": "sponge_measurements",
+        "primary_key": "measurement_id",
+        "foreign_keys": [{"field": "sample_id", "references": "sponge_samples.sample_id"}],
+        "fields": [
+          {"name": "measurement_id", "type": "UUID", "nullable": false},
+          {"name": "sample_id", "type": "UUID", "nullable": false},
+          {"name": "cycle_number", "type": "INTEGER", "nullable": false},
+          {"name": "phase", "type": "VARCHAR(20)", "nullable": false},
+          {"name": "timestamp", "type": "TIMESTAMP", "nullable": false},
+          {"name": "weight_g", "type": "DECIMAL(10,3)", "nullable": true},
+          {"name": "pmax_w", "type": "DECIMAL(10,2)", "nullable": true},
+          {"name": "voc_v", "type": "DECIMAL(8,2)", "nullable": true},
+          {"name": "isc_a", "type": "DECIMAL(8,2)", "nullable": true},
+          {"name": "ff_percent", "type": "DECIMAL(5,2)", "nullable": true},
+          {"name": "temperature_c", "type": "DECIMAL(5,2)", "nullable": true},
+          {"name": "rh_percent", "type": "DECIMAL(5,2)", "nullable": true}
+        ]
+      },
+      {
+        "table_name": "sponge_analysis",
+        "primary_key": "analysis_id",
+        "foreign_keys": [{"field": "test_id", "references": "sponge_tests.test_id"}],
+        "fields": [
+          {"name": "analysis_id", "type": "UUID", "nullable": false},
+          {"name": "test_id", "type": "UUID", "nullable": false},
+          {"name": "sample_id", "type": "UUID", "nullable": false},
+          {"name": "moisture_absorption_percent", "type": "DECIMAL(5,3)", "nullable": true},
+          {"name": "moisture_desorption_percent", "type": "DECIMAL(5,3)", "nullable": true},
+          {"name": "pmax_degradation_percent", "type": "DECIMAL(5,2)", "nullable": true},
+          {"name": "reversible_degradation_percent", "type": "DECIMAL(5,2)", "nullable": true},
+          {"name": "irreversible_degradation_percent", "type": "DECIMAL(5,2)", "nullable": true},
+          {"name": "sponge_coefficient", "type": "DECIMAL(8,4)", "nullable": true},
+          {"name": "pass_fail", "type": "VARCHAR(20)", "nullable": false}
+        ]
+      }
+    ]
+  },
+  "integrations": {
+    "lims": {
+      "export_fields": ["test_id", "sample_serial", "test_date", "pass_fail", "pmax_degradation"],
+      "import_fields": ["sample_information", "calibration_data"]
+    },
+    "qms": {
+      "export_fields": ["test_id", "protocol_version", "deviations", "qc_results"],
+      "import_fields": ["sop_version", "audit_trail"]
+    },
+    "project_management": {
+      "export_fields": ["test_id", "status", "completion_percentage", "estimated_completion"],
+      "status_updates": true
+    }
+  }
+}

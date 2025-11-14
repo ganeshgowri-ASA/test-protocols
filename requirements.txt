@@ -1,0 +1,34 @@
+# Test Protocols Framework - Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# Core data processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Web UI framework
+streamlit>=1.28.0
+
+# Plotting and visualization
+plotly>=5.17.0
+matplotlib>=3.7.0
+
+# Database
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0  # PostgreSQL adapter
+alembic>=1.12.0  # Database migrations
+
+# Excel support
+openpyxl>=3.1.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Code quality
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.5.0
+
+# Utilities
+python-dateutil>=2.8.0
+pytz>=2023.3

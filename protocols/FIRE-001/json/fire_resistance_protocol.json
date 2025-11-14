@@ -1,0 +1,576 @@
+{
+  "protocol_id": "FIRE-001",
+  "protocol_name": "Fire Resistance Testing Protocol",
+  "version": "1.0.0",
+  "category": "Safety",
+  "standard": {
+    "name": "IEC 61730-2",
+    "section": "MST 23",
+    "title": "Fire Resistance Test",
+    "description": "Photovoltaic (PV) module safety qualification - Part 2: Requirements for testing"
+  },
+  "metadata": {
+    "created_date": "2025-11-14",
+    "last_modified": "2025-11-14",
+    "author": "LIMS-QMS System",
+    "approval_status": "active",
+    "revision_history": [
+      {
+        "version": "1.0.0",
+        "date": "2025-11-14",
+        "changes": "Initial protocol implementation",
+        "approved_by": "Quality Manager"
+      }
+    ]
+  },
+  "test_overview": {
+    "objective": "To evaluate the fire resistance and flame propagation characteristics of PV modules when exposed to external fire sources",
+    "scope": "All PV modules intended for roof-mounted and building-integrated applications",
+    "duration_estimate": "4-6 hours per sample",
+    "sample_size": "Minimum 3 modules per product type",
+    "test_conditions": {
+      "ambient_temperature": "23 ± 5°C",
+      "relative_humidity": "50 ± 20%",
+      "conditioning_period": "24 hours minimum"
+    }
+  },
+  "equipment_required": [
+    {
+      "id": "EQ-FIRE-001",
+      "name": "Fire Test Apparatus",
+      "description": "Controlled flame source with gas burner",
+      "calibration_required": true,
+      "calibration_interval_days": 180
+    },
+    {
+      "id": "EQ-FIRE-002",
+      "name": "Propane Gas Supply",
+      "description": "Regulated propane gas system",
+      "calibration_required": false
+    },
+    {
+      "id": "EQ-FIRE-003",
+      "name": "Temperature Measurement System",
+      "description": "Thermocouples and data logger",
+      "calibration_required": true,
+      "calibration_interval_days": 365,
+      "accuracy": "± 2°C",
+      "range": "0-1200°C"
+    },
+    {
+      "id": "EQ-FIRE-004",
+      "name": "Timer System",
+      "description": "Precision timer for flame application",
+      "calibration_required": true,
+      "calibration_interval_days": 365,
+      "accuracy": "± 1 second"
+    },
+    {
+      "id": "EQ-FIRE-005",
+      "name": "Mounting Fixture",
+      "description": "Non-combustible module mounting frame",
+      "calibration_required": false
+    },
+    {
+      "id": "EQ-FIRE-006",
+      "name": "Video Recording System",
+      "description": "High-resolution camera for documentation",
+      "calibration_required": false
+    },
+    {
+      "id": "EQ-FIRE-007",
+      "name": "Measuring Tape",
+      "description": "For flame spread measurement",
+      "calibration_required": true,
+      "calibration_interval_days": 730
+    }
+  ],
+  "safety_requirements": {
+    "ppe_required": [
+      "Fire-resistant lab coat",
+      "Safety goggles with side shields",
+      "Heat-resistant gloves",
+      "Closed-toe shoes",
+      "Face shield (recommended)"
+    ],
+    "safety_procedures": [
+      "Conduct test in well-ventilated area or fume hood",
+      "Have fire extinguisher readily available",
+      "Ensure emergency stop procedures are in place",
+      "Keep flammable materials away from test area",
+      "Minimum 2 personnel required during testing",
+      "Review Material Safety Data Sheets (MSDS) for all materials"
+    ],
+    "emergency_contacts": {
+      "fire_department": "Emergency Services",
+      "safety_officer": "Required",
+      "facility_manager": "Required"
+    }
+  },
+  "test_procedure": {
+    "preparation": [
+      {
+        "step": 1,
+        "action": "Sample Reception and Inspection",
+        "description": "Receive module samples and verify identification",
+        "required_data": [
+          "Module serial number",
+          "Manufacturer",
+          "Model number",
+          "Date of manufacture",
+          "Visual condition"
+        ],
+        "acceptance_criteria": "No visible damage or defects"
+      },
+      {
+        "step": 2,
+        "action": "Conditioning",
+        "description": "Condition samples at specified environmental conditions",
+        "duration": "24 hours minimum",
+        "conditions": {
+          "temperature": "23 ± 5°C",
+          "humidity": "50 ± 20%"
+        }
+      },
+      {
+        "step": 3,
+        "action": "Pre-Test Inspection",
+        "description": "Document initial condition with photographs",
+        "required_documentation": [
+          "Photographs of front surface",
+          "Photographs of back surface",
+          "Photographs of edges and frames",
+          "Dimensional measurements"
+        ]
+      },
+      {
+        "step": 4,
+        "action": "Equipment Setup",
+        "description": "Set up fire test apparatus and verify calibration",
+        "verification_required": [
+          "Flame temperature calibration",
+          "Gas flow rate verification",
+          "Timer calibration check",
+          "Thermocouple positioning"
+        ]
+      }
+    ],
+    "test_execution": [
+      {
+        "step": 5,
+        "action": "Module Mounting",
+        "description": "Mount module in test fixture at specified angle",
+        "parameters": {
+          "mounting_angle": "20° from horizontal",
+          "orientation": "Front surface facing up",
+          "support": "Non-combustible mounting frame"
+        }
+      },
+      {
+        "step": 6,
+        "action": "Flame Application Setup",
+        "description": "Position flame source according to standard",
+        "parameters": {
+          "flame_distance": "125 ± 10 mm from module surface",
+          "flame_angle": "20° from horizontal",
+          "flame_temperature": "650 ± 50°C",
+          "gas_flow_rate": "As per IEC 61730-2"
+        }
+      },
+      {
+        "step": 7,
+        "action": "Ignition Test",
+        "description": "Apply flame to module surface and monitor",
+        "duration": "600 seconds (10 minutes)",
+        "monitoring_required": [
+          "Flame spread measurement",
+          "Ignition observation",
+          "Smoke generation",
+          "Dripping/falling materials",
+          "Surface temperature",
+          "Continued burning after flame removal"
+        ],
+        "data_collection": {
+          "interval": "Every 30 seconds",
+          "parameters": [
+            "Time to ignition (if occurs)",
+            "Flame spread distance",
+            "Maximum temperature reached",
+            "Burning duration",
+            "Dripping events"
+          ]
+        }
+      },
+      {
+        "step": 8,
+        "action": "Post-Flame Observation",
+        "description": "Monitor sample after flame removal",
+        "duration": "600 seconds (10 minutes)",
+        "observations": [
+          "Self-extinguishing time",
+          "Continued smoldering",
+          "Flame spread progression",
+          "Material integrity"
+        ]
+      }
+    ],
+    "post_test": [
+      {
+        "step": 9,
+        "action": "Cooling Period",
+        "description": "Allow sample to cool to ambient temperature",
+        "duration": "Minimum 30 minutes",
+        "safety_note": "Do not touch or move sample until completely cool"
+      },
+      {
+        "step": 10,
+        "action": "Post-Test Inspection",
+        "description": "Document damage and measure affected areas",
+        "measurements": [
+          "Flame spread distance (mm)",
+          "Burned area dimensions",
+          "Depth of damage",
+          "Material loss (if any)"
+        ],
+        "documentation": [
+          "Photographs of damaged area",
+          "Sketch of damage pattern",
+          "Description of material behavior"
+        ]
+      },
+      {
+        "step": 11,
+        "action": "Sample Disposal",
+        "description": "Dispose of tested samples according to facility procedures",
+        "requirements": [
+          "Follow hazardous waste procedures if applicable",
+          "Retain samples for specified retention period if required"
+        ]
+      }
+    ]
+  },
+  "data_collection": {
+    "real_time_measurements": [
+      {
+        "parameter": "Surface Temperature",
+        "unit": "°C",
+        "measurement_device": "EQ-FIRE-003",
+        "sampling_rate": "1 Hz",
+        "range": "0-1200",
+        "accuracy": "± 2",
+        "data_type": "continuous"
+      },
+      {
+        "parameter": "Time to Ignition",
+        "unit": "seconds",
+        "measurement_device": "EQ-FIRE-004",
+        "data_type": "event",
+        "significance": "Critical safety parameter"
+      },
+      {
+        "parameter": "Flame Spread Distance",
+        "unit": "mm",
+        "measurement_device": "EQ-FIRE-007",
+        "sampling_interval": "30 seconds",
+        "data_type": "discrete"
+      },
+      {
+        "parameter": "Burning Duration",
+        "unit": "seconds",
+        "measurement_device": "EQ-FIRE-004",
+        "data_type": "continuous"
+      }
+    ],
+    "observations": [
+      {
+        "parameter": "Ignition Occurrence",
+        "data_type": "boolean",
+        "values": ["Yes", "No"]
+      },
+      {
+        "parameter": "Self-Extinguishing",
+        "data_type": "boolean",
+        "values": ["Yes", "No"]
+      },
+      {
+        "parameter": "Dripping Materials",
+        "data_type": "boolean",
+        "values": ["Yes", "No"]
+      },
+      {
+        "parameter": "Smoke Generation",
+        "data_type": "categorical",
+        "values": ["None", "Light", "Moderate", "Heavy"]
+      },
+      {
+        "parameter": "Material Integrity",
+        "data_type": "categorical",
+        "values": ["Intact", "Minor Damage", "Moderate Damage", "Severe Damage", "Failure"]
+      }
+    ]
+  },
+  "acceptance_criteria": {
+    "primary_criteria": [
+      {
+        "criterion": "No Sustained Burning",
+        "requirement": "Module must self-extinguish within 60 seconds after flame removal",
+        "measurement": "Self-extinguishing time",
+        "pass_condition": "<= 60 seconds",
+        "severity": "critical"
+      },
+      {
+        "criterion": "Limited Flame Spread",
+        "requirement": "Flame spread must not exceed 100 mm from flame application point",
+        "measurement": "Maximum flame spread distance",
+        "pass_condition": "<= 100 mm",
+        "severity": "critical"
+      },
+      {
+        "criterion": "No Flaming Drips",
+        "requirement": "No flaming material shall drip from the module",
+        "measurement": "Dripping observation",
+        "pass_condition": "No flaming drips observed",
+        "severity": "critical"
+      }
+    ],
+    "secondary_criteria": [
+      {
+        "criterion": "Material Integrity",
+        "requirement": "Module structure must remain substantially intact",
+        "measurement": "Post-test inspection",
+        "pass_condition": "No through-penetration or structural failure",
+        "severity": "major"
+      },
+      {
+        "criterion": "No External Ignition",
+        "requirement": "Module must not cause ignition of adjacent materials",
+        "measurement": "Visual observation",
+        "pass_condition": "No secondary ignitions",
+        "severity": "major"
+      }
+    ],
+    "overall_pass_requirement": "All critical criteria must pass. Major criteria failures require engineering review."
+  },
+  "quality_control": {
+    "qc_checks": [
+      {
+        "checkpoint": "Pre-Test Calibration",
+        "frequency": "Before each test",
+        "items": [
+          "Temperature measurement system verification",
+          "Timer accuracy check",
+          "Gas flow rate verification",
+          "Flame temperature validation"
+        ]
+      },
+      {
+        "checkpoint": "During Test",
+        "frequency": "Continuous",
+        "items": [
+          "Data acquisition system monitoring",
+          "Video recording verification",
+          "Operator observation documentation"
+        ]
+      },
+      {
+        "checkpoint": "Post-Test Review",
+        "frequency": "After each test",
+        "items": [
+          "Data completeness verification",
+          "Measurement validation",
+          "Documentation review",
+          "Equipment condition check"
+        ]
+      }
+    ],
+    "calibration_requirements": {
+      "temperature_sensors": {
+        "frequency": "Annual",
+        "standard": "NIST traceable",
+        "acceptance": "± 2°C or better"
+      },
+      "timing_devices": {
+        "frequency": "Annual",
+        "standard": "NIST traceable",
+        "acceptance": "± 1 second or better"
+      },
+      "gas_flow_meters": {
+        "frequency": "Semi-annual",
+        "standard": "Manufacturer specifications",
+        "acceptance": "± 5% of reading"
+      }
+    }
+  },
+  "reporting": {
+    "test_report_sections": [
+      {
+        "section": "Executive Summary",
+        "content": [
+          "Test identification",
+          "Sample information",
+          "Test date and personnel",
+          "Overall pass/fail result",
+          "Key findings"
+        ]
+      },
+      {
+        "section": "Sample Information",
+        "content": [
+          "Manufacturer and model",
+          "Serial numbers",
+          "Module specifications",
+          "Sample condition",
+          "Pre-test photographs"
+        ]
+      },
+      {
+        "section": "Test Conditions",
+        "content": [
+          "Environmental conditions",
+          "Equipment used",
+          "Calibration status",
+          "Test configuration",
+          "Personnel involved"
+        ]
+      },
+      {
+        "section": "Test Results",
+        "content": [
+          "Time-series data (temperature, flame spread)",
+          "Observation results",
+          "Event timeline",
+          "Post-test measurements",
+          "Post-test photographs"
+        ]
+      },
+      {
+        "section": "Analysis",
+        "content": [
+          "Comparison to acceptance criteria",
+          "Statistical analysis (if multiple samples)",
+          "Failure mode analysis (if applicable)",
+          "Observations and anomalies"
+        ]
+      },
+      {
+        "section": "Conclusion",
+        "content": [
+          "Pass/fail determination",
+          "Compliance statement",
+          "Recommendations",
+          "Limitations"
+        ]
+      },
+      {
+        "section": "Appendices",
+        "content": [
+          "Raw data tables",
+          "Calibration certificates",
+          "Equipment specifications",
+          "Standard operating procedures",
+          "Chain of custody documentation"
+        ]
+      }
+    ],
+    "required_signatures": [
+      {
+        "role": "Test Technician",
+        "requirement": "Performed test and recorded data"
+      },
+      {
+        "role": "Test Engineer",
+        "requirement": "Reviewed data and analysis"
+      },
+      {
+        "role": "Quality Manager",
+        "requirement": "Approved final report"
+      }
+    ]
+  },
+  "data_retention": {
+    "raw_data": "10 years",
+    "test_reports": "Permanent",
+    "sample_retention": "90 days (unless failure)",
+    "failed_samples": "1 year or until resolution",
+    "calibration_records": "Life of equipment + 5 years"
+  },
+  "lims_integration": {
+    "sample_tracking": {
+      "required_fields": [
+        "sample_id",
+        "batch_number",
+        "project_id",
+        "customer_id",
+        "receipt_date",
+        "test_due_date"
+      ],
+      "status_workflow": [
+        "Received",
+        "In Conditioning",
+        "Ready for Test",
+        "Testing in Progress",
+        "Test Complete",
+        "Under Review",
+        "Approved",
+        "Archived"
+      ]
+    },
+    "data_export": {
+      "formats": ["JSON", "CSV", "PDF", "XML"],
+      "automatic_backup": true,
+      "backup_frequency": "Daily"
+    },
+    "notifications": [
+      {
+        "event": "Test Complete",
+        "recipients": ["Test Engineer", "Project Manager"],
+        "method": "Email"
+      },
+      {
+        "event": "Failure Detected",
+        "recipients": ["Quality Manager", "Test Engineer", "Customer Contact"],
+        "method": "Email + SMS"
+      },
+      {
+        "event": "Calibration Due",
+        "recipients": ["Laboratory Manager", "Metrology Coordinator"],
+        "method": "Email",
+        "advance_notice_days": 30
+      }
+    ]
+  },
+  "qms_integration": {
+    "document_control": {
+      "protocol_id": "FIRE-001",
+      "document_type": "Test Protocol",
+      "review_frequency": "Annual",
+      "change_control_required": true
+    },
+    "nonconformance_handling": {
+      "trigger_conditions": [
+        "Any critical criterion failure",
+        "Equipment malfunction during test",
+        "Data acquisition failure",
+        "Calibration out of tolerance"
+      ],
+      "required_actions": [
+        "Issue nonconformance report",
+        "Notify quality manager",
+        "Investigate root cause",
+        "Implement corrective action",
+        "Re-test if necessary"
+      ]
+    },
+    "training_requirements": {
+      "initial_training": [
+        "IEC 61730-2 standard review",
+        "Fire safety procedures",
+        "Equipment operation",
+        "Data collection procedures",
+        "Emergency response"
+      ],
+      "refresher_frequency": "Annual",
+      "competency_assessment": "Required before independent testing"
+    }
+  }
+}

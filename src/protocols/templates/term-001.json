@@ -1,0 +1,441 @@
+{
+  "protocol_id": "TERM-001",
+  "version": "1.0",
+  "title": "Terminal Robustness Test",
+  "category": "Mechanical",
+  "description": "Test protocol for evaluating the mechanical robustness and electrical integrity of PV module terminals under stress conditions",
+  "applicable_standards": [
+    "IEC 61215-2:2021",
+    "IEC 61730-2:2016",
+    "UL 1703"
+  ],
+  "test_conditions": {
+    "ambient_temperature": {
+      "value": 25,
+      "unit": "°C",
+      "tolerance": 5,
+      "required": true
+    },
+    "relative_humidity": {
+      "value": 50,
+      "unit": "%",
+      "tolerance": 20,
+      "required": false
+    }
+  },
+  "test_equipment": [
+    {
+      "name": "Digital Multimeter",
+      "specification": "Accuracy ±0.1%",
+      "calibration_required": true
+    },
+    {
+      "name": "Pull Force Gauge",
+      "specification": "Range 0-500N, Accuracy ±1N",
+      "calibration_required": true
+    },
+    {
+      "name": "Torque Wrench",
+      "specification": "Range 0-20 Nm, Accuracy ±0.1 Nm",
+      "calibration_required": true
+    },
+    {
+      "name": "High-Pot Tester",
+      "specification": "Up to 4000V DC",
+      "calibration_required": true
+    }
+  ],
+  "test_steps": [
+    {
+      "step_number": 1,
+      "name": "Initial Visual Inspection",
+      "description": "Inspect terminals for damage, corrosion, or manufacturing defects",
+      "duration": 5,
+      "duration_unit": "minutes",
+      "inputs": [],
+      "measurements": [
+        {
+          "name": "terminal_condition",
+          "type": "select",
+          "options": ["Pass", "Fail"],
+          "required": true
+        },
+        {
+          "name": "defects_noted",
+          "type": "text",
+          "required": false
+        }
+      ],
+      "acceptance_criteria": [
+        {
+          "parameter": "terminal_condition",
+          "condition": "equals",
+          "value": "Pass"
+        }
+      ]
+    },
+    {
+      "step_number": 2,
+      "name": "Initial Electrical Continuity Test",
+      "description": "Measure resistance across terminals to establish baseline",
+      "duration": 10,
+      "duration_unit": "minutes",
+      "inputs": [],
+      "measurements": [
+        {
+          "name": "resistance_positive",
+          "type": "number",
+          "unit": "mΩ",
+          "min": 0,
+          "max": 100,
+          "required": true
+        },
+        {
+          "name": "resistance_negative",
+          "type": "number",
+          "unit": "mΩ",
+          "min": 0,
+          "max": 100,
+          "required": true
+        }
+      ],
+      "acceptance_criteria": [
+        {
+          "parameter": "resistance_positive",
+          "condition": "less_than",
+          "value": 50
+        },
+        {
+          "parameter": "resistance_negative",
+          "condition": "less_than",
+          "value": 50
+        }
+      ]
+    },
+    {
+      "step_number": 3,
+      "name": "Pull Force Test",
+      "description": "Apply axial pull force to terminals to test mechanical strength",
+      "duration": 15,
+      "duration_unit": "minutes",
+      "inputs": [
+        {
+          "name": "cable_gauge",
+          "type": "select",
+          "options": ["10 AWG", "12 AWG", "14 AWG"],
+          "required": true
+        }
+      ],
+      "measurements": [
+        {
+          "name": "pull_force_applied",
+          "type": "number",
+          "unit": "N",
+          "min": 0,
+          "max": 500,
+          "required": true
+        },
+        {
+          "name": "terminal_displacement",
+          "type": "number",
+          "unit": "mm",
+          "min": 0,
+          "max": 10,
+          "required": true
+        },
+        {
+          "name": "cable_pulled_out",
+          "type": "boolean",
+          "required": true
+        }
+      ],
+      "acceptance_criteria": [
+        {
+          "parameter": "pull_force_applied",
+          "condition": "greater_than_or_equal",
+          "value": 200
+        },
+        {
+          "parameter": "cable_pulled_out",
+          "condition": "equals",
+          "value": false
+        }
+      ]
+    },
+    {
+      "step_number": 4,
+      "name": "Torque Test",
+      "description": "Apply specified torque to terminal connections",
+      "duration": 10,
+      "duration_unit": "minutes",
+      "inputs": [
+        {
+          "name": "terminal_type",
+          "type": "select",
+          "options": ["MC4", "H4", "Tyco", "Other"],
+          "required": true
+        }
+      ],
+      "measurements": [
+        {
+          "name": "torque_applied",
+          "type": "number",
+          "unit": "Nm",
+          "min": 0,
+          "max": 20,
+          "required": true
+        },
+        {
+          "name": "terminal_integrity",
+          "type": "select",
+          "options": ["No damage", "Minor deformation", "Cracking", "Failure"],
+          "required": true
+        }
+      ],
+      "acceptance_criteria": [
+        {
+          "parameter": "torque_applied",
+          "condition": "greater_than_or_equal",
+          "value": 2.5
+        },
+        {
+          "parameter": "terminal_integrity",
+          "condition": "equals",
+          "value": "No damage"
+        }
+      ]
+    },
+    {
+      "step_number": 5,
+      "name": "Post-Stress Electrical Continuity Test",
+      "description": "Re-measure resistance to verify electrical integrity after mechanical stress",
+      "duration": 10,
+      "duration_unit": "minutes",
+      "inputs": [],
+      "measurements": [
+        {
+          "name": "resistance_positive_post",
+          "type": "number",
+          "unit": "mΩ",
+          "min": 0,
+          "max": 100,
+          "required": true
+        },
+        {
+          "name": "resistance_negative_post",
+          "type": "number",
+          "unit": "mΩ",
+          "min": 0,
+          "max": 100,
+          "required": true
+        },
+        {
+          "name": "resistance_change_positive",
+          "type": "number",
+          "unit": "%",
+          "calculated": true,
+          "formula": "((resistance_positive_post - resistance_positive) / resistance_positive) * 100"
+        },
+        {
+          "name": "resistance_change_negative",
+          "type": "number",
+          "unit": "%",
+          "calculated": true,
+          "formula": "((resistance_negative_post - resistance_negative) / resistance_negative) * 100"
+        }
+      ],
+      "acceptance_criteria": [
+        {
+          "parameter": "resistance_positive_post",
+          "condition": "less_than",
+          "value": 60
+        },
+        {
+          "parameter": "resistance_negative_post",
+          "condition": "less_than",
+          "value": 60
+        },
+        {
+          "parameter": "resistance_change_positive",
+          "condition": "less_than",
+          "value": 10
+        },
+        {
+          "parameter": "resistance_change_negative",
+          "condition": "less_than",
+          "value": 10
+        }
+      ]
+    },
+    {
+      "step_number": 6,
+      "name": "Dielectric Strength Test",
+      "description": "High-potential test to verify insulation integrity",
+      "duration": 15,
+      "duration_unit": "minutes",
+      "inputs": [],
+      "measurements": [
+        {
+          "name": "test_voltage",
+          "type": "number",
+          "unit": "V",
+          "min": 0,
+          "max": 4000,
+          "required": true
+        },
+        {
+          "name": "leakage_current",
+          "type": "number",
+          "unit": "mA",
+          "min": 0,
+          "max": 100,
+          "required": true
+        },
+        {
+          "name": "breakdown_occurred",
+          "type": "boolean",
+          "required": true
+        }
+      ],
+      "acceptance_criteria": [
+        {
+          "parameter": "test_voltage",
+          "condition": "greater_than_or_equal",
+          "value": 2000
+        },
+        {
+          "parameter": "leakage_current",
+          "condition": "less_than",
+          "value": 10
+        },
+        {
+          "parameter": "breakdown_occurred",
+          "condition": "equals",
+          "value": false
+        }
+      ]
+    },
+    {
+      "step_number": 7,
+      "name": "Final Visual Inspection",
+      "description": "Final inspection for any damage or degradation",
+      "duration": 5,
+      "duration_unit": "minutes",
+      "inputs": [],
+      "measurements": [
+        {
+          "name": "final_condition",
+          "type": "select",
+          "options": ["Pass", "Fail"],
+          "required": true
+        },
+        {
+          "name": "observations",
+          "type": "text",
+          "required": false
+        }
+      ],
+      "acceptance_criteria": [
+        {
+          "parameter": "final_condition",
+          "condition": "equals",
+          "value": "Pass"
+        }
+      ]
+    }
+  ],
+  "qc_checks": [
+    {
+      "name": "Equipment Calibration Verification",
+      "description": "Verify all test equipment is within calibration period",
+      "required": true,
+      "frequency": "Before each test"
+    },
+    {
+      "name": "Data Completeness Check",
+      "description": "Verify all required measurements are recorded",
+      "required": true,
+      "frequency": "After each test"
+    },
+    {
+      "name": "Acceptance Criteria Review",
+      "description": "Verify all acceptance criteria are met",
+      "required": true,
+      "frequency": "After each test"
+    }
+  ],
+  "report_sections": [
+    {
+      "name": "Test Summary",
+      "content": [
+        "protocol_id",
+        "module_serial_number",
+        "test_date",
+        "operator",
+        "overall_result"
+      ]
+    },
+    {
+      "name": "Test Conditions",
+      "content": [
+        "ambient_temperature",
+        "relative_humidity"
+      ]
+    },
+    {
+      "name": "Equipment Used",
+      "content": [
+        "equipment_list",
+        "calibration_dates"
+      ]
+    },
+    {
+      "name": "Test Results",
+      "content": [
+        "all_measurements",
+        "acceptance_criteria_status"
+      ]
+    },
+    {
+      "name": "Charts and Graphs",
+      "charts": [
+        {
+          "type": "bar",
+          "title": "Resistance Measurements",
+          "x_axis": ["Initial Positive", "Initial Negative", "Post Positive", "Post Negative"],
+          "y_axis": "Resistance (mΩ)",
+          "data_fields": ["resistance_positive", "resistance_negative", "resistance_positive_post", "resistance_negative_post"]
+        },
+        {
+          "type": "line",
+          "title": "Resistance Change",
+          "x_axis": ["Positive Terminal", "Negative Terminal"],
+          "y_axis": "Change (%)",
+          "data_fields": ["resistance_change_positive", "resistance_change_negative"]
+        }
+      ]
+    },
+    {
+      "name": "Conclusion",
+      "content": [
+        "overall_result",
+        "observations",
+        "recommendations"
+      ]
+    }
+  ],
+  "metadata": {
+    "created_date": "2025-11-14",
+    "created_by": "Test Protocols Team",
+    "last_modified": "2025-11-14",
+    "approval_status": "Draft",
+    "revision_history": [
+      {
+        "version": "1.0",
+        "date": "2025-11-14",
+        "author": "Test Protocols Team",
+        "changes": "Initial protocol definition"
+      }
+    ]
+  }
+}

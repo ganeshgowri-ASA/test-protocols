@@ -1,0 +1,441 @@
+{
+  "metadata": {
+    "protocol_id": "HF-001",
+    "name": "Humidity Freeze Test Protocol",
+    "version": "1.0.0",
+    "standard": "IEC 61215 MQT 12",
+    "category": "Environmental Testing",
+    "description": "Photovoltaic module testing under combined thermal cycling and humidity stress conditions to evaluate module durability and reliability"
+  },
+  "parameters": {
+    "total_cycles": {
+      "value": 10,
+      "unit": "cycles",
+      "description": "Total number of temperature-humidity cycles",
+      "standard_requirement": "IEC 61215 MQT 12"
+    },
+    "temperature_low": {
+      "value": -40,
+      "unit": "°C",
+      "tolerance": "±2",
+      "description": "Low temperature setpoint"
+    },
+    "temperature_high": {
+      "value": 85,
+      "unit": "°C",
+      "tolerance": "±2",
+      "description": "High temperature setpoint with humidity"
+    },
+    "relative_humidity": {
+      "value": 85,
+      "unit": "%RH",
+      "tolerance": "±5",
+      "description": "Relative humidity during high temperature phase",
+      "condition": "Maintained during high temperature phase only"
+    },
+    "dwell_time_high": {
+      "value": 4,
+      "unit": "hours",
+      "description": "Dwell time at high temperature with humidity"
+    },
+    "dwell_time_low": {
+      "value": 1,
+      "unit": "hours",
+      "description": "Dwell time at low temperature"
+    },
+    "transition_rate": {
+      "value": 100,
+      "unit": "°C/hour",
+      "max_value": 100,
+      "description": "Maximum temperature transition rate"
+    },
+    "preconditioning_temp": {
+      "value": 85,
+      "unit": "°C",
+      "description": "Pre-conditioning temperature"
+    },
+    "preconditioning_humidity": {
+      "value": 85,
+      "unit": "%RH",
+      "description": "Pre-conditioning relative humidity"
+    },
+    "preconditioning_duration": {
+      "value": 2,
+      "unit": "hours",
+      "description": "Pre-conditioning duration before cycling"
+    }
+  },
+  "equipment": {
+    "environmental_chamber": {
+      "required": true,
+      "specifications": {
+        "temperature_range": "-45°C to +100°C",
+        "temperature_uniformity": "±2°C",
+        "humidity_range": "10% to 95% RH",
+        "humidity_uniformity": "±5% RH",
+        "chamber_volume": "Sufficient for module spacing",
+        "air_circulation": "Forced air circulation required"
+      },
+      "calibration_required": true,
+      "calibration_interval": "12 months"
+    },
+    "iv_curve_tracer": {
+      "required": true,
+      "specifications": {
+        "voltage_accuracy": "±0.5%",
+        "current_accuracy": "±0.5%",
+        "power_accuracy": "±1%"
+      },
+      "calibration_required": true,
+      "calibration_interval": "12 months"
+    },
+    "insulation_tester": {
+      "required": true,
+      "specifications": {
+        "test_voltage": "1000V DC",
+        "measurement_range": "1 MΩ to 10 GΩ",
+        "accuracy": "±5%"
+      },
+      "calibration_required": true,
+      "calibration_interval": "12 months"
+    },
+    "solar_simulator": {
+      "required": true,
+      "specifications": {
+        "irradiance": "1000 W/m²",
+        "spectral_match": "Class A (IEC 60904-9)",
+        "non_uniformity": "±2%",
+        "temporal_stability": "±2%"
+      },
+      "calibration_required": true,
+      "calibration_interval": "6 months"
+    },
+    "data_logger": {
+      "required": true,
+      "specifications": {
+        "temperature_channels": "Minimum 4",
+        "humidity_channels": "Minimum 2",
+        "sampling_rate": "Minimum 1 sample/minute",
+        "accuracy": "Temperature: ±0.5°C, Humidity: ±3% RH"
+      }
+    }
+  },
+  "sample_requirements": {
+    "quantity": {
+      "value": 1,
+      "unit": "modules",
+      "description": "Minimum number of modules for test"
+    },
+    "conditioning": {
+      "description": "Module shall be at room temperature (25°C ±5°C) for minimum 2 hours before initial measurements",
+      "required": true
+    },
+    "mounting": {
+      "description": "Module shall be mounted to allow air circulation on both sides",
+      "clearance": "Minimum 10 cm from chamber walls and other modules",
+      "orientation": "Perpendicular to air flow direction"
+    },
+    "preconditions": {
+      "visual_inspection": "No defects visible before test",
+      "electrical_performance": "Within manufacturer specifications",
+      "insulation_resistance": "> 40 MΩ (wet leakage current test)"
+    }
+  },
+  "test_steps": [
+    {
+      "step": 1,
+      "name": "Pre-test Documentation",
+      "description": "Document module information and initial condition",
+      "actions": [
+        "Record module serial number and manufacturer",
+        "Photograph module (front and back)",
+        "Generate QR code for traceability",
+        "Record ambient conditions"
+      ],
+      "data_collection": ["module_id", "serial_number", "manufacturer", "photos", "qr_code"]
+    },
+    {
+      "step": 2,
+      "name": "Initial Visual Inspection",
+      "description": "Perform detailed visual inspection per IEC 61215",
+      "actions": [
+        "Inspect for broken cells",
+        "Check for delamination",
+        "Examine junction box and cables",
+        "Look for discoloration or bubbles",
+        "Document any defects with photographs"
+      ],
+      "acceptance_criteria": "No major defects visible",
+      "data_collection": ["visual_defects", "inspection_photos"]
+    },
+    {
+      "step": 3,
+      "name": "Initial I-V Curve Measurement",
+      "description": "Measure baseline electrical performance at STC",
+      "conditions": {
+        "irradiance": "1000 W/m²",
+        "spectrum": "AM 1.5G",
+        "module_temperature": "25°C ±2°C"
+      },
+      "measurements": [
+        "Open circuit voltage (Voc)",
+        "Short circuit current (Isc)",
+        "Maximum power point voltage (Vmp)",
+        "Maximum power point current (Imp)",
+        "Maximum power (Pmax)",
+        "Fill factor (FF)"
+      ],
+      "data_collection": ["iv_curve_data", "Voc", "Isc", "Vmp", "Imp", "Pmax", "FF"]
+    },
+    {
+      "step": 4,
+      "name": "Initial Insulation Resistance Test",
+      "description": "Measure insulation resistance before cycling",
+      "test_voltage": "1000V DC",
+      "duration": "1 minute",
+      "acceptance_criteria": "> 40 MΩ",
+      "data_collection": ["insulation_resistance_initial"]
+    },
+    {
+      "step": 5,
+      "name": "Chamber Setup and Pre-conditioning",
+      "description": "Prepare chamber and pre-condition module",
+      "actions": [
+        "Mount module in chamber with proper spacing",
+        "Connect temperature sensors to module back surface",
+        "Connect humidity sensors in chamber",
+        "Verify data logger operation",
+        "Set chamber to 85°C and 85% RH",
+        "Hold for 2 hours pre-conditioning"
+      ],
+      "data_collection": ["chamber_setup_photos", "sensor_locations"]
+    },
+    {
+      "step": 6,
+      "name": "Humidity Freeze Cycling",
+      "description": "Execute 10 thermal-humidity cycles per IEC 61215 MQT 12",
+      "cycle_profile": {
+        "phase_1": {
+          "name": "High Temperature with Humidity",
+          "temperature": "85°C ±2°C",
+          "humidity": "85% RH ±5%",
+          "duration": "4 hours",
+          "ramp_rate": "≤ 100°C/hour"
+        },
+        "phase_2": {
+          "name": "Transition to Low Temperature",
+          "start_temp": "85°C",
+          "end_temp": "-40°C",
+          "humidity": "Natural (uncontrolled during transition)",
+          "ramp_rate": "≤ 100°C/hour"
+        },
+        "phase_3": {
+          "name": "Low Temperature Dwell",
+          "temperature": "-40°C ±2°C",
+          "humidity": "Natural (uncontrolled)",
+          "duration": "1 hour"
+        },
+        "phase_4": {
+          "name": "Transition to High Temperature",
+          "start_temp": "-40°C",
+          "end_temp": "85°C",
+          "humidity": "Controlled to 85% RH when temp > 60°C",
+          "ramp_rate": "≤ 100°C/hour"
+        }
+      },
+      "monitoring": {
+        "parameters": ["temperature", "humidity", "time"],
+        "sampling_rate": "1 minute",
+        "alarm_conditions": {
+          "temperature_deviation": "> ±3°C from setpoint for > 10 minutes",
+          "humidity_deviation": "> ±8% RH from setpoint for > 10 minutes"
+        }
+      },
+      "data_collection": ["cycle_number", "temperature_log", "humidity_log", "timestamp", "alarms"]
+    },
+    {
+      "step": 7,
+      "name": "Post-Cycle Stabilization",
+      "description": "Allow module to return to ambient conditions",
+      "duration": "Minimum 2 hours at 25°C ±5°C",
+      "actions": [
+        "Remove module from chamber",
+        "Allow stabilization in controlled environment",
+        "Visual check for condensation or damage"
+      ],
+      "data_collection": ["stabilization_time", "stabilization_temp"]
+    },
+    {
+      "step": 8,
+      "name": "Final Visual Inspection",
+      "description": "Perform detailed visual inspection after cycling",
+      "actions": [
+        "Inspect for new or worsened defects",
+        "Compare to pre-test photographs",
+        "Check for delamination, discoloration, or bubbles",
+        "Examine junction box and cables for damage",
+        "Document all findings with photographs"
+      ],
+      "comparison": "Compare with initial visual inspection",
+      "data_collection": ["visual_defects_final", "inspection_photos_final", "defect_comparison"]
+    },
+    {
+      "step": 9,
+      "name": "Final I-V Curve Measurement",
+      "description": "Measure electrical performance after cycling at STC",
+      "conditions": {
+        "irradiance": "1000 W/m²",
+        "spectrum": "AM 1.5G",
+        "module_temperature": "25°C ±2°C"
+      },
+      "measurements": [
+        "Open circuit voltage (Voc)",
+        "Short circuit current (Isc)",
+        "Maximum power point voltage (Vmp)",
+        "Maximum power point current (Imp)",
+        "Maximum power (Pmax)",
+        "Fill factor (FF)"
+      ],
+      "data_collection": ["iv_curve_data_final", "Voc_final", "Isc_final", "Vmp_final", "Imp_final", "Pmax_final", "FF_final"]
+    },
+    {
+      "step": 10,
+      "name": "Final Insulation Resistance Test",
+      "description": "Measure insulation resistance after cycling",
+      "test_voltage": "1000V DC",
+      "duration": "1 minute",
+      "acceptance_criteria": "> 40 MΩ",
+      "data_collection": ["insulation_resistance_final"]
+    },
+    {
+      "step": 11,
+      "name": "Data Analysis and Pass/Fail Determination",
+      "description": "Analyze results and determine test outcome",
+      "actions": [
+        "Calculate power degradation percentage",
+        "Compare insulation resistance values",
+        "Evaluate visual inspection results",
+        "Apply pass/fail criteria per IEC 61215"
+      ],
+      "data_collection": ["power_degradation", "pass_fail_status", "failure_modes"]
+    },
+    {
+      "step": 12,
+      "name": "Report Generation",
+      "description": "Generate comprehensive test report",
+      "report_contents": [
+        "Test metadata and conditions",
+        "Initial and final measurements",
+        "Cycle temperature/humidity profiles",
+        "Visual inspection comparisons",
+        "Pass/fail determination",
+        "QR code for traceability"
+      ],
+      "data_collection": ["report_pdf", "report_data"]
+    }
+  ],
+  "qc_criteria": {
+    "power_degradation": {
+      "parameter": "Maximum Power (Pmax)",
+      "calculation": "((Pmax_initial - Pmax_final) / Pmax_initial) * 100",
+      "limit": 5.0,
+      "unit": "%",
+      "requirement": "Power degradation shall not exceed 5%",
+      "criticality": "FAIL"
+    },
+    "insulation_resistance": {
+      "parameter": "Insulation Resistance",
+      "initial_min": 40,
+      "final_min": 40,
+      "unit": "MΩ",
+      "requirement": "Insulation resistance shall remain > 40 MΩ",
+      "criticality": "FAIL"
+    },
+    "visual_defects": {
+      "major_defects": {
+        "broken_cells": {
+          "allowed": 0,
+          "description": "No broken or cracked cells allowed",
+          "criticality": "FAIL"
+        },
+        "delamination": {
+          "allowed": "None",
+          "description": "No delamination allowed",
+          "criticality": "FAIL"
+        },
+        "junction_box_damage": {
+          "allowed": "None",
+          "description": "Junction box must remain intact and sealed",
+          "criticality": "FAIL"
+        }
+      },
+      "minor_defects": {
+        "bubbles": {
+          "allowed": "< 5 bubbles, each < 10mm diameter",
+          "description": "Minor bubbles acceptable within limits",
+          "criticality": "WARNING"
+        },
+        "discoloration": {
+          "allowed": "Slight yellowing acceptable if not affecting cells",
+          "description": "Minor discoloration may be acceptable",
+          "criticality": "WARNING"
+        }
+      }
+    },
+    "test_execution": {
+      "cycle_completion": {
+        "required": 10,
+        "tolerance": 0,
+        "requirement": "All 10 cycles must complete successfully",
+        "criticality": "FAIL"
+      },
+      "temperature_excursions": {
+        "max_allowed": 2,
+        "duration_max": "10 minutes",
+        "requirement": "Maximum 2 temperature excursions > ±3°C for < 10 minutes",
+        "criticality": "WARNING"
+      },
+      "humidity_excursions": {
+        "max_allowed": 2,
+        "duration_max": "10 minutes",
+        "requirement": "Maximum 2 humidity excursions > ±8% RH for < 10 minutes",
+        "criticality": "WARNING"
+      }
+    }
+  },
+  "data_traceability": {
+    "required_fields": [
+      "test_id",
+      "module_serial_number",
+      "test_start_datetime",
+      "test_end_datetime",
+      "operator_id",
+      "equipment_ids",
+      "calibration_due_dates"
+    ],
+    "qr_code": {
+      "enabled": true,
+      "format": "QR_CODE_128",
+      "content": "{protocol_id}_{module_serial}_{test_date}_{test_id}"
+    },
+    "data_retention": {
+      "duration": "25 years",
+      "format": "Digital and physical archival"
+    }
+  },
+  "reporting": {
+    "auto_generation": true,
+    "formats": ["PDF", "JSON", "CSV"],
+    "includes": [
+      "Executive summary with pass/fail",
+      "Test conditions and parameters",
+      "Initial and final measurements with comparison",
+      "Temperature and humidity profiles (charts)",
+      "Visual inspection photographs",
+      "QC criteria evaluation",
+      "Equipment calibration status",
+      "Operator signatures and dates",
+      "QR code for traceability"
+    ]
+  }
+}

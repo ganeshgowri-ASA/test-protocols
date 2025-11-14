@@ -1,0 +1,281 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://test-protocols.example.com/schemas/mechanical/wind-001.json",
+  "title": "WIND-001 - Wind Load Test Protocol",
+  "description": "Wind load testing protocol for PV modules according to IEC 61215 and UL 1703 standards",
+  "type": "object",
+  "version": "1.0.0",
+  "category": "mechanical",
+  "protocol_id": "WIND-001",
+  "properties": {
+    "test_metadata": {
+      "type": "object",
+      "required": ["test_id", "test_date", "operator", "standard"],
+      "properties": {
+        "test_id": {
+          "type": "string",
+          "description": "Unique test identifier"
+        },
+        "test_date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Test execution date and time"
+        },
+        "operator": {
+          "type": "string",
+          "description": "Name of test operator"
+        },
+        "standard": {
+          "type": "string",
+          "enum": ["IEC 61215", "IEC 61730", "UL 1703", "IEC 61215-2:2021"],
+          "description": "Testing standard reference"
+        },
+        "equipment_id": {
+          "type": "string",
+          "description": "Wind tunnel or test chamber identifier"
+        },
+        "calibration_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Last calibration date of equipment"
+        }
+      }
+    },
+    "sample_info": {
+      "type": "object",
+      "required": ["sample_id", "manufacturer", "model"],
+      "properties": {
+        "sample_id": {
+          "type": "string",
+          "description": "Unique sample identifier"
+        },
+        "manufacturer": {
+          "type": "string",
+          "description": "Module manufacturer"
+        },
+        "model": {
+          "type": "string",
+          "description": "Module model number"
+        },
+        "serial_number": {
+          "type": "string",
+          "description": "Module serial number"
+        },
+        "technology": {
+          "type": "string",
+          "enum": ["mono-Si", "poly-Si", "thin-film", "CIGS", "CdTe", "perovskite"],
+          "description": "PV technology type"
+        },
+        "rated_power": {
+          "type": "number",
+          "description": "Rated power output in watts",
+          "minimum": 0
+        },
+        "dimensions": {
+          "type": "object",
+          "properties": {
+            "length": {"type": "number", "description": "Length in mm"},
+            "width": {"type": "number", "description": "Width in mm"},
+            "thickness": {"type": "number", "description": "Thickness in mm"}
+          }
+        }
+      }
+    },
+    "test_parameters": {
+      "type": "object",
+      "required": ["load_type", "pressure", "duration", "cycles"],
+      "properties": {
+        "load_type": {
+          "type": "string",
+          "enum": ["positive", "negative", "cyclic"],
+          "description": "Type of wind load (positive=pressure, negative=suction)"
+        },
+        "pressure": {
+          "type": "number",
+          "description": "Applied pressure in Pa (pascals)",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "duration": {
+          "type": "number",
+          "description": "Load duration in seconds per cycle",
+          "minimum": 0
+        },
+        "cycles": {
+          "type": "integer",
+          "description": "Number of load cycles",
+          "minimum": 1
+        },
+        "temperature": {
+          "type": "number",
+          "description": "Ambient temperature in °C",
+          "minimum": -40,
+          "maximum": 85
+        },
+        "humidity": {
+          "type": "number",
+          "description": "Relative humidity in %",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "mounting_configuration": {
+          "type": "string",
+          "enum": ["fixed_tilt", "tracker", "flat_roof", "ground_mount"],
+          "description": "Module mounting configuration"
+        }
+      }
+    },
+    "measurements": {
+      "type": "object",
+      "properties": {
+        "pre_test": {
+          "type": "object",
+          "properties": {
+            "visual_inspection": {
+              "type": "string",
+              "description": "Pre-test visual inspection notes"
+            },
+            "electrical_performance": {
+              "type": "object",
+              "properties": {
+                "voc": {"type": "number", "description": "Open circuit voltage (V)"},
+                "isc": {"type": "number", "description": "Short circuit current (A)"},
+                "vmp": {"type": "number", "description": "Voltage at max power (V)"},
+                "imp": {"type": "number", "description": "Current at max power (A)"},
+                "pmax": {"type": "number", "description": "Maximum power (W)"}
+              }
+            },
+            "insulation_resistance": {
+              "type": "number",
+              "description": "Insulation resistance in MΩ"
+            }
+          }
+        },
+        "during_test": {
+          "type": "array",
+          "description": "Measurements taken during each cycle",
+          "items": {
+            "type": "object",
+            "properties": {
+              "cycle_number": {"type": "integer"},
+              "timestamp": {"type": "string", "format": "date-time"},
+              "actual_pressure": {"type": "number", "description": "Measured pressure in Pa"},
+              "deflection_center": {"type": "number", "description": "Deflection at center in mm"},
+              "deflection_edges": {
+                "type": "array",
+                "items": {"type": "number"},
+                "description": "Deflection measurements at edges in mm"
+              },
+              "observations": {"type": "string"}
+            }
+          }
+        },
+        "post_test": {
+          "type": "object",
+          "properties": {
+            "visual_inspection": {
+              "type": "string",
+              "description": "Post-test visual inspection notes"
+            },
+            "electrical_performance": {
+              "type": "object",
+              "properties": {
+                "voc": {"type": "number"},
+                "isc": {"type": "number"},
+                "vmp": {"type": "number"},
+                "imp": {"type": "number"},
+                "pmax": {"type": "number"}
+              }
+            },
+            "insulation_resistance": {
+              "type": "number",
+              "description": "Insulation resistance in MΩ"
+            },
+            "defects_observed": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["none", "cell_cracks", "glass_breakage", "delamination", "junction_box_damage", "frame_damage", "backsheet_damage"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "acceptance_criteria": {
+      "type": "object",
+      "properties": {
+        "max_power_degradation": {
+          "type": "number",
+          "description": "Maximum acceptable power degradation in %",
+          "default": 5
+        },
+        "max_deflection": {
+          "type": "number",
+          "description": "Maximum acceptable deflection in mm"
+        },
+        "min_insulation_resistance": {
+          "type": "number",
+          "description": "Minimum acceptable insulation resistance in MΩ",
+          "default": 40
+        },
+        "no_visual_defects": {
+          "type": "boolean",
+          "default": true,
+          "description": "No visual defects allowed"
+        }
+      }
+    },
+    "results": {
+      "type": "object",
+      "properties": {
+        "test_status": {
+          "type": "string",
+          "enum": ["pass", "fail", "conditional_pass", "incomplete"],
+          "description": "Overall test result"
+        },
+        "power_degradation": {
+          "type": "number",
+          "description": "Measured power degradation in %"
+        },
+        "max_deflection_measured": {
+          "type": "number",
+          "description": "Maximum deflection measured in mm"
+        },
+        "failure_modes": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional test notes and observations"
+        },
+        "reviewer": {
+          "type": "string",
+          "description": "Name of results reviewer"
+        },
+        "review_date": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "attachments": {
+      "type": "array",
+      "description": "Supporting documents and images",
+      "items": {
+        "type": "object",
+        "properties": {
+          "filename": {"type": "string"},
+          "filepath": {"type": "string"},
+          "type": {
+            "type": "string",
+            "enum": ["image", "video", "data_file", "report", "certificate"]
+          },
+          "description": {"type": "string"}
+        }
+      }
+    }
+  },
+  "required": ["test_metadata", "sample_info", "test_parameters", "measurements", "results"]
+}

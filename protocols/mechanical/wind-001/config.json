@@ -1,0 +1,166 @@
+{
+  "protocol": {
+    "id": "WIND-001",
+    "name": "Wind Load Test",
+    "category": "mechanical",
+    "version": "1.0.0",
+    "description": "Wind load testing for PV modules to verify structural integrity under wind pressure and suction loads",
+    "standards": [
+      "IEC 61215-2:2021 MQT 16",
+      "IEC 61730-2 MST 23",
+      "UL 1703 Section 24"
+    ]
+  },
+  "test_sequence": [
+    {
+      "step": 1,
+      "name": "Pre-test Inspection",
+      "description": "Visual inspection and baseline electrical measurements",
+      "duration_minutes": 30,
+      "required": true
+    },
+    {
+      "step": 2,
+      "name": "Insulation Resistance Test",
+      "description": "Measure insulation resistance before load testing",
+      "duration_minutes": 10,
+      "required": true
+    },
+    {
+      "step": 3,
+      "name": "Positive Load Test",
+      "description": "Apply positive pressure load (2400 Pa)",
+      "cycles": 3,
+      "duration_per_cycle_seconds": 60,
+      "required": true
+    },
+    {
+      "step": 4,
+      "name": "Negative Load Test",
+      "description": "Apply negative pressure load (2400 Pa)",
+      "cycles": 3,
+      "duration_per_cycle_seconds": 60,
+      "required": true
+    },
+    {
+      "step": 5,
+      "name": "Post-test Inspection",
+      "description": "Visual inspection and final electrical measurements",
+      "duration_minutes": 30,
+      "required": true
+    },
+    {
+      "step": 6,
+      "name": "Final Insulation Test",
+      "description": "Verify insulation resistance after load testing",
+      "duration_minutes": 10,
+      "required": true
+    }
+  ],
+  "default_parameters": {
+    "positive_pressure_pa": 2400,
+    "negative_pressure_pa": 2400,
+    "load_cycles": 3,
+    "cycle_duration_seconds": 60,
+    "acceptance_criteria": {
+      "max_power_degradation_percent": 5,
+      "min_insulation_resistance_mohm": 40,
+      "no_visual_defects": true,
+      "no_electrical_isolation_issues": true
+    }
+  },
+  "equipment_requirements": {
+    "wind_tunnel": {
+      "pressure_range_pa": [0, 5000],
+      "accuracy": "±5%",
+      "calibration_interval_months": 12
+    },
+    "deflection_measurement": {
+      "type": "laser_displacement_sensor",
+      "accuracy_mm": 0.1,
+      "range_mm": [0, 100]
+    },
+    "electrical_test": {
+      "iv_curve_tracer": true,
+      "insulation_tester": {
+        "voltage": "500V or 1000V DC",
+        "range_mohm": [0, 1000]
+      }
+    }
+  },
+  "data_analysis": {
+    "calculations": [
+      "power_degradation_percent",
+      "max_deflection",
+      "insulation_resistance_change"
+    ],
+    "charts": [
+      {
+        "type": "line",
+        "title": "Deflection vs Cycle",
+        "x_axis": "cycle_number",
+        "y_axis": "deflection_center",
+        "series": ["positive_load", "negative_load"]
+      },
+      {
+        "type": "bar",
+        "title": "Pre vs Post Electrical Performance",
+        "categories": ["Voc", "Isc", "Pmax"],
+        "series": ["pre_test", "post_test"]
+      },
+      {
+        "type": "scatter",
+        "title": "Pressure vs Deflection",
+        "x_axis": "actual_pressure",
+        "y_axis": "deflection_center"
+      }
+    ],
+    "qc_checks": [
+      {
+        "name": "pressure_accuracy",
+        "condition": "abs(actual_pressure - target_pressure) / target_pressure <= 0.05",
+        "severity": "warning"
+      },
+      {
+        "name": "power_degradation",
+        "condition": "power_degradation <= max_power_degradation",
+        "severity": "critical"
+      },
+      {
+        "name": "insulation_resistance",
+        "condition": "insulation_resistance >= min_insulation_resistance",
+        "severity": "critical"
+      }
+    ]
+  },
+  "report_template": {
+    "sections": [
+      "executive_summary",
+      "test_setup",
+      "sample_information",
+      "test_results",
+      "analysis",
+      "conclusion",
+      "attachments"
+    ],
+    "format": "pdf",
+    "include_charts": true,
+    "include_raw_data": false
+  },
+  "integrations": {
+    "lims": {
+      "enabled": true,
+      "sync_fields": ["sample_id", "test_id", "test_status", "test_date"]
+    },
+    "qms": {
+      "enabled": true,
+      "workflow_trigger": "test_completion",
+      "approval_required": true
+    },
+    "project_management": {
+      "enabled": true,
+      "update_milestone": true,
+      "notify_stakeholders": ["project_manager", "quality_lead"]
+    }
+  }
+}

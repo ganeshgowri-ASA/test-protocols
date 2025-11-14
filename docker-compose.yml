@@ -1,0 +1,63 @@
+# Solar PV Testing LIMS-QMS System - Docker Compose
+# ==================================================
+
+version: '3.8'
+
+services:
+  # Main Streamlit Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: solar-pv-lims
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+      - ./static:/app/static
+      - ./logs:/app/logs
+    environment:
+      - APP_ENV=production
+      - DATABASE_URL=${DATABASE_URL:-sqlite:///./data/solar_pv_lims.db}
+      - SESSION_SECRET_KEY=${SESSION_SECRET_KEY:-change-me-in-production}
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # PostgreSQL Database (Optional - uncomment to use)
+  # db:
+  #   image: postgres:16-alpine
+  #   container_name: solar-pv-db
+  #   environment:
+  #     POSTGRES_DB: solar_pv_lims
+  #     POSTGRES_USER: ${DB_USER:-postgres}
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   restart: unless-stopped
+  #   networks:
+  #     - app-network
+
+  # pgAdmin (Optional - for database management)
+  # pgadmin:
+  #   image: dpage/pgadmin4:latest
+  #   container_name: solar-pv-pgadmin
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@solarpv.com
+  #     PGADMIN_DEFAULT_PASSWORD: admin
+  #   ports:
+  #     - "5050:80"
+  #   depends_on:
+  #     - db
+  #   restart: unless-stopped
+  #   networks:
+  #     - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

@@ -1,0 +1,61 @@
+# Quality Control Rules Configuration
+
+# Global QC Rules
+global:
+  measurement_repeatability:
+    max_coefficient_of_variation: 2.0  # percent
+    min_measurements: 3
+
+  data_completeness:
+    min_completion_rate: 95.0  # percent
+
+  timestamp_validation:
+    check_chronological_order: true
+    max_time_gap_hours: 24
+
+# LID-001 Specific QC Rules
+LID-001:
+  initial_measurements:
+    voc_range:
+      min: 0.0  # volts
+      max: 100.0
+    isc_range:
+      min: 0.0  # amps
+      max: 20.0
+    pmax_range:
+      min: 0.0  # watts
+      max: 500.0
+    fill_factor_range:
+      min: 0.50
+      max: 0.85
+
+  degradation_limits:
+    max_degradation_percent: 10.0
+    stabilization_threshold: 0.5  # percent change between consecutive measurements
+    min_stabilization_points: 3
+
+  environmental_conditions:
+    irradiance:
+      nominal: 1000.0  # W/m²
+      tolerance: 2.0  # percent
+    temperature:
+      nominal: 25.0  # °C
+      tolerance: 2.0  # °C
+    spectrum:
+      standard: "AM1.5G"
+
+  measurement_intervals:
+    initial_interval_minutes: 30
+    extended_interval_hours: 24
+    max_test_duration_hours: 168  # 7 days
+
+  acceptance_criteria:
+    max_power_loss_percent: 3.0
+    recovery_threshold_percent: 90.0
+    measurement_uncertainty_percent: 1.5
+
+# Future Protocol Rules
+# HF-10:
+#   humidity_range:
+#     min: 85.0
+#     max: 95.0

@@ -1,0 +1,88 @@
+# Test Protocols Framework Configuration
+
+application:
+  name: "PV Test Protocols Framework"
+  version: "0.1.0"
+  environment: "development"  # development, staging, production
+
+database:
+  type: "sqlite"  # sqlite, postgresql, mysql
+  sqlite:
+    path: "data/test_protocols.db"
+  postgresql:
+    host: "localhost"
+    port: 5432
+    database: "test_protocols"
+    username: "postgres"
+    password: ""
+  connection_pool:
+    pool_size: 5
+    max_overflow: 10
+
+ui:
+  framework: "streamlit"
+  theme:
+    primary_color: "#FF4B4B"
+    background_color: "#FFFFFF"
+    secondary_background_color: "#F0F2F6"
+    text_color: "#262730"
+  page_title: "PV Test Protocols"
+  layout: "wide"
+  initial_sidebar_state: "expanded"
+
+protocols:
+  base_path: "protocols/definitions"
+  schemas_path: "protocols/schemas"
+  implementations_path: "protocols/implementations"
+  enabled_protocols:
+    - "LID-001"
+    # Future protocols
+    # - "HF-10"
+    # - "TC-50"
+    # - "DH-1000"
+
+analysis:
+  default_confidence_level: 0.95
+  outlier_detection:
+    method: "iqr"  # iqr, zscore, isolation_forest
+    threshold: 1.5
+  calculation_precision: 6  # decimal places
+
+qc:
+  enable_automated_checks: true
+  alert_on_failure: true
+  qc_rules_path: "config/qc_rules.yaml"
+
+reports:
+  output_path: "reports/output"
+  templates_path: "reports/templates"
+  default_format: "pdf"  # pdf, excel, html
+  include_raw_data: true
+  logo_path: "assets/logo.png"
+
+integrations:
+  lims:
+    enabled: false
+    api_url: ""
+    api_key: ""
+  qms:
+    enabled: false
+    api_url: ""
+    api_key: ""
+  project_management:
+    enabled: false
+    api_url: ""
+    api_key: ""
+
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file_path: "logs/test_protocols.log"
+  max_bytes: 10485760  # 10MB
+  backup_count: 5
+
+data:
+  storage_path: "data"
+  backup_enabled: true
+  backup_frequency: "daily"  # daily, weekly, monthly
+  retention_days: 365

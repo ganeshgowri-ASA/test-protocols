@@ -1,0 +1,347 @@
+{
+  "protocol_id": "LID-001",
+  "protocol_name": "Light-Induced Degradation",
+  "version": "1.0.0",
+  "category": "Degradation",
+  "description": "Light-Induced Degradation (LID) test protocol for photovoltaic modules. This test evaluates the initial power loss that occurs when crystalline silicon PV modules are first exposed to sunlight. LID is primarily caused by the formation of boron-oxygen complexes in p-type silicon, which create recombination centers that reduce cell efficiency.",
+  "standards": [
+    "IEC 61215-2:2021 (Clause 10.19)",
+    "IEC 61215-1:2021",
+    "IEC TS 63202-1:2019"
+  ],
+  "parameters": {
+    "light_exposure": {
+      "irradiance": 1000.0,
+      "spectrum": "AM1.5G",
+      "duration_hours": 168.0,
+      "notes": "Continuous light exposure for 7 days at STC conditions"
+    },
+    "environmental_conditions": {
+      "temperature": 25.0,
+      "temperature_tolerance": 2.0,
+      "humidity": 50.0,
+      "notes": "Module temperature maintained at 25°C ± 2°C"
+    },
+    "measurement_schedule": {
+      "initial": {
+        "num_measurements": 3,
+        "interval_minutes": 30,
+        "description": "Three initial measurements at 30-minute intervals to establish baseline"
+      },
+      "during_exposure": [
+        {
+          "time_hours": 0.5,
+          "label": "30 minutes"
+        },
+        {
+          "time_hours": 1.0,
+          "label": "1 hour"
+        },
+        {
+          "time_hours": 2.0,
+          "label": "2 hours"
+        },
+        {
+          "time_hours": 4.0,
+          "label": "4 hours"
+        },
+        {
+          "time_hours": 8.0,
+          "label": "8 hours"
+        },
+        {
+          "time_hours": 24.0,
+          "label": "1 day"
+        },
+        {
+          "time_hours": 48.0,
+          "label": "2 days"
+        },
+        {
+          "time_hours": 72.0,
+          "label": "3 days"
+        },
+        {
+          "time_hours": 96.0,
+          "label": "4 days"
+        },
+        {
+          "time_hours": 120.0,
+          "label": "5 days"
+        },
+        {
+          "time_hours": 144.0,
+          "label": "6 days"
+        },
+        {
+          "time_hours": 168.0,
+          "label": "7 days"
+        }
+      ],
+      "post_exposure": {
+        "recovery_period_hours": 24.0,
+        "num_measurements": 2,
+        "description": "Optional recovery measurements after 24h dark storage"
+      }
+    }
+  },
+  "measurements": {
+    "required_fields": [
+      "timestamp",
+      "voc",
+      "isc",
+      "pmax",
+      "vmp",
+      "imp",
+      "fill_factor",
+      "irradiance",
+      "temperature"
+    ],
+    "optional_fields": [
+      "efficiency",
+      "rs",
+      "rsh",
+      "iv_curve",
+      "operator",
+      "notes"
+    ],
+    "field_definitions": {
+      "timestamp": {
+        "description": "Measurement timestamp (ISO 8601 format)",
+        "type": "datetime",
+        "format": "ISO8601"
+      },
+      "voc": {
+        "description": "Open-circuit voltage",
+        "unit": "V",
+        "min": 0.0,
+        "max": 100.0,
+        "precision": 0.001
+      },
+      "isc": {
+        "description": "Short-circuit current",
+        "unit": "A",
+        "min": 0.0,
+        "max": 20.0,
+        "precision": 0.001
+      },
+      "pmax": {
+        "description": "Maximum power",
+        "unit": "W",
+        "min": 0.0,
+        "max": 500.0,
+        "precision": 0.01
+      },
+      "vmp": {
+        "description": "Voltage at maximum power point",
+        "unit": "V",
+        "min": 0.0,
+        "max": 100.0,
+        "precision": 0.001
+      },
+      "imp": {
+        "description": "Current at maximum power point",
+        "unit": "A",
+        "min": 0.0,
+        "max": 20.0,
+        "precision": 0.001
+      },
+      "fill_factor": {
+        "description": "Fill factor (FF = Pmax / (Voc × Isc))",
+        "unit": "dimensionless",
+        "min": 0.50,
+        "max": 0.85,
+        "precision": 0.0001
+      },
+      "irradiance": {
+        "description": "Solar irradiance during measurement",
+        "unit": "W/m²",
+        "min": 0.0,
+        "max": 1500.0,
+        "precision": 0.1
+      },
+      "temperature": {
+        "description": "Module temperature during measurement",
+        "unit": "°C",
+        "min": -40.0,
+        "max": 85.0,
+        "precision": 0.1
+      },
+      "efficiency": {
+        "description": "Module efficiency",
+        "unit": "%",
+        "min": 0.0,
+        "max": 30.0,
+        "precision": 0.01
+      },
+      "rs": {
+        "description": "Series resistance",
+        "unit": "Ω",
+        "min": 0.0,
+        "max": 10.0,
+        "precision": 0.001
+      },
+      "rsh": {
+        "description": "Shunt resistance",
+        "unit": "Ω",
+        "min": 0.0,
+        "max": 10000.0,
+        "precision": 0.1
+      }
+    }
+  },
+  "qc_criteria": {
+    "max_degradation_percent": 10.0,
+    "stabilization_threshold": 0.5,
+    "min_stabilization_points": 3,
+    "measurement_uncertainty_percent": 1.5,
+    "irradiance_tolerance_percent": 2.0,
+    "temperature_tolerance_celsius": 2.0,
+    "min_fill_factor": 0.50,
+    "max_fill_factor": 0.85,
+    "acceptance_criteria": {
+      "typical_degradation": {
+        "description": "Typical LID range for standard p-type silicon",
+        "min_percent": 1.0,
+        "max_percent": 3.0
+      },
+      "max_allowable_degradation": {
+        "description": "Maximum allowable power loss",
+        "percent": 5.0
+      },
+      "stabilization": {
+        "description": "Module is considered stabilized when power change is below threshold for consecutive measurements",
+        "threshold_percent": 0.5,
+        "consecutive_measurements": 3
+      }
+    }
+  },
+  "test_procedure": [
+    {
+      "step": 1,
+      "description": "Pre-conditioning: Store module in dark at room temperature for minimum 12 hours",
+      "duration": "12 hours",
+      "conditions": {
+        "light": "dark",
+        "temperature": "20-25°C"
+      }
+    },
+    {
+      "step": 2,
+      "description": "Initial characterization: Perform 3 I-V measurements at 30-minute intervals under STC",
+      "duration": "1.5 hours",
+      "conditions": {
+        "irradiance": "1000 W/m²",
+        "spectrum": "AM1.5G",
+        "temperature": "25°C ± 2°C"
+      }
+    },
+    {
+      "step": 3,
+      "description": "Calculate baseline Pmax as average of 3 initial measurements",
+      "duration": "immediate",
+      "conditions": {}
+    },
+    {
+      "step": 4,
+      "description": "Begin continuous light exposure at 1000 W/m² (AM1.5G), maintaining module temperature at 25°C ± 2°C",
+      "duration": "168 hours (7 days)",
+      "conditions": {
+        "irradiance": "1000 W/m²",
+        "spectrum": "AM1.5G",
+        "temperature": "25°C ± 2°C",
+        "continuous": true
+      }
+    },
+    {
+      "step": 5,
+      "description": "Perform I-V measurements at scheduled intervals: 0.5h, 1h, 2h, 4h, 8h, 24h, 48h, 72h, 96h, 120h, 144h, 168h",
+      "duration": "as scheduled",
+      "conditions": {
+        "same_as_step_4": true
+      }
+    },
+    {
+      "step": 6,
+      "description": "Calculate power degradation at each measurement point: ΔP(%) = 100 × (Pmax_initial - Pmax_current) / Pmax_initial",
+      "duration": "immediate after each measurement",
+      "conditions": {}
+    },
+    {
+      "step": 7,
+      "description": "Monitor for stabilization: When power change between consecutive measurements < 0.5% for 3 measurements, degradation is stabilized",
+      "duration": "continuous",
+      "conditions": {}
+    },
+    {
+      "step": 8,
+      "description": "Final measurement after 168 hours of light exposure",
+      "duration": "immediate",
+      "conditions": {
+        "irradiance": "1000 W/m²",
+        "spectrum": "AM1.5G",
+        "temperature": "25°C ± 2°C"
+      }
+    },
+    {
+      "step": 9,
+      "description": "(Optional) Recovery test: Store module in dark for 24 hours, then measure to check for power recovery",
+      "duration": "24 hours + measurement time",
+      "conditions": {
+        "light": "dark",
+        "temperature": "room temperature"
+      }
+    },
+    {
+      "step": 10,
+      "description": "Calculate final LID: ΔP_LID(%) = 100 × (Pmax_initial - Pmax_final) / Pmax_initial",
+      "duration": "immediate",
+      "conditions": {}
+    }
+  ],
+  "analysis_methods": [
+    {
+      "name": "Power Degradation",
+      "formula": "ΔP(%) = 100 × (P_initial - P_current) / P_initial",
+      "description": "Percentage change in maximum power relative to initial baseline"
+    },
+    {
+      "name": "Baseline Power",
+      "formula": "P_baseline = mean([P1, P2, P3])",
+      "description": "Average of three initial power measurements"
+    },
+    {
+      "name": "Fill Factor",
+      "formula": "FF = Pmax / (Voc × Isc)",
+      "description": "Module fill factor calculated from I-V curve parameters"
+    },
+    {
+      "name": "Stabilization Detection",
+      "formula": "|ΔP(t) - ΔP(t-1)| < threshold for N consecutive measurements",
+      "description": "Degradation is considered stabilized when power change between measurements falls below threshold"
+    },
+    {
+      "name": "Degradation Rate",
+      "formula": "rate(%/hour) = (ΔP_current - ΔP_previous) / Δt",
+      "description": "Rate of power degradation between measurement points"
+    },
+    {
+      "name": "Recovery Factor",
+      "formula": "Recovery(%) = 100 × (P_recovered - P_degraded) / (P_initial - P_degraded)",
+      "description": "Percentage of degraded power that recovers after dark storage"
+    }
+  ],
+  "metadata": {
+    "author": "Test Protocols Team",
+    "created_date": "2025-11-14",
+    "last_modified": "2025-11-14",
+    "tags": [
+      "degradation",
+      "LID",
+      "light-induced",
+      "crystalline-silicon",
+      "IEC-61215"
+    ],
+    "notes": "This protocol is specifically designed for crystalline silicon PV modules. LID effects are most pronounced in p-type boron-doped silicon. Modern n-type and passivated emitter rear contact (PERC) cells typically show lower LID. Some modules may exhibit recovery of degraded power when stored in dark conditions."
+  }
+}

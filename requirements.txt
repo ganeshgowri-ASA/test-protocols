@@ -1,0 +1,49 @@
+# Core Framework
+streamlit>=1.28.0
+pydantic>=2.4.0
+pyyaml>=6.0
+
+# Database
+sqlalchemy>=2.0.0
+alembic>=1.12.0
+
+# Data Analysis
+pandas>=2.1.0
+numpy>=1.24.0
+scipy>=1.11.0
+
+# Charting and Visualization
+plotly>=5.17.0
+altair>=5.1.0
+streamlit-aggrid>=0.3.4
+
+# Report Generation
+jinja2>=3.1.2
+weasyprint>=60.0
+openpyxl>=3.1.0
+xlsxwriter>=3.1.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-mock>=3.11.0
+hypothesis>=6.88.0
+
+# Code Quality
+black>=23.9.0
+flake8>=6.1.0
+mypy>=1.5.0
+isort>=5.12.0
+
+# Utilities
+python-dateutil>=2.8.0
+pytz>=2023.3
+tqdm>=4.66.0
+
+# API and Integrations (optional)
+requests>=2.31.0
+httpx>=0.25.0
+
+# Development
+ipython>=8.15.0
+jupyter>=1.0.0

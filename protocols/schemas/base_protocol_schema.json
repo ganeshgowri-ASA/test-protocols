@@ -1,0 +1,139 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Base Protocol Schema",
+  "description": "Base schema for all test protocols in the PV Testing Framework",
+  "type": "object",
+  "required": [
+    "protocol_id",
+    "protocol_name",
+    "version",
+    "category",
+    "description",
+    "parameters",
+    "measurements",
+    "qc_criteria"
+  ],
+  "properties": {
+    "protocol_id": {
+      "type": "string",
+      "description": "Unique protocol identifier",
+      "pattern": "^[A-Z]{2,4}-\\d{3}$"
+    },
+    "protocol_name": {
+      "type": "string",
+      "description": "Human-readable protocol name"
+    },
+    "version": {
+      "type": "string",
+      "description": "Protocol version",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "category": {
+      "type": "string",
+      "description": "Protocol category",
+      "enum": ["Degradation", "Performance", "Environmental", "Mechanical", "Electrical", "Safety"]
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed protocol description"
+    },
+    "standards": {
+      "type": "array",
+      "description": "Applicable standards (IEC, ASTM, etc.)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Test parameters and conditions"
+    },
+    "measurements": {
+      "type": "object",
+      "description": "Required measurements and their specifications",
+      "properties": {
+        "required_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "optional_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "field_definitions": {
+          "type": "object"
+        }
+      }
+    },
+    "qc_criteria": {
+      "type": "object",
+      "description": "Quality control acceptance criteria"
+    },
+    "test_procedure": {
+      "type": "array",
+      "description": "Step-by-step test procedure",
+      "items": {
+        "type": "object",
+        "properties": {
+          "step": {
+            "type": "integer"
+          },
+          "description": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "string"
+          },
+          "conditions": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "analysis_methods": {
+      "type": "array",
+      "description": "Analysis and calculation methods",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "formula": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional protocol metadata",
+      "properties": {
+        "author": {
+          "type": "string"
+        },
+        "created_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "last_modified": {
+          "type": "string",
+          "format": "date"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

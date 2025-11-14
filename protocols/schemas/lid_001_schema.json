@@ -1,0 +1,229 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LID-001 Protocol Schema",
+  "description": "Schema for Light-Induced Degradation (LID) test protocol",
+  "allOf": [
+    {
+      "$ref": "base_protocol_schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "parameters": {
+          "type": "object",
+          "required": [
+            "light_exposure",
+            "environmental_conditions",
+            "measurement_schedule"
+          ],
+          "properties": {
+            "light_exposure": {
+              "type": "object",
+              "required": ["irradiance", "spectrum", "duration_hours"],
+              "properties": {
+                "irradiance": {
+                  "type": "number",
+                  "description": "Light irradiance in W/m²",
+                  "minimum": 0,
+                  "maximum": 1500
+                },
+                "spectrum": {
+                  "type": "string",
+                  "description": "Light spectrum standard",
+                  "enum": ["AM1.5G", "AM1.5D", "AM0"]
+                },
+                "duration_hours": {
+                  "type": "number",
+                  "description": "Total test duration in hours",
+                  "minimum": 1,
+                  "maximum": 1000
+                }
+              }
+            },
+            "environmental_conditions": {
+              "type": "object",
+              "required": ["temperature", "humidity"],
+              "properties": {
+                "temperature": {
+                  "type": "number",
+                  "description": "Module temperature in °C",
+                  "minimum": -40,
+                  "maximum": 85
+                },
+                "temperature_tolerance": {
+                  "type": "number",
+                  "description": "Temperature tolerance in °C",
+                  "minimum": 0,
+                  "maximum": 10
+                },
+                "humidity": {
+                  "type": "number",
+                  "description": "Relative humidity in %",
+                  "minimum": 0,
+                  "maximum": 100
+                }
+              }
+            },
+            "measurement_schedule": {
+              "type": "object",
+              "required": ["initial", "during_exposure", "post_exposure"],
+              "properties": {
+                "initial": {
+                  "type": "object",
+                  "description": "Initial measurements before light exposure",
+                  "properties": {
+                    "num_measurements": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 10
+                    },
+                    "interval_minutes": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 60
+                    }
+                  }
+                },
+                "during_exposure": {
+                  "type": "array",
+                  "description": "Measurement intervals during light exposure",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "time_hours": {
+                        "type": "number",
+                        "description": "Time point for measurement in hours"
+                      },
+                      "label": {
+                        "type": "string",
+                        "description": "Label for this measurement point"
+                      }
+                    }
+                  }
+                },
+                "post_exposure": {
+                  "type": "object",
+                  "description": "Measurements after light exposure completed",
+                  "properties": {
+                    "recovery_period_hours": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 168
+                    },
+                    "num_measurements": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 10
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "measurements": {
+          "type": "object",
+          "properties": {
+            "required_fields": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "timestamp",
+                  "voc",
+                  "isc",
+                  "pmax",
+                  "vmp",
+                  "imp",
+                  "fill_factor",
+                  "irradiance",
+                  "temperature"
+                ]
+              }
+            },
+            "field_definitions": {
+              "type": "object",
+              "properties": {
+                "voc": {
+                  "type": "object",
+                  "properties": {
+                    "unit": {
+                      "type": "string",
+                      "const": "V"
+                    },
+                    "min": {
+                      "type": "number"
+                    },
+                    "max": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "isc": {
+                  "type": "object",
+                  "properties": {
+                    "unit": {
+                      "type": "string",
+                      "const": "A"
+                    },
+                    "min": {
+                      "type": "number"
+                    },
+                    "max": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "pmax": {
+                  "type": "object",
+                  "properties": {
+                    "unit": {
+                      "type": "string",
+                      "const": "W"
+                    },
+                    "min": {
+                      "type": "number"
+                    },
+                    "max": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "qc_criteria": {
+          "type": "object",
+          "required": ["max_degradation_percent", "stabilization_threshold"],
+          "properties": {
+            "max_degradation_percent": {
+              "type": "number",
+              "description": "Maximum allowable power degradation in %",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "stabilization_threshold": {
+              "type": "number",
+              "description": "Power change threshold for stabilization in %",
+              "minimum": 0,
+              "maximum": 10
+            },
+            "min_stabilization_points": {
+              "type": "integer",
+              "description": "Minimum consecutive stable measurements",
+              "minimum": 2,
+              "maximum": 10
+            },
+            "measurement_uncertainty_percent": {
+              "type": "number",
+              "description": "Maximum acceptable measurement uncertainty in %",
+              "minimum": 0,
+              "maximum": 10
+            }
+          }
+        }
+      }
+    }
+  ]
+}

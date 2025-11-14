@@ -1,0 +1,28 @@
+# Core Dependencies
+sqlalchemy>=2.0.0,<3.0.0
+jsonschema>=4.17.0,<5.0.0
+
+# Web UI
+streamlit>=1.28.0,<2.0.0
+plotly>=5.17.0,<6.0.0
+pandas>=2.0.0,<3.0.0
+
+# Database
+alembic>=1.12.0,<2.0.0  # Database migrations
+
+# Testing
+pytest>=7.4.0,<8.0.0
+pytest-cov>=4.1.0,<5.0.0
+pytest-mock>=3.11.0,<4.0.0
+
+# Code Quality
+ruff>=0.1.0,<0.2.0  # Linter and formatter
+mypy>=1.5.0,<2.0.0  # Type checking
+
+# Documentation
+mkdocs>=1.5.0,<2.0.0
+mkdocs-material>=9.4.0,<10.0.0
+
+# Utilities
+python-dateutil>=2.8.0,<3.0.0
+pillow>=10.0.0,<11.0.0  # Image handling for test documentation

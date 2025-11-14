@@ -1,0 +1,250 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://test-protocols.example.com/schemas/protocol_schema.json",
+  "title": "PV Test Protocol Schema",
+  "description": "Schema for defining PV module test protocols",
+  "type": "object",
+  "required": [
+    "protocol_id",
+    "protocol_name",
+    "version",
+    "category",
+    "description",
+    "standard_reference",
+    "test_parameters",
+    "test_steps",
+    "acceptance_criteria",
+    "data_collection"
+  ],
+  "properties": {
+    "protocol_id": {
+      "type": "string",
+      "description": "Unique identifier for the protocol (e.g., TWIST-001)",
+      "pattern": "^[A-Z]+-[0-9]{3}$"
+    },
+    "protocol_name": {
+      "type": "string",
+      "description": "Human-readable name of the protocol"
+    },
+    "version": {
+      "type": "string",
+      "description": "Protocol version number (semantic versioning)",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "category": {
+      "type": "string",
+      "description": "Test category",
+      "enum": ["Mechanical", "Electrical", "Environmental", "Optical", "Safety"]
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of the test protocol"
+    },
+    "standard_reference": {
+      "type": "array",
+      "description": "Referenced industry standards",
+      "items": {
+        "type": "object",
+        "properties": {
+          "standard": {
+            "type": "string",
+            "description": "Standard name (e.g., IEC 61215-2)"
+          },
+          "section": {
+            "type": "string",
+            "description": "Specific section reference"
+          }
+        },
+        "required": ["standard"]
+      }
+    },
+    "test_parameters": {
+      "type": "object",
+      "description": "Configurable test parameters",
+      "properties": {
+        "specimen_requirements": {
+          "type": "object",
+          "properties": {
+            "quantity": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        },
+        "environmental_conditions": {
+          "type": "object",
+          "properties": {
+            "temperature_range": {
+              "type": "object",
+              "properties": {
+                "min": {"type": "number"},
+                "max": {"type": "number"},
+                "unit": {"type": "string", "default": "°C"}
+              }
+            },
+            "humidity_range": {
+              "type": "object",
+              "properties": {
+                "min": {"type": "number"},
+                "max": {"type": "number"},
+                "unit": {"type": "string", "default": "%RH"}
+              }
+            }
+          }
+        },
+        "test_specific_parameters": {
+          "type": "object",
+          "description": "Protocol-specific parameters",
+          "additionalProperties": true
+        }
+      }
+    },
+    "test_steps": {
+      "type": "array",
+      "description": "Sequential test steps",
+      "items": {
+        "type": "object",
+        "required": ["step_number", "description", "action"],
+        "properties": {
+          "step_number": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "description": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string",
+            "enum": ["setup", "measurement", "inspection", "calculation", "waiting"]
+          },
+          "duration": {
+            "type": "object",
+            "properties": {
+              "value": {"type": "number"},
+              "unit": {"type": "string"}
+            }
+          },
+          "parameters": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "automation_capable": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "description": "Pass/fail criteria",
+      "items": {
+        "type": "object",
+        "required": ["criterion_id", "description", "evaluation_method"],
+        "properties": {
+          "criterion_id": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "evaluation_method": {
+            "type": "string",
+            "enum": ["visual", "measurement", "calculation", "comparison"]
+          },
+          "threshold": {
+            "type": "object",
+            "properties": {
+              "parameter": {"type": "string"},
+              "operator": {
+                "type": "string",
+                "enum": ["<", "<=", ">", ">=", "==", "!=", "between"]
+              },
+              "value": {"type": ["number", "string", "array"]},
+              "unit": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "data_collection": {
+      "type": "object",
+      "description": "Data collection specifications",
+      "properties": {
+        "measurements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["measurement_id", "parameter", "unit"],
+            "properties": {
+              "measurement_id": {
+                "type": "string"
+              },
+              "parameter": {
+                "type": "string"
+              },
+              "unit": {
+                "type": "string"
+              },
+              "instrument": {
+                "type": "string"
+              },
+              "accuracy": {
+                "type": "string"
+              },
+              "data_type": {
+                "type": "string",
+                "enum": ["numeric", "boolean", "string", "image", "array"]
+              }
+            }
+          }
+        },
+        "documentation": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "item": {"type": "string"},
+              "format": {"type": "string"},
+              "required": {"type": "boolean"}
+            }
+          }
+        }
+      }
+    },
+    "safety_requirements": {
+      "type": "array",
+      "description": "Safety precautions and requirements",
+      "items": {
+        "type": "string"
+      }
+    },
+    "equipment": {
+      "type": "array",
+      "description": "Required equipment and tools",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "specifications": {"type": "string"},
+          "quantity": {"type": "integer"}
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "created_date": {"type": "string", "format": "date"},
+        "last_modified": {"type": "string", "format": "date"},
+        "author": {"type": "string"},
+        "tags": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    }
+  }
+}

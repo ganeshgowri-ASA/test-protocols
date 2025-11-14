@@ -1,0 +1,566 @@
+{
+  "protocol_id": "TWIST-001",
+  "protocol_name": "Module Twist Test",
+  "version": "1.0.0",
+  "category": "Mechanical",
+  "description": "This test evaluates the ability of a PV module to withstand torsional (twisting) mechanical stress that may occur during handling, installation, or from wind loading in the field. The module is subjected to controlled twist forces while monitoring for structural damage, electrical degradation, and visual defects.",
+  "standard_reference": [
+    {
+      "standard": "IEC 61215-2",
+      "section": "MQT 20 - Twist Test"
+    },
+    {
+      "standard": "IEC 61730-2",
+      "section": "MST 41 - Mechanical Stress Test"
+    }
+  ],
+  "test_parameters": {
+    "specimen_requirements": {
+      "quantity": 1,
+      "description": "One production-representative PV module in as-received condition"
+    },
+    "environmental_conditions": {
+      "temperature_range": {
+        "min": 15,
+        "max": 35,
+        "unit": "°C"
+      },
+      "humidity_range": {
+        "min": 20,
+        "max": 75,
+        "unit": "%RH"
+      }
+    },
+    "test_specific_parameters": {
+      "support_points": {
+        "description": "Module mounting configuration",
+        "type": "diagonal",
+        "corner_support": true
+      },
+      "twist_distance": {
+        "value": 25,
+        "unit": "mm",
+        "description": "Vertical displacement applied to one corner"
+      },
+      "loading_rate": {
+        "value": 5,
+        "unit": "mm/min",
+        "description": "Rate of twist application"
+      },
+      "hold_duration": {
+        "value": 60,
+        "unit": "seconds",
+        "description": "Duration to maintain maximum twist"
+      },
+      "cycles": {
+        "value": 3,
+        "unit": "cycles",
+        "description": "Number of complete twist cycles"
+      },
+      "electrical_measurements": {
+        "pre_test": ["Pmax", "Voc", "Isc", "FF", "Insulation_Resistance"],
+        "post_test": ["Pmax", "Voc", "Isc", "FF", "Insulation_Resistance"],
+        "degradation_limit": {
+          "Pmax": 5,
+          "unit": "%"
+        }
+      }
+    }
+  },
+  "test_steps": [
+    {
+      "step_number": 1,
+      "description": "Visual inspection and documentation of module condition before testing",
+      "action": "inspection",
+      "parameters": {
+        "inspection_points": [
+          "Frame integrity",
+          "Glass condition",
+          "Junction box attachment",
+          "Cell interconnections (visible)",
+          "Backsheet condition"
+        ],
+        "photo_documentation": true
+      },
+      "automation_capable": false
+    },
+    {
+      "step_number": 2,
+      "description": "Perform initial electrical characterization",
+      "action": "measurement",
+      "duration": {
+        "value": 30,
+        "unit": "minutes"
+      },
+      "parameters": {
+        "measurements": ["Pmax", "Voc", "Isc", "FF"],
+        "irradiance": {
+          "value": 1000,
+          "unit": "W/m²"
+        },
+        "temperature": {
+          "value": 25,
+          "unit": "°C"
+        },
+        "spectrum": "AM1.5G"
+      },
+      "automation_capable": true
+    },
+    {
+      "step_number": 3,
+      "description": "Perform initial insulation resistance test",
+      "action": "measurement",
+      "duration": {
+        "value": 5,
+        "unit": "minutes"
+      },
+      "parameters": {
+        "test_voltage": {
+          "value": 1000,
+          "unit": "VDC"
+        },
+        "minimum_resistance": {
+          "value": 40,
+          "unit": "MΩ·m²"
+        }
+      },
+      "automation_capable": true
+    },
+    {
+      "step_number": 4,
+      "description": "Mount module in diagonal support configuration",
+      "action": "setup",
+      "parameters": {
+        "support_configuration": "Diagonal corners supported, two corners free",
+        "support_dimensions": "Module supported at two opposite corners, other two corners unsupported for twist application",
+        "fixation_method": "Secure mounting at supported corners to prevent slippage"
+      },
+      "automation_capable": false
+    },
+    {
+      "step_number": 5,
+      "description": "Apply twist load to first unsupported corner",
+      "action": "measurement",
+      "duration": {
+        "value": 5,
+        "unit": "minutes"
+      },
+      "parameters": {
+        "corner": "Corner A",
+        "displacement_direction": "downward",
+        "target_displacement": {
+          "value": 25,
+          "unit": "mm"
+        },
+        "loading_rate": {
+          "value": 5,
+          "unit": "mm/min"
+        },
+        "force_measurement": true
+      },
+      "automation_capable": true
+    },
+    {
+      "step_number": 6,
+      "description": "Hold twist load at maximum displacement",
+      "action": "waiting",
+      "duration": {
+        "value": 60,
+        "unit": "seconds"
+      },
+      "parameters": {
+        "maintain_displacement": true,
+        "monitor_force_relaxation": true
+      },
+      "automation_capable": true
+    },
+    {
+      "step_number": 7,
+      "description": "Release twist load and return to neutral position",
+      "action": "measurement",
+      "duration": {
+        "value": 5,
+        "unit": "minutes"
+      },
+      "parameters": {
+        "unloading_rate": {
+          "value": 5,
+          "unit": "mm/min"
+        },
+        "measure_residual_deformation": true
+      },
+      "automation_capable": true
+    },
+    {
+      "step_number": 8,
+      "description": "Repeat twist cycle for remaining cycles",
+      "action": "measurement",
+      "parameters": {
+        "repeat_steps": [5, 6, 7],
+        "total_cycles": 3,
+        "observation_between_cycles": "Check for progressive damage"
+      },
+      "automation_capable": true
+    },
+    {
+      "step_number": 9,
+      "description": "Rotate module 180° and repeat twist test on opposite corner",
+      "action": "setup",
+      "parameters": {
+        "corner": "Corner B (opposite to Corner A)",
+        "repeat_steps": [5, 6, 7, 8]
+      },
+      "automation_capable": false
+    },
+    {
+      "step_number": 10,
+      "description": "Remove module from test fixture and perform visual inspection",
+      "action": "inspection",
+      "parameters": {
+        "inspection_points": [
+          "Cell cracks or breakage",
+          "Solder joint integrity",
+          "Junction box attachment",
+          "Frame deformation or cracks",
+          "Glass cracks or delamination",
+          "Backsheet tears or separation",
+          "Encapsulant delamination"
+        ],
+        "photo_documentation": true,
+        "compare_to_initial": true
+      },
+      "automation_capable": false
+    },
+    {
+      "step_number": 11,
+      "description": "Allow module to stabilize before electrical testing",
+      "action": "waiting",
+      "duration": {
+        "value": 120,
+        "unit": "minutes"
+      },
+      "parameters": {
+        "storage_conditions": "Laboratory ambient conditions"
+      },
+      "automation_capable": true
+    },
+    {
+      "step_number": 12,
+      "description": "Perform final electrical characterization",
+      "action": "measurement",
+      "duration": {
+        "value": 30,
+        "unit": "minutes"
+      },
+      "parameters": {
+        "measurements": ["Pmax", "Voc", "Isc", "FF"],
+        "irradiance": {
+          "value": 1000,
+          "unit": "W/m²"
+        },
+        "temperature": {
+          "value": 25,
+          "unit": "°C"
+        },
+        "spectrum": "AM1.5G"
+      },
+      "automation_capable": true
+    },
+    {
+      "step_number": 13,
+      "description": "Perform final insulation resistance test",
+      "action": "measurement",
+      "duration": {
+        "value": 5,
+        "unit": "minutes"
+      },
+      "parameters": {
+        "test_voltage": {
+          "value": 1000,
+          "unit": "VDC"
+        },
+        "minimum_resistance": {
+          "value": 40,
+          "unit": "MΩ·m²"
+        }
+      },
+      "automation_capable": true
+    },
+    {
+      "step_number": 14,
+      "description": "Calculate power degradation and evaluate pass/fail criteria",
+      "action": "calculation",
+      "parameters": {
+        "calculations": [
+          {
+            "parameter": "power_degradation",
+            "formula": "((Pmax_initial - Pmax_final) / Pmax_initial) * 100"
+          }
+        ]
+      },
+      "automation_capable": true
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion_id": "AC-001",
+      "description": "Maximum power degradation must not exceed 5%",
+      "evaluation_method": "calculation",
+      "threshold": {
+        "parameter": "power_degradation",
+        "operator": "<=",
+        "value": 5.0,
+        "unit": "%"
+      }
+    },
+    {
+      "criterion_id": "AC-002",
+      "description": "No visual defects: cracks, breaks, or delamination",
+      "evaluation_method": "visual",
+      "threshold": {
+        "parameter": "visual_defects",
+        "operator": "==",
+        "value": "none"
+      }
+    },
+    {
+      "criterion_id": "AC-003",
+      "description": "Insulation resistance must remain above minimum threshold",
+      "evaluation_method": "measurement",
+      "threshold": {
+        "parameter": "insulation_resistance",
+        "operator": ">=",
+        "value": 40,
+        "unit": "MΩ·m²"
+      }
+    },
+    {
+      "criterion_id": "AC-004",
+      "description": "No open circuits or ground faults",
+      "evaluation_method": "measurement",
+      "threshold": {
+        "parameter": "electrical_continuity",
+        "operator": "==",
+        "value": "pass"
+      }
+    },
+    {
+      "criterion_id": "AC-005",
+      "description": "Junction box must remain securely attached",
+      "evaluation_method": "visual",
+      "threshold": {
+        "parameter": "junction_box_integrity",
+        "operator": "==",
+        "value": "secure"
+      }
+    }
+  ],
+  "data_collection": {
+    "measurements": [
+      {
+        "measurement_id": "M-001",
+        "parameter": "Maximum Power (Pmax) - Initial",
+        "unit": "W",
+        "instrument": "Solar simulator with I-V curve tracer",
+        "accuracy": "±2%",
+        "data_type": "numeric"
+      },
+      {
+        "measurement_id": "M-002",
+        "parameter": "Open Circuit Voltage (Voc) - Initial",
+        "unit": "V",
+        "instrument": "Solar simulator with I-V curve tracer",
+        "accuracy": "±0.5%",
+        "data_type": "numeric"
+      },
+      {
+        "measurement_id": "M-003",
+        "parameter": "Short Circuit Current (Isc) - Initial",
+        "unit": "A",
+        "instrument": "Solar simulator with I-V curve tracer",
+        "accuracy": "±1%",
+        "data_type": "numeric"
+      },
+      {
+        "measurement_id": "M-004",
+        "parameter": "Fill Factor (FF) - Initial",
+        "unit": "%",
+        "instrument": "Calculated from I-V curve",
+        "accuracy": "±1%",
+        "data_type": "numeric"
+      },
+      {
+        "measurement_id": "M-005",
+        "parameter": "Insulation Resistance - Initial",
+        "unit": "MΩ",
+        "instrument": "Insulation resistance tester (Megohmmeter)",
+        "accuracy": "±5%",
+        "data_type": "numeric"
+      },
+      {
+        "measurement_id": "M-006",
+        "parameter": "Twist Force",
+        "unit": "N",
+        "instrument": "Load cell",
+        "accuracy": "±1%",
+        "data_type": "array"
+      },
+      {
+        "measurement_id": "M-007",
+        "parameter": "Displacement",
+        "unit": "mm",
+        "instrument": "Linear displacement sensor",
+        "accuracy": "±0.1 mm",
+        "data_type": "array"
+      },
+      {
+        "measurement_id": "M-008",
+        "parameter": "Maximum Power (Pmax) - Final",
+        "unit": "W",
+        "instrument": "Solar simulator with I-V curve tracer",
+        "accuracy": "±2%",
+        "data_type": "numeric"
+      },
+      {
+        "measurement_id": "M-009",
+        "parameter": "Open Circuit Voltage (Voc) - Final",
+        "unit": "V",
+        "instrument": "Solar simulator with I-V curve tracer",
+        "accuracy": "±0.5%",
+        "data_type": "numeric"
+      },
+      {
+        "measurement_id": "M-010",
+        "parameter": "Short Circuit Current (Isc) - Final",
+        "unit": "A",
+        "instrument": "Solar simulator with I-V curve tracer",
+        "accuracy": "±1%",
+        "data_type": "numeric"
+      },
+      {
+        "measurement_id": "M-011",
+        "parameter": "Fill Factor (FF) - Final",
+        "unit": "%",
+        "instrument": "Calculated from I-V curve",
+        "accuracy": "±1%",
+        "data_type": "numeric"
+      },
+      {
+        "measurement_id": "M-012",
+        "parameter": "Insulation Resistance - Final",
+        "unit": "MΩ",
+        "instrument": "Insulation resistance tester (Megohmmeter)",
+        "accuracy": "±5%",
+        "data_type": "numeric"
+      },
+      {
+        "measurement_id": "M-013",
+        "parameter": "Power Degradation",
+        "unit": "%",
+        "instrument": "Calculated",
+        "accuracy": "±2%",
+        "data_type": "numeric"
+      }
+    ],
+    "documentation": [
+      {
+        "item": "Module serial number and manufacturer",
+        "format": "text",
+        "required": true
+      },
+      {
+        "item": "Pre-test photographs (all sides)",
+        "format": "image",
+        "required": true
+      },
+      {
+        "item": "Post-test photographs (all sides)",
+        "format": "image",
+        "required": true
+      },
+      {
+        "item": "Force-displacement curves",
+        "format": "chart",
+        "required": true
+      },
+      {
+        "item": "I-V curves (initial and final)",
+        "format": "chart",
+        "required": true
+      },
+      {
+        "item": "Test environment conditions log",
+        "format": "table",
+        "required": true
+      },
+      {
+        "item": "Operator name and date",
+        "format": "text",
+        "required": true
+      }
+    ]
+  },
+  "safety_requirements": [
+    "Ensure module is electrically isolated before mechanical testing",
+    "Use appropriate lifting equipment for heavy modules (>20 kg)",
+    "Wear safety glasses and gloves during module handling",
+    "Secure test fixture to prevent module falling during twist application",
+    "Be aware of sharp edges on broken glass if module fails during test",
+    "Follow electrical safety procedures during I-V testing (high voltage)",
+    "Ensure proper grounding of all electrical test equipment",
+    "Do not exceed specified twist displacement to prevent equipment damage"
+  ],
+  "equipment": [
+    {
+      "name": "Twist test fixture",
+      "specifications": "Diagonal support configuration, adjustable for various module sizes",
+      "quantity": 1
+    },
+    {
+      "name": "Linear actuator",
+      "specifications": "Displacement range ≥50mm, speed control 1-10 mm/min",
+      "quantity": 1
+    },
+    {
+      "name": "Load cell",
+      "specifications": "Capacity ≥500N, accuracy ±1%",
+      "quantity": 1
+    },
+    {
+      "name": "Linear displacement sensor",
+      "specifications": "Range ≥50mm, accuracy ±0.1mm",
+      "quantity": 1
+    },
+    {
+      "name": "Solar simulator",
+      "specifications": "Class AAA, 1000 W/m², AM1.5G spectrum",
+      "quantity": 1
+    },
+    {
+      "name": "I-V curve tracer",
+      "specifications": "Voltage range 0-100V, current range 0-15A",
+      "quantity": 1
+    },
+    {
+      "name": "Insulation resistance tester",
+      "specifications": "Test voltage 1000V DC, range 0-1000 MΩ",
+      "quantity": 1
+    },
+    {
+      "name": "Digital camera",
+      "specifications": "Minimum 12MP for documentation",
+      "quantity": 1
+    },
+    {
+      "name": "Temperature/humidity meter",
+      "specifications": "Accuracy ±0.5°C, ±2% RH",
+      "quantity": 1
+    }
+  ],
+  "metadata": {
+    "created_date": "2025-11-14",
+    "last_modified": "2025-11-14",
+    "author": "PV Testing Protocol Framework",
+    "tags": ["mechanical", "twist", "IEC61215", "module", "stress-test", "torsion"]
+  }
+}

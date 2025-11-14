@@ -1,0 +1,38 @@
+# Development Configuration
+environment: development
+
+database:
+  type: sqlite
+  path: ./data/test_protocols_dev.db
+  echo_sql: true
+
+ui:
+  host: localhost
+  port: 8501
+  theme: dark
+  debug: true
+
+logging:
+  level: DEBUG
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: ./logs/dev.log
+
+integrations:
+  lims:
+    enabled: false
+    mock: true
+  qms:
+    enabled: false
+    mock: true
+  project_management:
+    enabled: false
+    mock: true
+
+security:
+  require_auth: false
+  session_timeout: 3600
+
+protocols:
+  auto_validate: true
+  strict_schema: true
+  allow_custom_fields: true

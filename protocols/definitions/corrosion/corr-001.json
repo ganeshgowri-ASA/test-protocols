@@ -1,0 +1,855 @@
+{
+  "protocol_id": "CORR-001",
+  "name": "Corrosion Testing - Salt Spray and Humidity",
+  "category": "degradation",
+  "version": "1.0.0",
+  "description": "Comprehensive corrosion testing protocol for photovoltaic modules and components using accelerated salt spray and humidity exposure. Tests resistance to corrosive environments including marine, coastal, and industrial atmospheres.",
+  "standards": [
+    {
+      "name": "IEC",
+      "number": "61701",
+      "title": "Salt Mist Corrosion Testing of Photovoltaic Modules",
+      "year": 2020
+    },
+    {
+      "name": "ASTM",
+      "number": "B117",
+      "title": "Standard Practice for Operating Salt Spray (Fog) Apparatus",
+      "year": 2019
+    },
+    {
+      "name": "IEC",
+      "number": "61215",
+      "title": "Terrestrial Photovoltaic Modules - Design Qualification and Type Approval",
+      "year": 2021
+    }
+  ],
+  "parameters": {
+    "test_conditions": {
+      "salt_spray": {
+        "solution_concentration": "5% NaCl",
+        "temperature": "35°C ± 2°C",
+        "ph_range": "6.5 - 7.2",
+        "fall_rate": "1.0 - 2.0 ml/80cm²/h"
+      },
+      "humidity_chamber": {
+        "temperature": "85°C ± 2°C",
+        "relative_humidity": "85% ± 5%"
+      }
+    },
+    "equipment": [
+      {
+        "name": "Salt Spray Chamber",
+        "type": "environmental_chamber",
+        "model": "ASTM B117 Compliant",
+        "calibration_required": true
+      },
+      {
+        "name": "Humidity Chamber",
+        "type": "environmental_chamber",
+        "model": "IEC 61215 Compliant",
+        "calibration_required": true
+      },
+      {
+        "name": "Digital Thermometer",
+        "type": "temperature_sensor",
+        "calibration_required": true
+      },
+      {
+        "name": "Hygrometer",
+        "type": "humidity_sensor",
+        "calibration_required": true
+      },
+      {
+        "name": "pH Meter",
+        "type": "chemical_sensor",
+        "calibration_required": true
+      },
+      {
+        "name": "IV Curve Tracer",
+        "type": "electrical_tester",
+        "calibration_required": true
+      },
+      {
+        "name": "Visual Inspection Microscope",
+        "type": "optical",
+        "calibration_required": false
+      }
+    ],
+    "sample_requirements": {
+      "quantity": 3,
+      "dimensions": "Minimum 1000mm x 1000mm for full modules, or representative coupons",
+      "preparation": "Clean samples with IPA, dry completely, document baseline condition"
+    }
+  },
+  "steps": [
+    {
+      "step_number": 1,
+      "name": "Initial Documentation and Inspection",
+      "type": "preparation",
+      "description": "Photograph all samples, record serial numbers, perform visual inspection for existing defects, measure and document baseline dimensions.",
+      "duration": {
+        "value": 30,
+        "unit": "minutes"
+      },
+      "automated": false,
+      "quality_checks": [
+        "All samples photographed from multiple angles",
+        "Serial numbers clearly visible and recorded",
+        "No pre-existing damage that would invalidate test"
+      ]
+    },
+    {
+      "step_number": 2,
+      "name": "Baseline Electrical Characterization",
+      "type": "measurement",
+      "description": "Measure IV curves at STC conditions (1000 W/m², 25°C, AM1.5G). Record Voc, Isc, Pmax, FF, Rs, Rsh. Perform electroluminescence imaging if available.",
+      "duration": {
+        "value": 45,
+        "unit": "minutes"
+      },
+      "automated": true,
+      "quality_checks": [
+        "IV curves show expected behavior",
+        "All electrical parameters within datasheet specifications",
+        "EL images show uniform emission (if applicable)"
+      ]
+    },
+    {
+      "step_number": 3,
+      "name": "Prepare Salt Spray Solution",
+      "type": "preparation",
+      "description": "Mix 5% ± 1% NaCl solution using distilled water. Verify pH is between 6.5-7.2. Filter solution to remove impurities. Preheat to 35°C.",
+      "duration": {
+        "value": 20,
+        "unit": "minutes"
+      },
+      "automated": false,
+      "quality_checks": [
+        "Solution concentration verified with hydrometer or mass measurement",
+        "pH within specified range",
+        "Solution clear with no visible contaminants"
+      ]
+    },
+    {
+      "step_number": 4,
+      "name": "Salt Spray Exposure - Cycle 1",
+      "type": "conditioning",
+      "description": "Place samples in salt spray chamber at 35°C. Ensure samples are angled 15-30° from vertical. Expose to continuous salt fog for 48 hours. Monitor temperature and solution delivery rate.",
+      "duration": {
+        "value": 48,
+        "unit": "hours"
+      },
+      "automated": true,
+      "quality_checks": [
+        "Chamber temperature maintained at 35°C ± 2°C",
+        "Salt fog uniformly distributed",
+        "Solution fall rate within specification"
+      ]
+    },
+    {
+      "step_number": 5,
+      "name": "Post-Spray Recovery and Drying",
+      "type": "preparation",
+      "description": "Remove samples from chamber. Gently rinse with distilled water to remove salt deposits. Allow samples to air dry at ambient conditions for 24 hours.",
+      "duration": {
+        "value": 24,
+        "unit": "hours"
+      },
+      "automated": false,
+      "quality_checks": [
+        "All salt residue removed",
+        "Samples completely dry before next step",
+        "No handling damage during transfer"
+      ]
+    },
+    {
+      "step_number": 6,
+      "name": "Humidity Exposure - Cycle 1",
+      "type": "conditioning",
+      "description": "Place samples in humidity chamber at 85°C and 85% RH. Expose for 96 hours. Monitor temperature and humidity continuously. Log any deviations.",
+      "duration": {
+        "value": 96,
+        "unit": "hours"
+      },
+      "automated": true,
+      "quality_checks": [
+        "Temperature maintained at 85°C ± 2°C",
+        "Relative humidity at 85% ± 5%",
+        "No condensation on samples"
+      ]
+    },
+    {
+      "step_number": 7,
+      "name": "Post-Humidity Recovery",
+      "type": "preparation",
+      "description": "Allow samples to cool and equilibrate to ambient conditions. Minimum 4 hours at 23°C ± 5°C and 50% ± 10% RH.",
+      "duration": {
+        "value": 4,
+        "unit": "hours"
+      },
+      "automated": false,
+      "quality_checks": [
+        "Samples at room temperature",
+        "No moisture condensation visible",
+        "Ready for inspection and testing"
+      ]
+    },
+    {
+      "step_number": 8,
+      "name": "Interim Visual Inspection",
+      "type": "measurement",
+      "description": "Perform detailed visual inspection. Document any corrosion, discoloration, delamination, bubbles, or other defects. Compare to baseline photos. Measure defect dimensions.",
+      "duration": {
+        "value": 30,
+        "unit": "minutes"
+      },
+      "automated": false,
+      "quality_checks": [
+        "All visible changes documented with photos",
+        "Defects measured and recorded",
+        "Comparison to baseline completed"
+      ]
+    },
+    {
+      "step_number": 9,
+      "name": "Interim Electrical Testing",
+      "type": "measurement",
+      "description": "Measure IV curves and key electrical parameters. Compare to baseline. Calculate degradation percentages. Perform insulation resistance test (wet leakage current).",
+      "duration": {
+        "value": 45,
+        "unit": "minutes"
+      },
+      "automated": true,
+      "quality_checks": [
+        "IV measurements completed at STC",
+        "Insulation resistance > 40 MΩ·m²",
+        "Data logged and compared to baseline"
+      ]
+    },
+    {
+      "step_number": 10,
+      "name": "Repeat Exposure Cycles",
+      "type": "conditioning",
+      "description": "Repeat steps 4-9 for a total of 3 complete cycles. Each cycle consists of: 48h salt spray, 24h recovery, 96h humidity, 4h recovery, inspection, and testing.",
+      "duration": {
+        "value": 512,
+        "unit": "hours"
+      },
+      "automated": true,
+      "quality_checks": [
+        "All cycles completed as specified",
+        "Continuous monitoring data logged",
+        "No premature test termination due to equipment failure"
+      ]
+    },
+    {
+      "step_number": 11,
+      "name": "Final Visual Inspection and Documentation",
+      "type": "measurement",
+      "description": "Comprehensive final visual inspection. High-resolution photography from all angles. Document all corrosion sites, edge seal condition, junction box integrity, and overall appearance.",
+      "duration": {
+        "value": 45,
+        "unit": "minutes"
+      },
+      "automated": false,
+      "quality_checks": [
+        "Complete photographic documentation",
+        "All defects cataloged and measured",
+        "Inspection report generated"
+      ]
+    },
+    {
+      "step_number": 12,
+      "name": "Final Electrical Characterization",
+      "type": "measurement",
+      "description": "Complete electrical testing suite: IV curves, EL imaging, insulation resistance, ground continuity, wet leakage current. Calculate all degradation metrics relative to baseline.",
+      "duration": {
+        "value": 60,
+        "unit": "minutes"
+      },
+      "automated": true,
+      "quality_checks": [
+        "All electrical parameters measured",
+        "Degradation calculations completed",
+        "Pass/fail determination made"
+      ]
+    },
+    {
+      "step_number": 13,
+      "name": "Data Analysis and Report Generation",
+      "type": "analysis",
+      "description": "Analyze all collected data. Generate degradation curves, correlation plots, statistical summaries. Prepare comprehensive test report with photos, data tables, and charts.",
+      "duration": {
+        "value": 120,
+        "unit": "minutes"
+      },
+      "automated": true,
+      "quality_checks": [
+        "All data analyzed",
+        "Statistical analysis completed",
+        "Report generated and reviewed"
+      ]
+    }
+  ],
+  "data_fields": [
+    {
+      "field_id": "sample_id",
+      "name": "Sample ID",
+      "type": "text",
+      "required": true,
+      "description": "Unique identifier for test sample",
+      "step_number": 1
+    },
+    {
+      "field_id": "serial_number",
+      "name": "Serial Number",
+      "type": "text",
+      "required": true,
+      "description": "Manufacturer serial number",
+      "step_number": 1
+    },
+    {
+      "field_id": "test_date",
+      "name": "Test Start Date",
+      "type": "date",
+      "required": true,
+      "description": "Date testing commenced",
+      "step_number": 1
+    },
+    {
+      "field_id": "operator",
+      "name": "Test Operator",
+      "type": "text",
+      "required": true,
+      "description": "Name of person conducting test",
+      "step_number": 1
+    },
+    {
+      "field_id": "baseline_voc",
+      "name": "Baseline Voc",
+      "type": "number",
+      "unit": "V",
+      "required": true,
+      "validation": {
+        "min": 0,
+        "max": 100
+      },
+      "description": "Open circuit voltage at baseline",
+      "step_number": 2
+    },
+    {
+      "field_id": "baseline_isc",
+      "name": "Baseline Isc",
+      "type": "number",
+      "unit": "A",
+      "required": true,
+      "validation": {
+        "min": 0,
+        "max": 20
+      },
+      "description": "Short circuit current at baseline",
+      "step_number": 2
+    },
+    {
+      "field_id": "baseline_pmax",
+      "name": "Baseline Pmax",
+      "type": "number",
+      "unit": "W",
+      "required": true,
+      "validation": {
+        "min": 0,
+        "max": 600
+      },
+      "description": "Maximum power at baseline",
+      "step_number": 2
+    },
+    {
+      "field_id": "baseline_ff",
+      "name": "Baseline Fill Factor",
+      "type": "number",
+      "unit": "%",
+      "required": true,
+      "validation": {
+        "min": 0,
+        "max": 100
+      },
+      "description": "Fill factor at baseline",
+      "step_number": 2
+    },
+    {
+      "field_id": "baseline_rs",
+      "name": "Baseline Series Resistance",
+      "type": "number",
+      "unit": "Ω",
+      "required": false,
+      "validation": {
+        "min": 0
+      },
+      "description": "Series resistance at baseline",
+      "step_number": 2
+    },
+    {
+      "field_id": "baseline_rsh",
+      "name": "Baseline Shunt Resistance",
+      "type": "number",
+      "unit": "Ω",
+      "required": false,
+      "validation": {
+        "min": 0
+      },
+      "description": "Shunt resistance at baseline",
+      "step_number": 2
+    },
+    {
+      "field_id": "salt_solution_concentration",
+      "name": "Salt Solution Concentration",
+      "type": "number",
+      "unit": "%",
+      "required": true,
+      "validation": {
+        "min": 4,
+        "max": 6
+      },
+      "description": "NaCl concentration by weight",
+      "step_number": 3
+    },
+    {
+      "field_id": "salt_solution_ph",
+      "name": "Salt Solution pH",
+      "type": "number",
+      "required": true,
+      "validation": {
+        "min": 6.5,
+        "max": 7.2
+      },
+      "description": "pH of salt solution",
+      "step_number": 3
+    },
+    {
+      "field_id": "spray_temp",
+      "name": "Salt Spray Temperature",
+      "type": "number",
+      "unit": "°C",
+      "required": true,
+      "validation": {
+        "min": 33,
+        "max": 37
+      },
+      "description": "Average chamber temperature during salt spray",
+      "step_number": 4
+    },
+    {
+      "field_id": "spray_duration",
+      "name": "Actual Spray Duration",
+      "type": "number",
+      "unit": "hours",
+      "required": true,
+      "description": "Actual duration of salt spray exposure",
+      "step_number": 4
+    },
+    {
+      "field_id": "humidity_temp",
+      "name": "Humidity Chamber Temperature",
+      "type": "number",
+      "unit": "°C",
+      "required": true,
+      "validation": {
+        "min": 83,
+        "max": 87
+      },
+      "description": "Average temperature during humidity exposure",
+      "step_number": 6
+    },
+    {
+      "field_id": "humidity_rh",
+      "name": "Relative Humidity",
+      "type": "number",
+      "unit": "%",
+      "required": true,
+      "validation": {
+        "min": 80,
+        "max": 90
+      },
+      "description": "Average relative humidity during exposure",
+      "step_number": 6
+    },
+    {
+      "field_id": "humidity_duration",
+      "name": "Actual Humidity Duration",
+      "type": "number",
+      "unit": "hours",
+      "required": true,
+      "description": "Actual duration of humidity exposure",
+      "step_number": 6
+    },
+    {
+      "field_id": "cycle_number",
+      "name": "Test Cycle Number",
+      "type": "number",
+      "required": true,
+      "validation": {
+        "min": 1,
+        "max": 10
+      },
+      "description": "Current test cycle number",
+      "step_number": 8
+    },
+    {
+      "field_id": "visual_corrosion",
+      "name": "Visual Corrosion Observed",
+      "type": "select",
+      "required": true,
+      "validation": {
+        "options": ["None", "Minor", "Moderate", "Severe"]
+      },
+      "description": "Severity of visible corrosion",
+      "step_number": 8
+    },
+    {
+      "field_id": "corrosion_location",
+      "name": "Corrosion Location",
+      "type": "multiselect",
+      "required": false,
+      "validation": {
+        "options": ["Frame", "Junction Box", "Connectors", "Cell Interconnects", "Backsheet", "Edge Seal", "None"]
+      },
+      "description": "Locations where corrosion is observed",
+      "step_number": 8
+    },
+    {
+      "field_id": "delamination",
+      "name": "Delamination Observed",
+      "type": "boolean",
+      "required": true,
+      "description": "Presence of delamination",
+      "step_number": 8
+    },
+    {
+      "field_id": "discoloration",
+      "name": "Discoloration Observed",
+      "type": "boolean",
+      "required": true,
+      "description": "Presence of discoloration",
+      "step_number": 8
+    },
+    {
+      "field_id": "interim_voc",
+      "name": "Interim Voc",
+      "type": "number",
+      "unit": "V",
+      "required": true,
+      "description": "Open circuit voltage at interim measurement",
+      "step_number": 9
+    },
+    {
+      "field_id": "interim_isc",
+      "name": "Interim Isc",
+      "type": "number",
+      "unit": "A",
+      "required": true,
+      "description": "Short circuit current at interim measurement",
+      "step_number": 9
+    },
+    {
+      "field_id": "interim_pmax",
+      "name": "Interim Pmax",
+      "type": "number",
+      "unit": "W",
+      "required": true,
+      "description": "Maximum power at interim measurement",
+      "step_number": 9
+    },
+    {
+      "field_id": "insulation_resistance",
+      "name": "Insulation Resistance",
+      "type": "number",
+      "unit": "MΩ",
+      "required": true,
+      "validation": {
+        "min": 0
+      },
+      "description": "Insulation resistance measurement",
+      "step_number": 9
+    },
+    {
+      "field_id": "final_voc",
+      "name": "Final Voc",
+      "type": "number",
+      "unit": "V",
+      "required": true,
+      "description": "Open circuit voltage at final measurement",
+      "step_number": 12
+    },
+    {
+      "field_id": "final_isc",
+      "name": "Final Isc",
+      "type": "number",
+      "unit": "A",
+      "required": true,
+      "description": "Short circuit current at final measurement",
+      "step_number": 12
+    },
+    {
+      "field_id": "final_pmax",
+      "name": "Final Pmax",
+      "type": "number",
+      "unit": "W",
+      "required": true,
+      "description": "Maximum power at final measurement",
+      "step_number": 12
+    },
+    {
+      "field_id": "final_ff",
+      "name": "Final Fill Factor",
+      "type": "number",
+      "unit": "%",
+      "required": true,
+      "description": "Fill factor at final measurement",
+      "step_number": 12
+    },
+    {
+      "field_id": "wet_leakage_current",
+      "name": "Wet Leakage Current",
+      "type": "number",
+      "unit": "mA",
+      "required": true,
+      "validation": {
+        "min": 0
+      },
+      "description": "Wet leakage current measurement",
+      "step_number": 12
+    },
+    {
+      "field_id": "ground_continuity",
+      "name": "Ground Continuity",
+      "type": "boolean",
+      "required": true,
+      "description": "Ground continuity test result",
+      "step_number": 12
+    },
+    {
+      "field_id": "test_result",
+      "name": "Overall Test Result",
+      "type": "select",
+      "required": true,
+      "validation": {
+        "options": ["Pass", "Fail", "Conditional Pass"]
+      },
+      "description": "Overall test pass/fail determination",
+      "step_number": 13
+    },
+    {
+      "field_id": "notes",
+      "name": "Additional Notes",
+      "type": "text",
+      "required": false,
+      "description": "Any additional observations or notes",
+      "step_number": 13
+    }
+  ],
+  "qc_criteria": [
+    {
+      "criterion_id": "qc_power_degradation",
+      "name": "Maximum Power Degradation Limit",
+      "type": "threshold",
+      "field_id": "final_pmax",
+      "condition": {
+        "operator": "degradation_less_than",
+        "baseline_field": "baseline_pmax",
+        "threshold": 5,
+        "unit": "%"
+      },
+      "severity": "critical"
+    },
+    {
+      "criterion_id": "qc_insulation_resistance",
+      "name": "Minimum Insulation Resistance",
+      "type": "threshold",
+      "field_id": "insulation_resistance",
+      "condition": {
+        "operator": "greater_than",
+        "threshold": 40,
+        "unit": "MΩ"
+      },
+      "severity": "critical"
+    },
+    {
+      "criterion_id": "qc_spray_temperature",
+      "name": "Salt Spray Temperature Range",
+      "type": "range",
+      "field_id": "spray_temp",
+      "condition": {
+        "min": 33,
+        "max": 37,
+        "unit": "°C"
+      },
+      "severity": "warning"
+    },
+    {
+      "criterion_id": "qc_humidity_temperature",
+      "name": "Humidity Chamber Temperature Range",
+      "type": "range",
+      "field_id": "humidity_temp",
+      "condition": {
+        "min": 83,
+        "max": 87,
+        "unit": "°C"
+      },
+      "severity": "warning"
+    },
+    {
+      "criterion_id": "qc_solution_ph",
+      "name": "Salt Solution pH Range",
+      "type": "range",
+      "field_id": "salt_solution_ph",
+      "condition": {
+        "min": 6.5,
+        "max": 7.2
+      },
+      "severity": "warning"
+    },
+    {
+      "criterion_id": "qc_visual_corrosion",
+      "name": "Visual Corrosion Check",
+      "type": "pattern",
+      "field_id": "visual_corrosion",
+      "condition": {
+        "fail_values": ["Severe"],
+        "warning_values": ["Moderate"]
+      },
+      "severity": "critical"
+    },
+    {
+      "criterion_id": "qc_ground_continuity",
+      "name": "Ground Continuity Required",
+      "type": "comparison",
+      "field_id": "ground_continuity",
+      "condition": {
+        "operator": "equals",
+        "value": true
+      },
+      "severity": "critical"
+    }
+  ],
+  "analysis": {
+    "calculations": [
+      {
+        "name": "Power Degradation",
+        "formula": "((baseline_pmax - final_pmax) / baseline_pmax) * 100",
+        "unit": "%",
+        "description": "Percentage decrease in maximum power"
+      },
+      {
+        "name": "Voc Degradation",
+        "formula": "((baseline_voc - final_voc) / baseline_voc) * 100",
+        "unit": "%",
+        "description": "Percentage decrease in open circuit voltage"
+      },
+      {
+        "name": "Isc Degradation",
+        "formula": "((baseline_isc - final_isc) / baseline_isc) * 100",
+        "unit": "%",
+        "description": "Percentage decrease in short circuit current"
+      },
+      {
+        "name": "Fill Factor Change",
+        "formula": "final_ff - baseline_ff",
+        "unit": "%",
+        "description": "Absolute change in fill factor"
+      }
+    ],
+    "charts": [
+      {
+        "name": "Power Degradation Curve",
+        "type": "line",
+        "x_field": "cycle_number",
+        "y_field": "interim_pmax",
+        "title": "Maximum Power vs Test Cycle"
+      },
+      {
+        "name": "IV Curve Comparison",
+        "type": "line",
+        "title": "Baseline vs Final IV Curves"
+      },
+      {
+        "name": "Temperature Profile",
+        "type": "line",
+        "x_field": "time",
+        "y_field": "temperature",
+        "title": "Chamber Temperature Profile"
+      },
+      {
+        "name": "Insulation Resistance Trend",
+        "type": "line",
+        "x_field": "cycle_number",
+        "y_field": "insulation_resistance",
+        "title": "Insulation Resistance vs Test Cycle"
+      }
+    ],
+    "statistical_tests": [
+      {
+        "test_name": "Degradation Rate Analysis",
+        "fields": ["baseline_pmax", "final_pmax"],
+        "confidence_level": 0.95
+      }
+    ]
+  },
+  "report_template": {
+    "sections": [
+      {
+        "title": "Executive Summary",
+        "content_type": "text",
+        "include": true
+      },
+      {
+        "title": "Test Parameters",
+        "content_type": "table",
+        "include": true
+      },
+      {
+        "title": "Baseline Measurements",
+        "content_type": "table",
+        "include": true
+      },
+      {
+        "title": "Exposure History",
+        "content_type": "table",
+        "include": true
+      },
+      {
+        "title": "Visual Inspection Results",
+        "content_type": "image",
+        "include": true
+      },
+      {
+        "title": "Electrical Performance",
+        "content_type": "chart",
+        "include": true
+      },
+      {
+        "title": "Degradation Analysis",
+        "content_type": "chart",
+        "include": true
+      },
+      {
+        "title": "QC Check Results",
+        "content_type": "table",
+        "include": true
+      },
+      {
+        "title": "Conclusions and Recommendations",
+        "content_type": "text",
+        "include": true
+      }
+    ]
+  },
+  "metadata": {
+    "author": "GenSpark Testing Team",
+    "created_date": "2025-01-15",
+    "last_modified": "2025-01-15",
+    "tags": ["corrosion", "salt spray", "humidity", "IEC 61701", "ASTM B117", "degradation"],
+    "complexity": "high",
+    "typical_duration": "3-4 weeks per complete test cycle"
+  }
+}

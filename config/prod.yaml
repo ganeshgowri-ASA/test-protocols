@@ -1,0 +1,50 @@
+# Production Configuration
+environment: production
+
+database:
+  type: postgresql
+  host: ${DB_HOST}
+  port: ${DB_PORT:5432}
+  name: ${DB_NAME}
+  user: ${DB_USER}
+  password: ${DB_PASSWORD}
+  pool_size: 10
+  echo_sql: false
+
+ui:
+  host: 0.0.0.0
+  port: 8501
+  theme: light
+  debug: false
+
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: /var/log/test_protocols/app.log
+
+integrations:
+  lims:
+    enabled: true
+    url: ${LIMS_URL}
+    api_key: ${LIMS_API_KEY}
+    timeout: 30
+  qms:
+    enabled: true
+    url: ${QMS_URL}
+    api_key: ${QMS_API_KEY}
+    timeout: 30
+  project_management:
+    enabled: true
+    url: ${PM_URL}
+    api_key: ${PM_API_KEY}
+    timeout: 30
+
+security:
+  require_auth: true
+  session_timeout: 1800
+  secret_key: ${SECRET_KEY}
+
+protocols:
+  auto_validate: true
+  strict_schema: true
+  allow_custom_fields: false

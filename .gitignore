@@ -210,6 +210,10 @@ __marimo__/
 data/
 *.db
 *.sqlite
+*.sqlite3
 logs/
 static/qrcodes/
 uploads/
+
+# Streamlit secrets (IMPORTANT: Never commit secrets!)
+.streamlit/secrets.toml

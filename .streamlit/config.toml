@@ -1,4 +1,5 @@
 [theme]
+base = "light"
 primaryColor = "#FF6B35"
 backgroundColor = "#FFFFFF"
 secondaryBackgroundColor = "#F0F2F6"
@@ -6,22 +7,15 @@ textColor = "#262730"
 font = "sans serif"
 
 [server]
-port = 8501
-address = "0.0.0.0"
 headless = true
-maxUploadSize = 100
-enableXsrfProtection = true
+port = 8501
 enableCORS = false
+enableXsrfProtection = true
+maxUploadSize = 200
 
 [browser]
 gatherUsageStats = false
-serverAddress = "localhost"
-serverPort = 8501
 
 [runner]
 magicEnabled = true
 fastReruns = true
-
-[client]
-showErrorDetails = true
-toolbarMode = "minimal"

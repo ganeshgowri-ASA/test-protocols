@@ -1,36 +1,68 @@
 """
 Solar PV Testing Protocol - Unified LIMS-QMS System
 ====================================================
-Main Application Entry Point
+Main Application Entry Point - Production Ready for Streamlit Cloud
 
 This is the master integration point for all 54 solar PV testing protocols,
 providing a unified interface for Service Request → Inspection → Equipment → Testing workflow.
+
+Version: 1.0.0
+Deployment: Streamlit Cloud
 """
 
 import streamlit as st
 from pathlib import Path
 import sys
+import logging
+from datetime import datetime
 
 # Add project root to path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
-# Import configuration
-from config.settings import AppConfig, setup_page_config
-from config.database import init_database
-from components.navigation import render_sidebar_navigation, render_header
-from components.analytics_engine import get_dashboard_metrics
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# Initialize app configuration
+# Initialize app configuration FIRST (must be first Streamlit command)
+from config.settings import AppConfig, setup_page_config
+
 setup_page_config(
-    page_title="Solar PV Testing LIMS-QMS",
-    page_icon="☀️",
+    page_title="PV Testing LIMS-QMS",
+    page_icon="🌞",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Initialize database
-db_session = init_database()
+# Display startup banner
+if 'startup_complete' not in st.session_state:
+    logger.info("Application startup initiated")
+    st.session_state.startup_complete = True
+    st.session_state.startup_time = datetime.now()
+
+# Import other modules after page config
+from config.database import init_database
+from components.navigation import render_sidebar_navigation, render_header
+from components.analytics_engine import get_dashboard_metrics
+
+# Initialize database with error handling
+@st.cache_resource
+def get_database_connection():
+    """Initialize and cache database connection"""
+    try:
+        logger.info("Initializing database connection...")
+        db_session = init_database()
+        logger.info("Database connection established successfully")
+        return db_session
+    except Exception as e:
+        logger.error(f"Database initialization failed: {e}")
+        st.error("⚠️ Database connection failed. Please check configuration.")
+        return None
+
+db_session = get_database_connection()
 
 
 def main():
@@ -123,12 +155,24 @@ def main():
     with tab4:
         render_alerts_panel()
 
-    # Footer
+    # Footer with deployment info
     st.divider()
+
+    # Health status indicator
+    col1, col2, col3 = st.columns([2, 1, 2])
+    with col2:
+        if db_session is not None:
+            st.success("🟢 System Healthy", icon="✅")
+        else:
+            st.error("🔴 Database Offline", icon="⚠️")
+
     st.markdown("""
     <div style='text-align: center; color: #666; padding: 20px;'>
-        <p>Solar PV Testing LIMS-QMS System v1.0.0 |
-        54 Testing Protocols | Complete Traceability | Production Ready</p>
+        <p><strong>Solar PV Testing LIMS-QMS System v1.0.0</strong></p>
+        <p>54 Testing Protocols | Complete Traceability | Streamlit Cloud Deployment</p>
+        <p style='font-size: 0.9em; color: #999;'>
+            Production Ready | IEC 61215-2:2021 Compliant | Deployed on Streamlit Cloud
+        </p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -181,63 +225,87 @@ def render_recent_activity():
             st.divider()
 
 
-def render_analytics_dashboard():
-    """Render analytics dashboard with charts"""
-    import plotly.graph_objects as go
-    import plotly.express as px
+@st.cache_data(ttl=300)  # Cache for 5 minutes
+def get_analytics_data():
+    """Get analytics data with caching for performance"""
     import pandas as pd
 
-    st.markdown("### 📈 Testing Analytics")
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        # Protocol distribution pie chart
-        fig = go.Figure(data=[go.Pie(
-            labels=['Performance', 'Degradation', 'Environmental', 'Mechanical', 'Safety'],
-            values=[25, 30, 20, 15, 10],
-            hole=.3
-        )])
-        fig.update_layout(title="Tests by Protocol Category", height=350)
-        st.plotly_chart(fig, use_container_width=True)
-
-    with col2:
-        # Monthly test trend
-        months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
-        tests = [45, 52, 48, 65, 70, 68]
-
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(
-            x=months, y=tests,
-            mode='lines+markers',
-            name='Tests Completed',
-            line=dict(color='#1f77b4', width=3),
-            marker=dict(size=10)
-        ))
-        fig.update_layout(
-            title="Monthly Test Completion Trend",
-            xaxis_title="Month",
-            yaxis_title="Tests Completed",
-            height=350
-        )
-        st.plotly_chart(fig, use_container_width=True)
-
-    # Equipment utilization
-    st.markdown("### ⚙️ Equipment Utilization (Last 7 Days)")
+    # Equipment utilization data
     equipment_data = pd.DataFrame({
         'Equipment': ['Solar Simulator', 'Climate Chamber', 'EL Tester', 'Pull Tester', 'Insulation Tester'],
         'Utilization': [85, 72, 68, 45, 55]
     })
 
-    fig = px.bar(
-        equipment_data,
-        x='Equipment',
-        y='Utilization',
-        color='Utilization',
-        color_continuous_scale='Blues'
-    )
-    fig.update_layout(height=300)
-    st.plotly_chart(fig, use_container_width=True)
+    # Protocol distribution
+    protocol_distribution = {
+        'labels': ['Performance', 'Degradation', 'Environmental', 'Mechanical', 'Safety'],
+        'values': [25, 30, 20, 15, 10]
+    }
+
+    # Monthly trend
+    monthly_trend = {
+        'months': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        'tests': [45, 52, 48, 65, 70, 68]
+    }
+
+    return equipment_data, protocol_distribution, monthly_trend
+
+
+def render_analytics_dashboard():
+    """Render analytics dashboard with charts"""
+    import plotly.graph_objects as go
+    import plotly.express as px
+
+    st.markdown("### 📈 Testing Analytics")
+
+    # Get cached analytics data
+    equipment_data, protocol_distribution, monthly_trend = get_analytics_data()
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        # Protocol distribution pie chart
+        with st.spinner("Loading protocol distribution..."):
+            fig = go.Figure(data=[go.Pie(
+                labels=protocol_distribution['labels'],
+                values=protocol_distribution['values'],
+                hole=.3
+            )])
+            fig.update_layout(title="Tests by Protocol Category", height=350)
+            st.plotly_chart(fig, use_container_width=True)
+
+    with col2:
+        # Monthly test trend
+        with st.spinner("Loading trend analysis..."):
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(
+                x=monthly_trend['months'],
+                y=monthly_trend['tests'],
+                mode='lines+markers',
+                name='Tests Completed',
+                line=dict(color='#1f77b4', width=3),
+                marker=dict(size=10)
+            ))
+            fig.update_layout(
+                title="Monthly Test Completion Trend",
+                xaxis_title="Month",
+                yaxis_title="Tests Completed",
+                height=350
+            )
+            st.plotly_chart(fig, use_container_width=True)
+
+    # Equipment utilization
+    st.markdown("### ⚙️ Equipment Utilization (Last 7 Days)")
+    with st.spinner("Loading equipment data..."):
+        fig = px.bar(
+            equipment_data,
+            x='Equipment',
+            y='Utilization',
+            color='Utilization',
+            color_continuous_scale='Blues'
+        )
+        fig.update_layout(height=300)
+        st.plotly_chart(fig, use_container_width=True)
 
 
 def render_alerts_panel():

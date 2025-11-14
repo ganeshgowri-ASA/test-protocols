@@ -1,0 +1,362 @@
+{
+  "protocol_id": "TROP-001",
+  "version": "1.0.0",
+  "name": "Tropical Climate Test",
+  "category": "Environmental",
+  "subcategory": "Climate",
+  "standard": "IEC 61215-2:2021 MQT 24",
+  "description": "Combined high temperature and humidity exposure test to evaluate PV module performance and durability in tropical climate conditions",
+  "revision_history": [
+    {
+      "version": "1.0.0",
+      "date": "2025-11-14",
+      "author": "System",
+      "changes": "Initial protocol definition"
+    }
+  ],
+  "test_requirements": {
+    "purpose": "To determine the ability of PV modules to withstand the effects of long-term exposure to high temperature and high humidity conditions typical of tropical climates",
+    "applicable_modules": [
+      "Crystalline Silicon",
+      "Thin Film",
+      "Bifacial",
+      "BIPV"
+    ],
+    "sample_size": {
+      "minimum": 3,
+      "recommended": 5,
+      "note": "Per IEC 61215-2:2021"
+    }
+  },
+  "pre_test_requirements": {
+    "visual_inspection": {
+      "required": true,
+      "acceptance_criteria": "No major visual defects as per IEC 61215-1:2021"
+    },
+    "electrical_performance": {
+      "required": true,
+      "measurements": ["Pmax", "Voc", "Isc", "Vmpp", "Impp", "FF"],
+      "standard_test_conditions": {
+        "irradiance": 1000,
+        "irradiance_unit": "W/m²",
+        "spectrum": "AM 1.5",
+        "temperature": 25,
+        "temperature_unit": "°C"
+      }
+    },
+    "insulation_test": {
+      "required": true,
+      "test_voltage": 1000,
+      "voltage_unit": "V",
+      "duration": 60,
+      "duration_unit": "seconds"
+    },
+    "wet_leakage_current": {
+      "required": true,
+      "max_acceptable": 50,
+      "unit": "μA"
+    }
+  },
+  "test_sequence": {
+    "total_cycles": 100,
+    "cycle_duration": 24,
+    "cycle_duration_unit": "hours",
+    "total_test_duration": 2400,
+    "total_test_duration_unit": "hours",
+    "steps": [
+      {
+        "step": 1,
+        "name": "Initial Stabilization",
+        "duration": 2,
+        "duration_unit": "hours",
+        "temperature": 85,
+        "temperature_unit": "°C",
+        "temperature_tolerance": "±2",
+        "relative_humidity": 85,
+        "humidity_unit": "%",
+        "humidity_tolerance": "±5",
+        "description": "Bring chamber to test conditions"
+      },
+      {
+        "step": 2,
+        "name": "High Temperature High Humidity Exposure",
+        "duration": 22,
+        "duration_unit": "hours",
+        "temperature": 85,
+        "temperature_unit": "°C",
+        "temperature_tolerance": "±2",
+        "relative_humidity": 85,
+        "humidity_unit": "%",
+        "humidity_tolerance": "±5",
+        "description": "Maintain tropical climate conditions",
+        "repeat_count": 100
+      }
+    ]
+  },
+  "monitoring_parameters": {
+    "chamber_conditions": {
+      "temperature": {
+        "target": 85,
+        "unit": "°C",
+        "tolerance": 2,
+        "monitoring_interval": 15,
+        "interval_unit": "minutes",
+        "sensors_required": 3,
+        "calibration_due": "Annual"
+      },
+      "relative_humidity": {
+        "target": 85,
+        "unit": "%",
+        "tolerance": 5,
+        "monitoring_interval": 15,
+        "interval_unit": "minutes",
+        "sensors_required": 3,
+        "calibration_due": "Annual"
+      }
+    },
+    "module_parameters": {
+      "open_circuit_voltage": {
+        "measurement_frequency": "Per cycle",
+        "alert_threshold": 10,
+        "alert_threshold_unit": "%",
+        "description": "Monitor for degradation"
+      },
+      "short_circuit_current": {
+        "measurement_frequency": "Per cycle",
+        "alert_threshold": 10,
+        "alert_threshold_unit": "%",
+        "description": "Monitor for degradation"
+      }
+    }
+  },
+  "interim_measurements": {
+    "frequency": "Every 10 cycles",
+    "measurements": [
+      {
+        "parameter": "Visual Inspection",
+        "method": "IEC 61215-1:2021",
+        "acceptance_criteria": "No major visual defects"
+      },
+      {
+        "parameter": "Electrical Performance",
+        "method": "I-V curve measurement at STC",
+        "parameters": ["Pmax", "Voc", "Isc", "Vmpp", "Impp", "FF"]
+      },
+      {
+        "parameter": "Insulation Resistance",
+        "method": "IEC 61215-2:2021 MQT 01",
+        "min_acceptable": 40,
+        "unit": "MΩ"
+      }
+    ]
+  },
+  "post_test_requirements": {
+    "recovery_time": {
+      "duration": 2,
+      "duration_unit": "hours",
+      "conditions": "Standard laboratory conditions (23±5°C, <75% RH)"
+    },
+    "final_measurements": [
+      {
+        "parameter": "Visual Inspection",
+        "method": "IEC 61215-1:2021",
+        "acceptance_criteria": "No major visual defects including delamination, corrosion, broken cells"
+      },
+      {
+        "parameter": "Electrical Performance",
+        "method": "I-V curve measurement at STC",
+        "parameters": ["Pmax", "Voc", "Isc", "Vmpp", "Impp", "FF"],
+        "acceptance_criteria": {
+          "Pmax_degradation": {
+            "max": 5,
+            "unit": "%",
+            "description": "Maximum 5% power degradation from initial"
+          }
+        }
+      },
+      {
+        "parameter": "Insulation Test",
+        "method": "IEC 61215-2:2021 MQT 01",
+        "test_voltage": 1000,
+        "voltage_unit": "V",
+        "min_resistance": 40,
+        "resistance_unit": "MΩ"
+      },
+      {
+        "parameter": "Wet Leakage Current",
+        "method": "IEC 61215-2:2021 MQT 15",
+        "max_acceptable": 50,
+        "unit": "μA"
+      }
+    ]
+  },
+  "acceptance_criteria": {
+    "visual": {
+      "major_defects": 0,
+      "minor_defects": "Acceptable per IEC 61215-1",
+      "specific_checks": [
+        "No delamination",
+        "No corrosion of interconnects",
+        "No broken cells",
+        "No bubble formation in encapsulant",
+        "No loss of mechanical integrity"
+      ]
+    },
+    "electrical": {
+      "power_degradation": {
+        "max": 5,
+        "unit": "%",
+        "reference": "Initial Pmax measurement"
+      },
+      "insulation_resistance": {
+        "min": 40,
+        "unit": "MΩ"
+      },
+      "wet_leakage_current": {
+        "max": 50,
+        "unit": "μA"
+      }
+    }
+  },
+  "equipment_requirements": {
+    "environmental_chamber": {
+      "temperature_range": "0 to 100°C",
+      "temperature_uniformity": "±2°C",
+      "humidity_range": "10 to 98% RH",
+      "humidity_uniformity": "±5% RH",
+      "chamber_volume": "Adequate for module placement with air circulation",
+      "calibration": "Annual calibration required"
+    },
+    "measurement_equipment": {
+      "solar_simulator": {
+        "class": "Class A per IEC 60904-9",
+        "calibration": "Annual"
+      },
+      "insulation_tester": {
+        "voltage_range": "Up to 1000V DC",
+        "accuracy": "±5%",
+        "calibration": "Annual"
+      },
+      "data_logger": {
+        "channels": "Minimum 6",
+        "sampling_rate": "1 sample per minute",
+        "accuracy": "±0.5% for temperature, ±2% for humidity"
+      }
+    }
+  },
+  "safety_requirements": {
+    "ppe": [
+      "Heat-resistant gloves for module handling",
+      "Safety glasses",
+      "Lab coat"
+    ],
+    "precautions": [
+      "Allow modules to cool before handling",
+      "Ensure proper ventilation in chamber area",
+      "Follow electrical safety procedures when measuring high voltage",
+      "Emergency stop procedures must be in place"
+    ]
+  },
+  "data_recording": {
+    "automated_logging": {
+      "parameters": ["temperature", "humidity", "timestamp"],
+      "frequency": "Every 15 minutes",
+      "format": "CSV/Database"
+    },
+    "manual_logging": {
+      "parameters": ["visual_observations", "interim_measurements", "anomalies"],
+      "frequency": "Per protocol requirements"
+    },
+    "required_fields": [
+      "test_id",
+      "module_serial_numbers",
+      "operator_name",
+      "start_date",
+      "end_date",
+      "chamber_id",
+      "calibration_dates",
+      "deviations",
+      "results"
+    ]
+  },
+  "reporting_requirements": {
+    "test_report_sections": [
+      "Executive Summary",
+      "Module Information",
+      "Test Conditions and Equipment",
+      "Test Procedure",
+      "Pre-test Results",
+      "Interim Results",
+      "Post-test Results",
+      "Data Analysis",
+      "Pass/Fail Determination",
+      "Deviations and Non-conformances",
+      "Conclusions",
+      "Appendices (Raw Data, Charts, Photos)"
+    ],
+    "charts_required": [
+      "Temperature vs Time",
+      "Humidity vs Time",
+      "Power Degradation Trend",
+      "I-V Curves (Initial vs Final)"
+    ],
+    "photos_required": [
+      "Pre-test module condition",
+      "Post-test module condition",
+      "Any defects identified"
+    ]
+  },
+  "quality_control": {
+    "chamber_verification": {
+      "frequency": "Before each test",
+      "method": "Empty chamber run for 24 hours",
+      "acceptance": "Temperature and humidity within tolerance"
+    },
+    "measurement_verification": {
+      "frequency": "Before each test",
+      "method": "Calibrated reference module measurement",
+      "acceptance": "Within ±2% of reference value"
+    },
+    "data_review": {
+      "frequency": "Daily during test",
+      "reviewer": "Test supervisor",
+      "action": "Review for anomalies and deviations"
+    }
+  },
+  "integrations": {
+    "lims": {
+      "enabled": true,
+      "endpoints": ["/api/v1/test-results", "/api/v1/samples"],
+      "sync_frequency": "Real-time"
+    },
+    "qms": {
+      "enabled": true,
+      "document_references": ["SOP-ENV-001", "SOP-IV-001"],
+      "deviation_reporting": true
+    },
+    "project_management": {
+      "enabled": true,
+      "milestone_tracking": true,
+      "resource_allocation": true
+    }
+  },
+  "metadata": {
+    "created_by": "System",
+    "created_date": "2025-11-14",
+    "last_modified_by": "System",
+    "last_modified_date": "2025-11-14",
+    "status": "Active",
+    "review_cycle": "Annual",
+    "next_review_date": "2026-11-14",
+    "approvers": [
+      {
+        "role": "Technical Lead",
+        "status": "Pending"
+      },
+      {
+        "role": "Quality Manager",
+        "status": "Pending"
+      }
+    ]
+  }
+}

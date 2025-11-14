@@ -1,0 +1,41 @@
+database:
+  url: "sqlite:///test_protocols.db"
+  echo: true
+  pool_size: 5
+
+ui:
+  theme: "light"
+  port: 8501
+  title: "PV Testing Protocol Framework"
+  icon: "⚗️"
+
+logging:
+  level: "DEBUG"
+  file: "logs/app.log"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+protocols:
+  base_path: "src/protocols"
+  schema_validation: true
+
+analysis:
+  outlier_detection:
+    method: "iqr"
+    threshold: 1.5
+
+  statistical_confidence: 0.95
+
+reports:
+  output_dir: "reports"
+  formats: ["pdf", "html", "json"]
+
+integrations:
+  lims:
+    enabled: false
+    api_url: ""
+    timeout: 30
+
+  qms:
+    enabled: false
+    api_url: ""
+    timeout: 30

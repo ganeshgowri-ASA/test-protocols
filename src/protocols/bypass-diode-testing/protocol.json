@@ -1,0 +1,857 @@
+{
+  "protocol": {
+    "id": "bypass-diode-testing-v1",
+    "name": "Bypass Diode Testing Protocol",
+    "code": "BYPASS-001",
+    "version": "1.0.0",
+    "description": "Standard bypass diode testing procedure for crystalline silicon PV modules according to IEC 61215 MQT 18",
+    "category": "Safety",
+    "standard": "IEC 61215 MQT 18",
+    "created_at": "2025-11-14",
+    "updated_at": "2025-11-14",
+    "author": "PV Testing Team",
+    "revision_history": [
+      {
+        "version": "1.0.0",
+        "date": "2025-11-14",
+        "changes": "Initial release",
+        "author": "PV Testing Team"
+      }
+    ],
+    "equipment_required": [
+      {
+        "id": "thermal_chamber",
+        "name": "Environmental Thermal Chamber",
+        "specs": {
+          "temperature_range": "-40 to +85°C",
+          "humidity_range": "10-95% RH",
+          "temperature_accuracy": "±2°C",
+          "ramp_rate": "≥1°C/min"
+        },
+        "calibration_required": true,
+        "calibration_interval_days": 365
+      },
+      {
+        "id": "multimeter",
+        "name": "Digital Multimeter",
+        "specs": {
+          "voltage_range": "0-100V DC",
+          "accuracy": "±0.5%",
+          "resolution": "0.01V"
+        },
+        "calibration_required": true,
+        "calibration_interval_days": 180
+      },
+      {
+        "id": "current_source",
+        "name": "Programmable Current Source",
+        "specs": {
+          "current_range": "0-15A",
+          "accuracy": "±1%",
+          "stability": "±0.1%"
+        },
+        "calibration_required": true,
+        "calibration_interval_days": 180
+      },
+      {
+        "id": "thermal_camera",
+        "name": "Infrared Thermal Camera",
+        "specs": {
+          "temperature_range": "-20 to +150°C",
+          "accuracy": "±2°C",
+          "resolution": "320x240 pixels minimum"
+        },
+        "calibration_required": false
+      },
+      {
+        "id": "data_logger",
+        "name": "Multi-channel Data Logger",
+        "specs": {
+          "channels": "≥8",
+          "sampling_rate": "1 Hz minimum",
+          "accuracy": "±0.5%"
+        },
+        "calibration_required": true,
+        "calibration_interval_days": 365
+      }
+    ],
+    "safety_requirements": [
+      "Ensure all electrical connections are properly insulated",
+      "Use appropriate PPE including insulated gloves when handling energized modules",
+      "Verify thermal chamber safety interlocks are functional",
+      "Ensure proper ventilation during high-temperature testing",
+      "Follow lockout/tagout procedures when servicing equipment"
+    ],
+    "test_phases": [
+      {
+        "phase_id": "p1_setup",
+        "name": "Setup and Calibration",
+        "sequence": 1,
+        "description": "Prepare equipment, calibrate sensors, and perform initial module inspection",
+        "duration_minutes": 60,
+        "parameters": [
+          {
+            "param_id": "sample_id",
+            "name": "Sample Module ID",
+            "type": "string",
+            "required": true,
+            "validation": {
+              "type": "pattern",
+              "pattern": "^[A-Z0-9]{8,20}$",
+              "description": "Alphanumeric ID, 8-20 characters"
+            },
+            "description": "Unique identifier for the test sample"
+          },
+          {
+            "param_id": "module_type",
+            "name": "Module Type",
+            "type": "string",
+            "required": true,
+            "validation": {
+              "type": "enum",
+              "values": ["monocrystalline", "polycrystalline", "thin-film", "bifacial"]
+            }
+          },
+          {
+            "param_id": "rated_power",
+            "name": "Module Rated Power",
+            "unit": "W",
+            "type": "float",
+            "min_value": 50,
+            "max_value": 700,
+            "required": true,
+            "description": "Nameplate power rating"
+          },
+          {
+            "param_id": "num_bypass_diodes",
+            "name": "Number of Bypass Diodes",
+            "type": "integer",
+            "min_value": 1,
+            "max_value": 6,
+            "default_value": 3,
+            "required": true,
+            "description": "Total number of bypass diodes in the module"
+          },
+          {
+            "param_id": "ambient_temp",
+            "name": "Ambient Temperature",
+            "unit": "°C",
+            "type": "float",
+            "min_value": 15,
+            "max_value": 35,
+            "default_value": 25,
+            "required": true,
+            "description": "Laboratory ambient temperature"
+          },
+          {
+            "param_id": "ambient_humidity",
+            "name": "Ambient Relative Humidity",
+            "unit": "%",
+            "type": "float",
+            "min_value": 20,
+            "max_value": 80,
+            "default_value": 50,
+            "required": true,
+            "description": "Laboratory ambient humidity"
+          },
+          {
+            "param_id": "operator_id",
+            "name": "Operator ID",
+            "type": "string",
+            "required": true,
+            "description": "ID of test operator"
+          }
+        ],
+        "measurements": [
+          {
+            "measurement_id": "initial_visual_inspection",
+            "name": "Initial Visual Inspection",
+            "type": "categorical",
+            "frequency": "once",
+            "values": ["pass", "fail"],
+            "description": "Visual inspection for physical damage"
+          },
+          {
+            "measurement_id": "chamber_calibration",
+            "name": "Chamber Temperature Calibration",
+            "type": "temperature",
+            "unit": "°C",
+            "frequency": "once",
+            "tolerance": 2.0,
+            "description": "Verify chamber temperature accuracy"
+          }
+        ],
+        "pass_criteria": [
+          "Visual inspection must show no physical damage",
+          "Chamber calibration within ±2°C of setpoint"
+        ]
+      },
+      {
+        "phase_id": "p2_initial_electrical",
+        "name": "Initial Electrical Characterization",
+        "sequence": 2,
+        "description": "Measure initial forward voltage and reverse leakage of bypass diodes at standard conditions",
+        "duration_minutes": 30,
+        "parameters": [
+          {
+            "param_id": "test_current",
+            "name": "Test Current",
+            "unit": "A",
+            "type": "float",
+            "min_value": 1.0,
+            "max_value": 15.0,
+            "default_value": 10.0,
+            "required": true,
+            "description": "Forward bias test current (typically module Isc)"
+          },
+          {
+            "param_id": "reverse_voltage",
+            "name": "Reverse Bias Voltage",
+            "unit": "V",
+            "type": "float",
+            "min_value": 10,
+            "max_value": 50,
+            "default_value": 20,
+            "required": true,
+            "description": "Reverse bias test voltage"
+          }
+        ],
+        "measurements": [
+          {
+            "measurement_id": "diode_forward_voltage",
+            "name": "Bypass Diode Forward Voltage",
+            "type": "voltage",
+            "unit": "V",
+            "frequency": "per_diode",
+            "expected_range": [0.3, 0.8],
+            "tolerance": 0.1,
+            "description": "Forward voltage at test current"
+          },
+          {
+            "measurement_id": "diode_reverse_current",
+            "name": "Bypass Diode Reverse Leakage Current",
+            "type": "current",
+            "unit": "mA",
+            "frequency": "per_diode",
+            "expected_range": [0, 5],
+            "tolerance": 2.0,
+            "description": "Reverse leakage at test voltage"
+          },
+          {
+            "measurement_id": "diode_temperature",
+            "name": "Diode Junction Temperature",
+            "type": "temperature",
+            "unit": "°C",
+            "frequency": "per_diode",
+            "description": "Temperature during forward bias using IR camera"
+          }
+        ],
+        "pass_criteria": [
+          "Forward voltage: 0.3V - 0.8V at rated current",
+          "Reverse leakage current: < 5mA",
+          "Junction temperature < 100°C at forward bias"
+        ]
+      },
+      {
+        "phase_id": "p3_thermal_stress_cold",
+        "name": "Low Temperature Stress Test",
+        "sequence": 3,
+        "description": "Subject diodes to low temperature stress per IEC 61215 MQT 18",
+        "duration_hours": 4,
+        "parameters": [
+          {
+            "param_id": "temp_min",
+            "name": "Minimum Temperature",
+            "unit": "°C",
+            "type": "float",
+            "default_value": -40,
+            "min_value": -50,
+            "max_value": -30,
+            "required": true,
+            "description": "Low temperature test setpoint"
+          },
+          {
+            "param_id": "soak_duration_minutes",
+            "name": "Temperature Soak Duration",
+            "unit": "minutes",
+            "type": "integer",
+            "default_value": 120,
+            "min_value": 60,
+            "max_value": 240,
+            "required": true
+          }
+        ],
+        "measurements": [
+          {
+            "measurement_id": "chamber_temperature",
+            "name": "Chamber Temperature",
+            "type": "temperature",
+            "unit": "°C",
+            "frequency": "continuous",
+            "interval_seconds": 60,
+            "description": "Environmental chamber temperature"
+          },
+          {
+            "measurement_id": "module_temperature",
+            "name": "Module Backsheet Temperature",
+            "type": "temperature",
+            "unit": "°C",
+            "frequency": "continuous",
+            "interval_seconds": 60,
+            "description": "Module surface temperature"
+          },
+          {
+            "measurement_id": "diode_voltage_cold",
+            "name": "Bypass Diode Voltage at Low Temp",
+            "type": "voltage",
+            "unit": "V",
+            "frequency": "periodic",
+            "interval_minutes": 30,
+            "description": "Forward voltage measured periodically"
+          }
+        ],
+        "pass_criteria": [
+          "Chamber maintains -40°C ± 3°C",
+          "Module reaches thermal equilibrium within 60 minutes",
+          "Diode voltage remains within 0.2V - 0.9V"
+        ]
+      },
+      {
+        "phase_id": "p4_thermal_stress_hot",
+        "name": "High Temperature Stress Test",
+        "sequence": 4,
+        "description": "Subject diodes to high temperature stress per IEC 61215 MQT 18",
+        "duration_hours": 4,
+        "parameters": [
+          {
+            "param_id": "temp_max",
+            "name": "Maximum Temperature",
+            "unit": "°C",
+            "type": "float",
+            "default_value": 85,
+            "min_value": 75,
+            "max_value": 95,
+            "required": true,
+            "description": "High temperature test setpoint"
+          },
+          {
+            "param_id": "soak_duration_minutes",
+            "name": "Temperature Soak Duration",
+            "unit": "minutes",
+            "type": "integer",
+            "default_value": 120,
+            "min_value": 60,
+            "max_value": 240,
+            "required": true
+          },
+          {
+            "param_id": "bias_current",
+            "name": "Bias Current During Test",
+            "unit": "A",
+            "type": "float",
+            "default_value": 0,
+            "min_value": 0,
+            "max_value": 15,
+            "description": "Optional forward bias current during thermal stress"
+          }
+        ],
+        "measurements": [
+          {
+            "measurement_id": "chamber_temperature",
+            "name": "Chamber Temperature",
+            "type": "temperature",
+            "unit": "°C",
+            "frequency": "continuous",
+            "interval_seconds": 60,
+            "description": "Environmental chamber temperature"
+          },
+          {
+            "measurement_id": "module_temperature",
+            "name": "Module Backsheet Temperature",
+            "type": "temperature",
+            "unit": "°C",
+            "frequency": "continuous",
+            "interval_seconds": 60,
+            "description": "Module surface temperature"
+          },
+          {
+            "measurement_id": "diode_voltage_hot",
+            "name": "Bypass Diode Voltage at High Temp",
+            "type": "voltage",
+            "unit": "V",
+            "frequency": "periodic",
+            "interval_minutes": 30,
+            "description": "Forward voltage measured periodically"
+          },
+          {
+            "measurement_id": "diode_temp_hot",
+            "name": "Diode Junction Temperature at High Temp",
+            "type": "temperature",
+            "unit": "°C",
+            "frequency": "periodic",
+            "interval_minutes": 30,
+            "description": "Thermal imaging of junction temperature"
+          }
+        ],
+        "pass_criteria": [
+          "Chamber maintains 85°C ± 3°C",
+          "Module reaches thermal equilibrium within 60 minutes",
+          "Diode voltage remains within 0.25V - 0.7V",
+          "Junction temperature < 150°C"
+        ]
+      },
+      {
+        "phase_id": "p5_thermal_cycling",
+        "name": "Thermal Cycling Test",
+        "sequence": 5,
+        "description": "Perform temperature cycling between extremes per IEC 61215 MQT 18",
+        "duration_hours": 24,
+        "parameters": [
+          {
+            "param_id": "num_cycles",
+            "name": "Number of Temperature Cycles",
+            "type": "integer",
+            "default_value": 10,
+            "min_value": 5,
+            "max_value": 50,
+            "required": true
+          },
+          {
+            "param_id": "cycle_temp_min",
+            "name": "Cycle Low Temperature",
+            "unit": "°C",
+            "type": "float",
+            "default_value": -40,
+            "required": true
+          },
+          {
+            "param_id": "cycle_temp_max",
+            "name": "Cycle High Temperature",
+            "unit": "°C",
+            "type": "float",
+            "default_value": 85,
+            "required": true
+          },
+          {
+            "param_id": "dwell_time_minutes",
+            "name": "Dwell Time at Each Extreme",
+            "unit": "minutes",
+            "type": "integer",
+            "default_value": 30,
+            "min_value": 15,
+            "max_value": 120,
+            "required": true
+          }
+        ],
+        "measurements": [
+          {
+            "measurement_id": "chamber_temperature",
+            "name": "Chamber Temperature",
+            "type": "temperature",
+            "unit": "°C",
+            "frequency": "continuous",
+            "interval_seconds": 30,
+            "description": "Environmental chamber temperature"
+          },
+          {
+            "measurement_id": "module_temperature",
+            "name": "Module Temperature",
+            "type": "temperature",
+            "unit": "°C",
+            "frequency": "continuous",
+            "interval_seconds": 30,
+            "description": "Module surface temperature"
+          },
+          {
+            "measurement_id": "diode_voltage_cycling",
+            "name": "Bypass Diode Voltage During Cycling",
+            "type": "voltage",
+            "unit": "V",
+            "frequency": "periodic",
+            "interval_minutes": 15,
+            "description": "Forward voltage monitored through cycles"
+          },
+          {
+            "measurement_id": "cycle_count",
+            "name": "Completed Cycle Count",
+            "type": "integer",
+            "frequency": "event",
+            "description": "Number of completed temperature cycles"
+          }
+        ],
+        "pass_criteria": [
+          "All cycles completed successfully",
+          "No thermal runaway events detected",
+          "Diode voltage remains stable within ±15% of initial value"
+        ]
+      },
+      {
+        "phase_id": "p6_final_electrical",
+        "name": "Final Electrical Characterization",
+        "sequence": 6,
+        "description": "Repeat electrical measurements to assess degradation",
+        "duration_minutes": 30,
+        "parameters": [
+          {
+            "param_id": "test_current",
+            "name": "Test Current",
+            "unit": "A",
+            "type": "float",
+            "min_value": 1.0,
+            "max_value": 15.0,
+            "default_value": 10.0,
+            "required": true
+          },
+          {
+            "param_id": "reverse_voltage",
+            "name": "Reverse Bias Voltage",
+            "unit": "V",
+            "type": "float",
+            "min_value": 10,
+            "max_value": 50,
+            "default_value": 20,
+            "required": true
+          }
+        ],
+        "measurements": [
+          {
+            "measurement_id": "diode_forward_voltage_final",
+            "name": "Final Bypass Diode Forward Voltage",
+            "type": "voltage",
+            "unit": "V",
+            "frequency": "per_diode",
+            "expected_range": [0.3, 0.8],
+            "description": "Forward voltage after thermal stress"
+          },
+          {
+            "measurement_id": "diode_reverse_current_final",
+            "name": "Final Bypass Diode Reverse Leakage Current",
+            "type": "current",
+            "unit": "mA",
+            "frequency": "per_diode",
+            "expected_range": [0, 5],
+            "description": "Reverse leakage after thermal stress"
+          },
+          {
+            "measurement_id": "voltage_degradation",
+            "name": "Forward Voltage Degradation",
+            "type": "percentage",
+            "unit": "%",
+            "frequency": "calculated",
+            "description": "Percentage change from initial measurement"
+          },
+          {
+            "measurement_id": "final_visual_inspection",
+            "name": "Final Visual Inspection",
+            "type": "categorical",
+            "frequency": "once",
+            "values": ["pass", "fail"],
+            "description": "Visual inspection for damage after testing"
+          }
+        ],
+        "pass_criteria": [
+          "Forward voltage degradation < 10%",
+          "Reverse leakage current increase < 100%",
+          "No visual damage or delamination",
+          "All diodes remain functional"
+        ]
+      }
+    ],
+    "qc_rules": [
+      {
+        "rule_id": "qc_forward_voltage_range",
+        "phase_id": "p2_initial_electrical",
+        "measurement_id": "diode_forward_voltage",
+        "type": "range",
+        "min_value": 0.3,
+        "max_value": 0.8,
+        "action": "flag_error",
+        "description": "Forward voltage out of acceptable range"
+      },
+      {
+        "rule_id": "qc_reverse_current_limit",
+        "phase_id": "p2_initial_electrical",
+        "measurement_id": "diode_reverse_current",
+        "type": "range",
+        "min_value": 0,
+        "max_value": 5,
+        "action": "flag_warning",
+        "description": "Reverse leakage current exceeds limit"
+      },
+      {
+        "rule_id": "qc_temp_stability_cold",
+        "phase_id": "p3_thermal_stress_cold",
+        "measurement_id": "chamber_temperature",
+        "type": "range",
+        "min_value": -43,
+        "max_value": -37,
+        "action": "flag_error",
+        "description": "Chamber temperature out of tolerance"
+      },
+      {
+        "rule_id": "qc_temp_stability_hot",
+        "phase_id": "p4_thermal_stress_hot",
+        "measurement_id": "chamber_temperature",
+        "type": "range",
+        "min_value": 82,
+        "max_value": 88,
+        "action": "flag_error",
+        "description": "Chamber temperature out of tolerance"
+      },
+      {
+        "rule_id": "qc_junction_temp_limit",
+        "phase_id": "p4_thermal_stress_hot",
+        "measurement_id": "diode_temp_hot",
+        "type": "range",
+        "min_value": 0,
+        "max_value": 150,
+        "action": "flag_error",
+        "description": "Junction temperature exceeds safety limit"
+      },
+      {
+        "rule_id": "qc_voltage_outlier",
+        "measurement_id": "diode_voltage_cycling",
+        "type": "outlier",
+        "method": "iqr",
+        "threshold": 2.0,
+        "action": "flag_warning",
+        "description": "Voltage measurement is statistical outlier"
+      },
+      {
+        "rule_id": "qc_degradation_limit",
+        "phase_id": "p6_final_electrical",
+        "measurement_id": "voltage_degradation",
+        "type": "range",
+        "min_value": -10,
+        "max_value": 10,
+        "action": "flag_error",
+        "description": "Excessive voltage degradation detected"
+      }
+    ],
+    "analysis": {
+      "default_charts": [
+        {
+          "chart_id": "temp_profile_cold",
+          "title": "Low Temperature Stress Profile",
+          "type": "line",
+          "x_axis": "timestamp",
+          "y_axis": ["chamber_temperature", "module_temperature"],
+          "phase_id": "p3_thermal_stress_cold"
+        },
+        {
+          "chart_id": "temp_profile_hot",
+          "title": "High Temperature Stress Profile",
+          "type": "line",
+          "x_axis": "timestamp",
+          "y_axis": ["chamber_temperature", "module_temperature", "diode_temp_hot"],
+          "phase_id": "p4_thermal_stress_hot"
+        },
+        {
+          "chart_id": "thermal_cycling",
+          "title": "Temperature Cycling Profile",
+          "type": "line",
+          "x_axis": "timestamp",
+          "y_axis": ["chamber_temperature", "module_temperature"],
+          "phase_id": "p5_thermal_cycling"
+        },
+        {
+          "chart_id": "voltage_cycling",
+          "title": "Diode Voltage During Thermal Cycling",
+          "type": "scatter",
+          "x_axis": "cycle_count",
+          "y_axis": "diode_voltage_cycling",
+          "phase_id": "p5_thermal_cycling"
+        },
+        {
+          "chart_id": "voltage_comparison",
+          "title": "Initial vs Final Forward Voltage",
+          "type": "bar",
+          "categories": ["Initial", "Final"],
+          "values": ["diode_forward_voltage", "diode_forward_voltage_final"],
+          "description": "Compare initial and final diode characteristics"
+        },
+        {
+          "chart_id": "degradation_analysis",
+          "title": "Voltage Degradation by Diode",
+          "type": "bar",
+          "x_axis": "diode_number",
+          "y_axis": "voltage_degradation",
+          "phase_id": "p6_final_electrical"
+        }
+      ],
+      "statistical_summary": [
+        {
+          "stat_id": "voltage_mean_initial",
+          "measurement_id": "diode_forward_voltage",
+          "calculation": "mean",
+          "description": "Mean initial forward voltage"
+        },
+        {
+          "stat_id": "voltage_std_initial",
+          "measurement_id": "diode_forward_voltage",
+          "calculation": "std_dev",
+          "description": "Standard deviation of initial forward voltage"
+        },
+        {
+          "stat_id": "voltage_mean_final",
+          "measurement_id": "diode_forward_voltage_final",
+          "calculation": "mean",
+          "description": "Mean final forward voltage"
+        },
+        {
+          "stat_id": "voltage_std_final",
+          "measurement_id": "diode_forward_voltage_final",
+          "calculation": "std_dev",
+          "description": "Standard deviation of final forward voltage"
+        },
+        {
+          "stat_id": "max_degradation",
+          "measurement_id": "voltage_degradation",
+          "calculation": "max",
+          "description": "Maximum degradation observed"
+        },
+        {
+          "stat_id": "avg_junction_temp",
+          "measurement_id": "diode_temp_hot",
+          "calculation": "mean",
+          "description": "Average junction temperature at high temp"
+        }
+      ]
+    },
+    "report_template": {
+      "title": "Bypass Diode Testing Report - IEC 61215 MQT 18",
+      "sections": [
+        {
+          "section_id": "executive_summary",
+          "title": "Executive Summary",
+          "content_type": "summary",
+          "include": [
+            "test_result",
+            "sample_id",
+            "test_date",
+            "operator",
+            "pass_fail_status"
+          ]
+        },
+        {
+          "section_id": "test_parameters",
+          "title": "Test Parameters",
+          "content_type": "table",
+          "include": [
+            "sample_id",
+            "module_type",
+            "rated_power",
+            "num_bypass_diodes",
+            "operator_id"
+          ]
+        },
+        {
+          "section_id": "equipment_calibration",
+          "title": "Equipment Calibration Status",
+          "content_type": "table",
+          "include": [
+            "equipment_id",
+            "calibration_date",
+            "calibration_due_date",
+            "status"
+          ]
+        },
+        {
+          "section_id": "initial_characterization",
+          "title": "Initial Electrical Characterization",
+          "content_type": "mixed",
+          "include": [
+            "diode_forward_voltage",
+            "diode_reverse_current",
+            "diode_temperature"
+          ]
+        },
+        {
+          "section_id": "thermal_stress_results",
+          "title": "Thermal Stress Test Results",
+          "content_type": "mixed",
+          "include": [
+            "temp_profile_cold",
+            "temp_profile_hot",
+            "thermal_cycling",
+            "voltage_cycling"
+          ]
+        },
+        {
+          "section_id": "final_characterization",
+          "title": "Final Electrical Characterization",
+          "content_type": "mixed",
+          "include": [
+            "diode_forward_voltage_final",
+            "diode_reverse_current_final",
+            "voltage_comparison",
+            "degradation_analysis"
+          ]
+        },
+        {
+          "section_id": "statistical_analysis",
+          "title": "Statistical Analysis",
+          "content_type": "table",
+          "include": [
+            "voltage_mean_initial",
+            "voltage_std_initial",
+            "voltage_mean_final",
+            "voltage_std_final",
+            "max_degradation"
+          ]
+        },
+        {
+          "section_id": "qc_flags",
+          "title": "Quality Control Flags",
+          "content_type": "table",
+          "include": ["qc_warnings", "qc_errors"]
+        },
+        {
+          "section_id": "conclusions",
+          "title": "Conclusions and Recommendations",
+          "content_type": "text",
+          "include": ["overall_assessment", "recommendations"]
+        }
+      ],
+      "footer": {
+        "include_signature": true,
+        "include_timestamp": true,
+        "include_page_numbers": true
+      }
+    },
+    "acceptance_criteria": {
+      "overall_pass_requirements": [
+        "All test phases completed successfully",
+        "Forward voltage degradation < 10%",
+        "Reverse leakage current increase < 100%",
+        "No QC errors flagged",
+        "All diodes remain functional",
+        "No visual damage or delamination"
+      ],
+      "failure_modes": [
+        {
+          "mode": "Short Circuit",
+          "indicators": [
+            "Forward voltage < 0.2V",
+            "Excessive junction temperature"
+          ]
+        },
+        {
+          "mode": "Open Circuit",
+          "indicators": ["Forward voltage > 1.0V", "No current conduction"]
+        },
+        {
+          "mode": "Excessive Leakage",
+          "indicators": ["Reverse current > 10mA"]
+        },
+        {
+          "mode": "Thermal Degradation",
+          "indicators": [
+            "Voltage degradation > 10%",
+            "Visual damage to junction box"
+          ]
+        }
+      ]
+    }
+  }
+}

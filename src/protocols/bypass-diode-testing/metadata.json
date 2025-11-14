@@ -1,0 +1,42 @@
+{
+  "id": "bypass-diode-testing-v1",
+  "code": "BYPASS-001",
+  "name": "Bypass Diode Testing Protocol",
+  "version": "1.0.0",
+  "description": "Standard bypass diode testing procedure for crystalline silicon PV modules according to IEC 61215 MQT 18",
+  "category": "Safety",
+  "standard": "IEC 61215 MQT 18",
+  "tags": ["bypass-diode", "safety", "thermal-stress", "iec-61215", "reliability"],
+  "created_at": "2025-11-14",
+  "updated_at": "2025-11-14",
+  "author": "PV Testing Team",
+  "status": "active",
+  "estimated_duration_hours": 33,
+  "complexity": "medium",
+  "equipment_count": 5,
+  "test_phases_count": 6,
+  "prerequisites": [
+    "Module must be at room temperature before testing",
+    "All equipment must be calibrated within required intervals",
+    "Operator must be trained in high-voltage safety procedures",
+    "Junction box must be accessible for thermal imaging"
+  ],
+  "related_protocols": [
+    "thermal-cycling-200",
+    "humidity-freeze-test",
+    "hot-spot-endurance-test"
+  ],
+  "compliance": {
+    "iec_61215": true,
+    "iec_61730": false,
+    "ul_1703": false
+  },
+  "revision_history": [
+    {
+      "version": "1.0.0",
+      "date": "2025-11-14",
+      "changes": "Initial release based on IEC 61215:2016 MQT 18",
+      "author": "PV Testing Team"
+    }
+  ]
+}

@@ -1,0 +1,428 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Bypass Diode Testing Protocol Schema",
+  "description": "JSON Schema for validating bypass diode testing protocol definitions",
+  "type": "object",
+  "required": ["protocol"],
+  "properties": {
+    "protocol": {
+      "type": "object",
+      "required": ["id", "name", "version", "test_phases"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "Unique protocol identifier"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "description": "Human-readable protocol name"
+        },
+        "code": {
+          "type": "string",
+          "pattern": "^[A-Z]+-[0-9]{3}$",
+          "description": "Protocol code (e.g., BYPASS-001)"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Semantic version number"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed protocol description"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["Safety", "Performance", "Durability", "Reliability", "Quality"],
+          "description": "Test category"
+        },
+        "standard": {
+          "type": "string",
+          "description": "Applicable industry standard"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date",
+          "description": "Creation date"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date",
+          "description": "Last update date"
+        },
+        "author": {
+          "type": "string",
+          "description": "Protocol author"
+        },
+        "revision_history": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["version", "date", "changes"],
+            "properties": {
+              "version": {"type": "string"},
+              "date": {"type": "string", "format": "date"},
+              "changes": {"type": "string"},
+              "author": {"type": "string"}
+            }
+          }
+        },
+        "equipment_required": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/equipment"
+          }
+        },
+        "safety_requirements": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "test_phases": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/test_phase"
+          }
+        },
+        "qc_rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/qc_rule"
+          }
+        },
+        "analysis": {
+          "$ref": "#/definitions/analysis_config"
+        },
+        "report_template": {
+          "$ref": "#/definitions/report_template"
+        },
+        "acceptance_criteria": {
+          "type": "object",
+          "properties": {
+            "overall_pass_requirements": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "failure_modes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "mode": {"type": "string"},
+                  "indicators": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "equipment": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Equipment identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Equipment name"
+        },
+        "specs": {
+          "type": "object",
+          "description": "Equipment specifications"
+        },
+        "calibration_required": {
+          "type": "boolean",
+          "description": "Whether calibration is required"
+        },
+        "calibration_interval_days": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Calibration interval in days"
+        }
+      }
+    },
+    "test_phase": {
+      "type": "object",
+      "required": ["phase_id", "name", "sequence"],
+      "properties": {
+        "phase_id": {
+          "type": "string",
+          "pattern": "^p[0-9]+_[a-z_]+$",
+          "description": "Phase identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Phase name"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Execution sequence number"
+        },
+        "description": {
+          "type": "string",
+          "description": "Phase description"
+        },
+        "duration_minutes": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Estimated duration in minutes"
+        },
+        "duration_hours": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Estimated duration in hours"
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/parameter"
+          }
+        },
+        "measurements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/measurement"
+          }
+        },
+        "pass_criteria": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "parameter": {
+      "type": "object",
+      "required": ["param_id", "name", "type"],
+      "properties": {
+        "param_id": {
+          "type": "string",
+          "description": "Parameter identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Parameter name"
+        },
+        "type": {
+          "enum": ["float", "integer", "string", "boolean", "date", "time"],
+          "description": "Parameter data type"
+        },
+        "unit": {
+          "type": "string",
+          "description": "Measurement unit"
+        },
+        "min_value": {
+          "type": "number",
+          "description": "Minimum allowed value"
+        },
+        "max_value": {
+          "type": "number",
+          "description": "Maximum allowed value"
+        },
+        "default_value": {
+          "description": "Default value"
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Whether parameter is required"
+        },
+        "validation": {
+          "type": "object",
+          "description": "Validation rules"
+        },
+        "description": {
+          "type": "string",
+          "description": "Parameter description"
+        }
+      }
+    },
+    "measurement": {
+      "type": "object",
+      "required": ["measurement_id", "name", "type"],
+      "properties": {
+        "measurement_id": {
+          "type": "string",
+          "description": "Measurement identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Measurement name"
+        },
+        "type": {
+          "enum": ["voltage", "current", "temperature", "pressure", "categorical", "integer", "percentage"],
+          "description": "Measurement type"
+        },
+        "unit": {
+          "type": "string",
+          "description": "Measurement unit"
+        },
+        "frequency": {
+          "enum": ["once", "continuous", "periodic", "per_diode", "event", "calculated"],
+          "description": "Measurement frequency"
+        },
+        "interval_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Sampling interval in seconds"
+        },
+        "interval_minutes": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Sampling interval in minutes"
+        },
+        "expected_range": {
+          "type": "array",
+          "items": {"type": "number"},
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "Expected value range [min, max]"
+        },
+        "tolerance": {
+          "type": "number",
+          "description": "Measurement tolerance"
+        },
+        "description": {
+          "type": "string",
+          "description": "Measurement description"
+        },
+        "values": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Allowed values for categorical measurements"
+        }
+      }
+    },
+    "qc_rule": {
+      "type": "object",
+      "required": ["rule_id", "type", "action"],
+      "properties": {
+        "rule_id": {
+          "type": "string",
+          "description": "QC rule identifier"
+        },
+        "phase_id": {
+          "type": "string",
+          "description": "Associated phase"
+        },
+        "measurement_id": {
+          "type": "string",
+          "description": "Associated measurement"
+        },
+        "type": {
+          "enum": ["range", "outlier", "trend", "correlation"],
+          "description": "Rule type"
+        },
+        "min_value": {
+          "type": "number",
+          "description": "Minimum acceptable value"
+        },
+        "max_value": {
+          "type": "number",
+          "description": "Maximum acceptable value"
+        },
+        "method": {
+          "type": "string",
+          "description": "Analysis method"
+        },
+        "threshold": {
+          "type": "number",
+          "description": "Threshold value"
+        },
+        "action": {
+          "enum": ["flag_warning", "flag_error", "abort_test"],
+          "description": "Action to take when rule is violated"
+        },
+        "description": {
+          "type": "string",
+          "description": "Rule description"
+        }
+      }
+    },
+    "analysis_config": {
+      "type": "object",
+      "properties": {
+        "default_charts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["chart_id", "title", "type"],
+            "properties": {
+              "chart_id": {"type": "string"},
+              "title": {"type": "string"},
+              "type": {
+                "enum": ["line", "scatter", "bar", "histogram", "heatmap", "box"]
+              },
+              "x_axis": {"type": "string"},
+              "y_axis": {
+                "oneOf": [
+                  {"type": "string"},
+                  {"type": "array", "items": {"type": "string"}}
+                ]
+              },
+              "phase_id": {"type": "string"},
+              "description": {"type": "string"}
+            }
+          }
+        },
+        "statistical_summary": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["stat_id", "calculation"],
+            "properties": {
+              "stat_id": {"type": "string"},
+              "measurement_id": {"type": "string"},
+              "calculation": {
+                "enum": ["mean", "median", "std_dev", "min", "max", "sum", "count"]
+              },
+              "description": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "report_template": {
+      "type": "object",
+      "properties": {
+        "title": {"type": "string"},
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["section_id", "title", "content_type"],
+            "properties": {
+              "section_id": {"type": "string"},
+              "title": {"type": "string"},
+              "content_type": {
+                "enum": ["summary", "table", "chart", "text", "mixed"]
+              },
+              "include": {
+                "type": "array",
+                "items": {"type": "string"}
+              }
+            }
+          }
+        },
+        "footer": {
+          "type": "object",
+          "properties": {
+            "include_signature": {"type": "boolean"},
+            "include_timestamp": {"type": "boolean"},
+            "include_page_numbers": {"type": "boolean"}
+          }
+        }
+      }
+    }
+  }
+}

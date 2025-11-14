@@ -1,0 +1,41 @@
+database:
+  url: "postgresql://user:password@localhost/test_protocols"
+  echo: false
+  pool_size: 20
+
+ui:
+  theme: "light"
+  port: 8501
+  title: "PV Testing Protocol Framework"
+  icon: "⚗️"
+
+logging:
+  level: "INFO"
+  file: "logs/production.log"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+protocols:
+  base_path: "src/protocols"
+  schema_validation: true
+
+analysis:
+  outlier_detection:
+    method: "iqr"
+    threshold: 1.5
+
+  statistical_confidence: 0.95
+
+reports:
+  output_dir: "/var/reports"
+  formats: ["pdf", "html", "json"]
+
+integrations:
+  lims:
+    enabled: true
+    api_url: "${LIMS_API_URL}"
+    timeout: 30
+
+  qms:
+    enabled: true
+    api_url: "${QMS_API_URL}"
+    timeout: 30

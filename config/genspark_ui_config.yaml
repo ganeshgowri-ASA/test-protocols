@@ -1,0 +1,291 @@
+# GenSpark UI Configuration for PV Test Protocol Suite
+
+app:
+  title: "PV Test Protocol Suite"
+  icon: "🔬"
+  theme: "light"
+  layout: "wide"
+  sidebar:
+    default_expanded: true
+
+# Page navigation
+pages:
+  - name: "Protocol Selection"
+    icon: "📋"
+    path: "protocol_selection"
+    description: "Browse and select test protocols"
+
+  - name: "Test Runner"
+    icon: "▶️"
+    path: "test_runner"
+    description: "Execute test protocols"
+
+  - name: "Live Monitoring"
+    icon: "📊"
+    path: "live_monitoring"
+    description: "Real-time test monitoring and data visualization"
+
+  - name: "Results Analysis"
+    icon: "📈"
+    path: "results_analysis"
+    description: "Analyze completed test results"
+
+  - name: "Report Generation"
+    icon: "📄"
+    path: "report_generation"
+    description: "Generate test reports"
+
+  - name: "Equipment Management"
+    icon: "🔧"
+    path: "equipment"
+    description: "Manage test equipment and calibration"
+    restricted: true
+
+  - name: "Admin Panel"
+    icon: "⚙️"
+    path: "admin"
+    description: "System administration"
+    restricted: true
+
+# Database configuration
+database:
+  type: "postgresql"
+  connection_string_env: "DATABASE_URL"
+  pool_size: 10
+  echo: false
+
+# Protocol categories
+categories:
+  mechanical:
+    name: "Mechanical Testing"
+    color: "#1f77b4"
+    icon: "🔩"
+  environmental:
+    name: "Environmental Testing"
+    color: "#ff7f0e"
+    icon: "🌡️"
+  electrical:
+    name: "Electrical Testing"
+    color: "#2ca02c"
+    icon: "⚡"
+  thermal:
+    name: "Thermal Testing"
+    color: "#d62728"
+    icon: "🔥"
+  optical:
+    name: "Optical Testing"
+    color: "#9467bd"
+    icon: "💡"
+
+# UI Components configuration
+components:
+  protocol_selector:
+    type: "selectbox"
+    label: "Choose Protocol"
+    options_source: "database"
+    filter_by:
+      - "category"
+      - "standard"
+    sort_by: "protocol_id"
+
+  sample_info:
+    fields:
+      - name: "sample_id"
+        type: "text"
+        label: "Sample ID"
+        required: true
+        validation: "^[A-Z0-9-]+$"
+      - name: "manufacturer"
+        type: "text"
+        label: "Manufacturer"
+        required: true
+      - name: "model"
+        type: "text"
+        label: "Model"
+        required: true
+      - name: "serial_number"
+        type: "text"
+        label: "Serial Number"
+        required: false
+      - name: "rated_power_w"
+        type: "number"
+        label: "Rated Power (W)"
+        required: false
+        min: 0
+        max: 1000
+
+  test_runner:
+    type: "form"
+    fields:
+      - name: "operator_id"
+        type: "selectbox"
+        label: "Test Operator"
+        required: true
+        options_source: "users"
+      - name: "notes"
+        type: "text_area"
+        label: "Test Notes"
+        required: false
+        max_length: 1000
+    controls:
+      - type: "button"
+        label: "Start Test"
+        action: "start_test"
+        style: "primary"
+      - type: "button"
+        label: "Pause Test"
+        action: "pause_test"
+        style: "warning"
+      - type: "button"
+        label: "Abort Test"
+        action: "abort_test"
+        style: "danger"
+        confirm: true
+
+  measurement_display:
+    refresh_interval_seconds: 5
+    chart_types:
+      - "line"
+      - "scatter"
+      - "bar"
+    export_formats:
+      - "csv"
+      - "json"
+      - "excel"
+
+# Data visualization settings
+visualization:
+  default_chart_height: 400
+  color_scheme: "plotly"
+  show_grid: true
+  enable_zoom: true
+  enable_pan: true
+
+  measurement_charts:
+    pressure:
+      type: "line"
+      color: "#1f77b4"
+      y_axis_label: "Pressure (Pa)"
+    deflection:
+      type: "line"
+      color: "#ff7f0e"
+      y_axis_label: "Deflection (mm)"
+    temperature:
+      type: "line"
+      color: "#d62728"
+      y_axis_label: "Temperature (°C)"
+    voltage:
+      type: "line"
+      color: "#2ca02c"
+      y_axis_label: "Voltage (V)"
+    current:
+      type: "line"
+      color: "#9467bd"
+      y_axis_label: "Current (A)"
+    power:
+      type: "line"
+      color: "#8c564b"
+      y_axis_label: "Power (W)"
+
+# Integrations
+integrations:
+  lims:
+    enabled: true
+    api_endpoint_env: "LIMS_API_URL"
+    api_key_env: "LIMS_API_KEY"
+    sync_interval_minutes: 30
+
+  qms:
+    enabled: true
+    api_endpoint_env: "QMS_API_URL"
+    api_key_env: "QMS_API_KEY"
+
+  project_management:
+    enabled: false
+    api_endpoint_env: "PM_API_URL"
+    api_key_env: "PM_API_KEY"
+
+  email_notifications:
+    enabled: true
+    smtp_server_env: "SMTP_SERVER"
+    smtp_port_env: "SMTP_PORT"
+    smtp_user_env: "SMTP_USER"
+    smtp_password_env: "SMTP_PASSWORD"
+    notify_on:
+      - "test_completed"
+      - "test_failed"
+      - "calibration_due"
+
+# Report settings
+reports:
+  formats:
+    - "pdf"
+    - "html"
+    - "markdown"
+  template_dir: "templates/reports"
+  logo_path: "assets/logo.png"
+  include_raw_data: false
+  include_charts: true
+  include_photos: true
+
+  sections:
+    - "test_information"
+    - "protocol_details"
+    - "sample_information"
+    - "equipment_used"
+    - "test_steps"
+    - "measurement_data"
+    - "analysis_results"
+    - "acceptance_criteria"
+    - "recommendations"
+    - "attachments"
+
+# Security settings
+security:
+  require_authentication: true
+  session_timeout_minutes: 60
+  password_min_length: 8
+  enable_audit_log: true
+
+  roles:
+    - name: "operator"
+      permissions:
+        - "view_protocols"
+        - "run_tests"
+        - "view_results"
+    - name: "engineer"
+      permissions:
+        - "view_protocols"
+        - "run_tests"
+        - "view_results"
+        - "generate_reports"
+        - "manage_samples"
+    - name: "manager"
+      permissions:
+        - "view_protocols"
+        - "run_tests"
+        - "view_results"
+        - "generate_reports"
+        - "manage_samples"
+        - "manage_equipment"
+        - "approve_results"
+    - name: "admin"
+      permissions:
+        - "*"  # All permissions
+
+# Logging settings
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  log_to_file: true
+  log_file_path: "logs/test_protocols.log"
+  log_rotation: "daily"
+  log_retention_days: 90
+
+# Performance settings
+performance:
+  cache_enabled: true
+  cache_ttl_seconds: 300
+  max_concurrent_tests: 5
+  measurement_buffer_size: 1000
+  database_query_timeout_seconds: 30

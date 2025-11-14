@@ -1,0 +1,536 @@
+{
+  "protocol_id": "ML-001",
+  "version": "1.0.0",
+  "name": "Mechanical Load Static Test (2400Pa)",
+  "category": "mechanical",
+  "standard": {
+    "name": "IEC",
+    "code": "IEC 61215 MQT 16",
+    "version": "4.0",
+    "url": "https://webstore.iec.ch/publication/61345"
+  },
+  "description": "Static mechanical load test to determine the ability of a PV module to withstand wind, snow, ice, and static loads. The module is subjected to a uniform load of 2400 Pa applied perpendicular to the module surface for a specified duration. This test evaluates structural integrity, deflection characteristics, and electrical performance degradation under load.",
+  "duration_minutes": 180,
+  "equipment_required": [
+    {
+      "name": "Mechanical Load Test Frame",
+      "type": "load_application_system",
+      "model": "Universal PV Module Test Frame",
+      "calibration_required": true,
+      "calibration_interval_days": 365
+    },
+    {
+      "name": "Pressure Distribution System",
+      "type": "air_bladder_system",
+      "model": "Uniform Load Application Bladder",
+      "calibration_required": false
+    },
+    {
+      "name": "Pressure Sensor",
+      "type": "sensor",
+      "model": "Digital Pressure Transducer ±0.5% accuracy",
+      "calibration_required": true,
+      "calibration_interval_days": 180
+    },
+    {
+      "name": "Deflection Measurement System",
+      "type": "laser_displacement_sensor",
+      "model": "Laser Distance Meter ±0.1mm accuracy",
+      "calibration_required": true,
+      "calibration_interval_days": 365
+    },
+    {
+      "name": "Data Acquisition System",
+      "type": "daq",
+      "model": "Multi-channel DAQ System",
+      "calibration_required": true,
+      "calibration_interval_days": 365
+    },
+    {
+      "name": "IV Curve Tracer",
+      "type": "electrical_tester",
+      "model": "Precision IV Curve Tracer",
+      "calibration_required": true,
+      "calibration_interval_days": 180
+    },
+    {
+      "name": "Visual Inspection Camera",
+      "type": "inspection_equipment",
+      "model": "High Resolution Digital Camera",
+      "calibration_required": false
+    }
+  ],
+  "safety_requirements": [
+    "Wear safety glasses at all times",
+    "Ensure test area is clear of personnel during load application",
+    "Use proper lifting techniques when handling modules (minimum 2 persons for modules >20kg)",
+    "Verify pressure system integrity before test initiation",
+    "Install emergency stop button within reach",
+    "Ensure adequate lighting for visual inspection",
+    "Follow electrical safety protocols during IV measurements",
+    "Secure module to prevent sliding or shifting during test"
+  ],
+  "environmental_conditions": {
+    "temperature_celsius": {
+      "min": 15,
+      "max": 35,
+      "target": 25
+    },
+    "humidity_percent": {
+      "min": 20,
+      "max": 75,
+      "target": 50
+    },
+    "pressure_pa": {
+      "min": 95000,
+      "max": 105000,
+      "target": 101325
+    }
+  },
+  "tests": [
+    {
+      "step_id": "ML-001-S01",
+      "name": "Pre-Test Visual Inspection",
+      "sequence": 1,
+      "description": "Conduct thorough visual inspection of the module to document baseline condition before applying mechanical load",
+      "duration_minutes": 15,
+      "parameters": {
+        "inspection_type": "visual",
+        "documentation_required": true,
+        "photo_documentation": true,
+        "min_photo_resolution": "12MP"
+      },
+      "measurements": [],
+      "acceptance_criteria": {
+        "no_visible_defects": true,
+        "frame_integrity": "intact",
+        "glass_condition": "no_cracks_or_chips",
+        "junction_box_secure": true
+      },
+      "operator_instructions": [
+        "Photograph module from all angles (front, back, edges)",
+        "Check for any existing cracks, chips, or defects in glass",
+        "Inspect frame for dents, corrosion, or damage",
+        "Verify junction box is securely attached",
+        "Document cell interconnections visible through glass",
+        "Note any discoloration or delamination",
+        "Record module serial number and specifications",
+        "Complete pre-test inspection checklist"
+      ]
+    },
+    {
+      "step_id": "ML-001-S02",
+      "name": "Baseline Electrical Characterization",
+      "sequence": 2,
+      "description": "Measure initial electrical parameters to establish baseline performance before mechanical loading",
+      "duration_minutes": 20,
+      "parameters": {
+        "test_type": "iv_curve",
+        "irradiance_wm2": 1000,
+        "module_temperature_celsius": 25,
+        "spectrum": "AM1.5G",
+        "measurement_uncertainty": "±3%"
+      },
+      "measurements": [
+        {
+          "measurement_type": "open_circuit_voltage",
+          "unit": "V",
+          "interval_seconds": 1,
+          "sensor_id": "IV_TRACER_01"
+        },
+        {
+          "measurement_type": "short_circuit_current",
+          "unit": "A",
+          "interval_seconds": 1,
+          "sensor_id": "IV_TRACER_01"
+        },
+        {
+          "measurement_type": "max_power",
+          "unit": "W",
+          "interval_seconds": 1,
+          "sensor_id": "IV_TRACER_01"
+        },
+        {
+          "measurement_type": "fill_factor",
+          "unit": "ratio",
+          "interval_seconds": 1,
+          "sensor_id": "IV_TRACER_01"
+        },
+        {
+          "measurement_type": "module_temperature",
+          "unit": "°C",
+          "interval_seconds": 5,
+          "sensor_id": "TEMP_SENSOR_01",
+          "target_value": 25,
+          "tolerance": 2
+        }
+      ],
+      "acceptance_criteria": {
+        "voc_within_spec": true,
+        "isc_within_spec": true,
+        "pmax_within_spec": true,
+        "temperature_stable": true
+      },
+      "operator_instructions": [
+        "Allow module to stabilize at 25°C ±2°C",
+        "Clean module surface with approved cleaning method",
+        "Position module under solar simulator",
+        "Verify irradiance uniformity across module surface",
+        "Perform IV curve trace",
+        "Record Voc, Isc, Pmax, Vmp, Imp, FF",
+        "Compare results to manufacturer nameplate ratings",
+        "Save IV curve data to test database"
+      ]
+    },
+    {
+      "step_id": "ML-001-S03",
+      "name": "Module Mounting and Setup",
+      "sequence": 3,
+      "description": "Mount module securely in test frame with proper support and measurement instrumentation",
+      "duration_minutes": 20,
+      "parameters": {
+        "mounting_type": "supported_edges",
+        "support_configuration": "all_four_edges",
+        "edge_support_width_mm": 25,
+        "mounting_angle_degrees": 0,
+        "bladder_type": "uniform_pressure"
+      },
+      "measurements": [],
+      "acceptance_criteria": {
+        "module_level": true,
+        "secure_mounting": true,
+        "sensors_calibrated": true,
+        "bladder_positioned": true
+      },
+      "operator_instructions": [
+        "Mount module in test frame with glass side facing up",
+        "Support all four edges with minimum 25mm overlap",
+        "Ensure module is level (±1 degree)",
+        "Position deflection sensors at center and quarter points",
+        "Install pressure sensors at multiple points",
+        "Position air bladder system over module glass surface",
+        "Ensure bladder covers entire module area uniformly",
+        "Connect sensors to data acquisition system",
+        "Verify all sensor readings are zero/baseline",
+        "Perform sensor calibration check"
+      ]
+    },
+    {
+      "step_id": "ML-001-S04",
+      "name": "Load Application to 2400Pa",
+      "sequence": 4,
+      "description": "Apply uniform mechanical load of 2400 Pa (equivalent to ~240 kg/m²) to module surface",
+      "duration_minutes": 60,
+      "parameters": {
+        "target_pressure_pa": 2400,
+        "pressure_ramp_rate_pa_per_min": 100,
+        "pressure_tolerance_pa": 50,
+        "hold_duration_minutes": 60,
+        "loading_direction": "front_surface_compression"
+      },
+      "measurements": [
+        {
+          "measurement_type": "applied_pressure",
+          "unit": "Pa",
+          "interval_seconds": 10,
+          "sensor_id": "PRESSURE_01",
+          "target_value": 2400,
+          "tolerance": 50,
+          "min_value": 0,
+          "max_value": 3000
+        },
+        {
+          "measurement_type": "deflection_center",
+          "unit": "mm",
+          "interval_seconds": 10,
+          "sensor_id": "DEFLECT_CENTER",
+          "min_value": 0,
+          "max_value": 50
+        },
+        {
+          "measurement_type": "deflection_quarter_point_1",
+          "unit": "mm",
+          "interval_seconds": 10,
+          "sensor_id": "DEFLECT_Q1"
+        },
+        {
+          "measurement_type": "deflection_quarter_point_2",
+          "unit": "mm",
+          "interval_seconds": 10,
+          "sensor_id": "DEFLECT_Q2"
+        },
+        {
+          "measurement_type": "deflection_quarter_point_3",
+          "unit": "mm",
+          "interval_seconds": 10,
+          "sensor_id": "DEFLECT_Q3"
+        },
+        {
+          "measurement_type": "deflection_quarter_point_4",
+          "unit": "mm",
+          "interval_seconds": 10,
+          "sensor_id": "DEFLECT_Q4"
+        },
+        {
+          "measurement_type": "ambient_temperature",
+          "unit": "°C",
+          "interval_seconds": 60,
+          "sensor_id": "TEMP_AMBIENT",
+          "min_value": 15,
+          "max_value": 35
+        }
+      ],
+      "acceptance_criteria": {
+        "pressure_within_tolerance": true,
+        "max_deflection_mm": 40,
+        "no_visible_damage": true,
+        "no_audible_cracking": true,
+        "deflection_symmetry_percent": 20
+      },
+      "operator_instructions": [
+        "Verify all personnel clear of test area",
+        "Initiate data acquisition recording",
+        "Begin gradual pressure application at 100 Pa/min",
+        "Monitor pressure uniformity across bladder",
+        "Observe module for any visible deformation",
+        "Listen for any cracking or breaking sounds",
+        "Verify pressure reaches 2400 Pa ±50 Pa",
+        "Monitor deflection readings continuously",
+        "Maintain pressure at 2400 Pa for 60 minutes",
+        "Check for any leaks in bladder system",
+        "Document any anomalies or observations",
+        "If deflection exceeds 40mm, initiate emergency stop"
+      ]
+    },
+    {
+      "step_id": "ML-001-S05",
+      "name": "Load Monitoring and Hold",
+      "sequence": 5,
+      "description": "Maintain constant load while monitoring for creep, permanent deformation, or failure",
+      "duration_minutes": 60,
+      "parameters": {
+        "hold_pressure_pa": 2400,
+        "hold_duration_minutes": 60,
+        "monitoring_frequency_seconds": 10
+      },
+      "measurements": [
+        {
+          "measurement_type": "applied_pressure",
+          "unit": "Pa",
+          "interval_seconds": 10,
+          "sensor_id": "PRESSURE_01",
+          "target_value": 2400,
+          "tolerance": 50
+        },
+        {
+          "measurement_type": "deflection_center",
+          "unit": "mm",
+          "interval_seconds": 10,
+          "sensor_id": "DEFLECT_CENTER"
+        },
+        {
+          "measurement_type": "deflection_rate",
+          "unit": "mm/min",
+          "interval_seconds": 60,
+          "sensor_id": "DEFLECT_CENTER_RATE"
+        }
+      ],
+      "acceptance_criteria": {
+        "pressure_stability": "±2%",
+        "creep_rate_mm_per_hour": 0.5,
+        "no_progressive_damage": true
+      },
+      "operator_instructions": [
+        "Monitor pressure stability continuously",
+        "Adjust bladder pressure as needed to maintain 2400 Pa",
+        "Track deflection creep rate",
+        "Observe for any progressive cracking or damage",
+        "Document time-stamped observations",
+        "Monitor environmental conditions",
+        "Verify data acquisition is recording properly"
+      ]
+    },
+    {
+      "step_id": "ML-001-S06",
+      "name": "Load Release and Recovery",
+      "sequence": 6,
+      "description": "Gradually release mechanical load and measure elastic recovery of module",
+      "duration_minutes": 30,
+      "parameters": {
+        "unload_rate_pa_per_min": 200,
+        "recovery_monitoring_minutes": 15
+      },
+      "measurements": [
+        {
+          "measurement_type": "applied_pressure",
+          "unit": "Pa",
+          "interval_seconds": 5,
+          "sensor_id": "PRESSURE_01",
+          "target_value": 0,
+          "tolerance": 10
+        },
+        {
+          "measurement_type": "deflection_center",
+          "unit": "mm",
+          "interval_seconds": 5,
+          "sensor_id": "DEFLECT_CENTER"
+        },
+        {
+          "measurement_type": "residual_deflection",
+          "unit": "mm",
+          "interval_seconds": 60,
+          "sensor_id": "DEFLECT_CENTER",
+          "max_value": 1.0
+        }
+      ],
+      "acceptance_criteria": {
+        "elastic_recovery_percent": 95,
+        "residual_deflection_mm": 1.0,
+        "no_permanent_deformation": true
+      },
+      "operator_instructions": [
+        "Reduce pressure gradually at 200 Pa/min",
+        "Monitor deflection recovery",
+        "Allow 15 minutes for full elastic recovery",
+        "Measure residual deflection after recovery period",
+        "Calculate elastic recovery percentage",
+        "Document recovery behavior"
+      ]
+    },
+    {
+      "step_id": "ML-001-S07",
+      "name": "Post-Test Visual Inspection",
+      "sequence": 7,
+      "description": "Comprehensive visual inspection to identify any damage caused by mechanical loading",
+      "duration_minutes": 15,
+      "parameters": {
+        "inspection_type": "visual_comparative",
+        "photo_documentation": true,
+        "comparison_to_pretest": true
+      },
+      "measurements": [],
+      "acceptance_criteria": {
+        "no_new_cracks": true,
+        "no_delamination": true,
+        "no_cell_damage": true,
+        "no_frame_damage": true,
+        "junction_box_intact": true
+      },
+      "operator_instructions": [
+        "Remove module carefully from test frame",
+        "Photograph module from same angles as pre-test",
+        "Compare to pre-test photos for any changes",
+        "Inspect glass surface for cracks or chips",
+        "Check cells for microcracks or fractures",
+        "Look for signs of delamination",
+        "Inspect frame for bending or damage",
+        "Verify junction box integrity",
+        "Document any new defects or changes",
+        "Complete post-test inspection checklist"
+      ]
+    },
+    {
+      "step_id": "ML-001-S08",
+      "name": "Post-Test Electrical Characterization",
+      "sequence": 8,
+      "description": "Measure electrical parameters after mechanical loading to assess performance degradation",
+      "duration_minutes": 20,
+      "parameters": {
+        "test_type": "iv_curve",
+        "irradiance_wm2": 1000,
+        "module_temperature_celsius": 25,
+        "spectrum": "AM1.5G",
+        "measurement_uncertainty": "±3%"
+      },
+      "measurements": [
+        {
+          "measurement_type": "open_circuit_voltage",
+          "unit": "V",
+          "interval_seconds": 1,
+          "sensor_id": "IV_TRACER_01"
+        },
+        {
+          "measurement_type": "short_circuit_current",
+          "unit": "A",
+          "interval_seconds": 1,
+          "sensor_id": "IV_TRACER_01"
+        },
+        {
+          "measurement_type": "max_power",
+          "unit": "W",
+          "interval_seconds": 1,
+          "sensor_id": "IV_TRACER_01"
+        },
+        {
+          "measurement_type": "fill_factor",
+          "unit": "ratio",
+          "interval_seconds": 1,
+          "sensor_id": "IV_TRACER_01"
+        },
+        {
+          "measurement_type": "power_degradation",
+          "unit": "%",
+          "interval_seconds": 1,
+          "sensor_id": "CALCULATED"
+        }
+      ],
+      "acceptance_criteria": {
+        "power_degradation_percent": 5,
+        "voc_degradation_percent": 2,
+        "isc_degradation_percent": 2,
+        "ff_degradation_percent": 5
+      },
+      "operator_instructions": [
+        "Allow module to stabilize at 25°C ±2°C",
+        "Clean module surface if needed",
+        "Position module under solar simulator",
+        "Perform IV curve trace using same conditions as pre-test",
+        "Record all electrical parameters",
+        "Calculate degradation percentages vs. pre-test values",
+        "Compare to IEC 61215 acceptance limits (≤5% Pmax degradation)",
+        "Document any anomalies in IV curve shape",
+        "Generate comparison plots (pre-test vs. post-test)"
+      ]
+    },
+    {
+      "step_id": "ML-001-S09",
+      "name": "Data Analysis and Reporting",
+      "sequence": 9,
+      "description": "Analyze all collected data and generate comprehensive test report",
+      "duration_minutes": 30,
+      "parameters": {
+        "report_format": "PDF",
+        "include_raw_data": true,
+        "include_graphs": true,
+        "include_photos": true
+      },
+      "measurements": [],
+      "acceptance_criteria": {
+        "overall_pass": "all_criteria_met",
+        "report_complete": true,
+        "data_archived": true
+      },
+      "operator_instructions": [
+        "Review all measurement data for completeness",
+        "Generate pressure vs. time plot",
+        "Generate deflection vs. time plot",
+        "Create IV curve comparison plot",
+        "Calculate all performance metrics",
+        "Determine pass/fail status per IEC 61215",
+        "Complete test report template",
+        "Include all photos and documentation",
+        "Archive raw data files",
+        "Submit report for technical review",
+        "Update test database with results"
+      ]
+    }
+  ],
+  "metadata": {
+    "author": "Test Protocol Development Team",
+    "created_date": "2025-01-14",
+    "last_modified": "2025-01-14T00:00:00Z",
+    "approved_by": "Quality Assurance Manager",
+    "approval_date": "2025-01-14",
+    "tags": ["mechanical", "load_test", "IEC_61215", "MQT_16", "2400Pa", "structural", "static_load"]
+  }
+}

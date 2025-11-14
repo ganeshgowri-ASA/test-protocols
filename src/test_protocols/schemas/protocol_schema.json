@@ -1,0 +1,247 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Test Protocol Schema",
+  "description": "Schema for defining PV module test protocols",
+  "type": "object",
+  "required": ["protocol_id", "version", "name", "category", "standard", "tests"],
+  "properties": {
+    "protocol_id": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}-\\d{3}$",
+      "description": "Protocol identifier (e.g., ML-001, HF-001)",
+      "examples": ["ML-001", "HF-002", "TC-001"]
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version number",
+      "examples": ["1.0.0", "2.1.3"]
+    },
+    "name": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 200,
+      "description": "Human-readable protocol name"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["mechanical", "environmental", "electrical", "thermal", "optical"],
+      "description": "Test category classification"
+    },
+    "standard": {
+      "type": "object",
+      "required": ["name", "code"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Standard organization name",
+          "examples": ["IEC", "UL", "ASTM"]
+        },
+        "code": {
+          "type": "string",
+          "description": "Standard code/number",
+          "examples": ["IEC 61215 MQT 16", "UL 1703", "ASTM E1171"]
+        },
+        "version": {
+          "type": "string",
+          "description": "Standard version/edition"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to standard documentation"
+        }
+      }
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Detailed protocol description"
+    },
+    "duration_minutes": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Total estimated test duration in minutes"
+    },
+    "equipment_required": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "type"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "calibration_required": {
+            "type": "boolean",
+            "default": true
+          },
+          "calibration_interval_days": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Required test equipment"
+    },
+    "safety_requirements": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Safety precautions and PPE requirements"
+    },
+    "environmental_conditions": {
+      "type": "object",
+      "properties": {
+        "temperature_celsius": {
+          "type": "object",
+          "properties": {
+            "min": {"type": "number"},
+            "max": {"type": "number"},
+            "target": {"type": "number"}
+          }
+        },
+        "humidity_percent": {
+          "type": "object",
+          "properties": {
+            "min": {"type": "number"},
+            "max": {"type": "number"},
+            "target": {"type": "number"}
+          }
+        },
+        "pressure_pa": {
+          "type": "object",
+          "properties": {
+            "min": {"type": "number"},
+            "max": {"type": "number"},
+            "target": {"type": "number"}
+          }
+        }
+      }
+    },
+    "tests": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/test_step"
+      },
+      "description": "Ordered list of test steps"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "author": {"type": "string"},
+        "created_date": {"type": "string", "format": "date"},
+        "last_modified": {"type": "string", "format": "date-time"},
+        "approved_by": {"type": "string"},
+        "approval_date": {"type": "string", "format": "date"},
+        "tags": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    }
+  },
+  "definitions": {
+    "test_step": {
+      "type": "object",
+      "required": ["step_id", "name", "sequence", "parameters"],
+      "properties": {
+        "step_id": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}-\\d{3}-S\\d{2}$",
+          "description": "Unique step identifier (e.g., ML-001-S01)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Step name"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Execution order"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed step description"
+        },
+        "duration_minutes": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Step duration in minutes"
+        },
+        "parameters": {
+          "type": "object",
+          "description": "Step-specific parameters",
+          "additionalProperties": true
+        },
+        "measurements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/measurement"
+          },
+          "description": "Data to be collected during this step"
+        },
+        "acceptance_criteria": {
+          "type": "object",
+          "description": "Pass/fail criteria for this step",
+          "additionalProperties": true
+        },
+        "operator_instructions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Instructions for the test operator"
+        }
+      }
+    },
+    "measurement": {
+      "type": "object",
+      "required": ["measurement_type", "unit"],
+      "properties": {
+        "measurement_type": {
+          "type": "string",
+          "description": "Type of measurement",
+          "examples": ["force", "deflection", "temperature", "humidity", "current", "voltage"]
+        },
+        "unit": {
+          "type": "string",
+          "description": "Measurement unit",
+          "examples": ["Pa", "N", "mm", "°C", "%", "A", "V", "W"]
+        },
+        "interval_seconds": {
+          "type": "number",
+          "minimum": 0.1,
+          "description": "Measurement sampling interval"
+        },
+        "sensor_id": {
+          "type": "string",
+          "description": "Identifier for the measuring sensor/instrument"
+        },
+        "min_value": {
+          "type": "number",
+          "description": "Minimum expected value"
+        },
+        "max_value": {
+          "type": "number",
+          "description": "Maximum expected value"
+        },
+        "target_value": {
+          "type": "number",
+          "description": "Target value"
+        },
+        "tolerance": {
+          "type": "number",
+          "description": "Acceptable tolerance"
+        }
+      }
+    }
+  }
+}

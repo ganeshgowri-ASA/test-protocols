@@ -1,0 +1,444 @@
+{
+  "protocol_id": "CHALK-001",
+  "name": "Backsheet Chalking Protocol",
+  "version": "1.0.0",
+  "category": "Degradation",
+  "description": "Protocol for evaluating backsheet chalking in photovoltaic modules. Chalking is a degradation mechanism where the polymer surface deteriorates, releasing titanium dioxide pigment particles.",
+  "reference_standards": [
+    "IEC 61215",
+    "IEC 61730",
+    "ASTM D4214"
+  ],
+  "metadata": {
+    "created_date": "2025-11-14",
+    "author": "Test Protocols Team",
+    "last_modified": "2025-11-14",
+    "tags": ["backsheet", "degradation", "visual", "chalking", "polymer"]
+  },
+  "test_parameters": {
+    "environmental_conditions": {
+      "temperature": {
+        "name": "Ambient Temperature",
+        "type": "number",
+        "unit": "celsius",
+        "range": {
+          "min": 20,
+          "max": 30
+        },
+        "default": 25,
+        "required": true,
+        "description": "Temperature during visual inspection"
+      },
+      "humidity": {
+        "name": "Relative Humidity",
+        "type": "number",
+        "unit": "percent",
+        "range": {
+          "min": 30,
+          "max": 70
+        },
+        "default": 50,
+        "required": true,
+        "description": "Relative humidity during inspection"
+      }
+    },
+    "sample_parameters": {
+      "sample_id": {
+        "name": "Sample ID",
+        "type": "string",
+        "pattern": "^[A-Z0-9-]+$",
+        "required": true,
+        "description": "Unique identifier for the test sample"
+      },
+      "module_type": {
+        "name": "Module Type",
+        "type": "string",
+        "required": true,
+        "description": "Type of PV module being tested"
+      },
+      "backsheet_material": {
+        "name": "Backsheet Material",
+        "type": "string",
+        "enum": ["PET", "PVF", "PA", "TPT", "PPE", "Other"],
+        "required": true,
+        "description": "Type of backsheet material"
+      },
+      "exposure_duration": {
+        "name": "Exposure Duration",
+        "type": "number",
+        "unit": "hours",
+        "range": {
+          "min": 0,
+          "max": 100000
+        },
+        "required": false,
+        "description": "Duration of prior environmental exposure (if applicable)"
+      }
+    },
+    "measurement_parameters": {
+      "measurement_locations": {
+        "name": "Measurement Locations",
+        "type": "integer",
+        "range": {
+          "min": 5,
+          "max": 20
+        },
+        "default": 9,
+        "required": true,
+        "description": "Number of locations to evaluate for chalking"
+      },
+      "tape_type": {
+        "name": "Adhesive Tape Type",
+        "type": "string",
+        "enum": ["ASTM_Standard", "3M_610", "Scotch_Magic", "Custom"],
+        "default": "ASTM_Standard",
+        "required": true,
+        "description": "Type of adhesive tape used for chalking test"
+      }
+    }
+  },
+  "test_steps": [
+    {
+      "step_id": "CHALK-001-S01",
+      "step_number": 1,
+      "name": "Sample Preparation",
+      "description": "Prepare the PV module sample for chalking evaluation",
+      "duration_minutes": 15,
+      "required": true,
+      "instructions": [
+        "Clean the backsheet surface with isopropyl alcohol and lint-free cloth",
+        "Allow the surface to dry completely (minimum 5 minutes)",
+        "Visually inspect for any contamination or debris",
+        "Document initial surface condition with photographs"
+      ],
+      "safety_notes": [
+        "Wear nitrile gloves to avoid surface contamination",
+        "Work in well-ventilated area when using cleaning solvents"
+      ],
+      "required_equipment": [
+        "Isopropyl alcohol (99%)",
+        "Lint-free cleaning cloths",
+        "Nitrile gloves",
+        "Camera for documentation"
+      ]
+    },
+    {
+      "step_id": "CHALK-001-S02",
+      "step_number": 2,
+      "name": "Environmental Conditioning",
+      "description": "Condition the sample to standard test conditions",
+      "duration_minutes": 30,
+      "required": true,
+      "instructions": [
+        "Place sample in controlled environment at 25±5°C",
+        "Maintain relative humidity at 50±20%",
+        "Allow sample to equilibrate for minimum 30 minutes",
+        "Record actual temperature and humidity values"
+      ],
+      "safety_notes": [],
+      "required_equipment": [
+        "Environmental chamber or controlled room",
+        "Temperature sensor (±1°C accuracy)",
+        "Humidity sensor (±5% accuracy)"
+      ]
+    },
+    {
+      "step_id": "CHALK-001-S03",
+      "step_number": 3,
+      "name": "Chalking Measurement",
+      "description": "Perform adhesive tape test to evaluate chalking severity",
+      "duration_minutes": 20,
+      "required": true,
+      "instructions": [
+        "Mark measurement locations on backsheet (grid pattern recommended)",
+        "At each location, apply adhesive tape with consistent pressure",
+        "Press tape firmly for 5 seconds using roller or standardized pressure",
+        "Peel tape away at 90-degree angle with smooth, continuous motion",
+        "Transfer tape to white reference card labeled with location ID",
+        "Photograph each tape sample under standardized lighting"
+      ],
+      "safety_notes": [
+        "Maintain consistent technique across all measurements"
+      ],
+      "required_equipment": [
+        "Adhesive tape (ASTM D4214 compliant)",
+        "Roller or pressure applicator",
+        "White reference cards",
+        "Permanent marker",
+        "Camera with standardized lighting setup",
+        "Stopwatch or timer"
+      ]
+    },
+    {
+      "step_id": "CHALK-001-S04",
+      "step_number": 4,
+      "name": "Visual Rating",
+      "description": "Evaluate and rate chalking severity for each measurement location",
+      "duration_minutes": 30,
+      "required": true,
+      "instructions": [
+        "Compare each tape sample to ASTM D4214 chalking reference scale",
+        "Rate chalking on scale of 0-10 (0=no chalking, 10=severe chalking)",
+        "Record rating for each measurement location",
+        "Calculate average chalking rating across all locations",
+        "Note any non-uniform chalking patterns or anomalies"
+      ],
+      "safety_notes": [],
+      "required_equipment": [
+        "ASTM D4214 reference scale",
+        "Data recording sheet or digital form",
+        "Magnifying glass (optional)",
+        "Standardized viewing booth (recommended)"
+      ]
+    },
+    {
+      "step_id": "CHALK-001-S05",
+      "step_number": 5,
+      "name": "Data Analysis and Reporting",
+      "description": "Analyze results and generate test report",
+      "duration_minutes": 20,
+      "required": true,
+      "instructions": [
+        "Calculate statistical parameters (mean, std dev, min, max)",
+        "Generate chalking severity map if applicable",
+        "Compare results to acceptance criteria",
+        "Compile photographs and measurement data",
+        "Generate standardized test report"
+      ],
+      "safety_notes": [],
+      "required_equipment": [
+        "Computer with analysis software",
+        "Report template"
+      ]
+    }
+  ],
+  "data_collection": {
+    "measurements": [
+      {
+        "measurement_id": "location_rating",
+        "name": "Location Chalking Rating",
+        "type": "number",
+        "unit": "rating_0_10",
+        "range": {
+          "min": 0,
+          "max": 10
+        },
+        "precision": 0.5,
+        "repeated": true,
+        "description": "Chalking severity rating at each measurement location"
+      },
+      {
+        "measurement_id": "location_x",
+        "name": "X Coordinate",
+        "type": "number",
+        "unit": "mm",
+        "description": "X coordinate of measurement location on module"
+      },
+      {
+        "measurement_id": "location_y",
+        "name": "Y Coordinate",
+        "type": "number",
+        "unit": "mm",
+        "description": "Y coordinate of measurement location on module"
+      },
+      {
+        "measurement_id": "visual_observations",
+        "name": "Visual Observations",
+        "type": "text",
+        "description": "Qualitative observations about chalking pattern or appearance"
+      },
+      {
+        "measurement_id": "photo_reference",
+        "name": "Photo Reference ID",
+        "type": "string",
+        "description": "Reference ID for associated photograph"
+      }
+    ],
+    "calculated_metrics": [
+      {
+        "metric_id": "average_chalking_rating",
+        "name": "Average Chalking Rating",
+        "type": "number",
+        "unit": "rating_0_10",
+        "formula": "mean(location_rating)",
+        "description": "Mean chalking rating across all measurement locations"
+      },
+      {
+        "metric_id": "chalking_std_dev",
+        "name": "Chalking Standard Deviation",
+        "type": "number",
+        "unit": "rating_0_10",
+        "formula": "std_dev(location_rating)",
+        "description": "Standard deviation of chalking ratings indicating uniformity"
+      },
+      {
+        "metric_id": "max_chalking_rating",
+        "name": "Maximum Chalking Rating",
+        "type": "number",
+        "unit": "rating_0_10",
+        "formula": "max(location_rating)",
+        "description": "Highest chalking rating observed"
+      },
+      {
+        "metric_id": "min_chalking_rating",
+        "name": "Minimum Chalking Rating",
+        "type": "number",
+        "unit": "rating_0_10",
+        "formula": "min(location_rating)",
+        "description": "Lowest chalking rating observed"
+      },
+      {
+        "metric_id": "chalking_uniformity_index",
+        "name": "Chalking Uniformity Index",
+        "type": "number",
+        "unit": "percent",
+        "formula": "(1 - (std_dev / mean)) * 100",
+        "description": "Measure of chalking uniformity across the backsheet"
+      }
+    ]
+  },
+  "pass_fail_criteria": {
+    "acceptance_thresholds": {
+      "average_chalking_rating": {
+        "pass": "< 3.0",
+        "warning": "3.0 - 5.0",
+        "fail": "> 5.0",
+        "description": "Average chalking rating threshold"
+      },
+      "max_chalking_rating": {
+        "pass": "< 5.0",
+        "warning": "5.0 - 7.0",
+        "fail": "> 7.0",
+        "description": "Maximum acceptable chalking at any single location"
+      }
+    },
+    "overall_assessment": {
+      "pass_conditions": [
+        "average_chalking_rating < 3.0",
+        "max_chalking_rating < 5.0"
+      ],
+      "fail_conditions": [
+        "average_chalking_rating > 5.0",
+        "max_chalking_rating > 7.0"
+      ]
+    }
+  },
+  "qc_requirements": {
+    "calibration": [
+      {
+        "item": "Temperature sensor",
+        "frequency": "Annual",
+        "standard": "NIST traceable"
+      },
+      {
+        "item": "Humidity sensor",
+        "frequency": "Annual",
+        "standard": "NIST traceable"
+      }
+    ],
+    "verification": [
+      {
+        "item": "Reference scale",
+        "frequency": "Before each test",
+        "method": "Visual inspection for damage or degradation"
+      },
+      {
+        "item": "Adhesive tape lot",
+        "frequency": "Per lot",
+        "method": "Verify conformance to ASTM D4214"
+      }
+    ],
+    "documentation": [
+      "Calibration certificates",
+      "Operator training records",
+      "Test photographs",
+      "Raw measurement data",
+      "Environmental condition logs"
+    ]
+  },
+  "report_template": {
+    "sections": [
+      {
+        "section_id": "summary",
+        "name": "Executive Summary",
+        "required": true,
+        "content": [
+          "Test overview",
+          "Pass/fail result",
+          "Average chalking rating",
+          "Key findings"
+        ]
+      },
+      {
+        "section_id": "sample_info",
+        "name": "Sample Information",
+        "required": true,
+        "content": [
+          "Sample ID",
+          "Module type",
+          "Backsheet material",
+          "Exposure history"
+        ]
+      },
+      {
+        "section_id": "test_conditions",
+        "name": "Test Conditions",
+        "required": true,
+        "content": [
+          "Environmental conditions",
+          "Equipment used",
+          "Test date and duration",
+          "Operator information"
+        ]
+      },
+      {
+        "section_id": "results",
+        "name": "Test Results",
+        "required": true,
+        "content": [
+          "Individual location ratings table",
+          "Statistical summary",
+          "Chalking distribution map",
+          "Representative photographs"
+        ]
+      },
+      {
+        "section_id": "analysis",
+        "name": "Data Analysis",
+        "required": true,
+        "content": [
+          "Calculated metrics",
+          "Comparison to acceptance criteria",
+          "Trend analysis (if applicable)",
+          "Anomaly notes"
+        ]
+      },
+      {
+        "section_id": "conclusion",
+        "name": "Conclusions",
+        "required": true,
+        "content": [
+          "Overall assessment",
+          "Recommendations",
+          "Follow-up actions (if needed)"
+        ]
+      }
+    ],
+    "charts": [
+      {
+        "chart_id": "rating_distribution",
+        "type": "histogram",
+        "title": "Chalking Rating Distribution",
+        "x_axis": "Chalking Rating",
+        "y_axis": "Frequency"
+      },
+      {
+        "chart_id": "spatial_heatmap",
+        "type": "heatmap",
+        "title": "Spatial Chalking Distribution",
+        "x_axis": "X Position (mm)",
+        "y_axis": "Y Position (mm)"
+      }
+    ]
+  }
+}

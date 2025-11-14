@@ -1,0 +1,345 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://test-protocols.example.com/schemas/chalk-001.schema.json",
+  "title": "CHALK-001 Backsheet Chalking Protocol Schema",
+  "description": "JSON Schema for validating backsheet chalking test data",
+  "type": "object",
+  "required": [
+    "test_execution_id",
+    "protocol_id",
+    "sample_info",
+    "test_conditions",
+    "measurements",
+    "calculated_results"
+  ],
+  "properties": {
+    "test_execution_id": {
+      "type": "string",
+      "pattern": "^CHALK-001-[0-9]{8}-[0-9]{6}$",
+      "description": "Unique test execution identifier in format CHALK-001-YYYYMMDD-HHMMSS"
+    },
+    "protocol_id": {
+      "type": "string",
+      "const": "CHALK-001",
+      "description": "Protocol identifier"
+    },
+    "protocol_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Protocol version in semver format"
+    },
+    "sample_info": {
+      "type": "object",
+      "required": ["sample_id", "module_type", "backsheet_material"],
+      "properties": {
+        "sample_id": {
+          "type": "string",
+          "pattern": "^[A-Z0-9-]+$",
+          "description": "Unique sample identifier"
+        },
+        "module_type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Type of PV module"
+        },
+        "backsheet_material": {
+          "type": "string",
+          "enum": ["PET", "PVF", "PA", "TPT", "PPE", "Other"],
+          "description": "Backsheet material type"
+        },
+        "backsheet_manufacturer": {
+          "type": "string",
+          "description": "Backsheet manufacturer name"
+        },
+        "module_serial_number": {
+          "type": "string",
+          "description": "Module serial number"
+        },
+        "manufacturing_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Module manufacturing date"
+        },
+        "exposure_duration": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100000,
+          "description": "Prior exposure duration in hours"
+        },
+        "exposure_type": {
+          "type": "string",
+          "enum": ["Field", "Accelerated", "None", "Combined"],
+          "description": "Type of prior exposure"
+        }
+      }
+    },
+    "test_conditions": {
+      "type": "object",
+      "required": ["temperature", "humidity", "test_date", "operator_id"],
+      "properties": {
+        "temperature": {
+          "type": "number",
+          "minimum": 20,
+          "maximum": 30,
+          "description": "Ambient temperature in Celsius"
+        },
+        "humidity": {
+          "type": "number",
+          "minimum": 30,
+          "maximum": 70,
+          "description": "Relative humidity in percent"
+        },
+        "test_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Date of test execution"
+        },
+        "test_start_time": {
+          "type": "string",
+          "format": "time",
+          "description": "Test start time"
+        },
+        "test_end_time": {
+          "type": "string",
+          "format": "time",
+          "description": "Test completion time"
+        },
+        "operator_id": {
+          "type": "string",
+          "description": "Operator identifier"
+        },
+        "measurement_locations": {
+          "type": "integer",
+          "minimum": 5,
+          "maximum": 20,
+          "description": "Number of measurement locations"
+        },
+        "tape_type": {
+          "type": "string",
+          "enum": ["ASTM_Standard", "3M_610", "Scotch_Magic", "Custom"],
+          "description": "Type of adhesive tape used"
+        },
+        "tape_lot_number": {
+          "type": "string",
+          "description": "Tape lot number for traceability"
+        }
+      }
+    },
+    "measurements": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "required": ["location_id", "chalking_rating"],
+        "properties": {
+          "location_id": {
+            "type": "string",
+            "pattern": "^LOC-[0-9]{2}$",
+            "description": "Location identifier (e.g., LOC-01)"
+          },
+          "location_x": {
+            "type": "number",
+            "minimum": 0,
+            "description": "X coordinate in mm"
+          },
+          "location_y": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Y coordinate in mm"
+          },
+          "chalking_rating": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 10,
+            "multipleOf": 0.5,
+            "description": "Chalking rating from 0 (no chalking) to 10 (severe)"
+          },
+          "visual_observations": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Qualitative observations"
+          },
+          "photo_reference": {
+            "type": "string",
+            "description": "Reference to associated photograph"
+          },
+          "measurement_timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When this specific measurement was taken"
+          }
+        }
+      }
+    },
+    "calculated_results": {
+      "type": "object",
+      "required": [
+        "average_chalking_rating",
+        "chalking_std_dev",
+        "max_chalking_rating",
+        "min_chalking_rating"
+      ],
+      "properties": {
+        "average_chalking_rating": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10,
+          "description": "Mean chalking rating"
+        },
+        "chalking_std_dev": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Standard deviation of chalking ratings"
+        },
+        "max_chalking_rating": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10,
+          "description": "Maximum chalking rating"
+        },
+        "min_chalking_rating": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10,
+          "description": "Minimum chalking rating"
+        },
+        "chalking_uniformity_index": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Uniformity index in percent"
+        },
+        "coefficient_of_variation": {
+          "type": "number",
+          "minimum": 0,
+          "description": "CV of chalking ratings"
+        }
+      }
+    },
+    "pass_fail_assessment": {
+      "type": "object",
+      "required": ["overall_result", "criteria_evaluations"],
+      "properties": {
+        "overall_result": {
+          "type": "string",
+          "enum": ["PASS", "WARNING", "FAIL"],
+          "description": "Overall test result"
+        },
+        "criteria_evaluations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["criterion", "actual_value", "threshold", "result"],
+            "properties": {
+              "criterion": {
+                "type": "string",
+                "description": "Criterion name"
+              },
+              "actual_value": {
+                "type": "number",
+                "description": "Measured value"
+              },
+              "threshold": {
+                "type": "string",
+                "description": "Threshold expression"
+              },
+              "result": {
+                "type": "string",
+                "enum": ["PASS", "WARNING", "FAIL"],
+                "description": "Result for this criterion"
+              }
+            }
+          }
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "Additional assessment notes"
+        }
+      }
+    },
+    "qc_verification": {
+      "type": "object",
+      "properties": {
+        "calibration_verified": {
+          "type": "boolean",
+          "description": "Calibration status verified"
+        },
+        "reference_scale_verified": {
+          "type": "boolean",
+          "description": "Reference scale condition verified"
+        },
+        "tape_lot_verified": {
+          "type": "boolean",
+          "description": "Tape lot compliance verified"
+        },
+        "data_reviewed_by": {
+          "type": "string",
+          "description": "QC reviewer identifier"
+        },
+        "review_date": {
+          "type": "string",
+          "format": "date",
+          "description": "QC review date"
+        },
+        "qc_notes": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "QC review notes"
+        }
+      }
+    },
+    "attachments": {
+      "type": "object",
+      "properties": {
+        "photographs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "file_path": {
+                "type": "string",
+                "description": "Path to photograph file"
+              },
+              "description": {
+                "type": "string",
+                "description": "Photo description"
+              },
+              "associated_location": {
+                "type": "string",
+                "description": "Associated measurement location"
+              }
+            }
+          }
+        },
+        "calibration_certificates": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "Path to calibration certificate"
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "created_timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Record creation timestamp"
+        },
+        "modified_timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last modification timestamp"
+        },
+        "data_version": {
+          "type": "string",
+          "description": "Data format version"
+        }
+      }
+    }
+  }
+}

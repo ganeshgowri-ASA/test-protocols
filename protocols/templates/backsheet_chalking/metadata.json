@@ -1,0 +1,141 @@
+{
+  "protocol_metadata": {
+    "protocol_id": "CHALK-001",
+    "protocol_name": "Backsheet Chalking Protocol",
+    "version": "1.0.0",
+    "status": "active",
+    "created_date": "2025-11-14",
+    "last_modified": "2025-11-14",
+    "author": "Test Protocols Team",
+    "reviewers": [],
+    "approval_status": "draft",
+    "effective_date": null
+  },
+  "categorization": {
+    "primary_category": "Degradation",
+    "sub_categories": ["Visual Inspection", "Polymer Degradation", "Backsheet"],
+    "test_type": "Non-destructive",
+    "complexity": "Medium",
+    "estimated_duration_minutes": 115
+  },
+  "applicability": {
+    "module_types": [
+      "Crystalline Silicon",
+      "Thin Film",
+      "CIGS",
+      "CdTe",
+      "All module types with polymer backsheets"
+    ],
+    "backsheet_types": [
+      "PET-based",
+      "PVF-based",
+      "PA-based",
+      "TPT",
+      "PPE",
+      "Other polymer backsheets"
+    ],
+    "use_cases": [
+      "End-of-line quality control",
+      "Field-aged module assessment",
+      "Accelerated aging study validation",
+      "Warranty claim investigation",
+      "Material qualification"
+    ]
+  },
+  "requirements": {
+    "equipment": {
+      "required": [
+        "Adhesive tape (ASTM D4214 compliant)",
+        "White reference cards",
+        "Camera with standardized lighting",
+        "Temperature sensor (±1°C)",
+        "Humidity sensor (±5%)",
+        "Cleaning supplies (IPA, lint-free cloths)"
+      ],
+      "optional": [
+        "Environmental chamber",
+        "Viewing booth",
+        "Magnifying glass",
+        "Roller for tape application"
+      ]
+    },
+    "personnel": {
+      "minimum_operators": 1,
+      "required_training": [
+        "Visual inspection techniques",
+        "ASTM D4214 standard familiarization",
+        "Photography standardization"
+      ],
+      "recommended_experience": "3+ months in PV module testing"
+    },
+    "facilities": {
+      "space_required": "Bench space for 2m x 1m module",
+      "environmental_control": "Temperature and humidity controlled area preferred",
+      "lighting": "Standardized lighting for photography"
+    }
+  },
+  "quality_attributes": {
+    "repeatability": {
+      "expected_cv": "< 15%",
+      "description": "Coefficient of variation for repeated measurements by same operator"
+    },
+    "reproducibility": {
+      "expected_cv": "< 25%",
+      "description": "Coefficient of variation for measurements by different operators"
+    },
+    "uncertainty": {
+      "measurement_uncertainty": "±0.5 rating points",
+      "confidence_level": "95%"
+    }
+  },
+  "regulatory_compliance": {
+    "standards_compliance": [
+      {
+        "standard": "IEC 61215",
+        "section": "Visual Inspection",
+        "compliance_level": "Aligned"
+      },
+      {
+        "standard": "ASTM D4214",
+        "section": "Standard Test Method for Evaluating the Degree of Chalking of Exterior Paint Films",
+        "compliance_level": "Full"
+      }
+    ],
+    "safety_classification": "Low risk",
+    "environmental_impact": "Minimal - small quantities of IPA and tape waste"
+  },
+  "data_management": {
+    "data_retention_years": 10,
+    "backup_required": true,
+    "photograph_storage_required": true,
+    "raw_data_archival": true
+  },
+  "change_history": [
+    {
+      "version": "1.0.0",
+      "date": "2025-11-14",
+      "author": "Test Protocols Team",
+      "change_description": "Initial protocol creation",
+      "change_type": "New protocol"
+    }
+  ],
+  "related_protocols": {
+    "prerequisite_protocols": [],
+    "complementary_protocols": [
+      "Visual inspection general",
+      "Backsheet adhesion testing",
+      "Polymer degradation assessment"
+    ],
+    "superseded_protocols": []
+  },
+  "tags": [
+    "backsheet",
+    "chalking",
+    "degradation",
+    "visual",
+    "ASTM",
+    "polymer",
+    "non-destructive",
+    "P22/54"
+  ]
+}

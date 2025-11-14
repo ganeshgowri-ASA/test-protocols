@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Base Step Schema",
+  "description": "Base schema for test protocol steps",
+  "type": "object",
+  "properties": {
+    "step_id": {
+      "type": "string",
+      "description": "Unique step identifier"
+    },
+    "step_order": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Step execution order"
+    },
+    "step_name": {
+      "type": "string",
+      "description": "Human-readable step name"
+    },
+    "step_type": {
+      "type": "string",
+      "description": "Type of step (measurement, load_application, etc.)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed step description"
+    },
+    "duration_minutes": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Estimated step duration in minutes"
+    },
+    "instructions": {
+      "type": "string",
+      "description": "Detailed operator instructions"
+    },
+    "automated": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this step is automated"
+    },
+    "required_equipment": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Equipment IDs required for this step"
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Step-specific parameters"
+    }
+  },
+  "required": [
+    "step_name",
+    "step_type"
+  ]
+}

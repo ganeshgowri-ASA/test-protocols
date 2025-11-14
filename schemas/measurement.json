@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Measurement Schema",
+  "description": "Schema for test measurements",
+  "type": "object",
+  "properties": {
+    "measurement_id": {
+      "type": "string",
+      "description": "Unique measurement identifier"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Measurement timestamp"
+    },
+    "measurement_type": {
+      "type": "string",
+      "description": "Type of measurement (deflection, load, temperature, etc.)"
+    },
+    "value": {
+      "type": "number",
+      "description": "Measured value"
+    },
+    "unit": {
+      "type": "string",
+      "description": "Unit of measurement"
+    },
+    "phase": {
+      "type": "string",
+      "description": "Test phase when measurement was taken"
+    },
+    "context": {
+      "type": "object",
+      "description": "Additional context for the measurement",
+      "properties": {
+        "temperature_c": {
+          "type": "number",
+          "description": "Ambient temperature"
+        },
+        "humidity_pct": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Relative humidity"
+        },
+        "pressure_pa": {
+          "type": "number",
+          "description": "Atmospheric pressure"
+        }
+      }
+    },
+    "equipment_id": {
+      "type": "string",
+      "description": "Equipment used for measurement"
+    },
+    "operator": {
+      "type": "string",
+      "description": "Operator who recorded the measurement"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "timestamp",
+    "measurement_type",
+    "value",
+    "unit"
+  ]
+}

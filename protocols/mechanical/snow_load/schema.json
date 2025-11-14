@@ -1,0 +1,223 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Snow Load Test Protocol - SNOW-001",
+  "description": "Protocol for testing PV modules under simulated snow loads according to IEC 61215-1:2016",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../../../schemas/protocol_base.json"
+    }
+  ],
+  "properties": {
+    "protocol_type": {
+      "const": "mechanical/snow_load",
+      "description": "Protocol identifier"
+    },
+    "module_specs": {
+      "type": "object",
+      "description": "PV module specifications",
+      "properties": {
+        "module_id": {
+          "type": "string",
+          "description": "Unique module identifier"
+        },
+        "manufacturer": {
+          "type": "string",
+          "description": "Module manufacturer"
+        },
+        "model": {
+          "type": "string",
+          "description": "Module model"
+        },
+        "serial_number": {
+          "type": "string",
+          "description": "Module serial number"
+        },
+        "dimensions": {
+          "type": "object",
+          "properties": {
+            "length_mm": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Module length in millimeters"
+            },
+            "width_mm": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Module width in millimeters"
+            },
+            "thickness_mm": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Module thickness in millimeters"
+            }
+          },
+          "required": ["length_mm", "width_mm", "thickness_mm"]
+        },
+        "mass_kg": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Module mass in kilograms"
+        },
+        "frame_type": {
+          "type": "string",
+          "enum": ["aluminum", "stainless_steel", "plastic", "frameless"],
+          "description": "Module frame material"
+        },
+        "rated_power_w": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Rated power in watts"
+        }
+      },
+      "required": ["module_id", "dimensions", "mass_kg"]
+    },
+    "test_conditions": {
+      "type": "object",
+      "description": "Test conditions and parameters",
+      "properties": {
+        "snow_load_pa": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10000,
+          "description": "Target snow load in Pascals (Pa)"
+        },
+        "snow_load_kg_m2": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000,
+          "description": "Target snow load in kg/m²"
+        },
+        "load_application_rate": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Load application rate in kg/m²/minute"
+        },
+        "hold_duration_hours": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 48,
+          "description": "Duration to hold under load in hours"
+        },
+        "test_temperature_c": {
+          "type": "number",
+          "minimum": -70,
+          "maximum": 60,
+          "description": "Test temperature in Celsius"
+        },
+        "test_humidity_pct": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Relative humidity percentage"
+        },
+        "cycles": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Number of load cycles"
+        },
+        "support_configuration": {
+          "type": "string",
+          "enum": ["4-point", "frame", "distributed"],
+          "description": "Module support configuration"
+        }
+      },
+      "required": ["snow_load_pa", "hold_duration_hours", "cycles"]
+    },
+    "acceptance_criteria": {
+      "type": "object",
+      "description": "Test acceptance criteria",
+      "properties": {
+        "max_deflection_mm": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Maximum allowable deflection in mm"
+        },
+        "max_permanent_deflection_mm": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Maximum allowable permanent deflection in mm"
+        },
+        "max_cracking": {
+          "type": "string",
+          "enum": ["none", "micro", "hairline", "visible"],
+          "description": "Maximum allowable cracking level"
+        },
+        "min_performance_retention_pct": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Minimum power retention percentage"
+        },
+        "visual_inspection_required": {
+          "type": "boolean",
+          "description": "Whether visual inspection is required"
+        },
+        "electrical_test_required": {
+          "type": "boolean",
+          "description": "Whether electrical testing is required"
+        }
+      },
+      "required": ["max_deflection_mm", "max_cracking"]
+    },
+    "measurements": {
+      "type": "array",
+      "description": "Measurement types to be collected",
+      "items": {
+        "type": "string",
+        "enum": [
+          "deflection",
+          "load",
+          "temperature",
+          "humidity",
+          "visual_inspection",
+          "electrical_performance"
+        ]
+      }
+    },
+    "steps": {
+      "type": "array",
+      "description": "Test execution steps",
+      "items": {
+        "allOf": [
+          {
+            "$ref": "../../../schemas/step_base.json"
+          },
+          {
+            "properties": {
+              "step_type": {
+                "enum": [
+                  "equipment_setup",
+                  "baseline_measurement",
+                  "load_application",
+                  "hold",
+                  "unload",
+                  "recovery_measurement",
+                  "visual_inspection",
+                  "electrical_test"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "equipment_required": {
+      "type": "array",
+      "description": "Required equipment for the test",
+      "items": {
+        "$ref": "../../../schemas/equipment.json"
+      }
+    }
+  },
+  "required": [
+    "protocol_type",
+    "module_specs",
+    "test_conditions",
+    "acceptance_criteria",
+    "measurements",
+    "steps",
+    "equipment_required"
+  ]
+}

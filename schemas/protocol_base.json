@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Base Protocol Schema",
+  "description": "Base schema for all test protocols",
+  "type": "object",
+  "properties": {
+    "protocol_id": {
+      "type": "string",
+      "pattern": "^[A-Z]{2,4}-\\d{3,4}$",
+      "description": "Unique protocol identifier (e.g., SNOW-001)"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Protocol version (semantic versioning)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable protocol name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed protocol description"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["mechanical", "environmental", "electrical"],
+      "description": "Protocol category"
+    },
+    "standard": {
+      "type": "string",
+      "description": "Applicable standard (IEC, ASTM, etc.)"
+    },
+    "created_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Protocol creation date"
+    },
+    "updated_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last update date"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "Protocol author"
+    },
+    "safety_notes": {
+      "type": "string",
+      "description": "Safety warnings and precautions"
+    },
+    "prerequisites": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Required conditions before test execution"
+    },
+    "estimated_duration_hours": {
+      "type": "number",
+      "minimum": 0.5,
+      "description": "Estimated test duration in hours"
+    }
+  },
+  "required": [
+    "protocol_id",
+    "version",
+    "name",
+    "category",
+    "created_by",
+    "estimated_duration_hours"
+  ]
+}

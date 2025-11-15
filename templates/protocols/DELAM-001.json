@@ -1,0 +1,73 @@
+{
+  "protocol_id": "DELAM-001",
+  "protocol_name": "Delamination Detection and Analysis",
+  "version": "1.0.0",
+  "category": "degradation",
+  "standard_reference": "IEC 61215-2:2021",
+  "description": "Detection and quantification of encapsulant delamination",
+  "test_parameters": [
+    {
+      "name": "inspection_method",
+      "type": "string",
+      "default": "visual_and_el"
+    }
+  ],
+  "data_fields": [
+    {
+      "name": "delamination_area",
+      "type": "float",
+      "unit": "cm\u00b2"
+    },
+    {
+      "name": "location",
+      "type": "string"
+    },
+    {
+      "name": "power_impact",
+      "type": "float"
+    }
+  ],
+  "analysis_methods": [
+    "area_measurement",
+    "power_loss_correlation"
+  ],
+  "validation_criteria": [
+    {
+      "parameter": "delamination_area",
+      "max": 10.0
+    }
+  ],
+  "visualization_types": [
+    "delamination_map",
+    "progression_timeline"
+  ],
+  "ui_config": {
+    "tabs": [
+      {
+        "id": "setup",
+        "name": "Setup",
+        "icon": "\u2699\ufe0f"
+      },
+      {
+        "id": "data",
+        "name": "Data Acquisition",
+        "icon": "\ud83d\udcca"
+      },
+      {
+        "id": "analysis",
+        "name": "Analysis",
+        "icon": "\ud83d\udd2c"
+      },
+      {
+        "id": "validation",
+        "name": "Validation",
+        "icon": "\u2705"
+      },
+      {
+        "id": "report",
+        "name": "Report",
+        "icon": "\ud83d\udcc4"
+      }
+    ]
+  }
+}

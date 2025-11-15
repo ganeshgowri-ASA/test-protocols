@@ -1,0 +1,98 @@
+{
+  "protocol_id": "BIFI-001",
+  "protocol_name": "Bifacial Module Characterization",
+  "version": "1.0.0",
+  "category": "performance",
+  "standard_reference": "IEC TS 60904-1-2:2019",
+  "description": "Characterization of bifacial modules under front and rear irradiance",
+  "test_parameters": [
+    {
+      "name": "front_irradiance",
+      "type": "float",
+      "default": 1000
+    },
+    {
+      "name": "rear_irradiance_ratio",
+      "type": "list",
+      "default": [
+        0,
+        0.1,
+        0.2,
+        0.3
+      ]
+    },
+    {
+      "name": "albedo",
+      "type": "float",
+      "default": 0.2
+    }
+  ],
+  "data_fields": [
+    {
+      "name": "front_irradiance",
+      "type": "float"
+    },
+    {
+      "name": "rear_irradiance",
+      "type": "float"
+    },
+    {
+      "name": "voltage",
+      "type": "array"
+    },
+    {
+      "name": "current",
+      "type": "array"
+    },
+    {
+      "name": "bifacial_gain",
+      "type": "float"
+    }
+  ],
+  "analysis_methods": [
+    "bifacial_gain_calculation",
+    "bifaciality_factor",
+    "equivalent_irradiance"
+  ],
+  "validation_criteria": [
+    {
+      "parameter": "bifaciality",
+      "min": 0.65,
+      "max": 0.95
+    }
+  ],
+  "visualization_types": [
+    "gain_vs_rear_irradiance",
+    "bifacial_boost",
+    "comparison_chart"
+  ],
+  "ui_config": {
+    "tabs": [
+      {
+        "id": "setup",
+        "name": "Setup",
+        "icon": "\u2699\ufe0f"
+      },
+      {
+        "id": "data",
+        "name": "Data Acquisition",
+        "icon": "\ud83d\udcca"
+      },
+      {
+        "id": "analysis",
+        "name": "Analysis",
+        "icon": "\ud83d\udd2c"
+      },
+      {
+        "id": "validation",
+        "name": "Validation",
+        "icon": "\u2705"
+      },
+      {
+        "id": "report",
+        "name": "Report",
+        "icon": "\ud83d\udcc4"
+      }
+    ]
+  }
+}

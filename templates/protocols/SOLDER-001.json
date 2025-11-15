@@ -1,0 +1,80 @@
+{
+  "protocol_id": "SOLDER-001",
+  "protocol_name": "Solder Bond Integrity Test",
+  "version": "1.0.0",
+  "category": "degradation",
+  "standard_reference": "IEC 61215-2:2021 MQT 16",
+  "description": "Assessment of solder bond quality and degradation",
+  "test_parameters": [
+    {
+      "name": "thermal_cycles",
+      "type": "int",
+      "default": 200
+    },
+    {
+      "name": "temp_range",
+      "type": "list",
+      "default": [
+        -40,
+        85
+      ]
+    }
+  ],
+  "data_fields": [
+    {
+      "name": "cycle_number",
+      "type": "array"
+    },
+    {
+      "name": "series_resistance",
+      "type": "array"
+    },
+    {
+      "name": "fill_factor",
+      "type": "array"
+    }
+  ],
+  "analysis_methods": [
+    "resistance_trend_analysis",
+    "bond_failure_detection"
+  ],
+  "validation_criteria": [
+    {
+      "parameter": "resistance_increase",
+      "max": 50
+    }
+  ],
+  "visualization_types": [
+    "resistance_progression",
+    "ff_degradation"
+  ],
+  "ui_config": {
+    "tabs": [
+      {
+        "id": "setup",
+        "name": "Setup",
+        "icon": "\u2699\ufe0f"
+      },
+      {
+        "id": "data",
+        "name": "Data Acquisition",
+        "icon": "\ud83d\udcca"
+      },
+      {
+        "id": "analysis",
+        "name": "Analysis",
+        "icon": "\ud83d\udd2c"
+      },
+      {
+        "id": "validation",
+        "name": "Validation",
+        "icon": "\u2705"
+      },
+      {
+        "id": "report",
+        "name": "Report",
+        "icon": "\ud83d\udcc4"
+      }
+    ]
+  }
+}

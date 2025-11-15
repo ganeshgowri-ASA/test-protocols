@@ -1,0 +1,82 @@
+{
+  "protocol_id": "SAND-001",
+  "protocol_name": "Sand and Dust Resistance Test",
+  "version": "1.0.0",
+  "category": "environmental",
+  "standard_reference": "IEC 60068-2-68:2017",
+  "description": "Resistance to sand and dust in desert climates",
+  "test_parameters": [
+    {
+      "name": "dust_concentration",
+      "type": "float",
+      "unit": "g/m\u00b3"
+    },
+    {
+      "name": "wind_speed",
+      "type": "float",
+      "unit": "m/s"
+    },
+    {
+      "name": "duration",
+      "type": "float",
+      "unit": "hours"
+    }
+  ],
+  "data_fields": [
+    {
+      "name": "transmittance_loss",
+      "type": "float"
+    },
+    {
+      "name": "surface_damage",
+      "type": "dict"
+    },
+    {
+      "name": "power_loss",
+      "type": "float"
+    }
+  ],
+  "analysis_methods": [
+    "abrasion_analysis",
+    "optical_loss_measurement"
+  ],
+  "validation_criteria": [
+    {
+      "parameter": "transmittance_loss",
+      "max": 1.0
+    }
+  ],
+  "visualization_types": [
+    "surface_damage_map",
+    "optical_loss_plot"
+  ],
+  "ui_config": {
+    "tabs": [
+      {
+        "id": "setup",
+        "name": "Setup",
+        "icon": "\u2699\ufe0f"
+      },
+      {
+        "id": "data",
+        "name": "Data Acquisition",
+        "icon": "\ud83d\udcca"
+      },
+      {
+        "id": "analysis",
+        "name": "Analysis",
+        "icon": "\ud83d\udd2c"
+      },
+      {
+        "id": "validation",
+        "name": "Validation",
+        "icon": "\u2705"
+      },
+      {
+        "id": "report",
+        "name": "Report",
+        "icon": "\ud83d\udcc4"
+      }
+    ]
+  }
+}

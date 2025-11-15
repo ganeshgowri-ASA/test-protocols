@@ -1,0 +1,76 @@
+{
+  "protocol_id": "DESERT-001",
+  "protocol_name": "Desert Climate Test Sequence",
+  "version": "1.0.0",
+  "category": "environmental",
+  "standard_reference": "IEC 61215-2:2021",
+  "description": "Combined stress test for desert climates",
+  "test_parameters": [
+    {
+      "name": "test_sequence",
+      "type": "list"
+    },
+    {
+      "name": "uv_intensity",
+      "type": "string",
+      "default": "high"
+    }
+  ],
+  "data_fields": [
+    {
+      "name": "test_stage",
+      "type": "string"
+    },
+    {
+      "name": "power_output",
+      "type": "float"
+    },
+    {
+      "name": "thermal_effects",
+      "type": "dict"
+    }
+  ],
+  "analysis_methods": [
+    "desert_specific_degradation",
+    "thermal_cycling_effects"
+  ],
+  "validation_criteria": [
+    {
+      "parameter": "final_power_loss",
+      "max": 10.0
+    }
+  ],
+  "visualization_types": [
+    "test_timeline",
+    "degradation_breakdown"
+  ],
+  "ui_config": {
+    "tabs": [
+      {
+        "id": "setup",
+        "name": "Setup",
+        "icon": "\u2699\ufe0f"
+      },
+      {
+        "id": "data",
+        "name": "Data Acquisition",
+        "icon": "\ud83d\udcca"
+      },
+      {
+        "id": "analysis",
+        "name": "Analysis",
+        "icon": "\ud83d\udd2c"
+      },
+      {
+        "id": "validation",
+        "name": "Validation",
+        "icon": "\u2705"
+      },
+      {
+        "id": "report",
+        "name": "Report",
+        "icon": "\ud83d\udcc4"
+      }
+    ]
+  }
+}

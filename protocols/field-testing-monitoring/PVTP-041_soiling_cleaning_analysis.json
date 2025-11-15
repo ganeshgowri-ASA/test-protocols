@@ -1,0 +1,777 @@
+{
+  "protocol_id": "PVTP-041",
+  "version": "1.0",
+  "title": "Soiling & Cleaning Analysis",
+  "category": "Field Testing & Monitoring",
+  "description": "Comprehensive protocol for measuring soiling losses, optimizing cleaning schedules, and analyzing the economic impact of soiling on PV system performance",
+  "scope": "Quantification of soiling effects, cleaning strategy optimization, and long-term soiling pattern analysis",
+  "standards": [
+    "IEC 61724-1:2021 - PV system performance monitoring",
+    "IEC 61853-4:2018 - Performance at low irradiance",
+    "ASTM E1036-15 - Solar Radiation Instrumentation",
+    "IEC TS 63157:2020 - Guidelines for soiling measurement"
+  ],
+
+  "iot_integration": {
+    "enabled": true,
+    "protocols": ["MQTT", "LoRaWAN", "NB-IoT", "RESTful API"],
+    "data_sources": [
+      {
+        "source_id": "soiling_station_01",
+        "type": "dedicated_soiling_station",
+        "protocol": "MQTT",
+        "polling_interval_sec": 60,
+        "parameters": ["soiled_module_power", "clean_reference_power", "soiling_ratio", "particle_density"]
+      },
+      {
+        "source_id": "optical_sensors",
+        "type": "transmissivity_sensors",
+        "protocol": "LoRaWAN",
+        "polling_interval_sec": 300,
+        "parameters": ["glass_transmittance", "reflectance", "haze_index"]
+      },
+      {
+        "source_id": "environmental_sensors",
+        "type": "dust_weather_station",
+        "protocol": "MQTT",
+        "polling_interval_sec": 60,
+        "parameters": ["PM2.5", "PM10", "rainfall", "humidity", "wind_speed", "dew_point"]
+      },
+      {
+        "source_id": "camera_system",
+        "type": "image_analysis",
+        "protocol": "RESTful API",
+        "polling_interval_sec": 3600,
+        "parameters": ["visual_soiling_index", "dirt_pattern_classification", "bird_droppings_detection"]
+      },
+      {
+        "source_id": "robot_cleaning_system",
+        "type": "cleaning_equipment_telemetry",
+        "protocol": "MQTT",
+        "polling_interval_sec": 30,
+        "parameters": ["cleaning_progress", "water_consumption", "energy_consumption", "operational_status"]
+      }
+    ],
+    "data_pipeline": {
+      "ingestion": "MQTT Broker / AWS IoT Core",
+      "processing": "Apache Flink for real-time analysis",
+      "storage": "InfluxDB for time-series + PostgreSQL for metadata",
+      "analytics": "Python (scikit-learn, OpenCV for image analysis)"
+    }
+  },
+
+  "weather_station_linkage": {
+    "required_sensors": {
+      "soiling_specific": {
+        "particle_counter": {
+          "sensor_type": "Optical particle counter",
+          "measurement_range": "0.3-10 μm",
+          "parameters": ["PM1", "PM2.5", "PM10"],
+          "accuracy": "±10%"
+        },
+        "rain_gauge": {
+          "sensor_type": "Tipping bucket rain gauge",
+          "resolution": "0.2 mm",
+          "accuracy": "±2%",
+          "importance": "Natural cleaning events tracking"
+        },
+        "humidity_sensor": {
+          "sensor_type": "Capacitive RH sensor",
+          "range": "0-100% RH",
+          "accuracy": "±2%",
+          "use": "Dew formation and cementation prediction"
+        },
+        "wind_sensors": {
+          "wind_speed": {
+            "sensor_type": "Ultrasonic anemometer",
+            "range": "0-60 m/s",
+            "accuracy": "±0.3 m/s",
+            "use": "Dust transport and deposition modeling"
+          },
+          "wind_direction": {
+            "sensor_type": "Wind vane",
+            "accuracy": "±3°",
+            "use": "Source direction identification"
+          }
+        },
+        "dew_point_sensor": {
+          "calculation": "From temperature and humidity",
+          "use": "Predicting cementation conditions"
+        }
+      },
+      "reference_irradiance": {
+        "clean_pyranometer": {
+          "sensor_type": "Ventilated and heated pyranometer",
+          "cleaning": "Automated daily",
+          "accuracy": "±2%",
+          "use": "Reference irradiance for soiling loss calculation"
+        }
+      }
+    },
+    "data_synchronization": {
+      "timestamp_source": "NTP server",
+      "sync_accuracy_ms": 100,
+      "timezone": "UTC"
+    }
+  },
+
+  "scada_integration": {
+    "enabled": true,
+    "connection_type": "OPC-UA / Modbus TCP",
+    "soiling_monitoring": {
+      "plant_level": ["plant_soiling_loss_percent", "cumulative_cleaning_cost", "pr_improvement_post_cleaning"],
+      "block_level": ["block_soiling_ratio", "days_since_last_cleaning", "next_cleaning_schedule"],
+      "string_level": ["string_performance_deviation", "soiling_hotspots"],
+      "module_level": ["individual_module_soiling_index"]
+    },
+    "cleaning_integration": {
+      "manual_cleaning": {
+        "work_order_trigger": "Soiling loss > threshold OR scheduled",
+        "resource_allocation": "Crew assignment via SCADA",
+        "completion_tracking": "Before/after performance comparison"
+      },
+      "automated_cleaning": {
+        "robot_control": ["start", "stop", "route_planning", "water_pressure"],
+        "sensor_triggered": "Initiate cleaning when soiling_ratio < 0.95",
+        "scheduling_optimization": "Based on predictive model and electricity prices"
+      }
+    },
+    "alarm_integration": {
+      "soiling_alarms": [
+        "Critical: Soiling loss > 10%",
+        "Warning: Soiling loss > 5%",
+        "Info: Rain event detected (natural cleaning)",
+        "Alert: Dust storm detected"
+      ],
+      "notification_channels": ["email", "SMS", "mobile_app", "SCADA_HMI"]
+    }
+  },
+
+  "test_parameters": {
+    "soiling_station_configuration": {
+      "reference_modules": {
+        "clean_reference": {
+          "quantity": 2,
+          "cleaning_frequency": "daily_automated",
+          "technology_match": "identical_to_plant_modules",
+          "mounting": "same_tilt_and_orientation"
+        },
+        "soiled_test_modules": {
+          "quantity": 4,
+          "cleaning": "only_during_planned_tests",
+          "exposure_periods": [7, 14, 30, 90]
+        }
+      },
+      "measurement_setup": {
+        "electrical_measurements": {
+          "isc_measurement": {
+            "frequency": "every 10 minutes",
+            "accuracy": "±1%",
+            "use": "Soiling ratio calculation via Isc method"
+          },
+          "iv_curve": {
+            "frequency": "hourly",
+            "use": "Detailed performance degradation analysis"
+          }
+        },
+        "optical_measurements": {
+          "transmittance_sensors": {
+            "quantity": 3,
+            "locations": ["front_glass_surface", "encapsulant_interface", "reference_clean"],
+            "measurement_principle": "Optical transmission at 550nm"
+          }
+        }
+      }
+    },
+    "soiling_metrics": {
+      "soiling_ratio": {
+        "formula": "SR = I_sc_soiled / I_sc_clean",
+        "ideal_value": 1.0,
+        "typical_range": "0.85-0.99",
+        "measurement_conditions": "Simultaneous measurements, same irradiance >700 W/m²"
+      },
+      "soiling_loss": {
+        "formula": "SL = (1 - SR) × 100%",
+        "unit": "percent",
+        "action_threshold": "SL > 5% triggers cleaning evaluation"
+      },
+      "soiling_rate": {
+        "formula": "dSR/dt = (SR_today - SR_yesterday) / 1 day",
+        "unit": "percent per day",
+        "use": "Predicting next cleaning date"
+      },
+      "cementation_index": {
+        "formula": "CI = SR_before_rain / SR_after_rain",
+        "interpretation": "CI > 0.95 indicates cementation (difficult to remove soiling)"
+      }
+    }
+  },
+
+  "performance_metrics": {
+    "performance_ratio_correction": {
+      "soiling_corrected_pr": {
+        "formula": "PR_corrected = PR_measured / SR",
+        "purpose": "Isolate non-soiling performance issues"
+      }
+    },
+    "economic_metrics": {
+      "soiling_induced_energy_loss": {
+        "formula": "E_loss = E_potential × (1 - SR) × days",
+        "unit": "kWh"
+      },
+      "financial_loss": {
+        "formula": "Loss_$ = E_loss × electricity_price",
+        "unit": "USD or local currency"
+      },
+      "cleaning_roi": {
+        "formula": "ROI = (Revenue_gain - Cleaning_cost) / Cleaning_cost × 100%",
+        "decision": "Clean if ROI > 50%"
+      },
+      "optimal_cleaning_interval": {
+        "method": "Cost-benefit optimization",
+        "factors": ["Soiling rate", "Cleaning cost", "Energy price", "Weather forecast"]
+      }
+    }
+  },
+
+  "long_term_trend_analysis": {
+    "enabled": true,
+    "analysis_methods": {
+      "seasonal_soiling_patterns": {
+        "time_series_analysis": {
+          "decomposition": ["trend", "seasonality", "residual"],
+          "seasonal_period": 365,
+          "visualization": "Heatmap of soiling loss by month and location"
+        },
+        "correlation_with_weather": {
+          "factors": ["rainfall_frequency", "dust_storm_events", "agricultural_activity", "construction_activity"],
+          "statistical_method": "Pearson correlation and lagged correlation"
+        }
+      },
+      "soiling_rate_evolution": {
+        "multi_year_comparison": {
+          "metrics": ["Annual average SR", "Peak soiling months", "Natural cleaning efficiency"],
+          "trend_detection": "Mann-Kendall test for monotonic trends"
+        }
+      },
+      "cleaning_effectiveness_tracking": {
+        "metrics": [
+          "SR improvement per cleaning event",
+          "Cleaning frequency vs soiling rate",
+          "Method effectiveness (manual vs automated vs rain)",
+          "Cleaning cost per % PR improvement"
+        ],
+        "visualization": "Before-after scatter plots, cost-effectiveness curves"
+      }
+    }
+  },
+
+  "predictive_modeling": {
+    "enabled": true,
+    "models": {
+      "soiling_forecasting": {
+        "time_series_models": {
+          "arima": {
+            "use": "Short-term soiling prediction (1-7 days)",
+            "inputs": ["Historical SR", "Weather forecast"]
+          },
+          "sarima": {
+            "use": "Seasonal soiling pattern prediction",
+            "seasonal_period": 365
+          }
+        },
+        "machine_learning_models": {
+          "random_forest": {
+            "features": ["day_of_year", "rainfall_last_7d", "PM10_avg", "wind_speed", "humidity", "days_since_cleaning"],
+            "target": "soiling_ratio",
+            "training_period_years": 2
+          },
+          "lstm_neural_network": {
+            "architecture": "Multi-variate time series forecasting",
+            "inputs": "Weather + historical SR",
+            "forecast_horizon_days": 14
+          },
+          "gradient_boosting": {
+            "library": "XGBoost",
+            "use": "Cleaning effectiveness prediction",
+            "features": ["soiling_duration", "SR_before_cleaning", "cleaning_method", "weather_conditions"]
+          }
+        },
+        "physical_models": {
+          "dust_deposition_model": {
+            "based_on": "Aerosol transport equations",
+            "inputs": ["Wind speed", "PM concentration", "Module tilt", "Surface roughness"],
+            "output": "Predicted deposition rate (g/m²/day)"
+          },
+          "natural_cleaning_model": {
+            "formula": "SR_after = SR_before + α × Rainfall × (1 - CI)",
+            "parameters": {
+              "α": "Cleaning efficiency coefficient (0.01-0.05 per mm)",
+              "CI": "Cementation index"
+            }
+          }
+        }
+      },
+      "cleaning_optimization": {
+        "optimal_schedule_predictor": {
+          "objective": "Minimize total cost = Energy loss cost + Cleaning cost",
+          "constraints": ["Minimum SR threshold", "Resource availability", "Weather windows"],
+          "method": "Dynamic programming / Reinforcement learning"
+        },
+        "cleaning_method_selector": {
+          "decision_tree": {
+            "factors": ["SR_current", "Cementation_level", "Water_availability", "Cost_budget"],
+            "outputs": ["No action", "Rain wait", "Automated cleaning", "Manual cleaning", "High-pressure wash"]
+          }
+        }
+      },
+      "anomaly_detection": {
+        "soiling_anomalies": {
+          "bird_droppings": {
+            "method": "Image recognition (CNN) + localized performance drop",
+            "action": "Targeted manual cleaning"
+          },
+          "vegetation_growth": {
+            "detection": "Gradual shading pattern + visual inspection",
+            "action": "Vegetation management"
+          },
+          "dust_storm_events": {
+            "detection": "Sudden SR drop + high PM10",
+            "action": "Postpone cleaning until dust settles"
+          }
+        }
+      }
+    },
+    "model_validation": {
+      "training_period": "24 months",
+      "validation_period": "6 months",
+      "test_period": "3 months",
+      "metrics": ["RMSE", "MAE", "MAPE", "R²", "Direction_accuracy (up/down prediction)"]
+    }
+  },
+
+  "test_procedure": {
+    "phases": [
+      {
+        "phase": "1_baseline_establishment",
+        "duration": "2 weeks",
+        "activities": [
+          "Install soiling station with clean and test modules",
+          "Install environmental sensors (PM, rain, wind, humidity)",
+          "Configure automated data acquisition",
+          "Establish clean reference baseline",
+          "Calibrate all sensors against standards"
+        ]
+      },
+      {
+        "phase": "2_continuous_monitoring",
+        "duration": "ongoing (minimum 12 months)",
+        "activities": [
+          "Automated SR measurement every 10 minutes",
+          "Environmental data logging (PM, weather)",
+          "Image capture and analysis (daily)",
+          "Rain event detection and post-rain SR measurement",
+          "Weekly manual inspection of modules"
+        ]
+      },
+      {
+        "phase": "3_cleaning_experiments",
+        "frequency": "as_needed based on soiling level",
+        "activities": [
+          "Before-cleaning SR measurement and documentation",
+          "Execute cleaning (manual/automated/natural rain)",
+          "After-cleaning SR measurement (within 1 hour)",
+          "Calculate cleaning effectiveness",
+          "Document cleaning method, duration, resources, cost",
+          "Monitor SR recovery over time"
+        ]
+      },
+      {
+        "phase": "4_periodic_analysis",
+        "frequency": "monthly",
+        "activities": [
+          "Soiling pattern analysis and visualization",
+          "Correlation analysis with environmental factors",
+          "Cleaning effectiveness evaluation",
+          "Economic impact assessment",
+          "Cleaning schedule optimization recommendations"
+        ]
+      },
+      {
+        "phase": "5_annual_review",
+        "frequency": "annual",
+        "activities": [
+          "Year-long soiling pattern summary",
+          "Seasonal analysis",
+          "Multi-year trend comparison (if available)",
+          "Economic impact and ROI analysis",
+          "Predictive model update and validation",
+          "Strategic cleaning strategy recommendations"
+        ]
+      }
+    ]
+  },
+
+  "data_analysis": {
+    "automated_calculations": [
+      {
+        "metric": "Daily Soiling Ratio",
+        "formula": "SR_daily = avg(I_sc_soiled / I_sc_clean) for G_POA > 700 W/m²",
+        "frequency": "daily at solar noon ±1 hour",
+        "quality_filter": "Only calculate when both modules have stable irradiance"
+      },
+      {
+        "metric": "Soiling Loss Percentage",
+        "formula": "SL% = (1 - SR) × 100",
+        "frequency": "daily",
+        "alert_threshold": "SL% > 5%"
+      },
+      {
+        "metric": "Daily Soiling Rate",
+        "formula": "dSL/dt = (SL_today - SL_yesterday) / 1 day",
+        "unit": "%/day",
+        "typical_range": "0.05% to 0.5% per day"
+      },
+      {
+        "metric": "Energy Loss Due to Soiling",
+        "formula": "E_loss_kWh = Σ(G_POA × A × η_STC × SR_loss / G_STC)",
+        "frequency": "daily cumulative"
+      },
+      {
+        "metric": "Cleaning Effectiveness",
+        "formula": "CE = (SR_after - SR_before) / (1 - SR_before) × 100%",
+        "target": ">90% for effective cleaning"
+      },
+      {
+        "metric": "Natural Cleaning Efficiency",
+        "formula": "NCE = (SR_after_rain - SR_before_rain) / rainfall_mm",
+        "unit": "SR improvement per mm rainfall",
+        "typical_range": "0.01 - 0.05 per mm"
+      }
+    ],
+    "statistical_analysis": {
+      "correlation_studies": [
+        "SR vs PM10 concentration (expected: negative correlation)",
+        "SR vs cumulative rainfall (expected: positive correlation)",
+        "SR vs wind speed (complex: depends on dust source proximity)",
+        "SR vs humidity (expected: negative during high humidity due to cementation)",
+        "Days_since_cleaning vs SR (expected: negative correlation)"
+      ],
+      "regression_models": [
+        {
+          "model": "Multiple linear regression",
+          "formula": "SL = β₀ + β₁×PM10 + β₂×rainfall + β₃×wind + β₄×humidity + ε",
+          "purpose": "Quantify contribution of each environmental factor"
+        }
+      ]
+    },
+    "image_analysis": {
+      "techniques": [
+        "Edge detection for dirt pattern classification",
+        "Color analysis for soiling type identification (dust vs organic)",
+        "Object detection for bird droppings and large debris",
+        "Texture analysis for uniform vs non-uniform soiling"
+      ],
+      "machine_learning": {
+        "convolutional_neural_network": {
+          "architecture": "ResNet50 or EfficientNet",
+          "training_data": "Labeled images of clean, lightly soiled, heavily soiled modules",
+          "output": "Soiling severity classification (0-5 scale)"
+        }
+      }
+    },
+    "data_quality_checks": {
+      "validation_rules": [
+        "0.70 <= SR <= 1.05 (allow slight > 1.0 for measurement uncertainty)",
+        "I_sc_clean > I_sc_soiled (unless cleaning just occurred)",
+        "Reject measurements during shading events",
+        "Flag sudden SR increases without cleaning event as potential sensor issue",
+        "Cross-validate SR from Isc method with optical transmittance sensors"
+      ],
+      "anomaly_detection": {
+        "statistical_outliers": "Z-score > 3 or IQR method",
+        "pattern_recognition": "Sudden drops indicating sensor malfunction vs gradual decline (soiling)"
+      }
+    }
+  },
+
+  "quality_control": {
+    "qc_checkpoints": [
+      {
+        "checkpoint": "QC-041-01",
+        "description": "Clean reference module verification",
+        "frequency": "daily",
+        "acceptance_criteria": "Visual inspection confirms clean surface, SR_clean = 1.00 ± 0.02",
+        "responsible": "Automated system / Daily site inspection"
+      },
+      {
+        "checkpoint": "QC-041-02",
+        "description": "Soiling station calibration",
+        "frequency": "quarterly",
+        "acceptance_criteria": "All modules produce same Isc when cleaned, within ±2%",
+        "responsible": "Calibration technician"
+      },
+      {
+        "checkpoint": "QC-041-03",
+        "description": "Environmental sensor verification",
+        "frequency": "monthly",
+        "acceptance_criteria": "PM sensors within ±15% of collocated reference, rain gauge matches weather service",
+        "responsible": "Field technician"
+      },
+      {
+        "checkpoint": "QC-041-04",
+        "description": "Data completeness check",
+        "frequency": "weekly",
+        "acceptance_criteria": "Data availability >95%, no extended gaps",
+        "responsible": "Data analyst"
+      },
+      {
+        "checkpoint": "QC-041-05",
+        "description": "Cleaning effectiveness verification",
+        "frequency": "after each cleaning event",
+        "acceptance_criteria": "SR improvement >90%, visual confirmation of clean surface",
+        "responsible": "Cleaning crew supervisor"
+      }
+    ],
+    "calibration_schedule": {
+      "reference_modules": "Annual comparison against freshly calibrated module",
+      "transmittance_sensors": "Bi-annual calibration with optical standards",
+      "pm_sensors": "Annual factory calibration or replacement",
+      "current_sensors": "Annual calibration against NIST-traceable reference"
+    },
+    "audit_trail": {
+      "cleaning_log": "Date, time, method, operator, before/after SR, cost, weather conditions",
+      "sensor_maintenance_log": "Calibration dates, certificates, adjustments, replacements",
+      "data_modification_log": "Any manual corrections to data with justification",
+      "image_archive": "Before/after cleaning photos with timestamps"
+    }
+  },
+
+  "non_conformance": {
+    "nc_criteria": [
+      {
+        "nc_id": "NC-041-01",
+        "condition": "Clean reference SR < 0.98 for 3 consecutive days",
+        "severity": "major",
+        "action": "Immediate cleaning and inspection of reference module, check for permanent degradation"
+      },
+      {
+        "nc_id": "NC-041-02",
+        "condition": "Soiling loss > 10% without cleaning action",
+        "severity": "major",
+        "action": "Emergency cleaning to prevent further revenue loss"
+      },
+      {
+        "nc_id": "NC-041-03",
+        "condition": "Cleaning effectiveness < 80%",
+        "severity": "moderate",
+        "action": "Investigate cleaning method, check for cementation, consider alternative cleaning approach"
+      },
+      {
+        "nc_id": "NC-041-04",
+        "condition": "PM sensor reading deviates > 30% from reference",
+        "severity": "moderate",
+        "action": "Recalibrate or replace PM sensor"
+      },
+      {
+        "nc_id": "NC-041-05",
+        "condition": "Soiling ratio measurement uncertainty > ±5%",
+        "severity": "minor",
+        "action": "Check module matching, verify simultaneous measurements, inspect sensor connections"
+      }
+    ],
+    "capa_process": {
+      "documentation": "NC report with photos, data plots, detailed description",
+      "investigation": "Root cause analysis - environmental factors vs measurement issues vs cleaning ineffectiveness",
+      "corrective_action": "Immediate fix - cleaning, sensor repair, method adjustment",
+      "preventive_action": "Update cleaning schedule, improve sensor maintenance, modify procedures",
+      "verification": "Monitor SR improvement, verify data quality restoration",
+      "timeline": "Critical NC resolved within 48 hours, others within 2 weeks"
+    }
+  },
+
+  "preventive_maintenance": {
+    "pm_schedule": [
+      {
+        "pm_id": "PM-041-01",
+        "task": "Clean reference module cleaning",
+        "frequency": "daily (automated) or manual if automated system fails",
+        "duration_minutes": 15,
+        "checklist": ["Verify automated cleaning system operation", "Visual inspection", "Manual cleaning if needed", "Verify SR = 1.00 ± 0.02"]
+      },
+      {
+        "pm_id": "PM-041-02",
+        "task": "Test module visual inspection",
+        "frequency": "weekly",
+        "duration_minutes": 30,
+        "checklist": ["Photograph soiled modules", "Check for bird droppings or debris", "Verify mounting stability", "Check wiring connections"]
+      },
+      {
+        "pm_id": "PM-041-03",
+        "task": "PM sensor maintenance",
+        "frequency": "monthly",
+        "duration_hours": 1,
+        "checklist": ["Clean sensor inlet", "Check air flow", "Zero calibration check", "Verify data against adjacent sensors"]
+      },
+      {
+        "pm_id": "PM-041-04",
+        "task": "Rain gauge maintenance",
+        "frequency": "monthly",
+        "duration_minutes": 30,
+        "checklist": ["Clean collection funnel", "Check tipping bucket operation", "Verify level installation", "Compare with weather service data"]
+      },
+      {
+        "pm_id": "PM-041-05",
+        "task": "Comprehensive soiling station calibration",
+        "frequency": "semi-annual",
+        "duration_hours": 4,
+        "checklist": ["Clean all modules", "Measure Isc of all modules under same conditions", "Verify module matching (±2%)", "Recalibrate if needed", "Update calibration certificates"]
+      },
+      {
+        "pm_id": "PM-041-06",
+        "task": "Cleaning equipment maintenance",
+        "frequency": "monthly",
+        "duration_hours": 2,
+        "checklist": ["Inspect brushes and pads for wear", "Check water filtration system", "Verify robot navigation accuracy (if automated)", "Test remote control functions"]
+      }
+    ]
+  },
+
+  "traceability": {
+    "equipment_traceability": {
+      "soiling_station_modules": {
+        "serial_numbers": true,
+        "initial_calibration": "Isc at STC",
+        "matching_verification": "Periodic Isc comparison when all clean",
+        "degradation_tracking": "Annual Isc measurement",
+        "replacement_log": true
+      },
+      "sensors": {
+        "current_sensors": "Serial number, calibration certificate, installation date",
+        "pm_sensors": "Model, serial number, factory calibration, field verification",
+        "optical_sensors": "Calibration against optical standards, drift tracking"
+      },
+      "cleaning_events": {
+        "event_log": "Date, time, method, operator, duration, resources used",
+        "before_after_data": "SR, visual images, IV curves",
+        "cost_tracking": "Labor hours, water consumption, equipment depreciation"
+      }
+    },
+    "data_traceability": {
+      "raw_data_archive": "All sensor readings with timestamps",
+      "processed_data": "Calculated SR, SL, with processing scripts version",
+      "analysis_results": "Reports with data sources and calculation methods referenced",
+      "model_predictions": "Model version, input data, hyperparameters, outputs"
+    },
+    "documentation": {
+      "soiling_station_design": "Layout, module specifications, sensor locations",
+      "measurement_procedures": "SOPs for SR calculation, quality checks, cleaning",
+      "analysis_methods": "Documentation of statistical and ML models",
+      "cleaning_strategies": "Decision trees, optimization algorithms, cost parameters"
+    }
+  },
+
+  "reporting": {
+    "automated_reports": [
+      {
+        "report_type": "Daily Soiling Summary",
+        "frequency": "daily",
+        "distribution_time": "08:00 local time",
+        "recipients": ["O&M Manager", "Cleaning coordinator"],
+        "content": ["Current SR and SL", "Daily soiling rate", "Energy loss estimate", "Days until cleaning recommended", "Weather forecast impact"]
+      },
+      {
+        "report_type": "Post-Cleaning Report",
+        "frequency": "after each cleaning event",
+        "distribution_time": "within 2 hours of completion",
+        "recipients": ["O&M Manager", "Plant Manager", "Finance"],
+        "content": ["Before/after SR comparison", "Cleaning effectiveness %", "Energy production improvement", "Cost of cleaning", "ROI calculation", "Before/after photos"]
+      },
+      {
+        "report_type": "Monthly Soiling Analysis",
+        "frequency": "monthly",
+        "distribution_date": "5th of following month",
+        "recipients": ["Technical team", "Management", "Asset owner"],
+        "content": ["Monthly soiling pattern", "Comparison with previous months/years", "Cleaning frequency and effectiveness", "Environmental factors correlation", "Financial impact", "Next month forecast"]
+      },
+      {
+        "report_type": "Annual Soiling Assessment",
+        "frequency": "annual",
+        "distribution_date": "January 31",
+        "recipients": ["Executive management", "Asset owner", "Investors"],
+        "content": ["Year in review", "Seasonal patterns", "Total energy loss and financial impact", "Cleaning strategy effectiveness", "Multi-year trends", "Recommendations for next year"]
+      }
+    ],
+    "dashboard": {
+      "real_time_soiling_dashboard": {
+        "platform": "Grafana / Streamlit",
+        "refresh_rate_minutes": 10,
+        "key_metrics": ["Current SR", "Soiling Loss %", "Days since cleaning", "Energy loss today", "PM10 current", "Rainfall last 7d"],
+        "visualizations": ["SR time series", "Soiling rate gauge", "Environmental factors panel", "Cleaning effectiveness history"]
+      },
+      "cleaning_decision_support": {
+        "recommendation_engine": "Clean now / Wait / Rain expected",
+        "cost_benefit_calculator": "Interactive ROI calculation",
+        "resource_scheduler": "Crew and equipment availability"
+      }
+    },
+    "mobile_app": {
+      "field_technician_app": {
+        "features": ["Log cleaning events", "Capture before/after photos", "Record cleaning method and duration", "View current SR", "Receive cleaning assignments"],
+        "platform": "iOS / Android"
+      }
+    }
+  },
+
+  "acceptance_criteria": {
+    "measurement_accuracy": "SR measurement uncertainty < ±3%",
+    "data_completeness": ">95% data availability",
+    "reference_cleanliness": "Clean reference SR = 1.00 ± 0.02",
+    "cleaning_effectiveness": ">90% SR recovery for effective cleaning",
+    "forecast_accuracy": "Soiling prediction MAPE < 10% for 7-day forecast",
+    "economic_validation": "Cleaning ROI > 50% for recommended cleaning events"
+  },
+
+  "integration_apis": {
+    "lims_integration": {
+      "endpoint": "/api/lims/soiling-analysis",
+      "data_exchange": ["SR measurements", "Cleaning effectiveness", "Sensor calibration data"],
+      "sync_frequency": "hourly"
+    },
+    "qms_integration": {
+      "endpoint": "/api/qms/soiling-qc",
+      "data_exchange": ["QC checkpoints", "NC reports", "CAPA actions"],
+      "sync_frequency": "real-time"
+    },
+    "project_management": {
+      "endpoint": "/api/pm/cleaning-schedule",
+      "data_exchange": ["Cleaning work orders", "Resource allocation", "Cost tracking"],
+      "sync_frequency": "daily"
+    },
+    "weather_service_api": {
+      "endpoint": "/api/weather/forecast",
+      "data_exchange": ["7-day forecast", "Dust storm warnings", "Rainfall predictions"],
+      "sync_frequency": "every 6 hours"
+    },
+    "financial_system": {
+      "endpoint": "/api/finance/soiling-impact",
+      "data_exchange": ["Energy loss valuations", "Cleaning costs", "ROI calculations"],
+      "sync_frequency": "monthly"
+    }
+  },
+
+  "metadata": {
+    "created_by": "PV Testing Protocol Framework",
+    "created_date": "2025-11-12",
+    "last_modified": "2025-11-12",
+    "version_history": [
+      {
+        "version": "1.0",
+        "date": "2025-11-12",
+        "changes": "Initial protocol creation with comprehensive soiling analysis, IoT integration, predictive modeling, and cleaning optimization"
+      }
+    ],
+    "tags": ["soiling", "cleaning-optimization", "environmental-monitoring", "IoT", "predictive-maintenance", "economic-analysis"],
+    "related_protocols": ["PVTP-040", "PVTP-042", "PVTP-047"]
+  }
+}

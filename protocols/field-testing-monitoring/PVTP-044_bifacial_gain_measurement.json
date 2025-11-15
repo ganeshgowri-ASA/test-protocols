@@ -1,0 +1,923 @@
+{
+  "protocol_id": "PVTP-044",
+  "version": "1.0",
+  "title": "Bifacial Gain Measurement",
+  "category": "Field Testing & Monitoring",
+  "description": "Comprehensive protocol for measuring and analyzing bifacial PV module performance including rear-side irradiance, bifacial gain, ground albedo effects, and optimization strategies",
+  "scope": "Outdoor bifacial module testing, gain quantification, albedo characterization, and performance modeling",
+  "standards": [
+    "IEC TS 60904-1-2:2019 - Measurement of current-voltage characteristics of bifacial photovoltaic devices",
+    "IEC 61853 series - Performance testing including bifacial modules",
+    "IEC 60904-8:2014 - Spectral responsivity (relevant for front and rear spectral differences)",
+    "IEC TS 63126:2020 - Guidelines for qualifying PV modules, components and materials for operation at high temperatures"
+  ],
+
+  "iot_integration": {
+    "enabled": true,
+    "protocols": ["MQTT", "Modbus TCP", "RESTful API", "LoRaWAN"],
+    "data_sources": [
+      {
+        "source_id": "bifacial_test_station",
+        "type": "bifacial_performance_monitoring",
+        "protocol": "Modbus TCP",
+        "polling_interval_sec": 5,
+        "parameters": ["voltage", "current", "power", "energy", "front_irradiance", "rear_irradiance", "module_temp"]
+      },
+      {
+        "source_id": "irradiance_matrix",
+        "type": "multi_point_irradiance_monitoring",
+        "protocol": "MQTT",
+        "polling_interval_sec": 10,
+        "parameters": [
+          "POA_front_center",
+          "POA_front_top",
+          "POA_front_bottom",
+          "POA_rear_center",
+          "POA_rear_top",
+          "POA_rear_bottom",
+          "ground_reflected_irradiance",
+          "sky_diffuse_rear"
+        ]
+      },
+      {
+        "source_id": "albedo_monitoring_system",
+        "type": "ground_albedo_measurement",
+        "protocol": "MQTT",
+        "polling_interval_sec": 60,
+        "parameters": ["albedo_coefficient", "ground_reflected_upward", "downward_GHI", "spectral_albedo"]
+      },
+      {
+        "source_id": "monofacial_reference",
+        "type": "comparative_baseline",
+        "protocol": "Modbus TCP",
+        "polling_interval_sec": 5,
+        "parameters": ["mono_voltage", "mono_current", "mono_power", "mono_energy"]
+      },
+      {
+        "source_id": "3d_irradiance_sensor",
+        "type": "hemispherical_irradiance",
+        "protocol": "RESTful API",
+        "polling_interval_sec": 30,
+        "parameters": ["front_hemispherical_irradiance", "rear_hemispherical_irradiance", "directional_distribution"]
+      },
+      {
+        "source_id": "spectroradiometer_front_rear",
+        "type": "spectral_analysis",
+        "protocol": "LoRaWAN",
+        "polling_interval_sec": 300,
+        "parameters": ["front_spectrum", "rear_spectrum", "spectral_mismatch_factor"]
+      }
+    ],
+    "data_pipeline": {
+      "ingestion": "MQTT Broker + Apache Kafka",
+      "processing": "Apache Spark for real-time bifacial gain calculation",
+      "storage": "InfluxDB (time-series) + PostgreSQL (metadata)",
+      "analytics": "Python (pvlib, Pandas, NumPy, SciPy) with bifacial_radiance for view factor modeling"
+    }
+  },
+
+  "weather_station_linkage": {
+    "required_sensors": {
+      "front_side_irradiance": {
+        "POA_pyranometer": {
+          "sensor_type": "Class A thermopile pyranometer",
+          "accuracy": "±2%",
+          "mounting": "Co-planar with module front",
+          "quantity": "Minimum 3 (top, center, bottom of module row)"
+        },
+        "POA_reference_cell": {
+          "sensor_type": "Calibrated reference cell matching front cell technology",
+          "accuracy": "±2%",
+          "temperature_compensation": true
+        },
+        "GHI_pyranometer": {
+          "sensor_type": "Class A pyranometer",
+          "accuracy": "±2%",
+          "mounting": "Horizontal",
+          "use": "Calculate transposition and albedo"
+        },
+        "DNI_pyrheliometer": {
+          "sensor_type": "First class pyrheliometer",
+          "accuracy": "±1%",
+          "use": "Detailed modeling of direct and diffuse components"
+        }
+      },
+      "rear_side_irradiance": {
+        "POA_rear_pyranometer": {
+          "sensor_type": "Class A pyranometer or calibrated reference cell",
+          "accuracy": "±2%",
+          "mounting": "Co-planar with module rear (multiple locations: center, top, bottom)",
+          "quantity": "Minimum 3 per row for gradient assessment",
+          "importance": "CRITICAL for bifacial gain calculation"
+        },
+        "ground_reflected_sensor": {
+          "sensor_type": "Downward-facing pyranometer under module",
+          "mounting": "1m above ground, centered between rows",
+          "use": "Measure upward reflected irradiance from ground"
+        }
+      },
+      "albedo_measurement": {
+        "albedometer": {
+          "description": "Pair of pyranometers (one upward, one downward facing)",
+          "mounting": "Between module rows at representative height",
+          "measurement": "Albedo = Irradiance_reflected / Irradiance_incident",
+          "frequency": "Continuous",
+          "typical_albedo_values": {
+            "grass": "0.15-0.25",
+            "concrete": "0.20-0.30",
+            "white_gravel": "0.30-0.45",
+            "snow": "0.50-0.90",
+            "water": "0.05-0.10"
+          }
+        },
+        "spectral_albedometer": {
+          "type": "Spectroradiometer pair (upward/downward)",
+          "use": "Measure spectral albedo (important as rear cell response may differ)",
+          "frequency": "Hourly or daily",
+          "optional": true
+        }
+      },
+      "geometrical_parameters": {
+        "module_tilt_angle": "Inclinometer - accuracy ±0.5°",
+        "module_height": "Measured from ground to bottom of module",
+        "row_spacing": "Pitch distance between rows",
+        "module_dimensions": "Length and width for view factor calculations"
+      },
+      "temperature_sensors": {
+        "module_temperature": "PT100 on back surface of bifacial module",
+        "ambient_temperature": "PT100 in ventilated shield"
+      },
+      "environmental": {
+        "wind_speed": "Ultrasonic anemometer",
+        "wind_direction": "Wind vane",
+        "humidity": "Capacitive RH sensor"
+      }
+    },
+    "data_synchronization": {
+      "timestamp_source": "GPS-disciplined NTP server",
+      "sync_accuracy_ms": 50,
+      "importance": "Critical for correlating front and rear irradiance with instantaneous power",
+      "timezone": "UTC"
+    }
+  },
+
+  "scada_integration": {
+    "enabled": true,
+    "connection_type": "OPC-UA / Modbus TCP",
+    "real_time_monitoring": {
+      "plant_level": ["total_bifacial_power", "average_bifacial_gain", "bifacial_energy_boost", "albedo_real_time"],
+      "array_level": ["array_front_irradiance", "array_rear_irradiance", "array_effective_irradiance", "array_bifacial_gain"],
+      "module_level": ["module_power", "front_POA", "rear_POA", "calculated_gain", "temperature"],
+      "comparative": ["bifacial_vs_monofacial_energy", "gain_percentage", "energy_uplift"]
+    },
+    "albedo_optimization": {
+      "ground_cover_monitoring": "Track different albedo zones and their impact",
+      "seasonal_albedo_tracking": "Monitor snow cover, vegetation growth effects",
+      "optimization_recommendations": "Suggest ground treatments for maximum bifacial gain"
+    },
+    "alarm_integration": {
+      "critical_alarms": ["Rear irradiance sensor failure", "Bifacial gain anomaly (too low)", "Albedo sensor malfunction"],
+      "warning_alarms": ["Rear irradiance gradient excessive (shading/soiling issue)", "Expected vs actual gain deviation > 10%"],
+      "notification_channels": ["email", "SMS", "SCADA_dashboard"]
+    }
+  },
+
+  "test_parameters": {
+    "bifacial_test_configurations": {
+      "module_mounting": {
+        "installation_heights": {
+          "low": "0.5m clearance",
+          "medium": "1.0m clearance (typical)",
+          "high": "1.5-2.0m clearance",
+          "purpose": "Assess height impact on rear irradiance and gain"
+        },
+        "tilt_angles": {
+          "tested_angles": [10, 20, 30, 40, 50],
+          "purpose": "Determine optimal tilt for bifacial gain at site latitude"
+        },
+        "row_spacing": {
+          "configurations": ["GCR 0.3", "GCR 0.4", "GCR 0.5", "Single row (no shading)"],
+          "GCR": "Ground Coverage Ratio = module_width / row_spacing",
+          "purpose": "Quantify impact of inter-row shading on rear side"
+        },
+        "orientation": {
+          "standard": "Equator-facing (180° in Northern Hemisphere)",
+          "alternative": "East-West horizontal (for bifacial advantage in morning/evening)"
+        }
+      },
+      "ground_albedo_treatments": {
+        "control": "Natural ground (grass, soil)",
+        "enhanced_albedo": [
+          {
+            "treatment": "White gravel",
+            "expected_albedo": "0.35-0.45",
+            "cost_effectiveness": "Moderate"
+          },
+          {
+            "treatment": "White painted surface",
+            "expected_albedo": "0.50-0.70",
+            "cost_effectiveness": "High initial cost, maintenance"
+          },
+          {
+            "treatment": "Reflective membrane",
+            "expected_albedo": "0.60-0.80",
+            "cost_effectiveness": "High cost, degradation over time"
+          },
+          {
+            "treatment": "Concrete",
+            "expected_albedo": "0.20-0.30",
+            "cost_effectiveness": "Durable, moderate gain"
+          }
+        ],
+        "natural_variations": {
+          "snow_cover": "Albedo 0.50-0.90 (seasonal, significant boost)",
+          "wet_vs_dry_soil": "Wet: 0.10, Dry: 0.25",
+          "vegetation_growth": "Albedo decreases with vegetation maturity"
+        }
+      },
+      "comparative_testing": {
+        "bifacial_vs_monofacial": {
+          "same_front_power_rating": true,
+          "mounting": "Identical tilt, height, orientation",
+          "purpose": "Direct energy yield comparison"
+        },
+        "bifacial_technology_comparison": {
+          "technologies": ["n-PERT bifacial", "HJT bifacial", "TOPCon bifacial", "p-PERC bifacial"],
+          "bifaciality_factor": "Varies by technology (0.65-0.95)",
+          "purpose": "Identify best-performing bifacial technology for site"
+        }
+      }
+    },
+    "electrical_measurements": {
+      "iv_curve_front_rear": {
+        "methodology": "Measure IV curves with controlled front and rear illumination",
+        "equipment": "IV curve tracer with provisions for bifacial testing",
+        "frequency": "Monthly",
+        "analysis": "Superposition model validation"
+      },
+      "continuous_mppt": {
+        "electronic_load": "MPPT tracking for both bifacial and reference monofacial",
+        "logging_frequency": "1-5 seconds",
+        "parameters": ["V_mpp", "I_mpp", "P_mpp"]
+      }
+    },
+    "environmental_conditions_range": {
+      "irradiance": {
+        "front_POA": "0-1500 W/m²",
+        "rear_POA": "0-400 W/m² (typical, can be higher with high albedo)",
+        "total_effective": "Up to 1900 W/m² equivalent"
+      },
+      "albedo_range": "0.10-0.90 (natural and enhanced)",
+      "temperature": "-20°C to +50°C ambient",
+      "seasonal": "Full year minimum to capture snow, vegetation, sun angle effects"
+    }
+  },
+
+  "performance_metrics": {
+    "bifacial_gain_definitions": {
+      "bifacial_gain_energy": {
+        "formula": "BG_energy = (E_bifacial - E_monofacial) / E_monofacial × 100%",
+        "typical_range": "5-30% depending on albedo, mounting, latitude",
+        "note": "Most important metric for project economics"
+      },
+      "bifacial_gain_power": {
+        "formula": "BG_power = (P_bifacial - P_monofacial) / P_monofacial × 100%",
+        "instantaneous": "Calculated at each measurement interval",
+        "variation": "Varies by time of day, sun angle, albedo"
+      },
+      "rear_side_gain": {
+        "formula": "RSG = (P_bifacial - P_front_only) / P_front_only × 100%",
+        "measurement": "Requires blocking rear side for comparison (rare) or modeling"
+      },
+      "effective_irradiance": {
+        "formula": "G_eff = G_front + (Bifaciality × G_rear)",
+        "bifaciality": "φ = P_rear / P_front (typically 0.65-0.95)",
+        "note": "Total irradiance contributing to power, accounting for rear cell efficiency"
+      }
+    },
+    "rear_irradiance_metrics": {
+      "rear_to_front_ratio": {
+        "formula": "RFR = G_rear / G_front",
+        "typical_range": "0.05-0.35 depending on albedo and geometry",
+        "factors": ["Ground albedo", "Module height", "Row spacing", "Sun elevation angle"]
+      },
+      "rear_irradiance_uniformity": {
+        "formula": "σ(G_rear_sensors) / mean(G_rear_sensors)",
+        "interpretation": "Low uniformity indicates shading or design issues",
+        "ideal": "<0.10 (10% variation)"
+      },
+      "ground_view_factor": {
+        "definition": "Fraction of rear hemisphere seeing the ground",
+        "calculation": "Geometric calculation based on module tilt, height, row spacing",
+        "use": "Predict rear irradiance from albedo and GHI"
+      }
+    },
+    "albedo_metrics": {
+      "effective_albedo": {
+        "formula": "α_eff = G_rear / (G_GHI × view_factor_ground)",
+        "interpretation": "Accounts for geometric and reflective properties",
+        "validation": "Compare with direct albedometer measurements"
+      },
+      "spectral_albedo": {
+        "definition": "Albedo as function of wavelength α(λ)",
+        "importance": "Different ground covers reflect different spectra; rear cell may have different spectral response than front",
+        "measurement": "Spectroradiometer pair"
+      }
+    },
+    "performance_ratio_bifacial": {
+      "standard_PR": {
+        "formula": "PR_bifacial = E_AC / (G_front × P_rated × time)",
+        "limitation": "Doesn't account for rear contribution"
+      },
+      "bifacial_PR": {
+        "formula": "PR_bifacial_eff = E_AC / (G_eff × P_rated × time)",
+        "advantage": "Accounts for rear side contribution via effective irradiance",
+        "target_range": "0.75-0.85"
+      }
+    },
+    "economic_metrics": {
+      "bifacial_energy_boost": {
+        "formula": "Energy_boost = ∫(P_bifacial - P_monofacial) dt",
+        "unit": "kWh/year",
+        "financial": "Energy_boost × electricity_price = Additional revenue"
+      },
+      "bifacial_LCOE_advantage": {
+        "formula": "LCOE_reduction = (LCOE_monofacial - LCOE_bifacial) / LCOE_monofacial × 100%",
+        "factors": ["Energy boost", "Module cost premium", "BOS cost (potentially lower for same energy)"],
+        "typical_advantage": "2-8% LCOE reduction"
+      }
+    }
+  },
+
+  "bifacial_modeling": {
+    "enabled": true,
+    "models": {
+      "view_factor_model": {
+        "description": "Geometric calculation of rear irradiance based on view factors",
+        "formula": "G_rear = F_ground × α × GHI + F_sky × DHI + F_structure × (reflections)",
+        "parameters": {
+          "F_ground": "View factor to ground (geometry-dependent)",
+          "F_sky": "View factor to sky",
+          "α": "Ground albedo"
+        },
+        "tools": ["bifacial_radiance (NREL)", "pvfactors", "Custom analytical models"],
+        "accuracy": "±10% for well-characterized systems"
+      },
+      "ray_tracing_model": {
+        "description": "Detailed 3D ray tracing simulation",
+        "software": "bifacial_radiance using Radiance engine",
+        "inputs": ["Module geometry", "Ground albedo", "Row spacing", "Sun position", "Weather data"],
+        "outputs": ["Rear irradiance distribution", "Front shading", "Bifacial gain prediction"],
+        "accuracy": "±5% for detailed models",
+        "computational_cost": "High - used for design optimization"
+      },
+      "empirical_models": {
+        "regression_model": {
+          "formula": "BG = β₀ + β₁×albedo + β₂×height + β₃×GCR + β₄×sun_elevation + ε",
+          "training": "Site-specific calibration from field data",
+          "use": "Operational forecasting after calibration period"
+        },
+        "machine_learning": {
+          "algorithms": ["Random Forest", "Gradient Boosting", "Neural Networks"],
+          "features": ["G_front", "GHI", "DNI", "DHI", "albedo", "sun_position", "module_temp", "wind", "time_features"],
+          "target": "G_rear or bifacial_gain",
+          "training_period": "6-12 months of field data",
+          "validation": "RMSE < 20 W/m² for rear irradiance prediction"
+        }
+      },
+      "superposition_model": {
+        "electrical_model": "P_bifacial = f(G_front, G_rear, T_cell)",
+        "approach": "Combine front and rear contributions",
+        "formula": "I = I_front(G_front, T) + φ × I_rear(G_rear, T)",
+        "bifaciality_factor": "φ measured from calibration",
+        "validation": "Compare predicted vs measured power"
+      }
+    },
+    "model_validation": {
+      "training_period": "6 months to 1 year",
+      "validation_period": "3 months",
+      "test_period": "3 months (most recent)",
+      "metrics": ["RMSE (W/m² for irradiance, % for gain)", "MAE", "MAPE", "R²"],
+      "acceptance": "Rear irradiance RMSE < 25 W/m², Gain MAPE < 15%"
+    }
+  },
+
+  "long_term_trend_analysis": {
+    "enabled": true,
+    "analysis_methods": {
+      "seasonal_bifacial_gain": {
+        "monthly_analysis": "Average bifacial gain by month",
+        "seasonal_patterns": {
+          "winter": "Higher gain in snow-covered regions due to high albedo",
+          "summer": "Lower albedo (vegetation), but higher total energy",
+          "spring_fall": "Moderate gain"
+        },
+        "sun_angle_effects": "Lower sun angles increase ground view factor and rear irradiance",
+        "visualization": "Monthly gain heatmap, seasonal comparison"
+      },
+      "albedo_evolution": {
+        "tracking": "Monitor albedo changes over time",
+        "causes": ["Vegetation growth", "Soiling of reflective surfaces", "Seasonal snow", "Ground treatment degradation"],
+        "impact": "Quantify gain reduction from albedo degradation"
+      },
+      "rear_side_soiling": {
+        "analysis": "Rear side soiling rate vs front side",
+        "hypothesis": "Rear side may soil differently (less direct deposition, more dust resuspension from ground)",
+        "measurement": "Compare soiling ratio for front and rear using dedicated sensors"
+      },
+      "bifacial_degradation": {
+        "question": "Does bifacial degradation differ from monofacial?",
+        "analysis": "Track bifaciality factor over time",
+        "method": "Periodic IV curve measurements with controlled front and rear illumination"
+      }
+    }
+  },
+
+  "predictive_modeling": {
+    "enabled": true,
+    "models": {
+      "bifacial_energy_forecasting": {
+        "short_term": {
+          "model": "ML model or view factor model with weather forecast",
+          "inputs": ["GHI/DNI/DHI forecast", "Albedo (current or forecasted if snow)", "Temperature forecast"],
+          "output": "Hourly bifacial energy forecast for next 24-48 hours",
+          "use": "Day-ahead energy market bidding"
+        },
+        "long_term": {
+          "model": "Annual energy prediction based on TMY3 data and bifacial model",
+          "inputs": ["Typical meteorological year", "Albedo seasonal profile", "Mounting parameters"],
+          "output": "P50/P90 annual energy estimates",
+          "use": "Project financing and design optimization"
+        }
+      },
+      "albedo_forecasting": {
+        "snow_prediction": {
+          "input": "Weather forecast (precipitation, temperature)",
+          "model": "Estimate snow cover duration and depth",
+          "albedo_calculation": "Albedo from snow depth (empirical correlations)",
+          "energy_impact": "Predict bifacial energy boost from snow events"
+        },
+        "vegetation_model": {
+          "input": "Growing degree days, precipitation",
+          "output": "Vegetation growth rate and resulting albedo reduction",
+          "use": "Schedule vegetation management for albedo maintenance"
+        }
+      },
+      "design_optimization": {
+        "tilt_optimization": {
+          "objective": "Maximize annual bifacial energy yield",
+          "variables": ["Tilt angle", "Row spacing", "Module height"],
+          "constraints": ["Land area", "Budget", "Structural limits"],
+          "method": "Parameterized modeling with bifacial_radiance or pvfactors"
+        },
+        "albedo_enhancement_roi": {
+          "model": "Cost-benefit analysis of ground albedo treatments",
+          "inputs": ["Treatment cost", "Expected albedo increase", "Predicted energy gain", "Electricity price"],
+          "output": "ROI and payback period for each albedo enhancement option",
+          "recommendation": "Optimal albedo treatment strategy"
+        }
+      }
+    }
+  },
+
+  "test_procedure": {
+    "phases": [
+      {
+        "phase": "1_system_design_installation",
+        "duration": "2-4 weeks",
+        "activities": [
+          "Design test array with various mounting configurations (heights, tilts, row spacings)",
+          "Plan ground albedo treatments (control areas vs enhanced albedo zones)",
+          "Install bifacial modules and monofacial reference modules",
+          "Install comprehensive irradiance monitoring: Front POA (multiple points), Rear POA (multiple points), GHI, DNI, DHI, Albedometer",
+          "Install temperature sensors, anemometer",
+          "Install MPPT loads and electrical measurement systems",
+          "Deploy IoT devices and configure data acquisition (5-second logging)",
+          "Verify all sensor functionality and communication"
+        ]
+      },
+      {
+        "phase": "2_baseline_characterization",
+        "duration": "2 weeks",
+        "activities": [
+          "Measure initial albedo of all ground zones",
+          "Perform baseline IV curves on bifacial and monofacial modules",
+          "Verify rear irradiance sensor readings and uniformity",
+          "Establish baseline bifaciality factor from controlled testing",
+          "Validate view factor models with initial field measurements",
+          "Document installation parameters (heights, spacings, angles) with survey equipment"
+        ]
+      },
+      {
+        "phase": "3_continuous_monitoring",
+        "duration": "12+ months (ongoing)",
+        "activities": [
+          "Continuous electrical and irradiance data logging (5-second intervals)",
+          "Daily albedo measurement and logging",
+          "Weekly verification of sensor functionality",
+          "Monthly documentation of ground conditions (photos, visual assessment)",
+          "Automated calculation of bifacial gain (daily, monthly)",
+          "Real-time comparison of bifacial vs monofacial performance"
+        ]
+      },
+      {
+        "phase": "4_periodic_detailed_analysis",
+        "frequency": "monthly",
+        "activities": [
+          "Calculate monthly bifacial gain for each configuration",
+          "Analyze correlation between albedo and gain",
+          "Assess impact of mounting parameters (height, tilt, spacing)",
+          "Compare measured vs modeled rear irradiance",
+          "Evaluate different bifacial technologies",
+          "Economic analysis of bifacial advantage"
+        ]
+      },
+      {
+        "phase": "5_seasonal_studies",
+        "frequency": "per season (4× per year)",
+        "activities": [
+          "Comprehensive seasonal analysis (winter snow advantage, summer vegetation effects)",
+          "Sun angle and seasonal pattern correlation",
+          "Update models with seasonal parameters",
+          "Albedo treatment effectiveness evaluation",
+          "Vegetation management recommendations"
+        ]
+      },
+      {
+        "phase": "6_annual_assessment",
+        "frequency": "annual",
+        "activities": [
+          "Comprehensive annual bifacial gain summary",
+          "Full year energy comparison: bifacial vs monofacial",
+          "Albedo annual average and range",
+          "Model validation and refinement",
+          "Economic analysis: LCOE comparison, ROI of bifacial premium",
+          "Design optimization recommendations for future projects",
+          "Bifaciality factor stability check (IV curves)"
+        ]
+      }
+    ]
+  },
+
+  "data_analysis": {
+    "automated_calculations": [
+      {
+        "metric": "Instantaneous Bifacial Gain",
+        "formula": "BG_instant = (P_bifacial - P_monofacial) / P_monofacial × 100%",
+        "frequency": "real-time (every 5 seconds)",
+        "quality_filter": "Only calculate when G_front > 100 W/m²"
+      },
+      {
+        "metric": "Daily Bifacial Gain",
+        "formula": "BG_daily = (E_bifacial_daily - E_monofacial_daily) / E_monofacial_daily × 100%",
+        "frequency": "daily"
+      },
+      {
+        "metric": "Rear to Front Irradiance Ratio",
+        "formula": "RFR = mean(G_rear) / mean(G_front) for daytime hours",
+        "frequency": "daily, monthly",
+        "typical_range": "0.05-0.35"
+      },
+      {
+        "metric": "Effective Irradiance",
+        "formula": "G_eff = G_front + φ × G_rear",
+        "bifaciality": "φ from module datasheet or field measurement",
+        "frequency": "real-time"
+      },
+      {
+        "metric": "Albedo",
+        "formula": "α = G_upward_reflected / G_downward_incident",
+        "frequency": "hourly, daily average",
+        "quality_check": "0 < α < 1"
+      },
+      {
+        "metric": "Rear Irradiance Uniformity",
+        "formula": "RIU = σ(G_rear_sensors) / mean(G_rear_sensors)",
+        "frequency": "daily",
+        "alarm_threshold": "RIU > 0.15"
+      },
+      {
+        "metric": "Bifacial Energy Boost",
+        "formula": "ΔE = E_bifacial - E_monofacial",
+        "unit": "kWh",
+        "frequency": "daily, monthly, annual cumulative"
+      }
+    ],
+    "correlation_analysis": {
+      "correlations_to_analyze": [
+        "Bifacial gain vs albedo (expected: strong positive)",
+        "Rear irradiance vs GHI (positive, mediated by albedo)",
+        "Bifacial gain vs sun elevation angle (complex: low angles increase ground view factor)",
+        "Bifacial gain vs module height (positive: higher = better ground view)",
+        "Bifacial gain vs row spacing (positive: less inter-row shading)",
+        "Albedo vs time (seasonal variations, treatment degradation)"
+      ]
+    },
+    "view_factor_analysis": {
+      "geometric_calculation": "Calculate ground view factor from module geometry",
+      "validation": "Compare calculated view factor with measured RFR",
+      "optimization": "Identify optimal mounting parameters for maximum gain"
+    },
+    "spectral_analysis": {
+      "front_vs_rear_spectrum": "Compare spectral distribution of front and rear irradiance",
+      "impact": "Assess if rear spectral response differs significantly from front",
+      "correction": "Apply spectral mismatch correction if needed"
+    },
+    "data_quality_checks": {
+      "validation_rules": [
+        "G_rear >= 0 AND G_rear <= G_front (rear cannot exceed front)",
+        "0 <= albedo <= 1",
+        "P_bifacial >= P_monofacial (bifacial should not underperform)",
+        "RFR <= 0.50 (typical maximum even with high albedo)",
+        "Bifacial gain >= 0% AND <= 50% (typical physical limits)"
+      ],
+      "outlier_detection": "Z-score > 3 or physically impossible values",
+      "sensor_cross_validation": "Compare multiple rear sensors for consistency"
+    }
+  },
+
+  "quality_control": {
+    "qc_checkpoints": [
+      {
+        "checkpoint": "QC-044-01",
+        "description": "Rear irradiance sensor installation verification",
+        "frequency": "At installation and after maintenance",
+        "acceptance_criteria": "Sensors co-planar with module rear, no shading, proper mounting",
+        "responsible": "Installation technician"
+      },
+      {
+        "checkpoint": "QC-044-02",
+        "description": "Albedo measurement validation",
+        "frequency": "Weekly",
+        "acceptance_criteria": "Albedo within expected range for ground type, cross-validate with handheld measurements",
+        "responsible": "Field technician"
+      },
+      {
+        "checkpoint": "QC-044-03",
+        "description": "Rear irradiance uniformity check",
+        "frequency": "Daily",
+        "acceptance_criteria": "Multiple rear sensors agree within ±20% (or within expected gradient for row position)",
+        "responsible": "Data analyst"
+      },
+      {
+        "checkpoint": "QC-044-04",
+        "description": "Bifaciality factor verification",
+        "frequency": "Quarterly",
+        "acceptance_criteria": "Measured bifaciality within ±10% of datasheet value",
+        "responsible": "Test engineer"
+      },
+      {
+        "checkpoint": "QC-044-05",
+        "description": "Monofacial reference comparison",
+        "frequency": "Weekly",
+        "acceptance_criteria": "Bifacial front-side performance matches monofacial within ±5%",
+        "responsible": "Performance engineer"
+      },
+      {
+        "checkpoint": "QC-044-06",
+        "description": "Data completeness and quality",
+        "frequency": "Weekly",
+        "acceptance_criteria": "Data availability >98%, no systematic errors",
+        "responsible": "Data engineer"
+      }
+    ],
+    "calibration_schedule": {
+      "front_rear_irradiance_sensors": "Annual calibration",
+      "albedometer_pyranometers": "Annual calibration as a pair",
+      "reference_cells": "Annual verification against calibrated standard",
+      "electrical_sensors": "Annual calibration"
+    },
+    "audit_trail": {
+      "installation_documentation": "Photos, survey measurements, sensor locations, ground conditions",
+      "calibration_certificates": "All irradiance and electrical sensors",
+      "ground_treatment_log": "Albedo enhancement installations, modifications, maintenance",
+      "iv_curve_archive": "Bifacial IV curves with front and rear illumination conditions"
+    }
+  },
+
+  "non_conformance": {
+    "nc_criteria": [
+      {
+        "nc_id": "NC-044-01",
+        "condition": "Bifacial gain < expected by > 20% (based on model or similar systems)",
+        "severity": "major",
+        "action": "Investigate rear soiling, shading, sensor errors, module issues"
+      },
+      {
+        "nc_id": "NC-044-02",
+        "condition": "Rear irradiance sensor deviation > 30% from neighbors without geometric explanation",
+        "severity": "moderate",
+        "action": "Recalibrate or replace sensor, check for local shading or soiling"
+      },
+      {
+        "nc_id": "NC-044-03",
+        "condition": "Measured albedo deviates > 0.10 from expected for ground type",
+        "severity": "minor",
+        "action": "Verify albedometer calibration, check ground conditions, investigate measurement errors"
+      },
+      {
+        "nc_id": "NC-044-04",
+        "condition": "Bifaciality factor degrades > 5% relative from baseline",
+        "severity": "major",
+        "action": "Detailed IV testing, inspect for rear-side degradation, contact manufacturer"
+      },
+      {
+        "nc_id": "NC-044-05",
+        "condition": "Bifacial module underperforms monofacial reference (impossible unless fault)",
+        "severity": "critical",
+        "action": "Immediate module inspection, IV curve analysis, potential module replacement"
+      },
+      {
+        "nc_id": "NC-044-06",
+        "condition": "Rear irradiance > front irradiance (physically impossible unless sensor error)",
+        "severity": "moderate",
+        "action": "Check sensor calibration, verify mounting orientation, inspect for reflected light sources"
+      }
+    ],
+    "capa_process": {
+      "documentation": "NC report with data plots, photos of ground and modules, sensor readings",
+      "investigation": "Root cause analysis - environmental, measurement, or module design issue",
+      "corrective_action": "Sensor repair, module cleaning (front and rear), ground treatment adjustment",
+      "preventive_action": "Enhanced monitoring, revised maintenance schedule, design improvements",
+      "verification": "Confirm bifacial gain returns to expected range, data quality restored",
+      "timeline": "Critical NC within 48 hours, major within 1 week, minor within 2 weeks"
+    }
+  },
+
+  "preventive_maintenance": {
+    "pm_schedule": [
+      {
+        "pm_id": "PM-044-01",
+        "task": "Module cleaning - front and rear",
+        "frequency": "monthly (or based on soiling monitoring)",
+        "duration_hours": 2,
+        "checklist": ["Clean front surface", "Clean rear surface (critical for bifacial!)", "Compare before/after performance", "Document cleaning"],
+        "note": "Rear soiling can reduce gain significantly"
+      },
+      {
+        "pm_id": "PM-044-02",
+        "task": "Rear irradiance sensor inspection",
+        "frequency": "monthly",
+        "duration_minutes": 30,
+        "checklist": ["Check sensor cleanliness", "Verify mounting stability", "Check for shading from structure", "Verify data readings are reasonable"]
+      },
+      {
+        "pm_id": "PM-044-03",
+        "task": "Albedometer maintenance",
+        "frequency": "monthly",
+        "duration_minutes": 30,
+        "checklist": ["Clean both pyranometer domes", "Verify level mounting", "Check for vegetation growth interfering", "Validate albedo readings"]
+      },
+      {
+        "pm_id": "PM-044-04",
+        "task": "Ground albedo maintenance",
+        "frequency": "quarterly (or as needed)",
+        "duration_hours": 4,
+        "checklist": ["Inspect albedo treatment condition", "Remove vegetation if encroaching", "Clean or refresh reflective surfaces", "Measure albedo changes"],
+        "note": "Critical for maintaining bifacial gain"
+      },
+      {
+        "pm_id": "PM-044-05",
+        "task": "Bifaciality factor verification",
+        "frequency": "semi-annual",
+        "duration_hours": 4,
+        "checklist": ["Perform IV curves with controlled front illumination", "Perform IV curves with controlled rear illumination", "Calculate bifaciality factor", "Compare with baseline and datasheet"]
+      },
+      {
+        "pm_id": "PM-044-06",
+        "task": "Data system and sensor health check",
+        "frequency": "weekly",
+        "duration_minutes": 30,
+        "checklist": ["Review data completeness", "Check for sensor drift or anomalies", "Verify bifacial gain calculations", "Test alarm notifications"]
+      }
+    ]
+  },
+
+  "traceability": {
+    "module_traceability": {
+      "bifacial_modules": "Serial number, bifaciality factor (datasheet), baseline IV curves (front and rear)",
+      "monofacial_reference": "Serial number, baseline IV curves",
+      "installation_records": "Location, mounting parameters (height, tilt, spacing), photos"
+    },
+    "sensor_traceability": {
+      "irradiance_sensors": "Model, serial number, calibration certificate, location (front/rear, position)",
+      "albedometer": "Serial numbers of upward and downward sensors, calibration as pair",
+      "temperature_sensors": "Type, serial number, calibration data"
+    },
+    "ground_treatment_traceability": {
+      "albedo_zones": "Type of ground cover, installation date, expected albedo",
+      "maintenance_history": "Cleaning, vegetation removal, surface refreshes",
+      "albedo_measurements": "Time-series of measured albedo per zone"
+    },
+    "data_traceability": {
+      "raw_data": "All sensor readings with timestamps",
+      "processed_data": "Calculated bifacial gain, effective irradiance, with processing scripts",
+      "model_outputs": "View factor calculations, ray tracing results, ML predictions",
+      "analysis_results": "Reports linked to data files and analysis code"
+    }
+  },
+
+  "reporting": {
+    "automated_reports": [
+      {
+        "report_type": "Daily Bifacial Performance Summary",
+        "frequency": "daily",
+        "distribution_time": "20:00 local time",
+        "recipients": ["Test engineer", "Performance analyst"],
+        "content": ["Daily energy bifacial vs monofacial", "Bifacial gain %", "Rear irradiance summary", "Albedo average", "Any anomalies"]
+      },
+      {
+        "report_type": "Monthly Bifacial Analysis Report",
+        "frequency": "monthly",
+        "distribution_date": "5th of following month",
+        "recipients": ["Technical team", "Management", "Clients"],
+        "content": ["Monthly bifacial gain by configuration", "Albedo trends", "Technology comparison", "Mounting parameter impact", "Model validation", "Economic analysis"]
+      },
+      {
+        "report_type": "Seasonal Bifacial Assessment",
+        "frequency": "quarterly (per season)",
+        "distribution_date": "15th of following quarter",
+        "recipients": ["Engineering team", "Asset management"],
+        "content": ["Seasonal bifacial gain patterns", "Albedo seasonal effects (snow, vegetation)", "Sun angle impact analysis", "Optimization recommendations"]
+      },
+      {
+        "report_type": "Annual Bifacial Performance Evaluation",
+        "frequency": "annual",
+        "distribution_date": "January 31",
+        "recipients": ["All stakeholders", "Executive management"],
+        "content": ["Full year bifacial gain summary", "Annual energy comparison", "Albedo annual profile", "Economic analysis (ROI of bifacial)", "Design optimization insights", "Multi-year trends if available"]
+      }
+    ],
+    "dashboard": {
+      "real_time_bifacial_dashboard": {
+        "platform": "Grafana / Streamlit / Power BI",
+        "refresh_rate_seconds": 10,
+        "panels": [
+          "Live bifacial power vs monofacial",
+          "Instantaneous bifacial gain",
+          "Front and rear irradiance",
+          "Current albedo",
+          "Rear irradiance uniformity map",
+          "Daily energy progress (bifacial vs monofacial)"
+        ]
+      },
+      "historical_analysis_dashboard": {
+        "visualizations": [
+          "Bifacial gain time series",
+          "Gain vs albedo scatter plot",
+          "Monthly gain comparison",
+          "Rear to front ratio heatmap",
+          "Configuration performance ranking"
+        ]
+      }
+    }
+  },
+
+  "acceptance_criteria": {
+    "measurement_accuracy": "Irradiance sensors ±2%, power measurement ±1%",
+    "data_completeness": ">98%",
+    "rear_irradiance_uniformity": "Within ±20% across sensors (unless row position effects)",
+    "bifacial_gain_range": "5-30% typical (site and config dependent)",
+    "model_accuracy": "Rear irradiance prediction RMSE < 25 W/m², Gain MAPE < 15%",
+    "albedo_measurement_uncertainty": "±0.05"
+  },
+
+  "integration_apis": {
+    "lims_integration": {
+      "endpoint": "/api/lims/bifacial-test",
+      "data_exchange": ["Bifacial gain data", "Bifaciality factors", "IV curves"],
+      "sync_frequency": "daily"
+    },
+    "qms_integration": {
+      "endpoint": "/api/qms/bifacial-qc",
+      "data_exchange": ["QC checkpoints", "Calibration records", "NC reports"],
+      "sync_frequency": "real-time"
+    },
+    "project_management": {
+      "endpoint": "/api/pm/bifacial-monitoring",
+      "data_exchange": ["PM schedules", "Test milestones", "Resource allocation"],
+      "sync_frequency": "daily"
+    },
+    "bifacial_design_tool": {
+      "endpoint": "/api/design/bifacial-optimizer",
+      "data_exchange": ["Field measurements", "Model validation data", "Optimization parameters"],
+      "sync_frequency": "weekly",
+      "use": "Feed real performance data into design tools for future projects"
+    }
+  },
+
+  "metadata": {
+    "created_by": "PV Testing Protocol Framework",
+    "created_date": "2025-11-12",
+    "last_modified": "2025-11-12",
+    "version_history": [
+      {
+        "version": "1.0",
+        "date": "2025-11-12",
+        "changes": "Initial protocol creation with comprehensive bifacial gain measurement, rear irradiance monitoring, albedo characterization, IoT integration, and predictive modeling"
+      }
+    ],
+    "tags": ["bifacial", "rear-irradiance", "albedo", "bifacial-gain", "ground-reflection", "view-factor-modeling", "field-testing"],
+    "related_protocols": ["PVTP-040", "PVTP-042", "PVTP-045"]
+  }
+}

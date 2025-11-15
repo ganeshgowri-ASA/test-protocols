@@ -1,0 +1,946 @@
+{
+  "protocol_id": "PVTP-043",
+  "version": "1.0",
+  "title": "Temperature Behavior in Real Conditions",
+  "category": "Field Testing & Monitoring",
+  "description": "Comprehensive protocol for measuring and analyzing PV module temperature behavior under real outdoor conditions, including temperature coefficient validation, thermal modeling, and cooling effects analysis",
+  "scope": "Outdoor temperature characterization, thermal performance analysis, NOCT verification, and temperature-related performance impacts",
+  "standards": [
+    "IEC 61215-1:2021 - Temperature coefficients measurement",
+    "IEC 61853-2:2016 - Temperature and irradiance effects",
+    "IEC 61853-3:2018 - Energy rating with temperature considerations",
+    "IEC 61730 - Module thermal testing",
+    "IEC TS 63126:2020 - Guidelines for qualifying PV modules, components and materials for operation at high temperatures",
+    "ASTM E1036 - Installation and use of pyranometers"
+  ],
+
+  "iot_integration": {
+    "enabled": true,
+    "protocols": ["MQTT", "Modbus TCP", "LoRaWAN", "RESTful API"],
+    "data_sources": [
+      {
+        "source_id": "thermal_monitoring_array",
+        "type": "multi_point_temperature_system",
+        "protocol": "Modbus TCP",
+        "polling_interval_sec": 5,
+        "parameters": ["T_cell_center", "T_back_center", "T_back_corners", "T_junction_box", "T_frame", "T_front_glass"]
+      },
+      {
+        "source_id": "embedded_sensors",
+        "type": "in_module_temperature_sensors",
+        "protocol": "MQTT",
+        "polling_interval_sec": 10,
+        "parameters": ["T_cell_embedded", "T_encapsulant", "bypass_diode_temp"]
+      },
+      {
+        "source_id": "thermal_camera",
+        "type": "infrared_imaging_system",
+        "protocol": "RESTful API",
+        "polling_interval_sec": 300,
+        "parameters": ["thermal_image", "max_temp", "min_temp", "hotspot_locations", "temperature_uniformity"]
+      },
+      {
+        "source_id": "electrical_performance",
+        "type": "power_monitoring",
+        "protocol": "Modbus TCP",
+        "polling_interval_sec": 5,
+        "parameters": ["voltage", "current", "power", "efficiency"]
+      },
+      {
+        "source_id": "environmental_station",
+        "type": "meteorological_sensors",
+        "protocol": "MQTT",
+        "polling_interval_sec": 5,
+        "parameters": ["POA_irradiance", "GHI", "ambient_temp", "wind_speed", "wind_direction", "humidity", "sky_temp_IR"]
+      },
+      {
+        "source_id": "mounting_config_sensors",
+        "type": "installation_parameters",
+        "protocol": "LoRaWAN",
+        "polling_interval_sec": 60,
+        "parameters": ["ground_clearance", "back_ventilation_gap", "backsheet_temp", "ground_albedo"]
+      }
+    ],
+    "data_pipeline": {
+      "ingestion": "MQTT Broker + Apache Kafka",
+      "processing": "Apache Spark for real-time thermal analysis",
+      "storage": "InfluxDB (time-series) + PostgreSQL (metadata) + Image storage for thermal images",
+      "analytics": "Python (NumPy, SciPy, scikit-learn, OpenCV for thermal image analysis)"
+    }
+  },
+
+  "weather_station_linkage": {
+    "required_sensors": {
+      "temperature_sensors": {
+        "ambient_temperature": {
+          "sensor_type": "PT100 4-wire or thermistor",
+          "accuracy": "±0.2°C",
+          "shielding": "Naturally ventilated radiation shield",
+          "height": "Module plane height",
+          "quantity": "Minimum 2 for redundancy"
+        },
+        "module_back_temperature": {
+          "sensor_type": "PT100 or K-type thermocouple",
+          "accuracy": "±0.5°C or better",
+          "location": "Center of module back surface, thermally bonded",
+          "quantity": "Multiple per module (center + 4 corners for uniformity assessment)",
+          "mounting": "Adhesive with high thermal conductivity, covered to prevent direct sunlight"
+        },
+        "cell_temperature": {
+          "method_1": "Embedded sensors in test modules (preferred)",
+          "method_2": "Calculated from back temperature using thermal model",
+          "accuracy_target": "±1°C",
+          "note": "Cell temp typically 2-5°C higher than back temp depending on construction"
+        },
+        "junction_box_temperature": {
+          "sensor_type": "Thermocouple or PT100",
+          "location": "Inside or attached to junction box",
+          "purpose": "Monitor for overheating risk"
+        },
+        "frame_temperature": {
+          "sensor_type": "Thermocouple",
+          "location": "Metal frame",
+          "purpose": "Assess heat dissipation through frame"
+        },
+        "sky_temperature": {
+          "sensor_type": "Infrared pyrometer pointing at sky",
+          "purpose": "Radiative cooling calculation",
+          "accuracy": "±2°C"
+        }
+      },
+      "irradiance_sensors": {
+        "POA_irradiance": {
+          "sensor_type": "Reference cell (temp compensated) or pyranometer",
+          "accuracy": "±2%",
+          "mounting": "Co-planar with modules",
+          "importance": "Essential for temperature rise modeling"
+        },
+        "GHI": {
+          "sensor_type": "Pyranometer",
+          "accuracy": "±2%",
+          "use": "Environmental characterization"
+        }
+      },
+      "wind_sensors": {
+        "wind_speed": {
+          "sensor_type": "Cup anemometer or ultrasonic",
+          "accuracy": "±0.3 m/s",
+          "height": "Module plane height",
+          "importance": "Critical for convective cooling analysis"
+        },
+        "wind_direction": {
+          "sensor_type": "Wind vane",
+          "accuracy": "±5°",
+          "use": "Assess directional cooling effects"
+        }
+      },
+      "humidity_sensor": {
+        "sensor_type": "Capacitive RH sensor",
+        "accuracy": "±2%",
+        "use": "Air properties for convection calculations"
+      }
+    },
+    "data_synchronization": {
+      "timestamp_source": "NTP server",
+      "sync_accuracy_ms": 50,
+      "importance": "Critical for correlating temperature with instantaneous irradiance and wind",
+      "timezone": "UTC"
+    }
+  },
+
+  "scada_integration": {
+    "enabled": true,
+    "connection_type": "OPC-UA / Modbus TCP",
+    "real_time_monitoring": {
+      "plant_level": ["avg_module_temp", "max_module_temp", "temperature_distribution", "thermal_derating_factor"],
+      "array_level": ["array_avg_temp", "hotspot_count", "thermal_uniformity_index"],
+      "module_level": ["individual_module_temp", "cell_temp_estimate", "junction_box_temp", "power_at_temp"],
+      "thermal_alarms": ["overtemperature_events", "hotspot_detection", "junction_box_overheat"]
+    },
+    "thermal_management": {
+      "active_cooling_control": {
+        "fan_systems": "Temperature-triggered activation",
+        "water_cooling": "Flow rate control based on temperature",
+        "control_logic": "Activate when T_module > threshold AND cost-effective"
+      },
+      "passive_cooling_monitoring": {
+        "ventilation_effectiveness": "Monitor temperature difference front vs back",
+        "mounting_optimization": "Compare different mounting configurations"
+      }
+    },
+    "alarm_integration": {
+      "critical_alarms": [
+        "Cell temperature > 85°C",
+        "Junction box temperature > 90°C",
+        "Hotspot detected (ΔT > 20°C)",
+        "Thermal runaway risk"
+      ],
+      "warning_alarms": [
+        "Cell temperature > 70°C for extended period",
+        "Temperature uniformity degradation",
+        "Unexpected temperature rise"
+      ],
+      "notification_channels": ["email", "SMS", "SCADA_HMI", "mobile_app"]
+    }
+  },
+
+  "test_parameters": {
+    "temperature_measurement_setup": {
+      "spatial_resolution": {
+        "single_module_detailed": {
+          "back_temp_sensors": "Center + 4 corners + junction box",
+          "purpose": "Temperature uniformity and gradient analysis",
+          "modules_tested": "2-4 modules with detailed instrumentation"
+        },
+        "array_sampling": {
+          "representative_modules": "10-20% of array with center-back sensor",
+          "purpose": "Array-wide temperature distribution"
+        }
+      },
+      "temporal_resolution": {
+        "high_frequency_logging": "1-5 second intervals",
+        "purpose": "Capture rapid transients (clouds, wind gusts)",
+        "duration": "Continuous for at least 12 months"
+      },
+      "environmental_conditions_coverage": {
+        "irradiance_range": "0-1500 W/m²",
+        "ambient_temp_range": "-20°C to +50°C (site dependent)",
+        "wind_speed_range": "0-20 m/s",
+        "sky_conditions": "Clear, partly cloudy, overcast, dust/haze",
+        "seasonal_coverage": "All seasons for at least one full year"
+      }
+    },
+    "mounting_configurations": {
+      "test_scenarios": [
+        {
+          "config_id": "CONFIG_A",
+          "description": "Open-rack, high clearance (1m)",
+          "tilt": "Optimal for latitude",
+          "ventilation": "Natural - front and back",
+          "purpose": "Best-case cooling scenario"
+        },
+        {
+          "config_id": "CONFIG_B",
+          "description": "Open-rack, low clearance (0.3m)",
+          "purpose": "Limited ventilation from below"
+        },
+        {
+          "config_id": "CONFIG_C",
+          "description": "Roof-mounted, direct contact",
+          "ventilation": "Front only, back against roof",
+          "purpose": "Worst-case cooling, highest temperatures"
+        },
+        {
+          "config_id": "CONFIG_D",
+          "description": "Roof-mounted with standoff (10-15cm)",
+          "ventilation": "Improved back ventilation",
+          "purpose": "Compare with direct contact"
+        },
+        {
+          "config_id": "CONFIG_E",
+          "description": "Tracker-mounted",
+          "ventilation": "Excellent, always elevated",
+          "purpose": "Compare fixed vs tracking thermal behavior"
+        }
+      ],
+      "comparative_analysis": "Measure temperature difference across configurations under same environmental conditions"
+    },
+    "thermal_imaging": {
+      "infrared_camera": {
+        "resolution": "320×240 pixels minimum, 640×480 recommended",
+        "thermal_sensitivity": "<0.05°C",
+        "accuracy": "±2°C or ±2% of reading",
+        "spectral_range": "7.5-14 μm",
+        "emissivity_setting": "0.85 for glass surface"
+      },
+      "imaging_schedule": {
+        "routine_scans": "Daily at solar noon",
+        "detailed_analysis": "Weekly thermal map of entire array",
+        "hotspot_investigation": "On-demand when electrical anomalies detected"
+      },
+      "image_analysis": {
+        "automated_hotspot_detection": "ΔT > 15°C from module average",
+        "temperature_uniformity_index": "Standard deviation of temperature distribution",
+        "trend_analysis": "Track hotspot evolution over time"
+      }
+    }
+  },
+
+  "performance_metrics": {
+    "temperature_coefficients": {
+      "power_temp_coefficient": {
+        "symbol": "γ or β_P",
+        "formula": "γ = (dP/dT) / P_ref",
+        "unit": "%/°C or %/K",
+        "typical_range": "-0.35 to -0.50 %/°C for crystalline Si",
+        "measurement_method": "Regression analysis P vs T_cell at constant irradiance >800 W/m²",
+        "validation": "Compare field-measured vs datasheet value"
+      },
+      "voltage_temp_coefficient": {
+        "symbol": "β_V or α_Voc",
+        "formula": "β_V = (dV/dT) / V_ref",
+        "unit": "%/°C or mV/°C",
+        "typical_range": "-0.28 to -0.35 %/°C",
+        "measurement": "From field IV curves at different temperatures"
+      },
+      "current_temp_coefficient": {
+        "symbol": "α_I or α_Isc",
+        "formula": "α_I = (dI/dT) / I_ref",
+        "unit": "%/°C or mA/°C",
+        "typical_range": "+0.03 to +0.06 %/°C",
+        "note": "Positive coefficient - current increases with temperature"
+      },
+      "efficiency_temp_coefficient": {
+        "formula": "γ_η = (dη/dT) / η_ref",
+        "calculation": "From power coefficient and constant area",
+        "typical_range": "-0.35 to -0.50 %/°C"
+      }
+    },
+    "thermal_performance_metrics": {
+      "NOCT_verification": {
+        "definition": "Nominal Operating Cell Temperature at G=800W/m², T_amb=20°C, wind=1m/s",
+        "formula": "NOCT = T_amb + (G/800) × ΔT_NOCT",
+        "measurement": "Field verification under defined conditions",
+        "typical_values": "42-48°C for conventional modules",
+        "datasheet_comparison": "Validate manufacturer's stated NOCT"
+      },
+      "temperature_rise": {
+        "formula": "ΔT = T_cell - T_ambient",
+        "typical_range": "20-35°C at 1000 W/m² depending on mounting and wind",
+        "modeling": "ΔT = f(G, wind_speed, mounting_config)"
+      },
+      "thermal_time_constant": {
+        "definition": "Time to reach 63.2% of steady-state temperature after irradiance step",
+        "measurement": "From cloud transient analysis or artificial shading",
+        "typical_values": "2-8 minutes depending on module construction",
+        "importance": "Affects response to rapid irradiance changes"
+      },
+      "cooling_effectiveness": {
+        "formula": "CE = (T_cell_worst_case - T_cell_tested) / (T_cell_worst_case - T_ambient)",
+        "interpretation": "CE = 0 (no cooling), CE = 1 (perfect cooling to ambient)",
+        "comparison": "Compare different mounting configurations"
+      }
+    },
+    "temperature_related_losses": {
+      "thermal_power_loss": {
+        "formula": "P_loss_thermal = P_STC × γ × (T_cell - 25°C)",
+        "typical_impact": "10-20% power loss during peak sun hours in hot climates",
+        "annual_energy_impact": "Calculate for entire year"
+      },
+      "temperature_corrected_performance_ratio": {
+        "formula": "PR_temp_corrected = PR_measured / (1 + γ × (T_cell_avg - 25°C))",
+        "purpose": "Isolate non-temperature losses"
+      }
+    },
+    "hotspot_metrics": {
+      "hotspot_temperature_differential": {
+        "formula": "ΔT_hotspot = T_hotspot - T_module_average",
+        "concern_threshold": "ΔT > 20°C",
+        "critical_threshold": "ΔT > 30°C (risk of permanent damage)"
+      },
+      "hotspot_frequency": {
+        "metric": "Number of hotspot events per month",
+        "trend": "Increasing frequency indicates developing fault"
+      }
+    }
+  },
+
+  "thermal_modeling": {
+    "enabled": true,
+    "models": {
+      "steady_state_thermal_models": {
+        "simple_linear_model": {
+          "formula": "T_cell = T_ambient + k × G",
+          "parameters": {"k": "Temperature rise coefficient (°C·m²/W)"},
+          "typical_k": "0.025-0.035 for open-rack",
+          "use": "Quick estimation, limited accuracy"
+        },
+        "noct_based_model": {
+          "formula": "T_cell = T_ambient + (NOCT - 20) × (G / 800)",
+          "assumptions": "Wind = 1 m/s",
+          "limitation": "Doesn't account for wind variation"
+        },
+        "sandia_thermal_model": {
+          "formula": "T_cell = G × exp(a + b × wind_speed) + T_ambient",
+          "parameters": {"a": "Mounting-dependent", "b": "Wind sensitivity coefficient"},
+          "advantages": "Accounts for wind and mounting",
+          "calibration": "Fit a, b from field data"
+        },
+        "faiman_model": {
+          "formula": "T_cell = T_ambient + (G / (U_0 + U_1 × wind_speed))",
+          "parameters": {"U_0": "Constant heat loss (W/m²K)", "U_1": "Convective heat loss coefficient"},
+          "use": "Physical basis, good accuracy"
+        }
+      },
+      "dynamic_thermal_models": {
+        "first_order_rc_model": {
+          "formula": "C × dT/dt = G × α - U × (T_cell - T_ambient)",
+          "parameters": {
+            "C": "Thermal capacitance (J/m²K)",
+            "α": "Absorptance",
+            "U": "Overall heat transfer coefficient (W/m²K)"
+          },
+          "use": "Predict transient temperature response",
+          "calibration": "Identify C and U from field data"
+        },
+        "multi_node_thermal_network": {
+          "layers": ["Glass", "Encapsulant", "Cell", "Encapsulant", "Backsheet", "Air_gap", "Mounting"],
+          "method": "Finite difference or finite element",
+          "accuracy": "High, but requires detailed material properties",
+          "use": "Research applications, detailed design optimization"
+        }
+      },
+      "machine_learning_models": {
+        "temperature_prediction": {
+          "algorithms": ["Random Forest", "Gradient Boosting", "Neural Networks"],
+          "features": ["G_POA", "T_ambient", "wind_speed", "wind_direction", "humidity", "time_of_day", "sky_clearness"],
+          "target": "T_cell",
+          "training_data": "Minimum 3 months, ideally 1 year",
+          "validation": "RMSE < 2°C for good model"
+        },
+        "hotspot_prediction": {
+          "algorithm": "Classification (Logistic Regression, SVM, Neural Network)",
+          "features": ["Current mismatch", "Shading pattern", "Historical hotspot occurrences", "Environmental stress"],
+          "target": "Hotspot probability",
+          "use": "Preventive maintenance scheduling"
+        }
+      }
+    },
+    "model_validation": {
+      "training_period": "70% of data (ideally 6-9 months)",
+      "validation_period": "15% of data",
+      "test_period": "15% of data (most recent)",
+      "metrics": ["RMSE (°C)", "MAE (°C)", "MAPE (%)", "R²"],
+      "acceptance_criteria": "RMSE < 3°C for steady-state models, < 5°C for dynamic models"
+    }
+  },
+
+  "long_term_trend_analysis": {
+    "enabled": true,
+    "analysis_methods": {
+      "seasonal_temperature_patterns": {
+        "monthly_analysis": "Average module temperature by month",
+        "degree_hours_above_reference": "Cumulative (T_cell - 25°C) × hours",
+        "hottest_month_identification": "Peak temperature conditions",
+        "coldest_month_identification": "Low temperature effects on voltage",
+        "visualization": "Heatmap of temperature by hour and month"
+      },
+      "temperature_coefficient_stability": {
+        "periodic_validation": "Quarterly regression analysis to recalculate γ",
+        "trend_detection": "Is temperature coefficient changing over time? (indication of degradation)",
+        "comparison": "Field-measured vs datasheet over life of module"
+      },
+      "thermal_stress_accumulation": {
+        "thermal_cycles": "Count of temperature swings > 30°C amplitude",
+        "high_temperature_exposure": "Hours above 70°C, 80°C thresholds",
+        "freeze_thaw_cycles": "Number of cycles crossing 0°C",
+        "correlation_with_degradation": "Does thermal stress correlate with performance loss?"
+      },
+      "cooling_performance_trends": {
+        "ventilation_degradation": "Is module temperature increasing over time for same conditions? (blocked vents, dirt accumulation)",
+        "junction_box_aging": "Temperature rise in junction box over time"
+      }
+    }
+  },
+
+  "predictive_modeling": {
+    "enabled": true,
+    "models": {
+      "temperature_forecasting": {
+        "short_term": {
+          "model": "Physical model with weather forecast inputs",
+          "inputs": ["Forecast G, T_amb, wind_speed for next 24-48 hours", "Current module state"],
+          "output": "Predicted module temperature profile",
+          "use": "Thermal derating forecast for grid operations"
+        },
+        "long_term": {
+          "model": "Statistical model based on typical meteorological year",
+          "inputs": ["Historical climate data", "Module thermal parameters"],
+          "output": "Expected annual temperature distribution",
+          "use": "Energy yield estimation, lifetime thermal stress prediction"
+        }
+      },
+      "performance_prediction_with_temperature": {
+        "model": "Combined thermal and electrical model",
+        "workflow": "Weather forecast → Thermal model → T_cell prediction → Power prediction with temp coefficient → Energy forecast",
+        "accuracy_improvement": "5-10% better energy forecast accuracy by including temperature effects",
+        "use": "Day-ahead energy bidding, grid services"
+      },
+      "thermal_degradation_prediction": {
+        "arrhenius_model": {
+          "formula": "Degradation_rate = A × exp(-Ea / (k × T))",
+          "parameters": {
+            "Ea": "Activation energy for degradation mechanism (eV)",
+            "k": "Boltzmann constant",
+            "T": "Temperature (K)"
+          },
+          "use": "Predict accelerated degradation in high-temperature sites",
+          "lifetime_estimation": "Project to 25-year performance based on thermal exposure"
+        },
+        "machine_learning_approach": {
+          "features": ["Cumulative thermal stress metrics", "Temperature cycling count", "Max temperature exposure", "Module age"],
+          "target": "Degradation rate (%/year)",
+          "training_data": "Multi-year performance and temperature data",
+          "output": "Remaining useful life prediction"
+        }
+      },
+      "hotspot_risk_prediction": {
+        "model": "Classification model for hotspot occurrence",
+        "features": ["Cell mismatch indicators", "Shading frequency", "Temperature uniformity history", "String current patterns"],
+        "output": "Hotspot risk score (0-1)",
+        "action": "Schedule thermographic inspection when risk > threshold"
+      }
+    }
+  },
+
+  "test_procedure": {
+    "phases": [
+      {
+        "phase": "1_instrumentation_installation",
+        "duration": "1-2 weeks",
+        "activities": [
+          "Select test modules representing different technologies and mounting configurations",
+          "Install temperature sensors on module backs (center + corners), junction box, frame",
+          "Install embedded cell temperature sensors if available",
+          "Install environmental sensors (POA irradiance, ambient temp, wind speed/direction at module height)",
+          "Install infrared camera with view of test array",
+          "Configure data acquisition system for 5-second logging",
+          "Verify all sensor functionality and data communication",
+          "Document sensor locations with photos and diagrams"
+        ]
+      },
+      {
+        "phase": "2_baseline_characterization",
+        "duration": "1 week",
+        "activities": [
+          "Collect baseline data under diverse conditions",
+          "Verify temperature sensor readings (cross-compare multiple sensors)",
+          "Perform initial thermal imaging survey",
+          "Establish temperature uniformity baseline",
+          "Validate data quality and completeness"
+        ]
+      },
+      {
+        "phase": "3_continuous_monitoring",
+        "duration": "12+ months (ongoing)",
+        "activities": [
+          "Continuous temperature and environmental data logging (5-second intervals)",
+          "Daily automated thermal imaging at solar noon",
+          "Weekly detailed thermal scan of full array",
+          "Automated hotspot detection and alerting",
+          "Correlation of temperature with power output"
+        ]
+      },
+      {
+        "phase": "4_temperature_coefficient_determination",
+        "frequency": "quarterly",
+        "activities": [
+          "Filter data for high irradiance conditions (G > 800 W/m²)",
+          "Regression analysis: Power vs Cell Temperature at constant irradiance",
+          "Calculate γ_P, β_V, α_I",
+          "Compare with datasheet values and previous quarters",
+          "Statistical uncertainty analysis"
+        ]
+      },
+      {
+        "phase": "5_thermal_model_development",
+        "timing": "After 6-12 months of data collection",
+        "activities": [
+          "Calibrate thermal models (Sandia, Faiman, or custom)",
+          "Train machine learning models for temperature prediction",
+          "Validate models on test dataset",
+          "Document model equations, parameters, and accuracy",
+          "Implement models in operational forecasting system"
+        ]
+      },
+      {
+        "phase": "6_periodic_analysis_reporting",
+        "frequency": "monthly",
+        "activities": [
+          "Temperature statistics summary (avg, max, distribution)",
+          "Thermal loss calculation and impact on energy yield",
+          "Hotspot occurrence report",
+          "Mounting configuration comparison",
+          "Trend analysis and anomaly detection"
+        ]
+      },
+      {
+        "phase": "7_annual_thermal_assessment",
+        "frequency": "annual",
+        "activities": [
+          "Comprehensive annual temperature data analysis",
+          "Temperature coefficient validation",
+          "Thermal stress accumulation assessment (thermal cycles, high-temp hours)",
+          "NOCT verification against datasheet",
+          "Thermal model accuracy assessment",
+          "Long-term degradation correlation with thermal exposure",
+          "Recommendations for thermal management improvements"
+        ]
+      }
+    ]
+  },
+
+  "data_analysis": {
+    "automated_calculations": [
+      {
+        "metric": "Instantaneous Temperature Rise",
+        "formula": "ΔT = T_cell - T_ambient",
+        "frequency": "real-time (every 5 seconds)",
+        "typical_range": "15-40°C during daytime"
+      },
+      {
+        "metric": "Daily Average Cell Temperature",
+        "formula": "T_cell_avg = mean(T_cell) for hours with G > 100 W/m²",
+        "frequency": "daily"
+      },
+      {
+        "metric": "Daily Maximum Cell Temperature",
+        "formula": "T_cell_max = max(T_cell)",
+        "frequency": "daily",
+        "alarm_threshold": "T_cell_max > 85°C"
+      },
+      {
+        "metric": "Temperature-Weighted Irradiation",
+        "formula": "TWI = Σ(G × T_cell × Δt) / Σ(G × Δt)",
+        "unit": "°C",
+        "purpose": "Average temperature experienced during energy production",
+        "frequency": "daily, monthly, annual"
+      },
+      {
+        "metric": "Thermal Power Loss",
+        "formula": "P_loss_thermal(t) = P_STC × (G(t)/1000) × γ × (T_cell(t) - 25)",
+        "frequency": "real-time",
+        "integration": "Daily and annual thermal energy loss in kWh"
+      },
+      {
+        "metric": "Cooling Coefficient",
+        "formula": "k_cool = ΔT / G (typically 0.025-0.035 °C·m²/W)",
+        "calculation": "Linear regression ΔT vs G for bins of wind speed",
+        "frequency": "monthly"
+      },
+      {
+        "metric": "Temperature Uniformity Index",
+        "formula": "TUI = σ(T_sensors) / mean(T_sensors)",
+        "interpretation": "TUI < 0.05 is good uniformity, > 0.10 indicates issues",
+        "frequency": "daily from thermal images"
+      }
+    ],
+    "correlation_analysis": {
+      "temperature_vs_environmental": [
+        "T_cell vs G (positive correlation, primary driver)",
+        "T_cell vs wind_speed (negative correlation, convective cooling)",
+        "T_cell vs T_ambient (positive correlation, baseline)",
+        "ΔT vs wind_speed (negative, cooling effectiveness)",
+        "ΔT vs humidity (weak correlation, affects convection)"
+      ],
+      "temperature_vs_performance": [
+        "Power vs T_cell at constant G (negative, temp coefficient)",
+        "Efficiency vs T_cell (negative)",
+        "Voc vs T_cell (strong negative)",
+        "Isc vs T_cell (weak positive)",
+        "PR vs T_cell_avg (negative)"
+      ]
+    },
+    "statistical_analysis": {
+      "temperature_coefficient_regression": {
+        "method": "Ordinary Least Squares regression",
+        "model": "P = β₀ + β₁ × G + β₂ × T_cell + ε",
+        "isolation": "Filter for G > 800 W/m², then P vs T_cell",
+        "uncertainty": "Calculate 95% confidence interval for γ",
+        "validation": "Compare with independent dataset"
+      },
+      "thermal_model_calibration": {
+        "objective": "Minimize RMSE between measured and modeled T_cell",
+        "method": "Non-linear optimization to fit model parameters",
+        "cross_validation": "K-fold or time-series split"
+      }
+    },
+    "image_analysis": {
+      "thermal_image_processing": {
+        "preprocessing": ["Emissivity correction", "Ambient reflection compensation", "Image alignment"],
+        "segmentation": "Identify individual modules and cells",
+        "hotspot_detection": "Threshold-based or anomaly detection algorithms",
+        "temperature_mapping": "Extract temperature distribution histogram",
+        "trend_analysis": "Compare thermal images over time to detect developing issues"
+      },
+      "machine_vision": {
+        "convolutional_neural_network": {
+          "architecture": "U-Net or similar for semantic segmentation",
+          "training_data": "Labeled thermal images (normal, hotspot, shading, bypass diode activation)",
+          "output": "Automated fault classification from thermal images"
+        }
+      }
+    },
+    "data_quality_checks": {
+      "validation_rules": [
+        "T_cell >= T_ambient - 5°C (allow slight error margin)",
+        "T_cell <= T_ambient + 60°C (typical max rise)",
+        "T_back >= T_ambient - 5°C",
+        "T_cell >= T_back (cell is warmer than back surface)",
+        "Temperature sensors agreement within ±3°C (for redundant sensors)",
+        "Reject measurements during sensor maintenance or known issues"
+      ],
+      "outlier_detection": "Z-score > 3 or physical impossibility checks",
+      "sensor_drift_monitoring": "Compare redundant sensors over time"
+    }
+  },
+
+  "quality_control": {
+    "qc_checkpoints": [
+      {
+        "checkpoint": "QC-043-01",
+        "description": "Temperature sensor installation verification",
+        "frequency": "At installation and after any maintenance",
+        "acceptance_criteria": "Sensors properly bonded, covered from direct sun, good thermal contact, correct data logger channel assignment",
+        "responsible": "Installation technician"
+      },
+      {
+        "checkpoint": "QC-043-02",
+        "description": "Temperature sensor calibration check",
+        "frequency": "Semi-annual",
+        "acceptance_criteria": "Sensors within ±0.5°C of reference thermometer in controlled environment",
+        "responsible": "Calibration technician"
+      },
+      {
+        "checkpoint": "QC-043-03",
+        "description": "Temperature sensor agreement verification",
+        "frequency": "Monthly",
+        "acceptance_criteria": "Multiple sensors on same module agree within ±2°C under uniform conditions",
+        "responsible": "Data analyst"
+      },
+      {
+        "checkpoint": "QC-043-04",
+        "description": "Thermal camera calibration",
+        "frequency": "Annual",
+        "acceptance_criteria": "Camera accuracy verified against blackbody source and contact thermometers",
+        "responsible": "Thermography specialist"
+      },
+      {
+        "checkpoint": "QC-043-05",
+        "description": "Data completeness and quality check",
+        "frequency": "Weekly",
+        "acceptance_criteria": "Data availability >98%, no sensor drift or communication errors",
+        "responsible": "Data engineer"
+      },
+      {
+        "checkpoint": "QC-043-06",
+        "description": "Temperature coefficient validation",
+        "frequency": "Quarterly",
+        "acceptance_criteria": "Calculated γ within ±0.1%/°C of datasheet or previous measurements",
+        "responsible": "Performance engineer"
+      }
+    ],
+    "calibration_schedule": {
+      "temperature_sensors": "Annual verification, bi-annual full calibration",
+      "thermal_camera": "Annual calibration against blackbody and NIST-traceable references",
+      "irradiance_sensors": "Annual calibration (essential for thermal modeling)",
+      "anemometer": "Annual calibration"
+    },
+    "audit_trail": {
+      "sensor_installation_records": "Photos, location diagrams, installation date, installer name",
+      "calibration_certificates": "For all temperature sensors and thermal camera",
+      "maintenance_log": "Sensor replacements, adjustments, cleaning",
+      "thermal_image_archive": "All thermal images with metadata (date, time, emissivity settings, conditions)"
+    }
+  },
+
+  "non_conformance": {
+    "nc_criteria": [
+      {
+        "nc_id": "NC-043-01",
+        "condition": "Cell temperature > 85°C",
+        "severity": "major",
+        "action": "Immediate investigation - check for hotspot, module fault, mounting issue; consider active cooling or operational curtailment"
+      },
+      {
+        "nc_id": "NC-043-02",
+        "condition": "Junction box temperature > 90°C",
+        "severity": "critical",
+        "action": "Emergency inspection - risk of connector damage or fire; de-energize if necessary"
+      },
+      {
+        "nc_id": "NC-043-03",
+        "condition": "Hotspot detected with ΔT > 30°C",
+        "severity": "major",
+        "action": "Detailed IV curve analysis, infrared inspection, potential module replacement"
+      },
+      {
+        "nc_id": "NC-043-04",
+        "condition": "Temperature sensor deviation > ±5°C from others",
+        "severity": "moderate",
+        "action": "Recalibrate or replace sensor, review historical data validity"
+      },
+      {
+        "nc_id": "NC-043-05",
+        "condition": "Temperature coefficient deviates > ±0.15%/°C from datasheet",
+        "severity": "moderate",
+        "action": "Verify with additional measurements, check for module degradation or measurement error"
+      },
+      {
+        "nc_id": "NC-043-06",
+        "condition": "Thermal model prediction error RMSE > 5°C",
+        "severity": "minor",
+        "action": "Recalibrate model, check for changes in ventilation or sensor drift"
+      }
+    ],
+    "capa_process": {
+      "documentation": "NC report with temperature data plots, thermal images, analysis",
+      "investigation": "Root cause analysis - environmental, measurement, or module issue",
+      "corrective_action": "Sensor repair, module inspection/replacement, mounting modification, operational changes",
+      "preventive_action": "Enhanced monitoring, design improvements for future installations",
+      "verification": "Confirm temperature returns to normal, model accuracy restored",
+      "timeline": "Critical NC within 24 hours, major within 1 week, minor within 2 weeks"
+    }
+  },
+
+  "preventive_maintenance": {
+    "pm_schedule": [
+      {
+        "pm_id": "PM-043-01",
+        "task": "Temperature sensor visual inspection",
+        "frequency": "monthly",
+        "duration_minutes": 30,
+        "checklist": ["Check sensor attachment (not detached)", "Verify sensor cover (blocking direct sun)", "Inspect cables for damage", "Check data logger connections"]
+      },
+      {
+        "pm_id": "PM-043-02",
+        "task": "Sensor calibration verification",
+        "frequency": "semi-annual",
+        "duration_hours": 4,
+        "checklist": ["Remove representative sensors", "Compare readings in controlled temperature bath", "Recalibrate if needed", "Document results", "Reinstall sensors"]
+      },
+      {
+        "pm_id": "PM-043-03",
+        "task": "Thermal camera maintenance",
+        "frequency": "quarterly",
+        "duration_hours": 1,
+        "checklist": ["Clean lens", "Check battery and power", "Verify emissivity settings", "Perform test scan", "Update firmware if needed"]
+      },
+      {
+        "pm_id": "PM-043-04",
+        "task": "Ventilation inspection",
+        "frequency": "semi-annual",
+        "duration_hours": 2,
+        "checklist": ["Check for blocked airflow paths", "Verify clearance under modules", "Remove debris or vegetation", "Document ventilation conditions"]
+      },
+      {
+        "pm_id": "PM-043-05",
+        "task": "Data system health check",
+        "frequency": "weekly",
+        "duration_minutes": 30,
+        "checklist": ["Review data completeness", "Check for sensor drift", "Verify alarm functionality", "Backup data", "Review recent thermal images"]
+      }
+    ]
+  },
+
+  "traceability": {
+    "sensor_traceability": {
+      "temperature_sensors": "Type, serial number, calibration certificate, installation date and location, calibration history",
+      "thermal_camera": "Model, serial number, calibration date, emissivity settings, field of view documentation"
+    },
+    "module_traceability": {
+      "test_modules": "Serial numbers, datasheet temperature coefficients, baseline IV curves, installation configuration",
+      "thermal_history": "Time-series database of all temperature measurements per module"
+    },
+    "data_traceability": {
+      "raw_data": "All sensor readings with timestamps in original format",
+      "processed_data": "Calculated metrics (ΔT, thermal losses, etc.) with processing scripts versioned",
+      "thermal_images": "Archived with metadata (time, conditions, emissivity, annotations)",
+      "analysis_results": "Reports linked to data sources and analysis methods"
+    },
+    "model_traceability": {
+      "thermal_models": "Model equations, calibrated parameters, training/validation data, accuracy metrics",
+      "version_control": "All analysis scripts and model code in version control (Git)"
+    }
+  },
+
+  "reporting": {
+    "automated_reports": [
+      {
+        "report_type": "Daily Temperature Summary",
+        "frequency": "daily",
+        "distribution_time": "20:00 local time (end of day)",
+        "recipients": ["O&M team", "Performance engineer"],
+        "content": ["Max, min, avg cell temperature", "Max temperature rise", "Thermal loss estimate", "Hotspot alerts", "Environmental conditions summary"]
+      },
+      {
+        "report_type": "Monthly Thermal Analysis",
+        "frequency": "monthly",
+        "distribution_date": "5th of following month",
+        "recipients": ["Technical team", "Management"],
+        "content": ["Temperature statistics and distributions", "Temperature coefficient validation", "Thermal loss impact on energy yield", "Hotspot occurrence summary", "Thermal imaging highlights", "Mounting configuration comparison"]
+      },
+      {
+        "report_type": "Quarterly Temperature Coefficient Report",
+        "frequency": "quarterly",
+        "distribution_date": "15th of following quarter",
+        "recipients": ["Engineering team", "Quality assurance"],
+        "content": ["Updated temperature coefficient calculations", "Comparison with datasheet", "Statistical uncertainty analysis", "Trend over time", "Validation against IV curves"]
+      },
+      {
+        "report_type": "Annual Thermal Assessment",
+        "frequency": "annual",
+        "distribution_date": "January 31",
+        "recipients": ["All stakeholders", "Asset management"],
+        "content": ["Comprehensive annual thermal analysis", "Seasonal temperature patterns", "NOCT verification", "Thermal stress accumulation", "Temperature-related degradation assessment", "Thermal model validation", "Recommendations for thermal management"]
+      }
+    ],
+    "dashboard": {
+      "real_time_thermal_dashboard": {
+        "platform": "Grafana / Streamlit",
+        "refresh_rate_seconds": 10,
+        "panels": ["Live module temperatures", "Temperature rise vs irradiance", "Hotspot alerts", "Thermal loss rate", "Environmental conditions", "Live thermal image"],
+        "access": "Web-based with authentication"
+      },
+      "historical_thermal_analysis": {
+        "visualizations": ["Temperature time series", "T vs G scatter plots", "Temperature distribution histograms", "Heatmap by hour-month", "Thermal loss trends"]
+      }
+    }
+  },
+
+  "acceptance_criteria": {
+    "measurement_accuracy": "Temperature sensors within ±0.5°C, thermal camera within ±2°C",
+    "data_completeness": ">98%",
+    "temperature_coefficient_uncertainty": "±0.05%/°C or better",
+    "thermal_model_accuracy": "RMSE < 3°C for steady-state conditions",
+    "sensor_agreement": "Redundant sensors within ±2°C"
+  },
+
+  "integration_apis": {
+    "lims_integration": {
+      "endpoint": "/api/lims/thermal-performance",
+      "data_exchange": ["Temperature coefficients", "NOCT verification", "Thermal test results"],
+      "sync_frequency": "daily"
+    },
+    "qms_integration": {
+      "endpoint": "/api/qms/thermal-qc",
+      "data_exchange": ["QC checkpoints", "Calibration records", "NC reports"],
+      "sync_frequency": "real-time"
+    },
+    "scada_integration": {
+      "endpoint": "/api/scada/thermal-data",
+      "data_exchange": ["Real-time temperatures", "Hotspot alarms", "Thermal derating factors"],
+      "sync_frequency": "real-time (5-second updates)"
+    },
+    "predictive_maintenance": {
+      "endpoint": "/api/pm/thermal-alerts",
+      "data_exchange": ["Hotspot predictions", "Thermal stress indicators", "Maintenance recommendations"],
+      "sync_frequency": "daily"
+    }
+  },
+
+  "metadata": {
+    "created_by": "PV Testing Protocol Framework",
+    "created_date": "2025-11-12",
+    "last_modified": "2025-11-12",
+    "version_history": [
+      {
+        "version": "1.0",
+        "date": "2025-11-12",
+        "changes": "Initial protocol creation with comprehensive temperature behavior analysis, thermal modeling, IoT integration, and predictive analytics"
+      }
+    ],
+    "tags": ["temperature", "thermal-analysis", "NOCT", "temperature-coefficient", "hotspot-detection", "thermal-imaging", "field-testing"],
+    "related_protocols": ["PVTP-040", "PVTP-042", "PVTP-047"]
+  }
+}

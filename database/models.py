@@ -401,7 +401,7 @@ class TestData(Base):
     notes = Column(Text)
 
     # Metadata
-    metadata = Column(JSON)  # Additional measurement metadata
+    measurement_metadata = Column(JSON)  # Additional measurement metadata
 
     __table_args__ = (
         Index('idx_test_data_execution', 'test_execution_id'),

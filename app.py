@@ -30,11 +30,16 @@ setup_page_config(
 )
 
 # Initialize database
-db_session = init_database()
+# Database initialized on first access
 
 
 def main():
     """Main application entry point - Home Dashboard"""
+
+        # Initialize database on first run
+    if 'db_initialized' not in st.session_state:
+        init_database()
+        st.session_state.db_initialized = True
 
     # Render header and navigation
     render_header("Solar PV Testing LIMS-QMS System")

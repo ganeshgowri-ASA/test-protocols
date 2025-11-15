@@ -82,6 +82,7 @@ class User(Base):
     # Relationships
     service_requests = relationship("ServiceRequest", back_populates="created_by_user")
     test_executions = relationship("TestExecution", back_populates="technician_user")
+    reviewed_executions = relationship("TestExecution", back_populates="reviewer_user")
     audit_logs = relationship("AuditLog", back_populates="user")
 
     def __repr__(self):
@@ -332,6 +333,9 @@ class TestExecution(Base):
     technician_id = Column(Integer, ForeignKey("users.id"))
     technician_user = relationship("User", back_populates="test_executions")
     reviewer_id = Column(Integer, ForeignKey("users.id"))
+    technician_user = relationship("User", foreign_keys=[technician_id], back_populates="test_executions")
+    reviewer_id = Column(Integer, ForeignKey("users.id"))
+    reviewer_user = relationship("User", foreign_keys=[reviewer_id], back_populates="reviewed_executions")
 
     # Test data
     input_data = Column(JSON)  # Input parameters

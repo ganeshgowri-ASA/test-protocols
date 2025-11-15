@@ -128,7 +128,6 @@ def init_database():
 
     # Create default admin user if not exists
     with get_db() as db:
-        from database.models import User
         admin_exists = db.query(User).filter_by(username="admin").first()
 
         if not admin_exists:

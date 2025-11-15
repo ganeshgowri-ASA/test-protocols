@@ -96,16 +96,19 @@ def get_db() -> Generator[Session, None, None]:
 
 def init_database():
     """
-    Initialize database - create all tables
+    Initialize database - create all tables and seed default data
 
     Returns:
         Database session factory
     """
-    from database.models import (
-        User, ServiceRequest, IncomingInspection,
-        Equipment, EquipmentBooking, TestProtocol,
-        TestExecution, TestData, AuditLog, QRCode
-    )
+    # Import all models to ensure they're registered with Base
+    from models.user import User
+    from models.entity import Entity
+    from models.audit import AuditProgram, AuditType, AuditSchedule, Audit
+    from models.checklist import Checklist, ChecklistItem, AuditResponse
+    from models.nc_ofi import NC_OFI
+    from models.car import CorrectiveAction
+    from models.base import AuditReport, AuditLog
 
     engine = get_engine()
 
@@ -117,20 +120,19 @@ def init_database():
 
     # Create default admin user if not exists
     with get_db() as db:
-        from database.models import User
         admin_exists = db.query(User).filter_by(username="admin").first()
 
         if not admin_exists:
             from datetime import datetime
-            import hashlib
+            import bcrypt
 
-            # Simple password hashing (use bcrypt in production)
-            password_hash = hashlib.sha256("admin123".encode()).hexdigest()
+            # Hash password using bcrypt
+            password_hash = bcrypt.hashpw("admin123".encode('utf-8'), bcrypt.gensalt())
 
             admin_user = User(
                 username="admin",
-                email="admin@solarpv.com",
-                password_hash=password_hash,
+                email="admin@auditpro.com",
+                password_hash=password_hash.decode('utf-8'),
                 full_name="System Administrator",
                 role="admin",
                 is_active=True,
@@ -194,24 +196,3 @@ def check_database_health() -> dict:
             "error": str(e),
             "connected": False
         }
-
-
-# Migration utilities
-def run_migrations():
-    """
-    Run database migrations using Alembic
-
-    Note: This is a placeholder. In production, use:
-        alembic upgrade head
-    """
-    try:
-        import alembic.config
-        alembic_args = [
-            '--raiseerr',
-            'upgrade', 'head',
-        ]
-        alembic.config.main(argv=alembic_args)
-        return True
-    except Exception as e:
-        print(f"Migration error: {e}")
-        return False

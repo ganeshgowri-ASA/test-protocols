@@ -1,0 +1,81 @@
+{
+  "protocol_id": "HOT-001",
+  "protocol_name": "Hot Spot Endurance Test",
+  "version": "1.0.0",
+  "category": "safety",
+  "standard_reference": "IEC 61215-2:2021 MQT 09",
+  "description": "Ability to withstand hot spot heating effects",
+  "test_parameters": [
+    {
+      "name": "shading_configuration",
+      "type": "string"
+    },
+    {
+      "name": "test_duration",
+      "type": "float",
+      "unit": "hours"
+    }
+  ],
+  "data_fields": [
+    {
+      "name": "hot_spot_temperature",
+      "type": "float"
+    },
+    {
+      "name": "time",
+      "type": "array"
+    },
+    {
+      "name": "visual_damage",
+      "type": "dict"
+    },
+    {
+      "name": "ir_image",
+      "type": "image"
+    }
+  ],
+  "analysis_methods": [
+    "hot_spot_temperature_analysis",
+    "thermal_damage_assessment"
+  ],
+  "validation_criteria": [
+    {
+      "parameter": "no_thermal_damage",
+      "value": true
+    }
+  ],
+  "visualization_types": [
+    "temperature_profile",
+    "ir_thermography",
+    "damage_assessment"
+  ],
+  "ui_config": {
+    "tabs": [
+      {
+        "id": "setup",
+        "name": "Setup",
+        "icon": "\u2699\ufe0f"
+      },
+      {
+        "id": "data",
+        "name": "Data Acquisition",
+        "icon": "\ud83d\udcca"
+      },
+      {
+        "id": "analysis",
+        "name": "Analysis",
+        "icon": "\ud83d\udd2c"
+      },
+      {
+        "id": "validation",
+        "name": "Validation",
+        "icon": "\u2705"
+      },
+      {
+        "id": "report",
+        "name": "Report",
+        "icon": "\ud83d\udcc4"
+      }
+    ]
+  }
+}

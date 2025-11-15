@@ -1,0 +1,119 @@
+{
+  "protocol_id": "STC-001",
+  "protocol_name": "Standard Test Conditions (STC) Performance Test",
+  "version": "1.0.0",
+  "category": "performance",
+  "standard_reference": "IEC 61215-1:2021 MQT 01",
+  "description": "Measurement of electrical performance at Standard Test Conditions (1000 W/m\u00b2, 25\u00b0C cell temp, AM1.5 spectrum)",
+  "test_parameters": [
+    {
+      "name": "irradiance",
+      "type": "float",
+      "unit": "W/m\u00b2",
+      "default": 1000,
+      "range": [
+        980,
+        1020
+      ]
+    },
+    {
+      "name": "cell_temperature",
+      "type": "float",
+      "unit": "\u00b0C",
+      "default": 25,
+      "range": [
+        23,
+        27
+      ]
+    },
+    {
+      "name": "air_mass",
+      "type": "float",
+      "unit": "-",
+      "default": 1.5,
+      "range": [
+        1.4,
+        1.6
+      ]
+    },
+    {
+      "name": "module_area",
+      "type": "float",
+      "unit": "m\u00b2",
+      "required": true
+    }
+  ],
+  "data_fields": [
+    {
+      "name": "voltage",
+      "type": "array",
+      "unit": "V"
+    },
+    {
+      "name": "current",
+      "type": "array",
+      "unit": "A"
+    },
+    {
+      "name": "timestamp",
+      "type": "datetime"
+    }
+  ],
+  "analysis_methods": [
+    "iv_curve_analysis",
+    "mpp_extraction",
+    "fill_factor_calculation",
+    "efficiency_calculation"
+  ],
+  "validation_criteria": [
+    {
+      "parameter": "pmax",
+      "min": 0,
+      "tolerance": 0.05
+    },
+    {
+      "parameter": "efficiency",
+      "min": 0,
+      "max": 100
+    },
+    {
+      "parameter": "fill_factor",
+      "min": 0.5,
+      "max": 0.9
+    }
+  ],
+  "visualization_types": [
+    "iv_curve",
+    "pv_curve",
+    "parameter_comparison"
+  ],
+  "ui_config": {
+    "tabs": [
+      {
+        "id": "setup",
+        "name": "Setup",
+        "icon": "\u2699\ufe0f"
+      },
+      {
+        "id": "data",
+        "name": "Data Acquisition",
+        "icon": "\ud83d\udcca"
+      },
+      {
+        "id": "analysis",
+        "name": "Analysis",
+        "icon": "\ud83d\udd2c"
+      },
+      {
+        "id": "validation",
+        "name": "Validation",
+        "icon": "\u2705"
+      },
+      {
+        "id": "report",
+        "name": "Report",
+        "icon": "\ud83d\udcc4"
+      }
+    ]
+  }
+}

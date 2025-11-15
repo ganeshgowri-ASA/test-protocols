@@ -1,0 +1,83 @@
+{
+  "protocol_id": "ML-002",
+  "protocol_name": "Mechanical Load Test - Dynamic",
+  "version": "1.0.0",
+  "category": "mechanical",
+  "standard_reference": "IEC 61215-2:2021 MQT 16",
+  "description": "Dynamic mechanical load test with cyclic loading",
+  "test_parameters": [
+    {
+      "name": "load_amplitude",
+      "type": "float",
+      "unit": "Pa",
+      "default": 1000
+    },
+    {
+      "name": "number_of_cycles",
+      "type": "int",
+      "default": 1000
+    },
+    {
+      "name": "frequency",
+      "type": "float",
+      "unit": "Hz"
+    }
+  ],
+  "data_fields": [
+    {
+      "name": "cycle_number",
+      "type": "array"
+    },
+    {
+      "name": "power_output",
+      "type": "array"
+    },
+    {
+      "name": "fatigue_indicators",
+      "type": "dict"
+    }
+  ],
+  "analysis_methods": [
+    "fatigue_analysis",
+    "progressive_degradation"
+  ],
+  "validation_criteria": [
+    {
+      "parameter": "power_loss",
+      "max": 5.0
+    }
+  ],
+  "visualization_types": [
+    "fatigue_curve",
+    "power_degradation_trend"
+  ],
+  "ui_config": {
+    "tabs": [
+      {
+        "id": "setup",
+        "name": "Setup",
+        "icon": "\u2699\ufe0f"
+      },
+      {
+        "id": "data",
+        "name": "Data Acquisition",
+        "icon": "\ud83d\udcca"
+      },
+      {
+        "id": "analysis",
+        "name": "Analysis",
+        "icon": "\ud83d\udd2c"
+      },
+      {
+        "id": "validation",
+        "name": "Validation",
+        "icon": "\u2705"
+      },
+      {
+        "id": "report",
+        "name": "Report",
+        "icon": "\ud83d\udcc4"
+      }
+    ]
+  }
+}

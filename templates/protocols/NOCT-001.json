@@ -1,0 +1,128 @@
+{
+  "protocol_id": "NOCT-001",
+  "protocol_name": "Nominal Operating Cell Temperature (NOCT) Test",
+  "version": "1.0.0",
+  "category": "performance",
+  "standard_reference": "IEC 61215-2:2021",
+  "description": "Measurement of module operating temperature under specified conditions (800 W/m\u00b2, 20\u00b0C ambient, 1 m/s wind)",
+  "test_parameters": [
+    {
+      "name": "irradiance",
+      "type": "float",
+      "unit": "W/m\u00b2",
+      "default": 800,
+      "range": [
+        780,
+        820
+      ]
+    },
+    {
+      "name": "ambient_temperature",
+      "type": "float",
+      "unit": "\u00b0C",
+      "default": 20,
+      "range": [
+        18,
+        22
+      ]
+    },
+    {
+      "name": "wind_speed",
+      "type": "float",
+      "unit": "m/s",
+      "default": 1.0,
+      "range": [
+        0.9,
+        1.1
+      ]
+    },
+    {
+      "name": "tilt_angle",
+      "type": "float",
+      "unit": "degrees",
+      "default": 45
+    }
+  ],
+  "data_fields": [
+    {
+      "name": "cell_temperature",
+      "type": "array",
+      "unit": "\u00b0C"
+    },
+    {
+      "name": "back_temperature",
+      "type": "array",
+      "unit": "\u00b0C"
+    },
+    {
+      "name": "irradiance",
+      "type": "array",
+      "unit": "W/m\u00b2"
+    },
+    {
+      "name": "voltage",
+      "type": "array",
+      "unit": "V"
+    },
+    {
+      "name": "current",
+      "type": "array",
+      "unit": "A"
+    },
+    {
+      "name": "time",
+      "type": "array",
+      "unit": "minutes"
+    }
+  ],
+  "analysis_methods": [
+    "temperature_stabilization",
+    "noct_calculation",
+    "power_temperature_coefficient"
+  ],
+  "validation_criteria": [
+    {
+      "parameter": "noct",
+      "min": 35,
+      "max": 60
+    },
+    {
+      "parameter": "stabilization_time",
+      "max": 120
+    }
+  ],
+  "visualization_types": [
+    "temperature_profile",
+    "time_series",
+    "thermal_analysis"
+  ],
+  "ui_config": {
+    "tabs": [
+      {
+        "id": "setup",
+        "name": "Setup",
+        "icon": "\u2699\ufe0f"
+      },
+      {
+        "id": "data",
+        "name": "Data Acquisition",
+        "icon": "\ud83d\udcca"
+      },
+      {
+        "id": "analysis",
+        "name": "Analysis",
+        "icon": "\ud83d\udd2c"
+      },
+      {
+        "id": "validation",
+        "name": "Validation",
+        "icon": "\u2705"
+      },
+      {
+        "id": "report",
+        "name": "Report",
+        "icon": "\ud83d\udcc4"
+      }
+    ]
+  }
+}

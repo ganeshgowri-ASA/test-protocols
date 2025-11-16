@@ -1,0 +1,910 @@
+{
+  "protocol_id": "PVTP-047",
+  "version": "1.0",
+  "title": "Degradation Rate Calculation (Rd)",
+  "category": "Field Testing & Monitoring",
+  "description": "Comprehensive protocol for calculating and analyzing PV module and system degradation rates using multiple methodologies including time-series analysis, statistical methods, and predictive modeling for warranty validation and lifetime performance forecasting",
+  "scope": "Long-term degradation measurement, rate calculation, failure mechanism identification, and remaining useful life prediction",
+  "standards": [
+    "IEC 61215-1:2021 - Terrestrial PV modules - Design qualification and type approval",
+    "IEC 61724-1:2021 - PV system performance monitoring",
+    "IEC TS 63126:2020 - Guidelines for qualifying PV modules at high temperatures",
+    "IEC 61853 series - Performance testing and energy rating",
+    "ASTM E1036-15 - Solar radiation instrumentation"
+  ],
+
+  "iot_integration": {
+    "enabled": true,
+    "protocols": ["MQTT", "Modbus TCP", "OPC-UA", "RESTful API"],
+    "data_sources": [
+      {
+        "source_id": "long_term_test_modules",
+        "type": "dedicated_degradation_monitoring_array",
+        "protocol": "Modbus TCP",
+        "polling_interval_sec": 10,
+        "parameters": ["module_voltage", "module_current", "module_power", "module_temperature", "iv_curve_periodic"]
+      },
+      {
+        "source_id": "plant_scada_historical",
+        "type": "historical_performance_data",
+        "protocol": "OPC-UA",
+        "data_range": "Multi-year time series",
+        "parameters": ["daily_energy", "daily_PR", "monthly_energy", "annual_energy", "availability"]
+      },
+      {
+        "source_id": "weather_station_historical",
+        "type": "long_term_weather_data",
+        "protocol": "MQTT",
+        "data_range": "Multi-year time series",
+        "parameters": ["POA_irradiation", "GHI", "temperature", "humidity", "wind_speed", "cumulative_irradiation"]
+      },
+      {
+        "source_id": "iv_curve_database",
+        "type": "periodic_iv_characterization",
+        "protocol": "RESTful API",
+        "frequency": "quarterly to annual",
+        "parameters": ["full_iv_curve", "Pmax", "Voc", "Isc", "FF", "temperature_coefficient"]
+      },
+      {
+        "source_id": "reference_system",
+        "type": "side_by_side_comparison",
+        "protocol": "Modbus TCP",
+        "description": "Freshly installed reference modules for comparison",
+        "parameters": ["reference_power", "reference_energy", "reference_efficiency"]
+      },
+      {
+        "source_id": "environmental_stress_monitoring",
+        "type": "degradation_accelerating_factors",
+        "protocol": "MQTT",
+        "polling_interval_sec": 300,
+        "parameters": ["UV_dose", "thermal_cycles", "humidity_cycles", "temperature_extremes", "hail_events"]
+      }
+    ],
+    "data_pipeline": {
+      "ingestion": "Apache Kafka for streaming + batch import of historical data",
+      "processing": "Apache Spark for large-scale time-series analysis",
+      "storage": "InfluxDB (time-series) + Data Lake (Parquet format for multi-year data)",
+      "analytics": "Python (statsmodels for time-series, scikit-learn, pvlib, PVLib degradation tools)"
+    }
+  },
+
+  "weather_station_linkage": {
+    "required_sensors": {
+      "irradiance_long_term": {
+        "POA_pyranometer": {
+          "sensor_type": "Class A thermopile with high stability",
+          "accuracy": "±2%",
+          "drift": "<1% over 10 years (critical for degradation studies)",
+          "calibration": "Annual recalibration mandatory",
+          "importance": "CRITICAL - sensor drift can mask or mimic module degradation"
+        },
+        "GHI_pyranometer": {
+          "sensor_type": "Class A",
+          "accuracy": "±2%",
+          "use": "Backup and cross-validation"
+        },
+        "reference_cell": {
+          "type": "Calibrated silicon reference cell",
+          "matching": "Technology-matched to test modules",
+          "recalibration": "Annual to detect sensor degradation independently"
+        }
+      },
+      "temperature_long_term": {
+        "module_temperature": {
+          "sensor_type": "PT100 4-wire",
+          "accuracy": "±0.2°C",
+          "stability": "High long-term stability required",
+          "calibration": "Bi-annual verification"
+        },
+        "ambient_temperature": {
+          "sensor_type": "PT100 in ventilated shield",
+          "accuracy": "±0.2°C",
+          "importance": "Temperature correction for degradation analysis"
+        }
+      },
+      "environmental_stress_sensors": {
+        "UV_radiometer": {
+          "spectral_range": "280-400 nm",
+          "use": "Track cumulative UV dose (major degradation factor)",
+          "metric": "Total UV dose in MJ/m²"
+        },
+        "thermal_cycle_counter": {
+          "method": "Derived from temperature data",
+          "definition": "Count of temperature swings > 30°C amplitude",
+          "use": "Correlate degradation with thermal stress"
+        },
+        "humidity_sensor": {
+          "accuracy": "±2%",
+          "use": "Track humidity exposure (PID, corrosion factors)"
+        }
+      }
+    },
+    "data_quality_requirements": {
+      "data_completeness": ">95% over entire monitoring period (critical for degradation studies)",
+      "sensor_stability_verification": "Annual cross-calibration to detect sensor drift vs module degradation",
+      "gap_filling": "Interpolation methods for short gaps, flagging long gaps",
+      "outlier_removal": "Conservative outlier detection (avoid removing real degradation signals)"
+    }
+  },
+
+  "scada_integration": {
+    "enabled": true,
+    "connection_type": "OPC-UA / Historian integration",
+    "data_requirements": {
+      "historical_depth": "Minimum 2 years, ideally 5+ years for accurate degradation rate",
+      "temporal_resolution": "Hourly or daily aggregated data sufficient for degradation analysis",
+      "parameters": ["Energy production", "Performance ratio", "Availability", "Environmental data"]
+    },
+    "real_time_monitoring": {
+      "plant_level": ["annual_degradation_rate", "cumulative_energy_loss", "warranty_compliance_status"],
+      "array_level": ["array_degradation_rate", "degradation_uniformity"],
+      "technology_comparison": ["degradation_by_technology", "fastest_degrading_modules"]
+    },
+    "alarm_integration": {
+      "critical_alarms": [
+        "Degradation rate exceeds warranty limit",
+        "Accelerated degradation detected (>0.5%/year above expected)",
+        "Non-linear degradation pattern (potential failure mechanism)"
+      ],
+      "warning_alarms": [
+        "Degradation rate approaching warranty limit",
+        "Sensor drift suspected (cross-validation failure)"
+      ]
+    }
+  },
+
+  "test_parameters": {
+    "monitoring_duration": {
+      "minimum_period": "2 years (IEC 61724 recommendation)",
+      "recommended_period": "5-10 years for reliable degradation rate",
+      "ideal_period": "Full 25-30 year lifetime",
+      "note": "Longer periods improve statistical confidence"
+    },
+    "measurement_frequency": {
+      "continuous_power_monitoring": "1-minute to 10-minute intervals (for PR calculation)",
+      "iv_curve_measurements": {
+        "frequency": "Quarterly to annual",
+        "purpose": "Direct measurement of Pmax degradation",
+        "conditions": "High irradiance (>800 W/m²), clear sky preferred"
+      },
+      "reference_module_comparison": {
+        "frequency": "Annual or semi-annual",
+        "method": "Compare aged modules against freshly calibrated reference"
+      }
+    },
+    "test_configurations": {
+      "longitudinal_study": {
+        "description": "Monitor same modules over many years",
+        "advantage": "True degradation of specific modules",
+        "challenge": "Requires long-term commitment and sensor stability"
+      },
+      "comparative_study": {
+        "description": "Compare aged modules against new references",
+        "advantage": "Faster assessment, less dependent on sensor stability",
+        "challenge": "Requires careful module matching and transportation effects"
+      },
+      "fleet_analysis": {
+        "description": "Analyze degradation across entire fleet of similar modules/plants",
+        "advantage": "Large sample size, statistical power",
+        "data_source": "SCADA data from multiple plants"
+      }
+    },
+    "environmental_stress_tracking": {
+      "cumulative_irradiation": {
+        "formula": "∫ G_POA dt over lifetime",
+        "unit": "kWh/m² or MJ/m²",
+        "typical": "1500-2500 kWh/m²/year, 37.5-75 MWh/m² over 25 years",
+        "use": "Correlate degradation with total light exposure"
+      },
+      "thermal_stress": {
+        "high_temperature_hours": "Hours above 70°C, 80°C cell temperature",
+        "thermal_cycles": "Count of daily temperature swings",
+        "freeze_thaw_cycles": "Number of times temperature crosses 0°C"
+      },
+      "humidity_exposure": {
+        "high_humidity_hours": "Hours above 80% RH at elevated temperature",
+        "damp_heat_equivalent": "Calculate equivalent accelerated test hours"
+      },
+      "uv_dose": {
+        "cumulative_UV": "Total UV irradiation over lifetime",
+        "typical": "50-100 MJ/m²/year",
+        "importance": "UV causes encapsulant yellowing and backsheet degradation"
+      }
+    }
+  },
+
+  "degradation_rate_calculation_methods": {
+    "method_1_linear_regression": {
+      "description": "Classical linear regression of performance metric vs time",
+      "formula": "PR(t) = PR₀ + Rd × t, where Rd is degradation rate (%/year)",
+      "data": "Monthly or annual PR values",
+      "assumptions": "Linear degradation (constant rate)",
+      "uncertainty": "95% confidence interval on Rd",
+      "advantages": "Simple, widely used, easy to interpret",
+      "limitations": "Assumes linearity, sensitive to outliers",
+      "implementation": "Ordinary Least Squares (OLS) regression"
+    },
+    "method_2_classical_decomposition": {
+      "description": "Decompose time series into trend, seasonality, residual",
+      "steps": [
+        "Remove seasonal component (12-month moving average)",
+        "Extract linear or polynomial trend from deseasonalized data",
+        "Calculate Rd from trend slope"
+      ],
+      "advantages": "Handles seasonality explicitly",
+      "tools": "statsmodels.tsa.seasonal_decompose in Python"
+    },
+    "method_3_year_on_year": {
+      "description": "Compare same calendar months across years to remove seasonality",
+      "formula": "Rd = mean((PR_year_n - PR_year_n-1) / PR_year_n-1) for all months",
+      "advantages": "Naturally removes seasonal effects",
+      "limitations": "Requires multi-year data",
+      "robustness": "Use median instead of mean for outlier resistance"
+    },
+    "method_4_clearsky_filtering": {
+      "description": "Filter for clear-sky days only to reduce environmental variability",
+      "process": [
+        "Identify clear-sky days (low variability, high clearness index)",
+        "Calculate PR only for clear-sky days",
+        "Perform linear regression on filtered PR vs time"
+      ],
+      "advantages": "Reduces weather-related noise",
+      "tools": "pvlib.clearsky for clearsky identification"
+    },
+    "method_5_iv_curve_based": {
+      "description": "Periodic IV curve measurements corrected to STC",
+      "formula": "Rd = (Pmax_t=0 - Pmax_t=n) / (Pmax_t=0 × n_years) × 100%",
+      "advantages": "Direct measurement of module capacity, independent of system effects",
+      "corrections": "Correct to STC (25°C, 1000 W/m²) using translation equations",
+      "frequency": "Requires at least annual measurements",
+      "gold_standard": true
+    },
+    "method_6_statistical_models": {
+      "arima": {
+        "description": "AutoRegressive Integrated Moving Average model",
+        "use": "Model time-series with trend and seasonality",
+        "degradation": "Extract trend component for degradation rate"
+      },
+      "robust_regression": {
+        "description": "Regression with outlier resistance (e.g., RANSAC, Theil-Sen)",
+        "advantages": "Resistant to outliers and data anomalies",
+        "tools": "scipy.stats.theilslopes or sklearn.linear_model.RANSACRegressor"
+      }
+    },
+    "method_7_pvlib_degradation_analysis": {
+      "description": "pvlib.degradation module implements multiple degradation methods",
+      "methods": ["Year-on-year", "Clearsky", "Sensor-based", "NREL RdTools"],
+      "advantages": "Standardized, validated methods",
+      "reference": "NREL RdTools: https://github.com/NREL/rdtools"
+    }
+  },
+
+  "performance_metrics": {
+    "degradation_rate": {
+      "definition": "Annual percentage loss in performance",
+      "symbol": "Rd",
+      "unit": "%/year (negative indicates degradation)",
+      "typical_values": {
+        "crystalline_silicon": "-0.4 to -0.8 %/year",
+        "thin_film_CdTe": "-0.5 to -1.0 %/year",
+        "thin_film_CIGS": "-0.7 to -1.2 %/year",
+        "high_quality_modules": "<-0.5 %/year",
+        "poor_quality_modules": ">-1.5 %/year"
+      },
+      "warranty_typical": "<-0.55 to -0.70 %/year (linear) or 90% at 10 years, 80% at 25 years"
+    },
+    "degradation_model": {
+      "linear_model": {
+        "formula": "P(t) = P₀ × (1 + Rd × t)",
+        "assumption": "Constant degradation rate",
+        "typical": "Most common assumption"
+      },
+      "exponential_model": {
+        "formula": "P(t) = P₀ × exp(Rd × t)",
+        "assumption": "Degradation proportional to current performance",
+        "use_case": "Some failure mechanisms exhibit exponential decay"
+      },
+      "non_linear_model": {
+        "formula": "P(t) = P₀ × (1 + Rd₁ × t + Rd₂ × t²)",
+        "assumption": "Degradation rate changes over time",
+        "detection": "Early-life higher degradation (LID) or wear-out acceleration"
+      },
+      "piecewise_model": {
+        "description": "Different Rd for different periods",
+        "example": "Rd₁ for years 0-5 (LID), Rd₂ for years 5+ (steady state)",
+        "detection": "Breakpoint analysis"
+      }
+    },
+    "uncertainty_metrics": {
+      "95_confidence_interval": {
+        "calculation": "Rd ± 1.96 × SE(Rd)",
+        "interpretation": "95% probability true Rd lies in this interval",
+        "importance": "Essential for warranty claims and financial projections"
+      },
+      "coefficient_of_determination": {
+        "symbol": "R²",
+        "interpretation": "Fraction of variance explained by degradation model",
+        "typical": "R² > 0.7 for good fit, < 0.5 indicates high noise or non-linear degradation"
+      },
+      "p_value": {
+        "test": "Statistical significance of Rd ≠ 0",
+        "acceptance": "p < 0.05 for statistically significant degradation",
+        "note": "Low p-value confirms degradation is real, not measurement noise"
+      }
+    },
+    "remaining_useful_life": {
+      "formula": "RUL = (P_threshold - P_current) / (|Rd| × P_rated)",
+      "P_threshold": "Typically 80% of rated power (end-of-life criterion)",
+      "unit": "years",
+      "use": "Warranty analysis, repowering decisions, asset valuation"
+    }
+  },
+
+  "failure_mode_analysis": {
+    "degradation_mechanisms": {
+      "light_induced_degradation": {
+        "LID": {
+          "description": "Boron-oxygen defect formation in p-type silicon",
+          "time_scale": "First 100-1000 hours of exposure",
+          "magnitude": "1-3% power loss",
+          "stabilization": "Typically stabilizes after first year",
+          "detection": "Higher degradation rate in year 1 than later years"
+        },
+        "LeTID": {
+          "description": "Light and elevated Temperature Induced Degradation",
+          "affected_technologies": "p-type PERC modules",
+          "time_scale": "Months to years",
+          "magnitude": "Can exceed 10% if severe",
+          "detection": "Non-linear degradation in first 1-3 years"
+        }
+      },
+      "potential_induced_degradation": {
+        "PID": {
+          "description": "High negative voltage stress causing sodium ion migration",
+          "affected_technologies": "Vulnerable to certain module designs and mounting",
+          "magnitude": "Can be >30% in severe cases",
+          "reversibility": "Often reversible with PID recovery techniques",
+          "detection": "Rapid power loss, spatial patterns (strings near negative pole)",
+          "prevention": "PID-resistant cells, grounding strategies"
+        }
+      },
+      "thermal_degradation": {
+        "encapsulant_yellowing": {
+          "cause": "UV and thermal stress on EVA encapsulant",
+          "effect": "Reduced transmittance, reduced current",
+          "time_scale": "5-20 years depending on climate",
+          "detection": "Visual yellowing, reduced Isc"
+        },
+        "solder_bond_degradation": {
+          "cause": "Thermal cycling fatigue",
+          "effect": "Increased series resistance",
+          "detection": "Reduced FF, hotspots"
+        }
+      },
+      "corrosion": {
+        "cell_corrosion": {
+          "cause": "Moisture ingress and electrochemical corrosion",
+          "detection": "Snail trails, reduced Isc",
+          "climate": "Worse in humid environments"
+        },
+        "junction_box_corrosion": {
+          "effect": "Increased resistance, potential fire hazard",
+          "detection": "Hotspot at junction box, reduced voltage"
+        }
+      },
+      "mechanical_failures": {
+        "glass_breakage": "Hail, impact, thermal stress",
+        "backsheet_failure": "Cracking, chalking, delamination",
+        "cell_cracks": "Mechanical stress, thermal cycling",
+        "delamination": "Adhesion failure between layers"
+      }
+    },
+    "root_cause_identification": {
+      "iv_curve_analysis": {
+        "Isc_decline": "Optical losses (soiling, encapsulant yellowing, AR coating damage)",
+        "Voc_decline": "Cell degradation, bypass diode failure",
+        "FF_decline": "Series resistance increase (solder bonds, corrosion)",
+        "all_parameters_decline": "General module degradation or PID"
+      },
+      "visual_inspection": {
+        "discoloration": "Encapsulant or backsheet degradation",
+        "snail_trails": "Cell corrosion",
+        "delamination_visible": "Adhesion failure",
+        "hotspots_thermography": "Cell cracks, solder issues, bypass diode failure"
+      },
+      "electroluminescence": {
+        "description": "EL imaging to detect cell cracks, inactive areas",
+        "use": "Detailed diagnosis of failing modules"
+      }
+    }
+  },
+
+  "long_term_trend_analysis": {
+    "enabled": true,
+    "analysis_methods": {
+      "multi_year_pr_trend": {
+        "visualization": "PR vs time over 5-25 years",
+        "regression": "Linear or polynomial fit",
+        "seasonality": "Remove or account for annual cycles",
+        "interpretation": "Slope = degradation rate"
+      },
+      "degradation_rate_evolution": {
+        "rolling_degradation_rate": "Calculate Rd for moving 2-year windows",
+        "detection": "Identify if Rd is accelerating, decelerating, or constant",
+        "causes": "Accelerating Rd may indicate wear-out phase"
+      },
+      "comparative_analysis": {
+        "technology_comparison": "Compare Rd across different module technologies",
+        "vintage_comparison": "Compare Rd by installation year (technology improvements over time)",
+        "climate_comparison": "Correlate Rd with local climate factors (hot, humid, cold, etc.)"
+      },
+      "fleet_analysis": {
+        "distribution_of_Rd": "Histogram of Rd across many systems",
+        "outlier_identification": "Systems with unusually high degradation",
+        "risk_assessment": "Probability of exceeding warranty degradation"
+      }
+    }
+  },
+
+  "predictive_modeling": {
+    "enabled": true,
+    "models": {
+      "lifetime_energy_prediction": {
+        "model": "Apply measured Rd to forecast future energy production",
+        "formula": "E_year_n = E_year_1 × (1 + Rd)^(n-1) × PR_other_factors",
+        "uncertainty": "Propagate Rd uncertainty to energy forecast (Monte Carlo)",
+        "use": "Financial modeling, P50/P90 estimates"
+      },
+      "warranty_compliance_prediction": {
+        "model": "Forecast when system will reach warranty threshold (e.g., 80% of rated power)",
+        "formula": "Year_threshold = (P_threshold - P_current) / (|Rd| × P_rated) + current_year",
+        "confidence_interval": "Account for Rd uncertainty",
+        "use": "Warranty claim timing, asset management"
+      },
+      "degradation_rate_forecasting": {
+        "arrhenius_model": {
+          "description": "Physics-based model of temperature-accelerated degradation",
+          "formula": "Rd = A × exp(-Ea / (k × T))",
+          "inputs": "Temperature exposure, activation energy",
+          "use": "Predict degradation in different climates"
+        },
+        "machine_learning_models": {
+          "features": ["Cumulative irradiation", "Temperature stress", "Humidity exposure", "Module technology", "Manufacturing vintage"],
+          "target": "Degradation rate",
+          "algorithms": "Random Forest, Gradient Boosting, Neural Network",
+          "training_data": "Multi-site, multi-technology historical degradation data",
+          "use": "Predict Rd for new installations based on expected environmental conditions"
+        }
+      },
+      "failure_prediction": {
+        "survival_analysis": {
+          "method": "Kaplan-Meier, Cox proportional hazards",
+          "prediction": "Probability of module failure by age",
+          "use": "Spare parts planning, insurance risk assessment"
+        }
+      }
+    },
+    "model_validation": {
+      "out_of_sample_testing": "Reserve recent years of data for validation",
+      "cross_validation": "K-fold or time-series cross-validation",
+      "metrics": ["RMSE of predicted vs actual performance", "Accuracy of RUL prediction", "Calibration of probability forecasts"]
+    }
+  },
+
+  "test_procedure": {
+    "phases": [
+      {
+        "phase": "1_baseline_establishment",
+        "timing": "At commissioning or start of study",
+        "duration": "1 month",
+        "activities": [
+          "Perform comprehensive IV curve measurements on test modules or sample",
+          "Establish baseline Pmax, Voc, Isc, FF at STC or corrected to STC",
+          "Document all equipment, sensor calibrations, environmental conditions",
+          "Establish performance monitoring system (SCADA, string monitoring)",
+          "Begin continuous data logging (power, energy, irradiance, temperature)",
+          "Verify data quality and completeness"
+        ]
+      },
+      {
+        "phase": "2_continuous_monitoring",
+        "duration": "Minimum 2 years, ongoing for plant lifetime",
+        "activities": [
+          "Continuous logging of power production and environmental data",
+          "Automated calculation of daily, monthly PR",
+          "Quarterly or annual IV curve measurements on test modules",
+          "Annual sensor calibration verification",
+          "Data quality checks and gap-filling as needed",
+          "Document any system changes, cleaning events, maintenance that could affect performance"
+        ]
+      },
+      {
+        "phase": "3_annual_degradation_analysis",
+        "frequency": "annual (after minimum 2 years of data)",
+        "activities": [
+          "Compile all performance data (PR, energy, IV curves)",
+          "Apply multiple degradation calculation methods (linear regression, YoY, clearsky, IV-based)",
+          "Calculate Rd and uncertainty (95% CI)",
+          "Compare Rd across methods for consistency",
+          "Analyze degradation uniformity across plant",
+          "Correlate degradation with environmental stress factors",
+          "Generate annual degradation report"
+        ]
+      },
+      {
+        "phase": "4_failure_mode_investigation",
+        "frequency": "when accelerated degradation detected or at regular intervals (3-5 years)",
+        "activities": [
+          "Detailed IV curve analysis (all parameters: Pmax, Voc, Isc, FF)",
+          "Visual inspection of representative modules",
+          "Thermal imaging for hotspots",
+          "Electroluminescence (EL) imaging if available",
+          "Identify dominant failure modes (LID, PID, corrosion, mechanical)",
+          "Root cause analysis",
+          "Recommendations for corrective actions or design improvements"
+        ]
+      },
+      {
+        "phase": "5_long_term_trend_assessment",
+        "frequency": "every 5 years",
+        "activities": [
+          "Multi-year trend analysis (5, 10, 15, 20, 25 years)",
+          "Assess if degradation is linear or non-linear",
+          "Update degradation models",
+          "Compare actual degradation vs warranty predictions",
+          "Economic impact analysis (cumulative energy loss)",
+          "Update remaining useful life predictions",
+          "Strategic recommendations for O&M, repowering, or life extension"
+        ]
+      }
+    ]
+  },
+
+  "data_analysis": {
+    "automated_calculations": [
+      {
+        "metric": "Monthly Performance Ratio",
+        "formula": "PR_monthly = E_monthly / (H_POA_monthly × P_rated)",
+        "frequency": "monthly",
+        "use": "Primary metric for degradation trend analysis"
+      },
+      {
+        "metric": "Annual Performance Ratio",
+        "formula": "PR_annual = E_annual / (H_POA_annual × P_rated)",
+        "frequency": "annual",
+        "use": "Year-by-year comparison"
+      },
+      {
+        "metric": "Degradation Rate (Linear Regression)",
+        "formula": "PR(t) = β₀ + β₁ × t, where Rd = β₁ / β₀ × 100 (%/year)",
+        "frequency": "annual (recalculated with additional year of data)",
+        "minimum_data": "24 months of monthly PR values"
+      },
+      {
+        "metric": "Degradation Rate (Year-on-Year)",
+        "formula": "Rd_YoY = median((PR_year_n - PR_year_(n-1)) / PR_year_(n-1)) × 100",
+        "frequency": "annual",
+        "advantage": "Robust to seasonality"
+      },
+      {
+        "metric": "Degradation Rate (IV-based)",
+        "formula": "Rd_IV = (Pmax_baseline - Pmax_current) / (Pmax_baseline × years) × 100",
+        "frequency": "after each IV measurement (quarterly to annual)",
+        "note": "Must correct all measurements to STC"
+      },
+      {
+        "metric": "Cumulative Energy Loss",
+        "formula": "E_loss_cumulative = Σ(E_expected_no_degradation - E_actual)",
+        "frequency": "monthly cumulative",
+        "economic": "E_loss × electricity_price = Revenue loss due to degradation"
+      }
+    ],
+    "statistical_analysis": {
+      "uncertainty_quantification": {
+        "sources_of_uncertainty": [
+          "Sensor calibration uncertainty (±2% irradiance)",
+          "Measurement noise and variability",
+          "Environmental variability (year-to-year weather differences)",
+          "Model assumptions (linearity)",
+          "Data gaps and quality issues"
+        ],
+        "methods": [
+          "Bootstrap resampling for confidence intervals",
+          "Monte Carlo simulation for uncertainty propagation",
+          "Sensitivity analysis to sensor calibration errors"
+        ]
+      },
+      "hypothesis_testing": {
+        "null_hypothesis": "No degradation (Rd = 0)",
+        "alternative_hypothesis": "Degradation present (Rd < 0)",
+        "test": "t-test on regression slope",
+        "significance_level": "α = 0.05",
+        "conclusion": "Reject null if p-value < 0.05 (degradation is statistically significant)"
+      }
+    },
+    "data_quality_and_corrections": {
+      "sensor_drift_correction": {
+        "detection": "Annual sensor calibration reveals drift",
+        "correction": "Apply retroactive correction to historical data if drift is systematic",
+        "documentation": "Document all corrections and justifications"
+      },
+      "soiling_correction": {
+        "issue": "Soiling can be mistaken for degradation if accumulating",
+        "solution": "Perform degradation analysis on post-cleaning data or soiling-corrected data",
+        "formula": "PR_corrected = PR_measured / soiling_ratio"
+      },
+      "availability_correction": {
+        "issue": "Downtime due to faults or curtailment should not affect degradation calculation",
+        "solution": "Only include periods when system was operational and not curtailed"
+      },
+      "temperature_correction": {
+        "method": "Correct PR for temperature variations year-to-year",
+        "formula": "PR_temp_corrected = PR / (1 + γ × (T_avg - T_ref))"
+      }
+    }
+  },
+
+  "quality_control": {
+    "qc_checkpoints": [
+      {
+        "checkpoint": "QC-047-01",
+        "description": "Baseline IV characterization",
+        "frequency": "At start of degradation study",
+        "acceptance_criteria": "Baseline Pmax within ±5% of flash test, full IV curve high quality",
+        "responsible": "Test engineer"
+      },
+      {
+        "checkpoint": "QC-047-02",
+        "description": "Annual sensor calibration verification",
+        "frequency": "annual",
+        "acceptance_criteria": "Irradiance sensors within ±2% of reference, temperature sensors within ±0.5°C",
+        "responsible": "Calibration technician",
+        "importance": "CRITICAL - sensor drift can mimic or mask degradation"
+      },
+      {
+        "checkpoint": "QC-047-03",
+        "description": "Data completeness check",
+        "frequency": "quarterly",
+        "acceptance_criteria": "Data availability >95% over period, no extended gaps",
+        "responsible": "Data analyst"
+      },
+      {
+        "checkpoint": "QC-047-04",
+        "description": "Degradation rate calculation validation",
+        "frequency": "annual",
+        "acceptance_criteria": "Multiple methods (regression, YoY, IV-based) agree within ±0.2%/year",
+        "responsible": "Performance engineer"
+      },
+      {
+        "checkpoint": "QC-047-05",
+        "description": "Statistical significance verification",
+        "frequency": "annual",
+        "acceptance_criteria": "p-value < 0.05 for regression slope, R² > 0.5",
+        "responsible": "Data analyst"
+      }
+    ],
+    "calibration_schedule": {
+      "irradiance_sensors": "Annual recalibration MANDATORY (critical for degradation studies)",
+      "temperature_sensors": "Annual verification",
+      "iv_curve_tracer": "Annual calibration against NIST-traceable standards",
+      "reference_modules": "Bi-annual verification (if used)"
+    },
+    "audit_trail": {
+      "complete_historical_data": "All raw data archived (never delete, even if corrected)",
+      "sensor_calibration_history": "All calibration certificates, dates, and drift corrections",
+      "iv_curve_archive": "All IV curves with metadata, environmental conditions",
+      "analysis_scripts": "Version-controlled analysis code (reproducibility)",
+      "data_corrections_log": "Document all corrections (sensor drift, outlier removal, etc.) with justifications"
+    }
+  },
+
+  "non_conformance": {
+    "nc_criteria": [
+      {
+        "nc_id": "NC-047-01",
+        "condition": "Degradation rate exceeds warranty limit (typically > 0.7%/year)",
+        "severity": "major",
+        "action": "Detailed investigation, warranty claim evaluation, failure mode analysis"
+      },
+      {
+        "nc_id": "NC-047-02",
+        "condition": "Accelerated degradation detected (>0.5%/year above previous rate)",
+        "severity": "major",
+        "action": "Immediate investigation - check for PID, corrosion, or other failure mechanisms"
+      },
+      {
+        "nc_id": "NC-047-03",
+        "condition": "Non-linear degradation pattern detected",
+        "severity": "moderate",
+        "action": "Investigate for LID/LeTID, PID, or emerging failure modes"
+      },
+      {
+        "nc_id": "NC-047-04",
+        "condition": "Sensor drift > ±3% detected during annual calibration",
+        "severity": "major",
+        "action": "Recalibrate sensor, assess validity of historical degradation data, potentially recalculate Rd"
+      },
+      {
+        "nc_id": "NC-047-05",
+        "condition": "Degradation rate calculation methods disagree by > 0.5%/year",
+        "severity": "moderate",
+        "action": "Investigate data quality issues, outliers, or inappropriate method assumptions"
+      },
+      {
+        "nc_id": "NC-047-06",
+        "condition": "Statistical significance not achieved (p-value > 0.05) after 3+ years",
+        "severity": "minor",
+        "action": "Review data quality, extend monitoring period, investigate high variability sources"
+      }
+    ],
+    "capa_process": {
+      "documentation": "Detailed NC report with data analysis, plots, statistical tests, failure mode analysis",
+      "investigation": "Root cause analysis - module failure, environmental factor, or measurement issue",
+      "corrective_action": "Warranty claim, module replacement, sensor recalibration, data reanalysis",
+      "preventive_action": "Enhanced monitoring, design improvements, improved sensor maintenance",
+      "verification": "Re-calculate Rd after corrective actions, confirm degradation rate returns to acceptable range",
+      "timeline": "Major NC investigated within 1 month, action plan within 3 months"
+    }
+  },
+
+  "preventive_maintenance": {
+    "pm_schedule": [
+      {
+        "pm_id": "PM-047-01",
+        "task": "Sensor calibration verification and recalibration",
+        "frequency": "annual (CRITICAL)",
+        "duration_hours": 4,
+        "checklist": ["Send pyranometers for accredited calibration", "Verify temperature sensor accuracy", "Document calibration results", "Apply corrections to data if needed"]
+      },
+      {
+        "pm_id": "PM-047-02",
+        "task": "IV curve measurement of test modules",
+        "frequency": "quarterly to annual",
+        "duration_hours": 4,
+        "checklist": ["Measure IV curves at high irradiance", "Correct to STC", "Calculate Pmax, Voc, Isc, FF", "Compare with baseline and previous measurements", "Document and archive"]
+      },
+      {
+        "pm_id": "PM-047-03",
+        "task": "Data quality review and gap analysis",
+        "frequency": "quarterly",
+        "duration_hours": 2,
+        "checklist": ["Review data completeness", "Identify and document gaps", "Check for sensor drift or anomalies", "Validate automated calculations"]
+      },
+      {
+        "pm_id": "PM-047-04",
+        "task": "Annual degradation analysis update",
+        "frequency": "annual",
+        "duration_hours": 8,
+        "checklist": ["Compile full year of data", "Run multiple degradation calculation methods", "Perform statistical analysis", "Update degradation models", "Generate annual report"]
+      },
+      {
+        "pm_id": "PM-047-05",
+        "task": "Module visual inspection and failure mode screening",
+        "frequency": "every 3-5 years",
+        "duration_hours": 8,
+        "checklist": ["Visual inspection of representative sample", "Thermal imaging", "EL imaging if available", "Document failure modes", "Correlate with degradation data"]
+      }
+    ]
+  },
+
+  "traceability": {
+    "module_traceability": {
+      "test_modules": "Serial numbers, manufacturer, model, manufacturing date, flash test data",
+      "baseline_characterization": "Initial IV curves, Pmax, Voc, Isc, FF at t=0",
+      "performance_history": "Complete time-series of power, energy, PR",
+      "iv_curve_history": "All periodic IV measurements with dates and conditions"
+    },
+    "sensor_traceability": {
+      "irradiance_sensors": "Model, serial number, complete calibration history (dates, certificates, drift)",
+      "temperature_sensors": "Type, serial number, calibration history",
+      "data_loggers": "Model, firmware version, configuration files"
+    },
+    "data_traceability": {
+      "raw_data_archive": "All original sensor readings (never delete)",
+      "processed_data": "Calculated PR, degradation rates with processing scripts versioned (Git)",
+      "corrections_log": "All data corrections and justifications",
+      "analysis_results": "Degradation reports, plots, statistical outputs linked to data versions"
+    },
+    "model_traceability": {
+      "degradation_models": "Model equations, parameters, R², confidence intervals",
+      "code_repository": "All analysis code version-controlled in Git",
+      "reproducibility": "Anyone should be able to reproduce Rd calculation from archived data and code"
+    }
+  },
+
+  "reporting": {
+    "automated_reports": [
+      {
+        "report_type": "Annual Degradation Rate Report",
+        "frequency": "annual",
+        "distribution_date": "March 31 (after full calendar year analysis)",
+        "recipients": ["All stakeholders", "Asset owner", "Warranty manager"],
+        "content": [
+          "Annual and cumulative degradation rate (Rd) with uncertainty",
+          "Comparison with warranty limits",
+          "Degradation trends and model fit",
+          "Failure mode analysis (from IV curves, inspections)",
+          "Environmental stress exposure summary",
+          "Cumulative energy loss and financial impact",
+          "Remaining useful life estimation",
+          "Warranty compliance status",
+          "Recommendations for O&M and future actions"
+        ]
+      },
+      {
+        "report_type": "Multi-Year Degradation Assessment",
+        "frequency": "every 5 years",
+        "recipients": ["Executive management", "Asset owner", "Investors"],
+        "content": [
+          "Long-term degradation trends (5, 10, 15, 20, 25 years)",
+          "Comparison with original design assumptions",
+          "Economic analysis: actual vs expected energy production",
+          "Remaining useful life and end-of-life predictions",
+          "Strategic recommendations: continue operations, repower, or decommission"
+        ]
+      }
+    ],
+    "dashboard": {
+      "degradation_monitoring_dashboard": {
+        "platform": "Grafana / Power BI / Custom",
+        "visualizations": [
+          "PR vs time with degradation trend line",
+          "Annual Rd bar chart with confidence intervals",
+          "Comparison of Rd by method",
+          "Rd vs warranty limit gauge",
+          "Cumulative energy loss counter",
+          "Remaining useful life countdown"
+        ],
+        "update_frequency": "Monthly (for PR plots), Annual (for Rd calculation)"
+      }
+    }
+  },
+
+  "acceptance_criteria": {
+    "minimum_monitoring_period": "2 years for reliable Rd calculation, 5+ years preferred",
+    "data_completeness": ">95% over entire period",
+    "sensor_stability": "Irradiance sensor drift <±2% per year",
+    "statistical_significance": "p-value < 0.05 for Rd ≠ 0 (after sufficient monitoring period)",
+    "method_agreement": "Multiple Rd calculation methods agree within ±0.3%/year",
+    "typical_degradation_rate": "-0.4 to -0.8 %/year for crystalline silicon modules",
+    "warranty_compliance": "Rd less negative than warranty limit (typically -0.7 %/year linear or 80% at year 25)"
+  },
+
+  "integration_apis": {
+    "lims_integration": {
+      "endpoint": "/api/lims/degradation-study",
+      "data_exchange": ["Degradation rates", "IV curve data", "Failure mode classifications"],
+      "sync_frequency": "annual"
+    },
+    "qms_integration": {
+      "endpoint": "/api/qms/degradation-qc",
+      "data_exchange": ["QC checkpoints", "Calibration records", "NC reports"],
+      "sync_frequency": "real-time"
+    },
+    "asset_management": {
+      "endpoint": "/api/asset/performance-tracking",
+      "data_exchange": ["Degradation rates", "Remaining useful life", "Warranty status", "Repower recommendations"],
+      "sync_frequency": "annual"
+    },
+    "warranty_management": {
+      "endpoint": "/api/warranty/compliance-check",
+      "data_exchange": ["Degradation rates with confidence intervals", "Warranty threshold comparison", "Claim eligibility"],
+      "sync_frequency": "annual or on-demand"
+    }
+  },
+
+  "metadata": {
+    "created_by": "PV Testing Protocol Framework",
+    "created_date": "2025-11-12",
+    "last_modified": "2025-11-12",
+    "version_history": [
+      {
+        "version": "1.0",
+        "date": "2025-11-12",
+        "changes": "Initial protocol creation with comprehensive degradation rate calculation methods, statistical analysis, failure mode identification, and long-term performance forecasting"
+      }
+    ],
+    "tags": ["degradation", "degradation-rate", "long-term-monitoring", "warranty", "lifetime-performance", "Rd-calculation", "failure-modes"],
+    "related_protocols": ["PVTP-040", "PVTP-042", "PVTP-043", "PVTP-046"]
+  }
+}

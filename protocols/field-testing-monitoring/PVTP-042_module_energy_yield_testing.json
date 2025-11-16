@@ -1,0 +1,818 @@
+{
+  "protocol_id": "PVTP-042",
+  "version": "1.0",
+  "title": "Module Energy Yield Testing",
+  "category": "Field Testing & Monitoring",
+  "description": "Comprehensive energy yield measurement and analysis protocol for PV modules under real outdoor conditions, including technology comparison and performance validation",
+  "scope": "Outdoor energy yield testing, technology benchmarking, and validation of rated power under diverse operating conditions",
+  "standards": [
+    "IEC 61853-1:2011 - Irradiance and temperature performance",
+    "IEC 61853-2:2016 - Spectral responsivity, incidence angle and module temperature",
+    "IEC 61853-3:2018 - Energy rating of PV modules",
+    "IEC 61853-4:2018 - Standard days for testing",
+    "IEC 61724-1:2021 - PV system performance monitoring",
+    "IEC 60904-1-2:2019 - Measurement of current-voltage characteristics"
+  ],
+
+  "iot_integration": {
+    "enabled": true,
+    "protocols": ["MQTT", "Modbus TCP", "RESTful API", "LoRaWAN"],
+    "data_sources": [
+      {
+        "source_id": "energy_yield_station",
+        "type": "dedicated_test_station",
+        "protocol": "Modbus TCP",
+        "polling_interval_sec": 5,
+        "parameters": ["voltage", "current", "power", "energy", "module_temperature", "POA_irradiance"]
+      },
+      {
+        "source_id": "electronic_load_bank",
+        "type": "dynamic_load_control",
+        "protocol": "MQTT",
+        "polling_interval_sec": 1,
+        "parameters": ["mppt_voltage", "mppt_current", "mppt_power", "load_state"]
+      },
+      {
+        "source_id": "multi_tech_tracker",
+        "type": "technology_comparison_array",
+        "protocol": "RESTful API",
+        "polling_interval_sec": 10,
+        "parameters": ["mono_power", "poly_power", "perc_power", "topcon_power", "hjt_power", "bifacial_power"]
+      },
+      {
+        "source_id": "spectral_sensor",
+        "type": "spectroradiometer",
+        "protocol": "LoRaWAN",
+        "polling_interval_sec": 60,
+        "parameters": ["APE_average_photon_energy", "spectral_mismatch_factor", "blue_red_ratio"]
+      },
+      {
+        "source_id": "weather_conditions",
+        "type": "meteorological_station",
+        "protocol": "MQTT",
+        "polling_interval_sec": 5,
+        "parameters": ["GHI", "POA", "DNI", "DHI", "ambient_temp", "wind_speed", "humidity", "air_mass"]
+      }
+    ],
+    "data_pipeline": {
+      "ingestion": "MQTT Broker + Apache Kafka",
+      "processing": "Apache Spark for high-frequency energy integration",
+      "storage": "InfluxDB (time-series) + PostgreSQL (metadata)",
+      "analytics": "Python (Pandas, NumPy, SciPy, pvlib)"
+    }
+  },
+
+  "weather_station_linkage": {
+    "required_sensors": {
+      "irradiance_comprehensive": {
+        "POA_reference_cell": {
+          "sensor_type": "Calibrated reference cell matching test module technology",
+          "accuracy": "±2%",
+          "temperature_compensation": "Built-in PT100",
+          "mounting": "Same tilt and azimuth as test modules"
+        },
+        "POA_pyranometer": {
+          "sensor_type": "Class A thermopile pyranometer",
+          "accuracy": "±2%",
+          "spectral_range": "280-3000 nm",
+          "use": "Cross-validation with reference cell"
+        },
+        "GHI_pyranometer": {
+          "sensor_type": "Class A pyranometer",
+          "accuracy": "±2%",
+          "use": "Transposition model validation"
+        },
+        "DNI_pyrheliometer": {
+          "sensor_type": "First class pyrheliometer",
+          "accuracy": "±1%",
+          "tracking": "Sun-tracker mounted",
+          "use": "Advanced modeling and spectral analysis"
+        },
+        "DHI_pyranometer": {
+          "sensor_type": "Pyranometer with shadow band or tracker-mounted",
+          "accuracy": "±3%",
+          "use": "Diffuse contribution analysis"
+        }
+      },
+      "spectral_measurement": {
+        "spectroradiometer": {
+          "type": "Field spectroradiometer",
+          "spectral_range": "300-1700 nm",
+          "resolution": "1-10 nm",
+          "measurement_frequency": "hourly",
+          "use": "Spectral mismatch correction and technology comparison"
+        }
+      },
+      "temperature_sensors": {
+        "module_back_temperature": {
+          "sensor_type": "PT100 4-wire",
+          "accuracy": "±0.15°C",
+          "location": "Center of module back surface",
+          "quantity": "One per test module"
+        },
+        "cell_temperature_estimation": {
+          "method": "Calculated from back temperature with thermal model",
+          "alternative": "Embedded sensors in test modules"
+        },
+        "ambient_temperature": {
+          "sensor_type": "PT100 with radiation shield",
+          "accuracy": "±0.2°C",
+          "ventilation": "Naturally or mechanically ventilated"
+        }
+      },
+      "environmental": {
+        "wind_speed": {
+          "sensor_type": "Ultrasonic anemometer",
+          "height": "Module plane height",
+          "accuracy": "±0.3 m/s",
+          "use": "Thermal modeling and energy yield correlation"
+        },
+        "wind_direction": "±3°",
+        "relative_humidity": "±2%",
+        "barometric_pressure": "±0.5 hPa (for air mass calculation)"
+      }
+    },
+    "data_synchronization": {
+      "timestamp_source": "GPS-disciplined NTP server",
+      "sync_accuracy_ms": 50,
+      "timezone": "UTC with local conversion for reporting"
+    }
+  },
+
+  "scada_integration": {
+    "enabled": true,
+    "connection_type": "OPC-UA / Modbus TCP",
+    "real_time_monitoring": {
+      "test_station_level": ["total_energy_yield", "average_efficiency", "capacity_factor", "technology_rankings"],
+      "module_level": ["instantaneous_power", "daily_energy", "cumulative_energy", "efficiency_vs_rated", "temperature"],
+      "comparative_analysis": ["technology_A_vs_B", "rated_vs_actual_energy", "normalized_energy_per_wp"]
+    },
+    "automated_control": {
+      "mppt_tracking": {
+        "algorithm": "Perturb and Observe / Incremental Conductance",
+        "tracking_efficiency": ">99.5%",
+        "response_time": "<2 seconds to 90% of MPP"
+      },
+      "load_management": {
+        "electronic_load": "Programmable DC load for continuous MPPT operation",
+        "data_logging": "Voltage, current, power at 1 Hz or higher"
+      }
+    },
+    "alarm_integration": {
+      "critical_alarms": ["Module failure", "Sensor malfunction", "Data logger communication loss"],
+      "warning_alarms": ["Performance deviation > 10%", "Temperature sensor drift", "Irradiance sensor outlier"],
+      "notification_channels": ["email", "SMS", "SCADA_dashboard"]
+    }
+  },
+
+  "test_parameters": {
+    "test_module_configuration": {
+      "module_quantity": {
+        "minimum_per_technology": 3,
+        "recommended": "6-10 for statistical significance",
+        "purpose": "Assess module-to-module variation and reliability"
+      },
+      "module_selection": {
+        "criteria": ["Same manufacturing batch preferred", "Flash test data available", "Pre-test IV characterization"],
+        "technologies_tested": ["Mono-Si PERC", "Poly-Si", "TOPCon", "HJT", "IBC", "Bifacial", "Thin-film (CdTe, CIGS)"]
+      },
+      "mounting": {
+        "structure": "Open-rack mounting for natural cooling",
+        "tilt_angle": "Optimized for location (typically latitude ± 15°)",
+        "azimuth": "Equator-facing (180° in Northern Hemisphere)",
+        "spacing": "No inter-row shading at any time of day",
+        "height": "Typical installation height (0.5-1.5m clearance)"
+      }
+    },
+    "measurement_setup": {
+      "electrical_measurements": {
+        "voltage_measurement": {
+          "range": "0-100V (or up to module Voc + 20%)",
+          "accuracy": "±0.1% of reading",
+          "resolution": "16-bit or better"
+        },
+        "current_measurement": {
+          "range": "0-20A (or up to module Isc + 20%)",
+          "accuracy": "±0.1% of reading",
+          "shunt_type": "Calibrated precision shunt resistor"
+        },
+        "power_calculation": {
+          "formula": "P = V × I",
+          "sampling_rate": "1 Hz minimum, 10 Hz recommended",
+          "uncertainty": "±0.2% of reading"
+        },
+        "energy_integration": {
+          "method": "Trapezoidal integration of power over time",
+          "interval": "1-second samples integrated over day/month/year",
+          "formula": "E = ∫ P(t) dt ≈ Σ(P_i × Δt)"
+        }
+      },
+      "mppt_operation": {
+        "tracking_method": "Electronic load with continuous MPPT algorithm",
+        "verification": "Periodic IV curve sweep to confirm MPP",
+        "efficiency_target": ">99.5%"
+      }
+    },
+    "test_conditions_range": {
+      "irradiance": "0-1500 W/m² (full range capture)",
+      "module_temperature": "-20°C to +85°C (ambient dependent)",
+      "ambient_temperature": "-20°C to +50°C",
+      "wind_speed": "0-20 m/s",
+      "spectral_conditions": "Full range of sky conditions (clear, cloudy, overcast)",
+      "seasonal_coverage": "Full year minimum, multi-year recommended"
+    }
+  },
+
+  "performance_metrics": {
+    "energy_yield_metrics": {
+      "daily_energy_yield": {
+        "formula": "E_daily = ∫₀²⁴ P(t) dt",
+        "unit": "Wh or kWh",
+        "reporting": "Daily values for trend analysis"
+      },
+      "specific_energy_yield": {
+        "formula": "Y_f = E / P_rated",
+        "unit": "kWh/kWp or h/day (hours of equivalent full power)",
+        "typical_range": "3-6 kWh/kWp/day depending on location",
+        "annual": "1000-2500 kWh/kWp/year"
+      },
+      "performance_ratio": {
+        "formula": "PR = (E_actual / E_theoretical) = (E_actual / (G_POA × P_rated / G_STC))",
+        "ideal_value": "1.0 (100%)",
+        "typical_field": "0.75-0.85",
+        "losses_included": "Temperature, spectral, low-irradiance, wiring, MPPT"
+      },
+      "capacity_factor": {
+        "formula": "CF = (E_actual / (P_rated × hours_in_period)) × 100%",
+        "typical_range": "10-25% depending on location and season",
+        "annual_average": "15-20% for good solar resources"
+      }
+    },
+    "efficiency_metrics": {
+      "instantaneous_efficiency": {
+        "formula": "η(t) = P_out(t) / (G_POA(t) × A_module)",
+        "calculation_frequency": "Every measurement interval (1-10s)",
+        "typical_range": "15-23% for commercial modules"
+      },
+      "average_efficiency": {
+        "formula": "η_avg = E_total / (∫ G_POA(t) × A_module dt)",
+        "reporting_periods": ["Daily", "Monthly", "Annual"],
+        "comparison": "Compare to STC-rated efficiency"
+      },
+      "efficiency_at_conditions": {
+        "binning": "Efficiency calculated for bins of irradiance and temperature",
+        "bins_irradiance": ["<200 W/m²", "200-400", "400-600", "600-800", "800-1000", ">1000"],
+        "bins_temperature": ["<25°C", "25-40", "40-55", "55-70", ">70"],
+        "use": "Detailed performance characterization"
+      }
+    },
+    "temperature_corrected_metrics": {
+      "temperature_corrected_power": {
+        "formula": "P_corrected = P_measured / (1 + γ × (T_cell - 25°C))",
+        "gamma": "Temperature coefficient from datasheet or measured",
+        "purpose": "Isolate irradiance effects from temperature effects"
+      }
+    },
+    "spectral_corrected_metrics": {
+      "spectral_mismatch_factor": {
+        "formula": "M = (∫ E_ref(λ) × SR_ref(λ) dλ / ∫ E_test(λ) × SR_test(λ) dλ) × (∫ E_test(λ) × SR_DUT(λ) dλ / ∫ E_ref(λ) × SR_DUT(λ) dλ)",
+        "purpose": "Correct for spectrum differences between test and reference",
+        "application": "Technology comparison under varying spectra"
+      },
+      "useful_fraction": {
+        "formula": "UF = ∫ E(λ) × SR(λ) dλ / ∫ E(λ) dλ",
+        "interpretation": "Portion of spectrum usable by the module technology",
+        "comparison": "Different technologies have different UF under same spectrum"
+      }
+    },
+    "technology_comparison": {
+      "normalized_energy_ratio": {
+        "formula": "NER_A/B = (E_A / P_rated_A) / (E_B / P_rated_B)",
+        "interpretation": "NER > 1 means technology A outperforms technology B on energy basis",
+        "reporting": "Monthly and annual NER for all technology pairs"
+      },
+      "performance_gap": {
+        "formula": "PG = (PR_measured - PR_expected) / PR_expected × 100%",
+        "expected_source": "Manufacturer data, PVsyst simulation, or previous years",
+        "action_threshold": "PG < -5% triggers investigation"
+      }
+    }
+  },
+
+  "long_term_trend_analysis": {
+    "enabled": true,
+    "analysis_methods": {
+      "daily_energy_trends": {
+        "time_series": "Daily energy yield vs time",
+        "seasonal_decomposition": "Separate trend, seasonality, residual",
+        "year_over_year_comparison": "Compare same day of year across multiple years",
+        "visualization": "Line plots, heatmaps by month-day"
+      },
+      "performance_ratio_evolution": {
+        "monthly_pr": "Calculate monthly average PR",
+        "trend_analysis": "Linear or polynomial regression to detect degradation",
+        "seasonal_pr_patterns": "Identify if PR varies by season (spectral, temperature effects)",
+        "control_charts": "Statistical process control for PR monitoring"
+      },
+      "efficiency_degradation": {
+        "method": "Compare efficiency at same irradiance and temperature bins over time",
+        "normalization": "Correct for environmental variations",
+        "degradation_rate_calculation": "Annual % loss in efficiency or energy yield"
+      },
+      "technology_performance_ranking": {
+        "monthly_rankings": "Rank technologies by specific energy yield",
+        "stability_analysis": "Which technology has most consistent performance?",
+        "seasonal_advantages": "Which technology performs better in summer/winter, high/low irradiance?"
+      }
+    }
+  },
+
+  "predictive_modeling": {
+    "enabled": true,
+    "models": {
+      "energy_yield_forecasting": {
+        "physical_model": {
+          "model_name": "PVlib-based model",
+          "inputs": ["Weather forecast (GHI, DHI, DNI, temp, wind)", "Module parameters", "System configuration"],
+          "outputs": ["Hourly energy forecast for next 7 days"],
+          "validation": "Compare forecast vs actual, calculate RMSE, MAE"
+        },
+        "machine_learning_model": {
+          "algorithm": "Gradient Boosting or LSTM",
+          "features": ["Historical energy", "Irradiance forecast", "Temperature forecast", "Season", "Hour of day"],
+          "target": "Hourly or daily energy yield",
+          "training_period": "2+ years of data",
+          "validation_metrics": ["RMSE", "MAE", "MAPE", "R²"]
+        },
+        "ensemble_model": {
+          "combination": "Weighted average of physical and ML models",
+          "weights": "Optimized based on historical forecast accuracy"
+        }
+      },
+      "performance_prediction": {
+        "expected_energy_model": {
+          "based_on": "IEC 61853-3 energy rating method",
+          "inputs": ["Module energy rating matrix", "Site irradiance and temperature data"],
+          "output": "Expected annual energy yield",
+          "comparison": "Actual vs expected for warranty validation"
+        },
+        "degradation_forecast": {
+          "model": "Linear or exponential degradation model",
+          "formula": "E(t) = E₀ × (1 - Rd × t)^n",
+          "parameters": {"Rd": "Annual degradation rate", "n": 1 for linear, varies for non-linear},
+          "prediction": "Expected energy yield for next 20-25 years"
+        }
+      },
+      "anomaly_detection": {
+        "statistical_anomalies": {
+          "method": "Z-score, Isolation Forest",
+          "detection": "Days with unusually low energy yield given weather conditions"
+        },
+        "model_based_anomalies": {
+          "method": "Residual analysis from predictive model",
+          "threshold": "Residual > 3σ indicates anomaly",
+          "action": "Flag for investigation - sensor issue, module failure, shading"
+        }
+      },
+      "technology_selection_tool": {
+        "scenario_analysis": "Predict long-term energy yield for different technologies at a given site",
+        "inputs": ["Site weather data", "Technology parameters", "Cost data"],
+        "outputs": ["LCOE comparison", "NPV analysis", "Recommended technology"],
+        "use_case": "Support project design and technology procurement decisions"
+      }
+    },
+    "model_validation": {
+      "training_period": "70% of available data",
+      "validation_period": "15% of data",
+      "test_period": "15% of data (most recent)",
+      "cross_validation": "K-fold or time-series cross-validation",
+      "metrics": ["RMSE (kWh)", "MAE (kWh)", "MAPE (%)", "R²", "Forecast skill score"]
+    }
+  },
+
+  "test_procedure": {
+    "phases": [
+      {
+        "phase": "1_system_installation_commissioning",
+        "duration": "2 weeks",
+        "activities": [
+          "Install test modules on mounting structure with proper tilt and orientation",
+          "Install electrical measurement equipment (voltage, current sensors, MPPT loads)",
+          "Install module temperature sensors on back of each module",
+          "Install weather station with POA irradiance, GHI, ambient temp, wind, spectral sensor",
+          "Configure data acquisition system for all sensors",
+          "Verify communication with SCADA and data storage",
+          "Perform initial IV curve measurement for baseline characterization",
+          "Document all equipment serial numbers, calibration dates, installation photos"
+        ]
+      },
+      {
+        "phase": "2_baseline_verification",
+        "duration": "1 week",
+        "activities": [
+          "Operate system under MPPT for one week",
+          "Verify all data streams are being recorded correctly",
+          "Check data completeness and quality",
+          "Compare measured performance with expected values",
+          "Adjust sensor positions if needed",
+          "Establish baseline performance metrics"
+        ]
+      },
+      {
+        "phase": "3_continuous_monitoring",
+        "duration": "12+ months (ongoing)",
+        "activities": [
+          "Continuous MPPT operation with 1-second data logging",
+          "Automated daily energy yield calculation and reporting",
+          "Weekly IV curve scans for performance verification",
+          "Monthly performance analysis and comparison across technologies",
+          "Periodic sensor calibration checks",
+          "Visual inspection of modules (cleanliness, physical condition)"
+        ]
+      },
+      {
+        "phase": "4_periodic_analysis",
+        "frequency": "monthly",
+        "activities": [
+          "Calculate monthly specific energy yield and PR for each technology",
+          "Technology ranking and performance comparison",
+          "Correlation analysis with environmental parameters",
+          "Update degradation trends",
+          "Generate monthly performance report"
+        ]
+      },
+      {
+        "phase": "5_annual_characterization",
+        "frequency": "annual",
+        "activities": [
+          "Comprehensive IV curve characterization under multiple conditions",
+          "Annual energy yield summary and technology comparison",
+          "Degradation rate calculation",
+          "Validation of energy rating vs actual performance",
+          "Sensor recalibration or verification",
+          "Strategic recommendations for technology selection"
+        ]
+      }
+    ]
+  },
+
+  "data_analysis": {
+    "automated_calculations": [
+      {
+        "metric": "Daily Energy Yield",
+        "formula": "E_daily = Σ(P_i × Δt) where P_i measured every Δt seconds",
+        "frequency": "daily",
+        "quality_check": "Compare integrated energy with energy meter reading if available"
+      },
+      {
+        "metric": "Daily Specific Yield",
+        "formula": "Y_f = E_daily / P_rated",
+        "unit": "kWh/kWp",
+        "frequency": "daily"
+      },
+      {
+        "metric": "Daily Performance Ratio",
+        "formula": "PR = Y_f / (H_POA / G_STC) where H_POA = daily POA irradiation in kWh/m²",
+        "frequency": "daily",
+        "threshold_min": 0.70,
+        "threshold_max": 0.90
+      },
+      {
+        "metric": "Monthly Capacity Factor",
+        "formula": "CF = (E_monthly / (P_rated × hours_in_month)) × 100%",
+        "frequency": "monthly"
+      },
+      {
+        "metric": "Efficiency at Irradiance Bins",
+        "formula": "η_bin = avg(P / (G_POA × A)) for all measurements in bin",
+        "bins": ["100-200 W/m²", "200-400", "400-600", "600-800", "800-1000", "1000-1200"],
+        "frequency": "monthly"
+      },
+      {
+        "metric": "Technology Normalized Energy Ratio",
+        "formula": "NER = (E_tech_A / P_rated_A) / (E_tech_B / P_rated_B)",
+        "frequency": "monthly",
+        "pairs": "All technology combinations"
+      }
+    ],
+    "statistical_analysis": {
+      "correlation_analysis": [
+        "Energy vs irradiation (expected R² > 0.95)",
+        "Efficiency vs module temperature (negative correlation)",
+        "PR vs ambient conditions (identify loss mechanisms)",
+        "Technology performance vs spectral conditions (APE, blue/red ratio)"
+      ],
+      "regression_models": [
+        {
+          "model": "Power vs irradiance (at fixed temperature)",
+          "formula": "P = a × G + b × G² (for non-linearity at low irradiance)",
+          "purpose": "Characterize low-light performance"
+        },
+        {
+          "model": "Efficiency vs temperature",
+          "formula": "η(T) = η_ref × (1 + γ × (T - T_ref))",
+          "purpose": "Validate temperature coefficient"
+        }
+      ]
+    },
+    "advanced_analysis": {
+      "spectral_analysis": {
+        "useful_fraction_calculation": "For each technology under different spectra",
+        "spectral_advantage": "Which technology benefits from blue-rich or red-rich spectra?",
+        "seasonal_spectral_effects": "Impact of air mass and cloud cover on technology performance"
+      },
+      "energy_rating_validation": {
+        "iec_61853_3_method": "Calculate energy rating based on measured performance matrix",
+        "comparison": "Measured energy vs IEC 61853-3 predicted energy",
+        "deviation_analysis": "Identify gaps between rating and actual field performance"
+      }
+    },
+    "data_quality_checks": {
+      "validation_rules": [
+        "P >= 0 AND P <= 1.2 × P_rated",
+        "V >= 0 AND V <= 1.1 × Voc_STC",
+        "I >= 0 AND I <= 1.1 × Isc_STC",
+        "Efficiency <= 0.25 (25%)",
+        "PR >= 0 AND PR <= 1.2",
+        "E_daily >= 0 AND E_daily <= P_rated × 12 hours (reasonable upper limit)"
+      ],
+      "outlier_detection": "Z-score > 3 or IQR method",
+      "missing_data_handling": "Flag gaps, do not interpolate energy (causes overestimation)"
+    }
+  },
+
+  "quality_control": {
+    "qc_checkpoints": [
+      {
+        "checkpoint": "QC-042-01",
+        "description": "Pre-test IV characterization",
+        "frequency": "Before test start",
+        "acceptance_criteria": "IV parameters within ±3% of flash test data",
+        "responsible": "Test engineer"
+      },
+      {
+        "checkpoint": "QC-042-02",
+        "description": "Sensor calibration verification",
+        "frequency": "Quarterly",
+        "acceptance_criteria": "Irradiance sensors within ±2%, current sensors within ±0.5%",
+        "responsible": "Calibration technician"
+      },
+      {
+        "checkpoint": "QC-042-03",
+        "description": "MPPT efficiency verification",
+        "frequency": "Monthly",
+        "acceptance_criteria": "MPPT efficiency >99%, confirmed by IV curve comparison",
+        "responsible": "Data engineer"
+      },
+      {
+        "checkpoint": "QC-042-04",
+        "description": "Data completeness and quality",
+        "frequency": "Weekly",
+        "acceptance_criteria": "Data availability >98%, no systematic errors or drift",
+        "responsible": "Data analyst"
+      },
+      {
+        "checkpoint": "QC-042-05",
+        "description": "Performance benchmark validation",
+        "frequency": "Monthly",
+        "acceptance_criteria": "PR within expected range, no unexplained performance drops",
+        "responsible": "Performance engineer"
+      },
+      {
+        "checkpoint": "QC-042-06",
+        "description": "Module visual inspection",
+        "frequency": "Monthly",
+        "acceptance_criteria": "No physical damage, clean surface, secure mounting",
+        "responsible": "Field technician"
+      }
+    ],
+    "calibration_schedule": {
+      "irradiance_sensors": "24 months (annual recommended)",
+      "current_shunts": "24 months",
+      "voltage_dividers": "24 months",
+      "temperature_sensors": "24 months",
+      "reference_modules": "Annual verification against calibrated standard"
+    },
+    "audit_trail": {
+      "equipment_log": "Serial numbers, calibration certificates, installation dates",
+      "maintenance_log": "All cleaning, repairs, sensor replacements",
+      "data_modification_log": "Any corrections to data with justification",
+      "iv_curve_archive": "All IV curves with metadata (date, conditions, operator)"
+    }
+  },
+
+  "non_conformance": {
+    "nc_criteria": [
+      {
+        "nc_id": "NC-042-01",
+        "condition": "Daily PR < 0.70 for 3 consecutive days without weather explanation",
+        "severity": "major",
+        "action": "Immediate investigation - check modules, sensors, MPPT operation, shading"
+      },
+      {
+        "nc_id": "NC-042-02",
+        "condition": "Module-to-module variation in energy yield > 5% for same technology",
+        "severity": "moderate",
+        "action": "IV curve comparison, check for individual module issues"
+      },
+      {
+        "nc_id": "NC-042-03",
+        "condition": "Sensor calibration drift > ±3%",
+        "severity": "major",
+        "action": "Recalibrate or replace sensor, review and correct historical data if possible"
+      },
+      {
+        "nc_id": "NC-042-04",
+        "condition": "Data loss > 2% over one month",
+        "severity": "moderate",
+        "action": "Investigate communication issues, data logger problems, power supply"
+      },
+      {
+        "nc_id": "NC-042-05",
+        "condition": "MPPT efficiency < 98%",
+        "severity": "major",
+        "action": "Check MPPT algorithm, electronic load operation, verify with IV curves"
+      },
+      {
+        "nc_id": "NC-042-06",
+        "condition": "Measured annual energy < 90% of IEC 61853-3 predicted energy",
+        "severity": "major",
+        "action": "Root cause analysis - environmental differences, module degradation, measurement issues"
+      }
+    ],
+    "capa_process": {
+      "documentation": "NC report with data plots, photos, detailed analysis",
+      "investigation": "Root cause analysis using data analysis, visual inspection, electrical testing",
+      "corrective_action": "Immediate fix - sensor replacement, module cleaning, MPPT tuning",
+      "preventive_action": "Update procedures, increase inspection frequency, improve monitoring",
+      "verification": "Monitor performance improvement, verify data quality restored",
+      "timeline": "Critical NC resolved within 1 week, others within 1 month"
+    }
+  },
+
+  "preventive_maintenance": {
+    "pm_schedule": [
+      {
+        "pm_id": "PM-042-01",
+        "task": "Module cleaning",
+        "frequency": "monthly (or as needed based on soiling monitoring)",
+        "duration_hours": 2,
+        "checklist": ["Clean all test modules", "Rinse with deionized water", "Allow to dry", "Compare before/after energy yield"]
+      },
+      {
+        "pm_id": "PM-042-02",
+        "task": "Visual module inspection",
+        "frequency": "monthly",
+        "duration_hours": 1,
+        "checklist": ["Check for cracks, delamination, discoloration", "Inspect junction box and cables", "Check mounting hardware", "Document with photos"]
+      },
+      {
+        "pm_id": "PM-042-03",
+        "task": "Electrical connection check",
+        "frequency": "quarterly",
+        "duration_hours": 2,
+        "checklist": ["Inspect all connectors for corrosion", "Check wire integrity", "Verify sensor connections", "Tighten any loose connections", "Test continuity"]
+      },
+      {
+        "pm_id": "PM-042-04",
+        "task": "Sensor maintenance",
+        "frequency": "monthly",
+        "duration_hours": 1,
+        "checklist": ["Clean irradiance sensor dome", "Check sensor level and orientation", "Verify temperature sensor attachment", "Inspect weather station"]
+      },
+      {
+        "pm_id": "PM-042-05",
+        "task": "Data system health check",
+        "frequency": "weekly",
+        "duration_minutes": 30,
+        "checklist": ["Review data completeness", "Check for data anomalies", "Verify MPPT operation", "Test alarm notifications", "Backup data"]
+      },
+      {
+        "pm_id": "PM-042-06",
+        "task": "Comprehensive IV curve characterization",
+        "frequency": "quarterly",
+        "duration_hours": 4,
+        "checklist": ["Perform IV curves on all modules under similar conditions", "Compare with baseline and previous measurements", "Calculate degradation", "Update performance database"]
+      }
+    ]
+  },
+
+  "traceability": {
+    "module_traceability": {
+      "module_identification": "Serial number, flash test data, manufacturing date, batch",
+      "baseline_characterization": "Pre-test IV curves at multiple irradiances and temperatures",
+      "installation_record": "Location, orientation, mounting details, installation date",
+      "performance_history": "Time-series database of all measurements",
+      "maintenance_history": "Cleaning, inspections, any repairs or replacements"
+    },
+    "sensor_traceability": {
+      "irradiance_sensors": "Model, serial number, calibration certificate, calibration history",
+      "temperature_sensors": "Type, serial number, calibration data",
+      "electrical_sensors": "Shunt resistor value, accuracy, calibration date"
+    },
+    "data_traceability": {
+      "raw_data_archive": "All sensor readings with timestamps in original format",
+      "processed_data": "Calculated metrics with processing scripts versioned",
+      "analysis_results": "Reports linked to specific data files and analysis code",
+      "model_predictions": "Model version, hyperparameters, training data, predictions"
+    },
+    "documentation": {
+      "test_plan": "Detailed test protocol, objectives, acceptance criteria",
+      "system_design": "Layout drawings, electrical schematics, sensor placement",
+      "standard_operating_procedures": "Data collection, QC checks, maintenance, analysis",
+      "test_reports": "Monthly, annual, and final reports with all results"
+    }
+  },
+
+  "reporting": {
+    "automated_reports": [
+      {
+        "report_type": "Daily Energy Summary",
+        "frequency": "daily",
+        "distribution_time": "08:00 local time",
+        "recipients": ["Test engineer", "Project manager"],
+        "content": ["Daily energy yield per module/technology", "Specific yield (kWh/kWp)", "Weather summary", "Any alarms or anomalies"]
+      },
+      {
+        "report_type": "Monthly Performance Report",
+        "frequency": "monthly",
+        "distribution_date": "5th of following month",
+        "recipients": ["Technical team", "Management", "Clients"],
+        "content": ["Monthly energy yield and PR", "Technology comparison and rankings", "Efficiency analysis", "Trend analysis", "Issues and resolutions"]
+      },
+      {
+        "report_type": "Quarterly Degradation Assessment",
+        "frequency": "quarterly",
+        "distribution_date": "15th of following quarter",
+        "recipients": ["Technical team", "Asset management"],
+        "content": ["IV curve comparison with baseline", "Degradation rate calculation", "Performance vs expected", "Long-term projections"]
+      },
+      {
+        "report_type": "Annual Performance Evaluation",
+        "frequency": "annual",
+        "distribution_date": "January 31",
+        "recipients": ["All stakeholders", "Executive management"],
+        "content": ["Comprehensive annual results", "Technology comparison summary", "Energy rating validation", "Economic analysis", "Multi-year trends", "Recommendations"]
+      }
+    ],
+    "dashboard": {
+      "real_time_dashboard": {
+        "platform": "Grafana / Streamlit / Power BI",
+        "refresh_rate_seconds": 10,
+        "panels": ["Live power (all technologies)", "Daily energy progress", "Current efficiency", "Module temperatures", "Weather conditions"],
+        "access": "Web-based, role-based authentication"
+      },
+      "historical_analysis_dashboard": {
+        "time_ranges": ["Last 7 days", "Last 30 days", "Last 12 months", "All-time"],
+        "comparisons": ["Technology comparison", "Year-over-year", "Actual vs expected", "Degradation trends"]
+      }
+    }
+  },
+
+  "acceptance_criteria": {
+    "measurement_accuracy": "Power measurement uncertainty < ±1%, Energy < ±2%",
+    "data_completeness": ">98% over reporting period",
+    "mppt_efficiency": ">99%",
+    "sensor_calibration": "Within ±2% of NIST-traceable standards",
+    "pr_range": "0.75-0.85 (technology and site dependent)",
+    "module_to_module_variation": "<5% for same technology"
+  },
+
+  "integration_apis": {
+    "lims_integration": {
+      "endpoint": "/api/lims/energy-yield-test",
+      "data_exchange": ["Test results", "IV curves", "Degradation data"],
+      "sync_frequency": "daily"
+    },
+    "qms_integration": {
+      "endpoint": "/api/qms/field-test-qc",
+      "data_exchange": ["QC checkpoints", "NC reports", "Calibration records"],
+      "sync_frequency": "real-time"
+    },
+    "project_management": {
+      "endpoint": "/api/pm/test-schedule",
+      "data_exchange": ["PM schedules", "Test milestones", "Resource allocation"],
+      "sync_frequency": "daily"
+    },
+    "weather_data_api": {
+      "endpoint": "/api/weather/historical",
+      "data_exchange": ["Historical weather data", "Forecasts for validation"],
+      "sync_frequency": "hourly"
+    }
+  },
+
+  "metadata": {
+    "created_by": "PV Testing Protocol Framework",
+    "created_date": "2025-11-12",
+    "last_modified": "2025-11-12",
+    "version_history": [
+      {
+        "version": "1.0",
+        "date": "2025-11-12",
+        "changes": "Initial protocol creation with comprehensive energy yield testing, technology comparison, IoT integration, and predictive modeling"
+      }
+    ],
+    "tags": ["energy-yield", "technology-comparison", "field-testing", "IEC-61853", "performance-validation", "degradation-analysis"],
+    "related_protocols": ["PVTP-040", "PVTP-041", "PVTP-043", "PVTP-047"]
+  }
+}

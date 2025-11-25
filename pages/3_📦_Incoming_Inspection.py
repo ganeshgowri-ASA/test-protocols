@@ -62,6 +62,7 @@ def render_new_inspection_form():
         st.warning("⚠️ No approved service requests available")
         return
 
+
     selected_sr = st.selectbox("Link to Service Request *", options=list(sr_options.keys()))
     sr_id = sr_options[selected_sr]
 

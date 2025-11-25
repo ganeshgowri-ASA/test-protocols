@@ -331,8 +331,8 @@ class TestExecution(Base):
 
     # Personnel
     technician_id = Column(Integer, ForeignKey("users.id"))
-    technician_user = relationship("User", foreign_keys=[technician_id], back_populates="test_executions")
     reviewer_id = Column(Integer, ForeignKey("users.id"))
+    technician_user = relationship("User", foreign_keys=[technician_id], back_populates="test_executions")
     reviewer_user = relationship("User", foreign_keys=[reviewer_id], back_populates="reviewed_executions")
 
     # Test data
@@ -358,7 +358,7 @@ class TestExecution(Base):
 
     # Relationships
     test_data_points = relationship("TestData", back_populates="test_execution")
-    equipment_bookings = relationship("EquipmentBooking", foreign_keys=[EquipmentBooking.test_execution_id])
+    equipment_bookings = relationship("EquipmentBooking", foreign_keys="[EquipmentBooking.test_execution_id]")
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -399,7 +399,7 @@ class TestData(Base):
     notes = Column(Text)
 
     # Metadata
-    metadata = Column(JSON)  # Additional measurement metadata
+    measurement_metadata = Column(JSON)  # Additional measurement metadata
 
     __table_args__ = (
         Index('idx_test_data_execution', 'test_execution_id'),

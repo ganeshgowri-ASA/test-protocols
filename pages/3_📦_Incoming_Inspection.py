@@ -53,14 +53,15 @@ def render_new_inspection_form():
             ServiceRequest.status.in_(['approved', 'in_progress'])
         ).all()
 
-    if not service_requests:
-        st.warning("⚠️ No approved service requests available")
-        return
+        if not service_requests:
+            st.warning("⚠️ No approved service requests available")
+            return
 
-    sr_options = {
-        f"{sr.request_number} - {sr.client_name}": sr.id
-        for sr in service_requests
-    }
+        # Extract values while session is open to avoid DetachedInstanceError
+        sr_options = {
+            f"{sr.request_number} - {sr.client_name}": sr.id
+            for sr in service_requests
+        }
 
     selected_sr = st.selectbox("Link to Service Request *", options=list(sr_options.keys()))
     sr_id = sr_options[selected_sr]

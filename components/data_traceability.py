@@ -9,6 +9,7 @@ from typing import List, Dict, Any, Optional
 import pandas as pd
 import streamlit as st
 from sqlalchemy import desc
+from sqlalchemy.orm import joinedload
 
 from config.database import get_db
 from database.models import AuditLog, User, TestExecution
@@ -196,7 +197,10 @@ def get_data_lineage(test_execution_id: int) -> Dict[str, Any]:
     """
     try:
         with get_db() as db:
-            test = db.query(TestExecution).filter(
+            # Use joinedload to eagerly load service_request and avoid DetachedInstanceError
+            test = db.query(TestExecution).options(
+                joinedload(TestExecution.service_request)
+            ).filter(
                 TestExecution.id == test_execution_id
             ).first()
 
@@ -220,7 +224,7 @@ def get_data_lineage(test_execution_id: int) -> Dict[str, Any]:
                 'processing_steps': []
             }
 
-            # Get service request info
+            # Get service request info (already eagerly loaded)
             if test.service_request:
                 lineage['service_request'] = {
                     'id': test.service_request.id,

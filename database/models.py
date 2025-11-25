@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import Optional, List
 from sqlalchemy import (
     Column, Integer, String, Float, Boolean, DateTime,
-    Text, ForeignKey, JSON, Enum, UniqueConstraint, Index
+    Text, ForeignKey, JSON, Enum, UniqueConstraint, Index, LargeBinary, Date
 )
 from sqlalchemy.orm import relationship
 from config.database import Base
@@ -62,7 +62,110 @@ class InspectionStatus(str, enum.Enum):
     CONDITIONAL = "conditional"
 
 
+class IndustryType(str, enum.Enum):
+    """Industry type enumeration for company profiles"""
+    SOLAR_PV_TESTING = "solar_pv_testing"
+    RENEWABLE_ENERGY = "renewable_energy"
+    ELECTRICAL_TESTING = "electrical_testing"
+    MATERIALS_TESTING = "materials_testing"
+    ENVIRONMENTAL_TESTING = "environmental_testing"
+    CERTIFICATION_BODY = "certification_body"
+    RESEARCH_INSTITUTION = "research_institution"
+    MANUFACTURING = "manufacturing"
+    CONSULTING = "consulting"
+    OTHER = "other"
+
+
 # Models
+class CompanyProfile(Base):
+    """
+    Company Profile model - stores organization information and branding
+
+    This is a singleton table (should only have one record) that stores
+    the company's profile information, logo, and accreditation details.
+    """
+    __tablename__ = "company_profiles"
+
+    # Primary key
+    id = Column(Integer, primary_key=True, index=True)
+    company_id = Column(String(50), unique=True, nullable=False, default="DEFAULT")
+
+    # Basic company information
+    company_name = Column(String(255), nullable=False)
+    company_logo = Column(LargeBinary, nullable=True)  # Store logo as binary data
+    logo_filename = Column(String(255), nullable=True)  # Original filename
+    logo_content_type = Column(String(100), nullable=True)  # MIME type (image/png, image/jpeg)
+
+    # Contact information
+    phone = Column(String(50))
+    email = Column(String(100))
+    website = Column(String(255))
+
+    # Address information
+    address = Column(Text)
+    city = Column(String(100))
+    state = Column(String(100))
+    zip_code = Column(String(20))
+    country = Column(String(100), default="United States")
+
+    # Company details
+    industry_type = Column(Enum(IndustryType), default=IndustryType.SOLAR_PV_TESTING)
+    established_date = Column(Date, nullable=True)
+    employees_count = Column(Integer, default=1)
+    tax_id = Column(String(100))  # Tax ID / Registration number
+    registration_id = Column(String(100))  # Business registration ID
+
+    # Accreditation information (stored as JSON for flexibility)
+    accreditation_details = Column(JSON, default=dict)  # e.g., {"ISO_17025": true, "ISO_9001": true}
+    accreditation_notes = Column(Text)  # Additional accreditation notes
+
+    # Company description/tagline
+    description = Column(Text)
+    tagline = Column(String(255))
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Settings (stored as JSON for extensibility)
+    settings = Column(JSON, default=dict)
+
+    def __repr__(self):
+        return f"<CompanyProfile(name='{self.company_name}', id='{self.company_id}')>"
+
+    @classmethod
+    def get_default(cls, db_session):
+        """
+        Get or create the default company profile
+
+        Args:
+            db_session: SQLAlchemy database session
+
+        Returns:
+            CompanyProfile instance
+        """
+        profile = db_session.query(cls).filter_by(company_id="DEFAULT").first()
+        if not profile:
+            profile = cls(
+                company_id="DEFAULT",
+                company_name="Solar PV Testing Laboratory",
+                industry_type=IndustryType.SOLAR_PV_TESTING,
+                email="contact@solarpvlab.com",
+                country="United States",
+                accreditation_details={
+                    "ISO_17025": False,
+                    "ISO_9001": False,
+                    "IEC_61215": False,
+                    "IEC_61730": False,
+                    "UL_1703": False
+                }
+            )
+            db_session.add(profile)
+            db_session.commit()
+            db_session.refresh(profile)
+        return profile
+
+
 class User(Base):
     """User model for authentication and authorization"""
     __tablename__ = "users"
@@ -81,8 +184,8 @@ class User(Base):
 
     # Relationships
     service_requests = relationship("ServiceRequest", back_populates="created_by_user")
-    test_executions = relationship("TestExecution", back_populates="technician_user")
-    reviewed_executions = relationship("TestExecution", back_populates="reviewer_user")
+    test_executions = relationship("TestExecution", foreign_keys="[TestExecution.technician_id]", back_populates="technician_user")
+    reviewed_executions = relationship("TestExecution", foreign_keys="[TestExecution.reviewer_id]", back_populates="reviewer_user")
     audit_logs = relationship("AuditLog", back_populates="user")
 
     def __repr__(self):
@@ -331,10 +434,8 @@ class TestExecution(Base):
 
     # Personnel
     technician_id = Column(Integer, ForeignKey("users.id"))
-    technician_user = relationship("User", back_populates="test_executions")
     reviewer_id = Column(Integer, ForeignKey("users.id"))
     technician_user = relationship("User", foreign_keys=[technician_id], back_populates="test_executions")
-    reviewer_id = Column(Integer, ForeignKey("users.id"))
     reviewer_user = relationship("User", foreign_keys=[reviewer_id], back_populates="reviewed_executions")
 
     # Test data
@@ -401,7 +502,7 @@ class TestData(Base):
     notes = Column(Text)
 
     # Metadata
-    metadata = Column(JSON)  # Additional measurement metadata
+    extra_metadata = Column(JSON)  # Additional measurement metadata
 
     __table_args__ = (
         Index('idx_test_data_execution', 'test_execution_id'),

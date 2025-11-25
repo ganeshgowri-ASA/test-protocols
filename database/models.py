@@ -81,8 +81,8 @@ class User(Base):
 
     # Relationships
     service_requests = relationship("ServiceRequest", back_populates="created_by_user")
-    test_executions = relationship("TestExecution", back_populates="technician_user")
-    reviewed_executions = relationship("TestExecution", back_populates="reviewer_user")
+    test_executions = relationship("TestExecution", foreign_keys="[TestExecution.technician_id]", back_populates="technician_user")
+    reviewed_executions = relationship("TestExecution", foreign_keys="[TestExecution.reviewer_id]", back_populates="reviewer_user")
     audit_logs = relationship("AuditLog", back_populates="user")
 
     def __repr__(self):
@@ -331,10 +331,8 @@ class TestExecution(Base):
 
     # Personnel
     technician_id = Column(Integer, ForeignKey("users.id"))
-    technician_user = relationship("User", back_populates="test_executions")
     reviewer_id = Column(Integer, ForeignKey("users.id"))
     technician_user = relationship("User", foreign_keys=[technician_id], back_populates="test_executions")
-    reviewer_id = Column(Integer, ForeignKey("users.id"))
     reviewer_user = relationship("User", foreign_keys=[reviewer_id], back_populates="reviewed_executions")
 
     # Test data
@@ -360,7 +358,7 @@ class TestExecution(Base):
 
     # Relationships
     test_data_points = relationship("TestData", back_populates="test_execution")
-    equipment_bookings = relationship("EquipmentBooking", foreign_keys=[EquipmentBooking.test_execution_id])
+    equipment_bookings = relationship("EquipmentBooking", foreign_keys="[EquipmentBooking.test_execution_id]")
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -401,7 +399,7 @@ class TestData(Base):
     notes = Column(Text)
 
     # Metadata
-    metadata = Column(JSON)  # Additional measurement metadata
+    measurement_metadata = Column(JSON)  # Additional measurement metadata
 
     __table_args__ = (
         Index('idx_test_data_execution', 'test_execution_id'),

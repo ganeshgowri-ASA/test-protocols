@@ -1,47 +1,47 @@
 # Solar PV Testing LIMS-QMS System - Requirements
-# ================================================
+# =================================================
 
 # Core Framework
-streamlit==1.31.0
-python-dotenv==1.0.0
+streamlit>=1.39.0
+python-dotenv>=1.0.0
 
 # Database
-sqlalchemy==2.0.25
-alembic==1.13.1
+sqlalchemy>=2.0.36
+alembic>=1.13.1
 
 # Data Processing
-pandas==2.2.0
-numpy==1.26.3
-openpyxl==3.1.2
+pandas>=2.2.3
+numpy>=2.1.0
+openpyxl>=3.1.2
 
 # Visualization
-plotly==5.18.0
+plotly>=5.24.0
 
 # QR Code Generation
-qrcode[pil]==7.4.2
-Pillow==10.2.0
+qrcode[pil]>=7.4.2
+Pillow>=11.0.0
 
 # PDF Generation
-reportlab==4.0.9
-weasyprint==60.2
+reportlab>=4.2.5
+weasyprint>=62.3
 
 # Authentication
-streamlit-authenticator==0.2.3
+streamlit-authenticator>=0.3.3
 
 # File Handling
-python-multipart==0.0.6
+python-multipart>=0.0.12
 
 # Utilities
-python-dateutil==2.8.2
+python-dateutil>=2.9.0
 
 # Development & Testing
-pytest==8.0.0
-pytest-cov==4.1.0
-black==24.1.1
-flake8==7.0.0
+pytest>=8.3.3
+pytest-cov>=6.0.0
+black>=24.10.0
+flake8>=7.1.1
 
 # Optional: PostgreSQL support
-# psycopg2-binary==2.9.9
+# psycopg2-binary>=2.9.9
 
 # Optional: Email notifications
-# python-smtplib==3.11
+# python-smtplib>=3.11

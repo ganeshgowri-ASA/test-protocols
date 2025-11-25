@@ -47,20 +47,20 @@ def render_new_inspection_form():
 
     st.markdown("### New Incoming Inspection")
 
-    # Link to service request
+    # Link to service request - extract data before session closes to avoid DetachedInstanceError
     with get_db() as db:
         service_requests = db.query(ServiceRequest).filter(
             ServiceRequest.status.in_(['approved', 'in_progress'])
         ).all()
+        # Extract needed data while session is still open
+        sr_options = {
+            f"{sr.request_number} - {sr.client_name}": sr.id
+            for sr in service_requests
+        }
 
-    if not service_requests:
+    if not sr_options:
         st.warning("⚠️ No approved service requests available")
         return
-
-    sr_options = {
-        f"{sr.request_number} - {sr.client_name}": sr.id
-        for sr in service_requests
-    }
 
     selected_sr = st.selectbox("Link to Service Request *", options=list(sr_options.keys()))
     sr_id = sr_options[selected_sr]

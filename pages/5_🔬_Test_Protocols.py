@@ -141,19 +141,27 @@ def render_test_execution():
     st.divider()
 
     # Link to service request
+    # FIX: Convert ORM objects to dict INSIDE session context to prevent DetachedInstanceError
     with get_db() as db:
         service_requests = db.query(ServiceRequest).filter(
             ServiceRequest.status.in_(['approved', 'in_progress'])
         ).all()
 
-    if not service_requests:
+        # Convert to list of dicts INSIDE the session context
+        sr_options_list = [
+            {
+                'display': f"{sr.request_number} - {sr.client_name}",
+                'id': sr.id
+            }
+            for sr in service_requests
+        ]
+
+    if not sr_options_list:
         st.warning("No approved service requests available. Create a service request first.")
         return
 
-    sr_options = {
-        f"{sr.request_number} - {sr.client_name}": sr.id
-        for sr in service_requests
-    }
+    # Build options dict from the already-extracted data (safe - no ORM access)
+    sr_options = {item['display']: item['id'] for item in sr_options_list}
 
     selected_sr = st.selectbox("Link to Service Request", options=list(sr_options.keys()))
     sr_id = sr_options[selected_sr]
@@ -304,6 +312,8 @@ def render_test_history():
     st.markdown("### 📋 Test Execution History")
 
     try:
+        # FIX: Extract all ORM data to dicts INSIDE the session context
+        # This prevents DetachedInstanceError when rendering UI elements
         with get_db() as db:
             executions = db.query(TestExecution).order_by(
                 TestExecution.created_at.desc()
@@ -313,36 +323,57 @@ def render_test_history():
                 st.info("No test executions found")
                 return
 
+            # Convert ORM objects to dicts while session is still open
+            execution_data_list = []
             for execution in executions:
-                status_emoji = {
-                    TestStatus.NOT_STARTED: "⏳",
-                    TestStatus.IN_PROGRESS: "🔵",
-                    TestStatus.COMPLETED: "✅",
-                    TestStatus.FAILED: "❌",
-                    TestStatus.PENDING_REVIEW: "⏸️"
-                }.get(execution.status, "❓")
+                execution_data_list.append({
+                    'execution_number': execution.execution_number,
+                    'sample_id': execution.sample_id,
+                    'protocol_id': execution.protocol_id,
+                    'status': execution.status,
+                    'status_value': execution.status.value if execution.status else 'unknown',
+                    'started_at': execution.started_at,
+                    'completed_at': execution.completed_at,
+                    'test_passed': execution.test_passed,
+                    'results': execution.results
+                })
 
-                with st.expander(
-                    f"{status_emoji} {execution.execution_number} - {execution.sample_id} ({execution.status.value.upper()})",
-                    expanded=False
-                ):
-                    col1, col2, col3 = st.columns(3)
+        # Now render UI using extracted dict data (safe - no ORM access)
+        status_emoji_map = {
+            TestStatus.NOT_STARTED: "⏳",
+            TestStatus.IN_PROGRESS: "🔵",
+            TestStatus.COMPLETED: "✅",
+            TestStatus.FAILED: "❌",
+            TestStatus.PENDING_REVIEW: "⏸️"
+        }
 
-                    with col1:
-                        st.markdown(f"**Sample ID:** {execution.sample_id}")
-                        st.markdown(f"**Protocol ID:** {execution.protocol_id}")
+        for exec_data in execution_data_list:
+            status_emoji = status_emoji_map.get(exec_data['status'], "❓")
 
-                    with col2:
-                        st.markdown(f"**Status:** {execution.status.value.upper()}")
-                        st.markdown(f"**Started:** {execution.started_at.strftime('%Y-%m-%d %H:%M') if execution.started_at else 'N/A'}")
+            with st.expander(
+                f"{status_emoji} {exec_data['execution_number']} - {exec_data['sample_id']} ({exec_data['status_value'].upper()})",
+                expanded=False
+            ):
+                col1, col2, col3 = st.columns(3)
 
-                    with col3:
-                        st.markdown(f"**Completed:** {execution.completed_at.strftime('%Y-%m-%d %H:%M') if execution.completed_at else 'N/A'}")
-                        st.markdown(f"**Result:** {'✅ Passed' if execution.test_passed else '❌ Failed'}")
+                with col1:
+                    st.markdown(f"**Sample ID:** {exec_data['sample_id']}")
+                    st.markdown(f"**Protocol ID:** {exec_data['protocol_id']}")
 
-                    if execution.results:
-                        st.markdown("**Results:**")
-                        st.json(execution.results)
+                with col2:
+                    st.markdown(f"**Status:** {exec_data['status_value'].upper()}")
+                    started_str = exec_data['started_at'].strftime('%Y-%m-%d %H:%M') if exec_data['started_at'] else 'N/A'
+                    st.markdown(f"**Started:** {started_str}")
+
+                with col3:
+                    completed_str = exec_data['completed_at'].strftime('%Y-%m-%d %H:%M') if exec_data['completed_at'] else 'N/A'
+                    st.markdown(f"**Completed:** {completed_str}")
+                    result_str = '✅ Passed' if exec_data['test_passed'] else '❌ Failed'
+                    st.markdown(f"**Result:** {result_str}")
+
+                if exec_data['results']:
+                    st.markdown("**Results:**")
+                    st.json(exec_data['results'])
 
     except Exception as e:
         st.error(f"Error loading test history: {str(e)}")

@@ -104,7 +104,8 @@ def init_database():
     from database.models import (
         User, ServiceRequest, IncomingInspection,
         Equipment, EquipmentBooking, TestProtocol,
-        TestExecution, TestData, AuditLog, QRCode
+        TestExecution, TestData, AuditLog, QRCode,
+        CompanyProfile
     )
 
     engine = get_engine()

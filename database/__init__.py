@@ -1,0 +1,31 @@
+"""Database package initialization with Streamlit caching to prevent model reimport"""
+import streamlit as st
+
+# Use Streamlit's resource caching to import models only once
+@st.cache_resource
+def get_models():
+    """Import and cache database models to prevent table redefinition errors"""
+    from database import models
+    return models
+
+# Import models through cache
+_cached_models = get_models()
+
+# Re-export all model classes
+User = _cached_models.User
+ServiceRequest = _cached_models.ServiceRequest  
+IncomingInspection = _cached_models.IncomingInspection
+Equipment = _cached_models.Equipment
+EquipmentBooking = _cached_models.EquipmentBooking
+TestProtocol = _cached_models.TestProtocol
+TestExecution = _cached_models.TestExecution
+TestData = _cached_models.TestData
+AuditLog = _cached_models.AuditLog
+QRCode = _cached_models.QRCode
+
+# Export enums
+UserRole = _cached_models.UserRole
+RequestStatus = _cached_models.RequestStatus
+TestStatus = _cached_models.TestStatus
+EquipmentStatus = _cached_models.EquipmentStatus
+InspectionStatus = _cached_models.InspectionStatus

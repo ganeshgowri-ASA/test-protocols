@@ -14,6 +14,18 @@ from sqlalchemy.orm import relationship
 from config.database import Base
 import enum
 
+# CRITICAL FIX: Prevent SQLAlchemy table redefinition errors in Streamlit
+# When Streamlit reruns scripts, models can be reimported, causing "Table already defined" errors
+# This monkey-patch ensures all tables use extend_existing=True automatically
+from sqlalchemy.schema import Table
+original_table_init = Table.__init__
+
+def patched_table_init(self, *args, **kwargs):
+    kwargs.setdefault('extend_existing', True)
+    original_table_init(self, *args, **kwargs)
+
+Table.__init__ = patched_table_init
+
 
 # Enumerations
 class UserRole(str, enum.Enum):
@@ -70,7 +82,6 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(50), unique=True, nullable=False, index=True)
     email = Column(String(100), unique=True, nullable=False, index=True)
-    password_hash = Column(String(255), nullable=False)
     full_name = Column(String(100), nullable=False)
     role = Column(Enum(UserRole), nullable=False, default=UserRole.TECHNICIAN)
     is_active = Column(Boolean, default=True)
@@ -134,6 +145,7 @@ class ServiceRequest(Base):
     __table_args__ = (
         Index('idx_service_request_status', 'status'),
         Index('idx_service_request_created', 'created_at'),
+        {'extend_existing': True},
     )
 
     def __repr__(self):
@@ -365,7 +377,8 @@ class TestExecution(Base):
 
     __table_args__ = (
         Index('idx_test_execution_status', 'status'),
-        Index('idx_test_execution_protocol', 'protocol_id'),
+        Index('idx_test_execution_protocol', 'protocol_id'),,
+        {'extend_existing': True}
     )
 
     def __repr__(self):

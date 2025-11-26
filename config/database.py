@@ -2,40 +2,69 @@
 Database Configuration and Connection Management
 ================================================
 Handles database initialization, session management, and connection pooling.
+Supports multiple platforms: Railway, Replit, GenSpark, Streamlit Cloud, and Local.
+
+ROLLBACK MECHANISM:
+- Set FORCE_SQLITE=1 environment variable to force SQLite fallback
+- This provides instant rollback capability without code changes
 """
 
 import os
+import logging
 from contextlib import contextmanager
-from typing import Generator
+from typing import Generator, Optional, Dict, Any
 
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy.pool import StaticPool
+from sqlalchemy.pool import StaticPool, QueuePool
 import streamlit as st
 
-from config.settings import config
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Create declarative base for models
 Base = declarative_base()
 
-# Database engine
+# Database engine and session (singletons)
 _engine = None
 _SessionLocal = None
+_platform_config = None
+
+
+def get_platform_config():
+    """Get or load platform configuration (lazy loading)"""
+    global _platform_config
+    if _platform_config is None:
+        from config.platform import get_platform_config as load_config
+        _platform_config = load_config()
+        logger.info(f"Platform: {_platform_config.platform.value}, "
+                    f"Database: {_platform_config.database_type.value}")
+    return _platform_config
 
 
 def get_engine():
-    """Get or create database engine (singleton pattern)"""
+    """
+    Get or create database engine (singleton pattern).
+    Automatically configures for the detected platform.
+    """
     global _engine
 
     if _engine is None:
+        config = get_platform_config()
+        db_url = config.database_url
+        db_type = config.database_type.value
+
+        logger.info(f"Initializing database engine for {db_type}")
+
         # Configure engine based on database type
-        if config.DATABASE_URL.startswith("sqlite"):
+        if db_type == "sqlite":
             _engine = create_engine(
-                config.DATABASE_URL,
+                db_url,
                 connect_args={"check_same_thread": False},
                 poolclass=StaticPool,
-                echo=config.DB_ECHO
+                echo=os.getenv("DB_ECHO", "").lower() == "true"
             )
 
             # Enable foreign keys for SQLite
@@ -45,15 +74,25 @@ def get_engine():
                 cursor.execute("PRAGMA foreign_keys=ON")
                 cursor.close()
 
+            logger.info("SQLite engine created with foreign keys enabled")
+
         else:
-            # PostgreSQL or other databases
+            # PostgreSQL configuration with platform-optimized pool settings
+            from config.platform import get_pool_config
+            pool_config = get_pool_config(config.platform, config.database_type)
+
             _engine = create_engine(
-                config.DATABASE_URL,
-                pool_pre_ping=True,
-                pool_size=10,
-                max_overflow=20,
-                echo=config.DB_ECHO
+                db_url,
+                poolclass=QueuePool,
+                pool_pre_ping=pool_config.get("pool_pre_ping", True),
+                pool_size=pool_config.get("pool_size", 3),
+                max_overflow=pool_config.get("max_overflow", 5),
+                pool_recycle=pool_config.get("pool_recycle", 1800),
+                pool_timeout=pool_config.get("pool_timeout", 30),
+                echo=os.getenv("DB_ECHO", "").lower() == "true"
             )
+
+            logger.info(f"PostgreSQL engine created with pool_size={pool_config.get('pool_size', 3)}")
 
     return _engine
 
@@ -67,7 +106,8 @@ def get_session_local():
         _SessionLocal = sessionmaker(
             autocommit=False,
             autoflush=False,
-            bind=engine
+            bind=engine,
+            expire_on_commit=False  # Prevent detached instance errors
         )
 
     return _SessionLocal
@@ -76,7 +116,7 @@ def get_session_local():
 @contextmanager
 def get_db() -> Generator[Session, None, None]:
     """
-    Database session context manager
+    Database session context manager.
 
     Usage:
         with get_db() as db:
@@ -89,6 +129,7 @@ def get_db() -> Generator[Session, None, None]:
         db.commit()
     except Exception as e:
         db.rollback()
+        logger.error(f"Database error: {e}")
         raise e
     finally:
         db.close()
@@ -96,7 +137,8 @@ def get_db() -> Generator[Session, None, None]:
 
 def init_database():
     """
-    Initialize database - create all tables
+    Initialize database - create all tables.
+    Handles both SQLite and PostgreSQL.
 
     Returns:
         Database session factory
@@ -109,20 +151,24 @@ def init_database():
     )
 
     engine = get_engine()
+    config = get_platform_config()
 
-
-        # CRITICAL FIX: Configure mappers before creating tables
-    # This ensures all relationships are properly set up
+    # Configure mappers before creating tables
     from sqlalchemy.orm import configure_mappers
     try:
         configure_mappers()
     except Exception as e:
-        # If mapper configuration fails, clear and retry
+        logger.warning(f"Mapper configuration warning: {e}")
         from sqlalchemy.orm import clear_mappers
         clear_mappers()
-        configure_mappers()
+        try:
+            configure_mappers()
+        except Exception as e2:
+            logger.warning(f"Mapper reconfiguration warning: {e2}")
+
     # Create all tables
     Base.metadata.create_all(bind=engine)
+    logger.info(f"Database tables created ({config.database_type.value})")
 
     # Initialize session factory
     SessionLocal = get_session_local()
@@ -149,6 +195,7 @@ def init_database():
             )
             db.add(admin_user)
             db.commit()
+            logger.info("Default admin user created")
 
     return SessionLocal
 
@@ -158,14 +205,13 @@ def reset_database():
     engine = get_engine()
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
+    logger.warning("Database reset complete - all data has been deleted")
 
 
 def get_cached_db_session():
     """
-    Get cached database session for Streamlit
-
-    This uses Streamlit's caching to maintain a single session
-    per Streamlit session.
+    Get cached database session for Streamlit.
+    Uses Streamlit's session state to maintain a single session per user session.
     """
     if 'db_session' not in st.session_state:
         SessionLocal = get_session_local()
@@ -181,36 +227,58 @@ def close_db_session():
         del st.session_state.db_session
 
 
-# Database health check
-def check_database_health() -> dict:
+def check_database_health() -> Dict[str, Any]:
     """
-    Check database connection and health
+    Check database connection and health.
 
     Returns:
         Dictionary with health status information
     """
     try:
+        config = get_platform_config()
         engine = get_engine()
+
         with engine.connect() as conn:
-            conn.execute("SELECT 1")
+            result = conn.execute(text("SELECT 1"))
+            result.fetchone()
 
         return {
             "status": "healthy",
-            "database_url": config.DATABASE_URL.split("@")[-1],  # Hide credentials
-            "connected": True
+            "platform": config.platform.value,
+            "database_type": config.database_type.value,
+            "connected": True,
+            "is_rollback_mode": is_rollback_mode()
         }
     except Exception as e:
+        logger.error(f"Database health check failed: {e}")
         return {
             "status": "unhealthy",
             "error": str(e),
-            "connected": False
+            "connected": False,
+            "is_rollback_mode": is_rollback_mode()
         }
+
+
+def is_rollback_mode() -> bool:
+    """Check if the application is in SQLite rollback mode"""
+    from config.platform import is_rollback_mode as check_rollback
+    return check_rollback()
+
+
+def get_database_info() -> Dict[str, Any]:
+    """
+    Get detailed database information for display.
+    Masks sensitive information like passwords.
+    """
+    config = get_platform_config()
+    from config.platform import get_platform_info
+    return get_platform_info()
 
 
 # Migration utilities
 def run_migrations():
     """
-    Run database migrations using Alembic
+    Run database migrations using Alembic.
 
     Note: This is a placeholder. In production, use:
         alembic upgrade head
@@ -223,6 +291,31 @@ def run_migrations():
         ]
         alembic.config.main(argv=alembic_args)
         return True
-    except Exception as e:
-        print(f"Migration error: {e}")
+    except ImportError:
+        logger.warning("Alembic not installed - migrations skipped")
         return False
+    except Exception as e:
+        logger.error(f"Migration error: {e}")
+        return False
+
+
+# Export for backward compatibility
+def get_config():
+    """Get the legacy config object for backward compatibility"""
+    from config.settings import config as legacy_config
+    return legacy_config
+
+
+# Ensure config has DATABASE_URL from platform detection
+def _update_legacy_config():
+    """Update legacy config with platform-detected DATABASE_URL"""
+    try:
+        from config.settings import config as legacy_config
+        platform_config = get_platform_config()
+        legacy_config.DATABASE_URL = platform_config.database_url
+    except Exception as e:
+        logger.debug(f"Could not update legacy config: {e}")
+
+
+# Auto-update on import
+_update_legacy_config()

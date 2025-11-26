@@ -2,16 +2,132 @@
 
 This guide covers deployment options for the Solar PV Testing LIMS-QMS application.
 
+## Multi-Platform Support
+
+The application automatically detects and configures for these platforms:
+- **Railway** (Recommended - $5/month free credits)
+- **Streamlit Cloud** (Free)
+- **Replit** (Free tier available)
+- **GenSpark**
+- **Local Development**
+
 ---
 
 ## Table of Contents
 
-1. [Local Development](#local-development)
-2. [Production Deployment](#production-deployment)
-3. [Docker Deployment](#docker-deployment)
-4. [Cloud Deployment](#cloud-deployment)
-5. [Security Considerations](#security-considerations)
-6. [Backup and Recovery](#backup-and-recovery)
+1. [Railway Deployment (Recommended)](#railway-deployment-recommended)
+2. [Rollback Mechanism](#rollback-mechanism)
+3. [Local Development](#local-development)
+4. [Production Deployment](#production-deployment)
+5. [Docker Deployment](#docker-deployment)
+6. [Cloud Deployment](#cloud-deployment)
+7. [Security Considerations](#security-considerations)
+8. [Backup and Recovery](#backup-and-recovery)
+
+---
+
+## Railway Deployment (Recommended)
+
+Railway offers $5/month free credits - ideal for cost-effective production deployment.
+
+### Quick Start (5 Minutes)
+
+1. **Create Railway Account**
+   - Go to [railway.app](https://railway.app)
+   - Sign up with GitHub
+
+2. **Deploy from GitHub**
+   ```
+   1. Click "New Project"
+   2. Select "Deploy from GitHub repo"
+   3. Choose: ganeshgowri-ASA/test-protocols
+   4. Railway auto-detects Streamlit and deploys
+   ```
+
+3. **Add PostgreSQL Database**
+   ```
+   1. In your project, click "New"
+   2. Select "Database" -> "Add PostgreSQL"
+   3. Railway automatically sets DATABASE_URL
+   ```
+
+4. **Configure Domain**
+   ```
+   1. Go to your service settings
+   2. Under "Networking", generate a domain
+   3. Your app is live at: https://your-app.railway.app
+   ```
+
+### Cost Optimization ($4.98 Budget)
+
+The application is pre-configured for minimal resource usage:
+
+| Setting | Value | Purpose |
+|---------|-------|---------|
+| Pool Size | 3 | Minimal DB connections |
+| Max Overflow | 5 | Limited connection burst |
+| Pool Recycle | 1800s | Prevent connection leaks |
+
+**Estimated Monthly Cost:**
+- Web Service: ~$2-3 (based on usage)
+- PostgreSQL: ~$1-2 (minimal tier)
+- **Total: ~$3-5/month**
+
+### Railway Environment Variables
+
+Railway automatically sets these when you add PostgreSQL:
+- `DATABASE_URL` or `POSTGRES_URL`
+- `DATABASE_PRIVATE_URL` (for internal networking)
+
+**Optional variables:**
+```
+FORCE_SQLITE=1          # Emergency rollback to SQLite
+DB_ECHO=true            # SQL query logging (debugging)
+SESSION_SECRET_KEY=xxx  # Custom session secret
+```
+
+---
+
+## Rollback Mechanism
+
+### Instant Rollback to SQLite
+
+If PostgreSQL has issues, you can instantly rollback:
+
+**Method 1: Environment Variable**
+```bash
+# In Railway dashboard, add variable:
+FORCE_SQLITE=1
+
+# Then restart the service
+```
+
+**Method 2: Use backup branch**
+```bash
+# The backup branch preserves working state:
+git checkout preserve/working-app-backup-main
+```
+
+### Rollback Decision Matrix
+
+| Scenario | Action |
+|----------|--------|
+| PostgreSQL connection issues | Set `FORCE_SQLITE=1` |
+| Data corruption | Restore from Railway backup |
+| Complete failure | Deploy from backup branch |
+| Cost overrun | Set `FORCE_SQLITE=1` (free tier) |
+
+---
+
+## Platform Comparison
+
+| Feature | Railway | Streamlit Cloud | Replit | GenSpark |
+|---------|---------|-----------------|--------|----------|
+| Free Tier | $5/month credits | Yes | Yes | Varies |
+| PostgreSQL | Built-in | External only | External only | Varies |
+| Custom Domain | Yes | Yes | Paid | Yes |
+| Persistent Storage | Yes | No | Paid | Yes |
+| Recommended For | Production | Demo/Testing | Prototyping | Custom |
 
 ---
 

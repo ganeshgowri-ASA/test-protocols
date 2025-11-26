@@ -19,18 +19,6 @@ from config.settings import config
 # Create declarative base for models
 Base = declarative_base()
 
-# Fix for Streamlit rerun - prevent table redefinition errors
-# This allows SQLAlchemy to redefine tables without raising errors
-import sqlalchemy
-original_table_init = sqlalchemy.Table.__init__
-
-def patched_table_init(self, *args, **kwargs):
-    kwargs.setdefault('extend_existing', True)
-    kwargs.setdefault('autoload_replace', False)
-    return original_table_init(self, *args, **kwargs)
-
-sqlalchemy.Table.__init__ = patched_table_init
-
 # Database engine
 _engine = None
 _SessionLocal = None

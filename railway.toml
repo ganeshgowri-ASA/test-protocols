@@ -1,0 +1,23 @@
+# Railway Production Configuration
+# ================================
+# Solar PV Testing LIMS-QMS System
+
+[build]
+builder = "NIXPACKS"
+buildCommand = "pip install -r requirements.txt"
+
+[deploy]
+# Streamlit server configuration
+startCommand = "streamlit run app.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true --server.enableCORS=false --server.enableXsrfProtection=true"
+
+# Health check configuration
+healthcheckPath = "/"
+healthcheckTimeout = 300
+
+# Restart policy
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+[service]
+# Internal port for Streamlit
+internalPort = 8501

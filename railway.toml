@@ -1,16 +1,17 @@
 # Railway Production Configuration
 # ================================
 # Solar PV Testing LIMS-QMS System
+# EMERGENCY HOTFIX - Optimized for fast startup
 
 [build]
 builder = "NIXPACKS"
 buildCommand = "pip install -r requirements.txt"
 
 [deploy]
-# Streamlit server configuration
-startCommand = "streamlit run app.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true --server.enableCORS=false --server.enableXsrfProtection=true"
+# Streamlit server configuration - optimized for Railway
+startCommand = "streamlit run app.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true --server.enableCORS=false --server.enableXsrfProtection=false --browser.gatherUsageStats=false"
 
-# Health check configuration
+# Health check configuration - extended timeout for Streamlit startup
 healthcheckPath = "/"
 healthcheckTimeout = 300
 

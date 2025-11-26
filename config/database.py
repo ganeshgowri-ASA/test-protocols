@@ -179,9 +179,10 @@ def check_database_health() -> dict:
         Dictionary with health status information
     """
     try:
+        from sqlalchemy import text
         engine = get_engine()
         with engine.connect() as conn:
-            conn.execute("SELECT 1")
+            conn.execute(text("SELECT 1"))
 
         return {
             "status": "healthy",

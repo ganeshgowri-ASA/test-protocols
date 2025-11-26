@@ -14,17 +14,6 @@ from sqlalchemy.orm import relationship
 from config.database import Base
 import enum
 
-# CRITICAL FIX: Prevent SQLAlchemy table redefinition errors in Streamlit
-# When Streamlit reruns scripts, models can be reimported, causing "Table already defined" errors
-# This monkey-patch ensures all tables use extend_existing=True automatically
-from sqlalchemy.schema import Table
-original_table_init = Table.__init__
-
-def patched_table_init(self, *args, **kwargs):
-    kwargs.setdefault('extend_existing', True)
-    original_table_init(self, *args, **kwargs)
-
-Table.__init__ = patched_table_init
 
 
 # Enumerations
@@ -78,6 +67,7 @@ class InspectionStatus(str, enum.Enum):
 class User(Base):
     """User model for authentication and authorization"""
     __tablename__ = "users"
+        __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(50), unique=True, nullable=False, index=True)

@@ -129,6 +129,8 @@ class CompanyProfile(Base):
 
     # Settings (stored as JSON for extensibility)
     settings = Column(JSON, default=dict)
+    
+    __table_args__ = {'extend_existing': True}
 
     def __repr__(self):
         return f"<CompanyProfile(name='{self.company_name}', id='{self.company_id}')>"
@@ -292,6 +294,8 @@ class IncomingInspection(Base):
         return f"<IncomingInspection(number='{self.inspection_number}', status='{self.status}')>"
 
 
+
+    __table_args__ = {'extend_existing': True}
 class Equipment(Base):
     """Equipment/instrument model"""
     __tablename__ = "equipment"
@@ -329,6 +333,8 @@ class Equipment(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def __repr__(self):
+        
+    __table_args__ = {'extend_existing': True}
         return f"<Equipment(code='{self.equipment_code}', name='{self.name}')>"
 
 
@@ -404,6 +410,8 @@ class TestProtocol(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    __table_args__ = {'extend_existing': True}
+
     def __repr__(self):
         return f"<TestProtocol(id='{self.protocol_id}', name='{self.name}')>"
 
@@ -469,6 +477,7 @@ class TestExecution(Base):
     __table_args__ = (
         Index('idx_test_execution_status', 'status'),
         Index('idx_test_execution_protocol', 'protocol_id'),
+                {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -508,6 +517,7 @@ class TestData(Base):
     __table_args__ = (
         Index('idx_test_data_execution', 'test_execution_id'),
         Index('idx_test_data_type', 'measurement_type'),
+                {'extend_existing': True}
     )
 
     def __repr__(self):

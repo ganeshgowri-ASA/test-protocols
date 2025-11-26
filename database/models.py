@@ -377,7 +377,7 @@ class TestExecution(Base):
 
     __table_args__ = (
         Index('idx_test_execution_status', 'status'),
-        Index('idx_test_execution_protocol', 'protocol_id'),,
+        Index('idx_test_execution_protocol', 'protocol_id'),
         {'extend_existing': True}
     )
 

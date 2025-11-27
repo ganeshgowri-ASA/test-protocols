@@ -132,20 +132,14 @@ def init_database():
         admin_exists = db.query(User).filter_by(username="admin").first()
 
         if not admin_exists:
-            from datetime import datetime
-            import hashlib
 
-            # Simple password hashing (use bcrypt in production)
-            password_hash = hashlib.sha256("admin123".encode()).hexdigest()
 
             admin_user = User(
                 username="admin",
                 email="admin@solarpv.com",
-                password_hash=password_hash,
                 full_name="System Administrator",
                 role="admin",
                 is_active=True,
-                created_at=datetime.utcnow()
             )
             db.add(admin_user)
             db.commit()

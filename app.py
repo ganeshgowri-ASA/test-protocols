@@ -266,3 +266,4 @@ def render_alerts_panel():
 
 if __name__ == "__main__":
     main()
+    # Trigger Railway deployment

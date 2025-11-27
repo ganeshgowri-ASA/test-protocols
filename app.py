@@ -55,7 +55,6 @@ st.set_page_config(
 # Database initialized on first access
 
 
-        # Initialize database on first run
     if 'db_initialized' not in st.session_state:
         init_database()
         st.session_state.db_initialized = True

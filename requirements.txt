@@ -55,7 +55,6 @@ black>=24.10.0
 flake8>=7.1.1
 
 # Optional: PostgreSQL support
-# psycopg2-binary>=2.9.9
-
+psycopg2-binary>=2.9.9
 # Optional: Email notifications
 # python-smtplib>=3.11

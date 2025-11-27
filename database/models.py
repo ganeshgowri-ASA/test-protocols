@@ -189,6 +189,8 @@ class User(Base):
     test_executions = relationship("TestExecution", foreign_keys="[TestExecution.technician_id]", back_populates="technician_user")
     reviewed_executions = relationship("TestExecution", foreign_keys="[TestExecution.reviewer_id]", back_populates="reviewer_user")
     audit_logs = relationship("AuditLog", back_populates="user")
+    
+    __table_args__ = {'extend_existing': True}
 
     def __repr__(self):
         return f"<User(username='{self.username}', role='{self.role}')>"
@@ -239,6 +241,7 @@ class ServiceRequest(Base):
     __table_args__ = (
         Index('idx_service_request_status', 'status'),
         Index('idx_service_request_created', 'created_at'),
+                {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -289,13 +292,15 @@ class IncomingInspection(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    __table_args__ = {'extend_existing': True}
 
     def __repr__(self):
         return f"<IncomingInspection(number='{self.inspection_number}', status='{self.status}')>"
 
 
 
-    __table_args__ = {'extend_existing': True}
+
 class Equipment(Base):
     """Equipment/instrument model"""
     __tablename__ = "equipment"
@@ -331,11 +336,11 @@ class Equipment(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    __table_args__ = {'extend_existing': True}
 
     def __repr__(self):
         
-    __table_args__ = {'extend_existing': True}
-        return f"<Equipment(code='{self.equipment_code}', name='{self.name}')>"
 
 
 class EquipmentBooking(Base):
@@ -372,6 +377,7 @@ class EquipmentBooking(Base):
     __table_args__ = (
         Index('idx_booking_period', 'start_time', 'end_time'),
         Index('idx_booking_equipment', 'equipment_id'),
+                {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -556,6 +562,7 @@ class AuditLog(Base):
         Index('idx_audit_log_user', 'user_id'),
         Index('idx_audit_log_table', 'table_name', 'record_id'),
         Index('idx_audit_log_created', 'created_at'),
+                {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -589,6 +596,7 @@ class QRCode(Base):
 
     __table_args__ = (
         Index('idx_qr_entity', 'entity_type', 'entity_id'),
+                {'extend_existing': True}
     )
 
     def __repr__(self):

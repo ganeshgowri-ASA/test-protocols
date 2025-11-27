@@ -340,6 +340,7 @@ class Equipment(Base):
     __table_args__ = {'extend_existing': True}
 
     def __repr__(self):
+                return f"<Equipment(equipment_code='{self.equipment_code}', name='{self.name}')>"
         
 
 

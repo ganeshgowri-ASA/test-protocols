@@ -55,9 +55,9 @@ st.set_page_config(
 # Database initialized on first access
 
 
-    if 'db_initialized' not in st.session_state:
-        init_database()
-        st.session_state.db_initialized = True
+if 'db_initialized' not in st.session_state:
+    init_database()
+    st.session_state.db_initialized = True
 
     # Render header and navigation
     render_header("Solar PV Testing LIMS-QMS System")

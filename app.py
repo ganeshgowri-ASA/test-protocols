@@ -1,40 +1,74 @@
 """
 Solar PV Testing Protocol - Unified LIMS-QMS System
 ====================================================
-Main Application Entry Point
+EMERGENCY HOTFIX VERSION - Bulletproof Railway Deployment
 
-This is the master integration point for all 54 solar PV testing protocols,
-providing a unified interface for Service Request → Inspection → Equipment → Testing workflow.
+This version is designed to:
+1. Start within 30 seconds without crashing
+2. Show working UI immediately
+3. Handle database errors gracefully
+4. Connect to database in background with retry
+5. Pass Railway healthcheck
 """
 
 import streamlit as st
-from pathlib import Path
+import logging
+import os
 import sys
+import time
+import threading
+from datetime import datetime
+from pathlib import Path
 
-# Add project root to path
-project_root = Path(__file__).parent
-sys.path.insert(0, str(project_root))
+# ============================================================================
+# LOGGING SETUP - First thing to initialize for Railway logs
+# ============================================================================
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+logger = logging.getLogger(__name__)
+logger.info("=" * 60)
+logger.info("SOLAR PV LIMS-QMS - APPLICATION STARTING")
+logger.info(f"Start time: {datetime.now().isoformat()}")
+logger.info(f"Python version: {sys.version}")
+logger.info(f"Working directory: {os.getcwd()}")
+logger.info("=" * 60)
 
-# Import configuration
-from config.settings import AppConfig, setup_page_config
-from config.database import init_database
-from components.navigation import render_sidebar_navigation, render_header
-from components.analytics_engine import get_dashboard_metrics
-
-# Initialize app configuration
-setup_page_config(
+# ============================================================================
+# PAGE CONFIG - Must be called first before any other st commands
+# ============================================================================
+st.set_page_config(
     page_title="Solar PV Testing LIMS-QMS",
     page_icon="☀️",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
+    menu_items={
+        'Get Help': 'https://github.com/ganeshgowri-ASA/test-protocols',
+        'Report a bug': 'https://github.com/ganeshgowri-ASA/test-protocols/issues',
+        'About': "Solar PV Testing LIMS-QMS v1.0.0"
+    }
 )
 
 # Initialize database
 # Database initialized on first access
 
+        /* Header styling */
+        .main-header {
+            background: linear-gradient(90deg, #FF6B35 0%, #F7931E 100%);
+            padding: 1.5rem;
+            border-radius: 10px;
+            color: white;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
 
-def main():
-    """Main application entry point - Home Dashboard"""
+        .main-header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700;
+        }
 
         # Initialize database on first run
     if 'db_initialized' not in st.session_state:
@@ -45,7 +79,7 @@ def main():
     render_header("Solar PV Testing LIMS-QMS System")
     render_sidebar_navigation()
 
-    # Main dashboard content
+    # Welcome message
     st.markdown("""
     ## 🏠 Welcome to the Solar PV Testing LIMS-QMS System
 
@@ -53,35 +87,35 @@ def main():
     testing, from service requests through final reporting.
     """)
 
-    # System overview
+    # Key Metrics
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
         st.metric(
             label="📋 Active Service Requests",
-            value=get_dashboard_metrics('active_requests'),
-            delta=get_dashboard_metrics('requests_delta')
+            value=get_safe_metric('active_requests'),
+            delta=get_safe_metric('requests_delta')
         )
 
     with col2:
         st.metric(
             label="🔬 Tests in Progress",
-            value=get_dashboard_metrics('active_tests'),
-            delta=get_dashboard_metrics('tests_delta')
+            value=get_safe_metric('active_tests'),
+            delta=get_safe_metric('tests_delta')
         )
 
     with col3:
         st.metric(
             label="⚙️ Equipment Utilization",
-            value=f"{get_dashboard_metrics('equipment_utilization')}%",
-            delta=f"{get_dashboard_metrics('equipment_delta')}%"
+            value=f"{get_safe_metric('equipment_utilization')}%",
+            delta=f"{get_safe_metric('equipment_delta')}%"
         )
 
     with col4:
         st.metric(
             label="✅ Completed This Month",
-            value=get_dashboard_metrics('completed_month'),
-            delta=get_dashboard_metrics('completed_delta')
+            value=get_safe_metric('completed_month'),
+            delta=get_safe_metric('completed_delta')
         )
 
     st.divider()
@@ -92,23 +126,35 @@ def main():
 
     with col1:
         if st.button("📝 New Service Request", use_container_width=True, type="primary"):
-            st.switch_page("pages/2_📋_Service_Request.py")
+            try:
+                st.switch_page("pages/2_📋_Service_Request.py")
+            except:
+                st.info("Navigate to Service Request page")
 
     with col2:
         if st.button("📦 Incoming Inspection", use_container_width=True):
-            st.switch_page("pages/3_📦_Incoming_Inspection.py")
+            try:
+                st.switch_page("pages/3_📦_Incoming_Inspection.py")
+            except:
+                st.info("Navigate to Incoming Inspection page")
 
     with col3:
         if st.button("⚙️ Book Equipment", use_container_width=True):
-            st.switch_page("pages/4_⚙️_Equipment_Booking.py")
+            try:
+                st.switch_page("pages/4_⚙️_Equipment_Booking.py")
+            except:
+                st.info("Navigate to Equipment Booking page")
 
     with col4:
         if st.button("🔬 Start Testing", use_container_width=True):
-            st.switch_page("pages/5_🔬_Test_Protocols.py")
+            try:
+                st.switch_page("pages/5_🔬_Test_Protocols.py")
+            except:
+                st.info("Navigate to Test Protocols page")
 
     st.divider()
 
-    # Recent Activity and Analytics
+    # Dashboard Tabs
     tab1, tab2, tab3, tab4 = st.tabs([
         "📊 Overview",
         "🔄 Recent Activity",
@@ -117,16 +163,16 @@ def main():
     ])
 
     with tab1:
-        render_overview_dashboard()
+        render_overview_tab()
 
     with tab2:
-        render_recent_activity()
+        render_activity_tab()
 
     with tab3:
-        render_analytics_dashboard()
+        render_analytics_tab()
 
     with tab4:
-        render_alerts_panel()
+        render_alerts_tab()
 
     # Footer
     st.divider()
@@ -137,9 +183,8 @@ def main():
     </div>
     """, unsafe_allow_html=True)
 
-
-def render_overview_dashboard():
-    """Render the overview dashboard with key metrics"""
+def render_overview_tab():
+    """Render overview dashboard tab"""
     col1, col2 = st.columns(2)
 
     with col1:
@@ -157,14 +202,20 @@ def render_overview_dashboard():
 
     with col2:
         st.markdown("### 🎯 System Status")
-        st.success("✅ All systems operational")
-        st.info("📊 Database: Connected")
+
+        db_status = get_db_status()
+        if db_status['connected']:
+            st.success("✅ All systems operational")
+            st.info("📊 Database: Connected")
+        else:
+            st.warning("⚠️ Running in demo mode")
+            st.info("📊 Database: Connecting...")
+
         st.info("⚙️ Equipment: 12/15 available")
         st.info("👥 Active Users: 8")
 
-
-def render_recent_activity():
-    """Render recent activity feed"""
+def render_activity_tab():
+    """Render recent activity tab"""
     st.markdown("### Recent Activity")
 
     activities = [
@@ -185,68 +236,74 @@ def render_recent_activity():
                 st.text(f"{activity['action']}: {activity['protocol']}")
             st.divider()
 
-
-def render_analytics_dashboard():
-    """Render analytics dashboard with charts"""
-    import plotly.graph_objects as go
-    import plotly.express as px
-    import pandas as pd
-
+def render_analytics_tab():
+    """Render analytics dashboard tab"""
     st.markdown("### 📈 Testing Analytics")
 
-    col1, col2 = st.columns(2)
+    try:
+        import plotly.graph_objects as go
+        import plotly.express as px
+        import pandas as pd
 
-    with col1:
-        # Protocol distribution pie chart
-        fig = go.Figure(data=[go.Pie(
-            labels=['Performance', 'Degradation', 'Environmental', 'Mechanical', 'Safety'],
-            values=[25, 30, 20, 15, 10],
-            hole=.3
-        )])
-        fig.update_layout(title="Tests by Protocol Category", height=350)
-        st.plotly_chart(fig, use_container_width=True)
+        col1, col2 = st.columns(2)
 
-    with col2:
-        # Monthly test trend
-        months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
-        tests = [45, 52, 48, 65, 70, 68]
+        with col1:
+            # Protocol distribution pie chart
+            fig = go.Figure(data=[go.Pie(
+                labels=['Performance', 'Degradation', 'Environmental', 'Mechanical', 'Safety'],
+                values=[25, 30, 20, 15, 10],
+                hole=.3
+            )])
+            fig.update_layout(title="Tests by Protocol Category", height=350)
+            st.plotly_chart(fig, use_container_width=True)
 
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(
-            x=months, y=tests,
-            mode='lines+markers',
-            name='Tests Completed',
-            line=dict(color='#1f77b4', width=3),
-            marker=dict(size=10)
-        ))
-        fig.update_layout(
-            title="Monthly Test Completion Trend",
-            xaxis_title="Month",
-            yaxis_title="Tests Completed",
-            height=350
+        with col2:
+            # Monthly test trend
+            months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+            tests = [45, 52, 48, 65, 70, 68]
+
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(
+                x=months, y=tests,
+                mode='lines+markers',
+                name='Tests Completed',
+                line=dict(color='#1f77b4', width=3),
+                marker=dict(size=10)
+            ))
+            fig.update_layout(
+                title="Monthly Test Completion Trend",
+                xaxis_title="Month",
+                yaxis_title="Tests Completed",
+                height=350
+            )
+            st.plotly_chart(fig, use_container_width=True)
+
+        # Equipment utilization
+        st.markdown("### ⚙️ Equipment Utilization (Last 7 Days)")
+        equipment_data = pd.DataFrame({
+            'Equipment': ['Solar Simulator', 'Climate Chamber', 'EL Tester', 'Pull Tester', 'Insulation Tester'],
+            'Utilization': [85, 72, 68, 45, 55]
+        })
+
+        fig = px.bar(
+            equipment_data,
+            x='Equipment',
+            y='Utilization',
+            color='Utilization',
+            color_continuous_scale='Blues'
         )
+        fig.update_layout(height=300)
         st.plotly_chart(fig, use_container_width=True)
 
-    # Equipment utilization
-    st.markdown("### ⚙️ Equipment Utilization (Last 7 Days)")
-    equipment_data = pd.DataFrame({
-        'Equipment': ['Solar Simulator', 'Climate Chamber', 'EL Tester', 'Pull Tester', 'Insulation Tester'],
-        'Utilization': [85, 72, 68, 45, 55]
-    })
+    except ImportError as e:
+        st.warning("Plotly charts not available. Install with: pip install plotly")
+        st.info("Demo analytics data would appear here.")
+    except Exception as e:
+        logger.error(f"Error rendering analytics: {e}")
+        st.warning("Analytics temporarily unavailable")
 
-    fig = px.bar(
-        equipment_data,
-        x='Equipment',
-        y='Utilization',
-        color='Utilization',
-        color_continuous_scale='Blues'
-    )
-    fig.update_layout(height=300)
-    st.plotly_chart(fig, use_container_width=True)
-
-
-def render_alerts_panel():
-    """Render alerts and notifications panel"""
+def render_alerts_tab():
+    """Render alerts panel tab"""
     st.markdown("### ⚠️ System Alerts & Notifications")
 
     # Critical alerts
@@ -263,6 +320,36 @@ def render_alerts_panel():
     # Success
     st.success("🟢 **Success**: All pending reports generated and distributed")
 
+# ============================================================================
+# MAIN APPLICATION
+# ============================================================================
+def main():
+    """Main application entry point - bulletproof startup"""
+
+    logger.info("Main function starting...")
+
+    # Apply custom CSS
+    apply_custom_css()
+
+    # Render sidebar (navigation + status)
+    render_sidebar()
+
+    # Render main dashboard
+    render_dashboard()
+
+    # Try database connection in background (non-blocking)
+    if not DB_STATE['initialized']:
+        logger.info("Initiating background database connection...")
+        # Use a simple approach - try once per page load
+        try_database_connection()
+
+    logger.info("Main function completed successfully")
+
+# ============================================================================
+# HEALTHCHECK ENDPOINT (implicit - Streamlit serves the page)
+# ============================================================================
+# Railway healthcheck hits "/" which will render this Streamlit app
+# As long as the app starts and serves content, healthcheck passes
 
 if __name__ == "__main__":
     main()

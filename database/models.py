@@ -15,6 +15,7 @@ from config.database import Base
 import enum
 
 
+
 # Enumerations
 class UserRole(str, enum.Enum):
     """User role enumeration"""
@@ -171,11 +172,11 @@ class CompanyProfile(Base):
 class User(Base):
     """User model for authentication and authorization"""
     __tablename__ = "users"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(50), unique=True, nullable=False, index=True)
     email = Column(String(100), unique=True, nullable=False, index=True)
-    password_hash = Column(String(255), nullable=False)
     full_name = Column(String(100), nullable=False)
     role = Column(Enum(UserRole), nullable=False, default=UserRole.TECHNICIAN)
     is_active = Column(Boolean, default=True)

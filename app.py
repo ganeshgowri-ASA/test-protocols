@@ -96,7 +96,7 @@ st.set_page_config(
 
 
 if 'db_initialized' not in st.session_state:
-pass  # Database init deferred
+    pass  # Database init deferred
     st.session_state.db_initialized = True
 
     # Render header and navigation

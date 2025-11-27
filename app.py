@@ -113,7 +113,7 @@ st.set_page_config(
 
 
 if 'db_initialized' not in st.session_state:
-    pass  # Database init deferred
+    from config.database import init_database; init_database()  # Create tables
     st.session_state.db_initialized = True
 
     # Render header and navigation

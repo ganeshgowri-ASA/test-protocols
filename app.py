@@ -54,21 +54,6 @@ st.set_page_config(
 # Initialize database
 # Database initialized on first access
 
-        /* Header styling */
-        .main-header {
-            background: linear-gradient(90deg, #FF6B35 0%, #F7931E 100%);
-            padding: 1.5rem;
-            border-radius: 10px;
-            color: white;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .main-header h1 {
-            margin: 0;
-            font-size: 2rem;
-            font-weight: 700;
-        }
 
         # Initialize database on first run
     if 'db_initialized' not in st.session_state:

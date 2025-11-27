@@ -6,24 +6,82 @@ Provides consistent navigation across all pages.
 
 import streamlit as st
 from datetime import datetime
+import base64
 from config.settings import config, apply_custom_css
-from config.database import check_database_health
+from config.database import check_database_health, get_db
 
 
-def render_header(title: str = None, subtitle: str = None):
+def get_company_branding():
+    """
+    Get company branding information (logo, name) for navigation
+
+    Returns:
+        Dictionary with company_name, logo_base64, logo_content_type
+    """
+    # Use session state caching to avoid repeated DB calls
+    if 'company_branding' not in st.session_state:
+        try:
+            from database.models import CompanyProfile
+            with get_db() as db:
+                profile = db.query(CompanyProfile).filter_by(company_id="DEFAULT").first()
+                if profile:
+                    logo_b64 = None
+                    if profile.company_logo:
+                        logo_b64 = base64.b64encode(profile.company_logo).decode()
+
+                    st.session_state.company_branding = {
+                        'company_name': profile.company_name or config.APP_NAME,
+                        'logo_base64': logo_b64,
+                        'logo_content_type': profile.logo_content_type or 'image/png',
+                        'tagline': profile.tagline
+                    }
+                else:
+                    st.session_state.company_branding = {
+                        'company_name': config.APP_NAME,
+                        'logo_base64': None,
+                        'logo_content_type': None,
+                        'tagline': None
+                    }
+        except Exception:
+            st.session_state.company_branding = {
+                'company_name': config.APP_NAME,
+                'logo_base64': None,
+                'logo_content_type': None,
+                'tagline': None
+            }
+
+    return st.session_state.company_branding
+
+
+def clear_company_branding_cache():
+    """Clear the cached company branding data"""
+    if 'company_branding' in st.session_state:
+        del st.session_state.company_branding
+
+
+def render_header(title: str = None, subtitle: str = None, use_company_name: bool = False):
     """
     Render the main page header
 
     Args:
         title: Page title
         subtitle: Page subtitle
+        use_company_name: If True, prepend company name to title
     """
     apply_custom_css()
 
     if title:
+        # Optionally use company name in header
+        display_title = title
+        if use_company_name:
+            branding = get_company_branding()
+            company_name = branding.get('company_name', '')
+            if company_name and company_name != title:
+                display_title = f"{company_name} - {title}"
+
         st.markdown(f"""
         <div class='main-header'>
-            <h1>☀️ {title}</h1>
+            <h1>☀️ {display_title}</h1>
             {f'<p style="margin: 0; opacity: 0.9;">{subtitle}</p>' if subtitle else ''}
         </div>
         """, unsafe_allow_html=True)
@@ -34,6 +92,7 @@ def render_sidebar_navigation():
     Render the unified sidebar navigation
 
     This provides:
+    - Company logo and branding
     - Main menu navigation
     - User profile
     - Current context
@@ -42,13 +101,32 @@ def render_sidebar_navigation():
     """
 
     with st.sidebar:
-        # Logo/Branding
-        st.markdown(f"""
-        <div style='text-align: center; padding: 1rem 0;'>
-            <h2 style='margin: 0; color: #FF6B35;'>☀️ Solar PV LIMS</h2>
-            <p style='margin: 0; color: #666; font-size: 0.875rem;'>v{config.APP_VERSION}</p>
-        </div>
-        """, unsafe_allow_html=True)
+        # Logo/Branding with company logo support
+        branding = get_company_branding()
+        company_name = branding.get('company_name', 'Solar PV LIMS')
+        logo_b64 = branding.get('logo_base64')
+        logo_type = branding.get('logo_content_type', 'image/png')
+        tagline = branding.get('tagline')
+
+        if logo_b64:
+            # Display company logo
+            st.markdown(f"""
+            <div style='text-align: center; padding: 1rem 0;'>
+                <img src="data:{logo_type};base64,{logo_b64}"
+                     style="max-height: 60px; max-width: 100%; object-fit: contain; margin-bottom: 0.5rem;"
+                     alt="{company_name}">
+                <h3 style='margin: 0; color: #FF6B35; font-size: 1.1rem;'>{company_name}</h3>
+                <p style='margin: 0; color: #666; font-size: 0.75rem;'>v{config.APP_VERSION}</p>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            # Default branding without logo
+            st.markdown(f"""
+            <div style='text-align: center; padding: 1rem 0;'>
+                <h2 style='margin: 0; color: #FF6B35;'>☀️ {company_name}</h2>
+                <p style='margin: 0; color: #666; font-size: 0.875rem;'>v{config.APP_VERSION}</p>
+            </div>
+            """, unsafe_allow_html=True)
 
         st.divider()
 
@@ -60,9 +138,10 @@ def render_sidebar_navigation():
         # Main Navigation
         st.markdown("### 📌 Main Menu")
 
-        # Navigation buttons
+        # Navigation buttons - now includes Company Settings
         nav_items = [
             ("🏠 Home", "app.py"),
+            ("🏢 Company Settings", "pages/1_🏢_Company_Settings.py"),
             ("📋 Service Request", "pages/2_📋_Service_Request.py"),
             ("📦 Incoming Inspection", "pages/3_📦_Incoming_Inspection.py"),
             ("⚙️ Equipment Booking", "pages/4_⚙️_Equipment_Booking.py"),
@@ -71,6 +150,9 @@ def render_sidebar_navigation():
 
         for label, page in nav_items:
             if st.button(label, use_container_width=True, key=f"nav_{page}"):
+                # Clear branding cache when navigating to Company Settings
+                if "Company_Settings" in page:
+                    clear_company_branding_cache()
                 st.switch_page(page)
 
         st.divider()
@@ -176,7 +258,9 @@ def handle_quick_action(action: str):
     elif action == "reports":
         st.info("Reports module - Coming soon!")
     elif action == "settings":
-        st.info("Settings module - Coming soon!")
+        # Navigate to Company Settings page
+        clear_company_branding_cache()
+        st.switch_page("pages/1_🏢_Company_Settings.py")
 
 
 def render_system_status():

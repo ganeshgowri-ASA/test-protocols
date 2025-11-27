@@ -104,11 +104,23 @@ def init_database():
     from database.models import (
         User, ServiceRequest, IncomingInspection,
         Equipment, EquipmentBooking, TestProtocol,
-        TestExecution, TestData, AuditLog, QRCode
+        TestExecution, TestData, AuditLog, QRCode,
+        CompanyProfile
     )
 
     engine = get_engine()
 
+
+        # CRITICAL FIX: Configure mappers before creating tables
+    # This ensures all relationships are properly set up
+    from sqlalchemy.orm import configure_mappers
+    try:
+        configure_mappers()
+    except Exception as e:
+        # If mapper configuration fails, clear and retry
+        from sqlalchemy.orm import clear_mappers
+        clear_mappers()
+        configure_mappers()
     # Create all tables
     Base.metadata.create_all(bind=engine)
 
@@ -117,7 +129,6 @@ def init_database():
 
     # Create default admin user if not exists
     with get_db() as db:
-        from database.models import User
         admin_exists = db.query(User).filter_by(username="admin").first()
 
         if not admin_exists:

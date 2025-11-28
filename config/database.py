@@ -8,7 +8,7 @@ import os
 from contextlib import contextmanager
 from typing import Generator
 
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, select
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
@@ -80,7 +80,7 @@ def get_db() -> Generator[Session, None, None]:
 
     Usage:
         with get_db() as db:
-            db.query(Model).all()
+            db.execute(select(Model)).scalars().all()
     """
     SessionLocal = get_session_local()
     db = SessionLocal()
@@ -118,7 +118,7 @@ def init_database():
     # Create default admin user if not exists
     with get_db() as db:
         from database.models import User
-        admin_exists = db.query(User).filter_by(username="admin").first()
+        admin_exists = db.execute(select(User).filter_by(username="admin")).scalar_one_or_none()
 
         if not admin_exists:
             from datetime import datetime

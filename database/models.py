@@ -92,19 +92,6 @@ from sqlalchemy import Column, Integer, String, DateTime, Text
 from config.database import Base
 from datetime import datetime
 
-class CompanyProfile(Base):
-    __tablename__ = "company_profile"
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(100), nullable=False)
-    address = Column(String(250))
-    email = Column(String(100))
-    phone = Column(String(25))
-    logo_url = Column(String(200))
-    tax_id = Column(String(50))
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    about = Column(Text)
-
 class ServiceRequest(Base):
     """Service request model - entry point for testing workflow"""
     __tablename__ = "service_requests"

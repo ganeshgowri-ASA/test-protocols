@@ -337,7 +337,7 @@ class TestExecution(Base):
 
     # Sample information
     sample_id = Column(String(100))
-    qr_code = Column(Text, unique=True))
+    qr_code = Column(Text, unique=True)
 
     # Execution tracking
     status = Column(Enum(TestStatus), default=TestStatus.NOT_STARTED)
@@ -469,7 +469,7 @@ class QRCode(Base):
     __tablename__ = "qr_codes"
 
     id = Column(Integer, primary_key=True, index=True)
-    qr_code = Column(Text, unique=True), unique=True, nullable=False, index=True)
+    qr_code = Column(String(100), unique=True, nullable=False, index=True)
 
     # What does this QR code point to?
     entity_type = Column(String(50))  # sample, equipment, service_request, etc.

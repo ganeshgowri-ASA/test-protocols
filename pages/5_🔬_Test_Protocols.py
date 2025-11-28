@@ -13,6 +13,8 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+from sqlalchemy import select
+
 from config.settings import setup_page_config
 from config.database import get_db
 from config.protocols_registry import get_cached_protocol_registry
@@ -145,14 +147,11 @@ def render_test_execution():
 
     # Link to service request - extract data before session closes to avoid DetachedInstanceError
     with get_db() as db:
-        service_requests = db.query(ServiceRequest).filter(
-            ServiceRequest.status.in_(['approved', 'in_progress'])
-        ).all()
-        # Extract needed data while session is still open
-        sr_options = {
-            f"{sr.request_number} - {sr.client_name}": sr.id
-            for sr in service_requests
-        }
+        service_requests = db.execute(
+            select(ServiceRequest).where(
+                ServiceRequest.status.in_(['approved', 'in_progress'])
+            )
+        ).scalars().all()
 
     if not sr_options:
         st.warning("No approved service requests available. Create a service request first.")
@@ -745,9 +744,11 @@ def render_test_history():
 
     try:
         with get_db() as db:
-            executions = db.query(TestExecution).order_by(
-                TestExecution.created_at.desc()
-            ).limit(20).all()
+            executions = db.execute(
+                select(TestExecution).order_by(
+                    TestExecution.created_at.desc()
+                ).limit(20)
+            ).scalars().all()
 
             if not executions:
                 st.info("No test executions found")

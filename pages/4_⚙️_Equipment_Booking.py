@@ -13,6 +13,8 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+from sqlalchemy import select
+
 from config.settings import setup_page_config
 from config.database import get_db
 from sqlalchemy.orm import joinedload
@@ -49,7 +51,7 @@ def render_equipment_list():
 
     try:
         with get_db() as db:
-            equipment = db.query(Equipment).all()
+            equipment = db.execute(select(Equipment)).scalars().all()
 
             if not equipment:
                 # Add sample equipment
@@ -91,7 +93,7 @@ def render_equipment_list():
                     db.add(eq)
 
                 db.commit()
-                equipment = db.query(Equipment).all()
+                equipment = db.execute(select(Equipment)).scalars().all()
 
             # Display equipment cards
             for eq in equipment:
@@ -147,32 +149,54 @@ def render_booking_form():
     try:
         # Query and extract equipment data before session closes to avoid DetachedInstanceError
         with get_db() as db:
-            available_equipment = db.query(Equipment).filter(
-                Equipment.status == EquipmentStatus.AVAILABLE
-            ).all()
-            # Extract needed data while session is still open
-            eq_options = {
-                f"{eq.equipment_code} - {eq.name}": eq.id
-                for eq in available_equipment
-            }
+            available_equipment = db.execute(
+                select(Equipment).where(
+                    Equipment.status == EquipmentStatus.AVAILABLE
+                )
+            ).scalars().all()
 
-        if not eq_options:
-            st.warning("⚠️ No equipment currently available for booking")
-            return
+            if not available_equipment:
+                st.warning("⚠️ No equipment currently available for booking")
+                return
 
-        with st.form("equipment_booking"):
-            # Equipment selection
-            selected_eq = st.selectbox("Select Equipment *", options=list(eq_options.keys()))
-            equipment_id = eq_options[selected_eq]
+            with st.form("equipment_booking"):
+                # Equipment selection
+                eq_options = {
+                    f"{eq.equipment_code} - {eq.name}": eq.id
+                    for eq in available_equipment
+                }
 
-            # Booking period
-            col1, col2 = st.columns(2)
+                selected_eq = st.selectbox("Select Equipment *", options=list(eq_options.keys()))
+                equipment_id = eq_options[selected_eq]
 
-            with col1:
-                start_date = st.date_input(
-                    "Start Date *",
-                    value=datetime.now(),
-                    min_value=datetime.now()
+                # Booking period
+                col1, col2 = st.columns(2)
+
+                with col1:
+                    start_date = st.date_input(
+                        "Start Date *",
+                        value=datetime.now(),
+                        min_value=datetime.now()
+                    )
+                    start_time = st.time_input("Start Time *", value=datetime.now().time())
+
+                with col2:
+                    end_date = st.date_input(
+                        "End Date *",
+                        value=datetime.now() + timedelta(days=1),
+                        min_value=datetime.now()
+                    )
+                    end_time = st.time_input("End Time *", value=datetime.now().time())
+
+                # Combine date and time
+                start_datetime = datetime.combine(start_date, start_time)
+                end_datetime = datetime.combine(end_date, end_time)
+
+                # Purpose
+                purpose = st.text_area(
+                    "Purpose *",
+                    placeholder="e.g., P1 - I-V Performance Testing for SR-2024-0001",
+                    height=100
                 )
                 start_time = st.time_input("Start Time *", value=datetime.now().time())
 
@@ -229,7 +253,9 @@ def render_booking_form():
                         db.add(booking)
 
                         # Update equipment status
-                        equipment = db.query(Equipment).filter(Equipment.id == equipment_id).first()
+                        equipment = db.execute(
+                            select(Equipment).where(Equipment.id == equipment_id)
+                        ).scalar_one_or_none()
                         equipment.status = EquipmentStatus.IN_USE
 
                         db.commit()
@@ -257,11 +283,11 @@ def render_bookings_list():
     try:
         # Query bookings with eager loading and extract data to avoid DetachedInstanceError
         with get_db() as db:
-            bookings = db.query(EquipmentBooking).options(
-                joinedload(EquipmentBooking.equipment)
-            ).filter(
-                EquipmentBooking.is_active == True
-            ).order_by(EquipmentBooking.start_time.desc()).limit(20).all()
+            bookings = db.execute(
+                select(EquipmentBooking).where(
+                    EquipmentBooking.is_active == True
+                ).order_by(EquipmentBooking.start_time.desc()).limit(20)
+            ).scalars().all()
 
             # Extract all needed data while session is open
             bookings_data = []

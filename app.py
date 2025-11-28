@@ -1,3 +1,4 @@
+40
 """
 Solar PV Testing Protocol - Unified LIMS-QMS System
 ====================================================
@@ -17,6 +18,19 @@ import os
 import sys
 import time
 import threading
+
+# ============================================================================
+# CRITICAL FIX: Initialize database IMMEDIATELY on app startup
+# ============================================================================
+try:
+    from config.database import init_database
+    logger.info("Attempting to initialize database on startup...")
+    init_database()
+    logger.info("✅ Database initialization completed successfully!")
+except Exception as e:
+    logger.warning(f"Database initialization failed (will retry later): {e}")
+
+
 from datetime import datetime
 from pathlib import Path
 

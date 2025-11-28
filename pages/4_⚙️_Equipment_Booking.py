@@ -18,6 +18,7 @@ from config.database import get_db
 from sqlalchemy.orm import joinedload
 from components.navigation import render_header, render_sidebar_navigation
 from database.models import Equipment, EquipmentBooking, EquipmentStatus
+from sqlalchemy import select, desc, asc, and_, or_, func
 
 # Page configuration
 setup_page_config(page_title="Equipment Booking", page_icon="⚙️")
@@ -49,7 +50,7 @@ def render_equipment_list():
 
     try:
         with get_db() as db:
-            equipment = db.query(Equipment).all()
+            equipment = db.execute(select(Equipment)).scalars().all()
 
             if not equipment:
                 # Add sample equipment
@@ -91,7 +92,7 @@ def render_equipment_list():
                     db.add(eq)
 
                 db.commit()
-                equipment = db.query(Equipment).all()
+                equipment = db.execute(select(Equipment)).scalars().all()
 
             # Display equipment cards
             for eq in equipment:
@@ -147,9 +148,9 @@ def render_booking_form():
     try:
         # Query and extract equipment data before session closes to avoid DetachedInstanceError
         with get_db() as db:
-            available_equipment = db.query(Equipment).filter(
+            available_equipment = db.execute(select(Equipment).where(
                 Equipment.status == EquipmentStatus.AVAILABLE
-            ).all()
+            )).scalars().all()
             # Extract needed data while session is still open
             eq_options = {
                 f"{eq.equipment_code} - {eq.name}": eq.id

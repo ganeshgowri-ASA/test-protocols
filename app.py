@@ -52,7 +52,8 @@ try:
                 init_database()
                     logger.info("✅ Database initialization completed successfully!")
                     except Exception as e:
-                            logger.warning(f"Database initialization failed (will retry later): {e}")
+                            logger.warning(f"Database initialization failed (will retry later): {e}")git push origin claude/unified-streamlit-lims-qms-01YJDJGxNMotcr1hNa6JK11g
+                            
 
 # ============================================================================
 # PAGE CONFIG - Must be called first before any other st commands

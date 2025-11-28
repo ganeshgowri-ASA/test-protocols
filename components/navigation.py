@@ -9,6 +9,7 @@ from datetime import datetime
 import base64
 from config.settings import config, apply_custom_css
 from config.database import check_database_health, get_db
+from sqlalchemy import select, desc, asc, and_, or_, func
 
 
 def get_company_branding():

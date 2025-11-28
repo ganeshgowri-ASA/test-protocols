@@ -18,6 +18,7 @@ from config.database import get_db
 from config.protocols_registry import get_cached_protocol_registry
 from components.navigation import render_header, render_sidebar_navigation
 from database.models import ServiceRequest, RequestStatus
+from sqlalchemy import select, desc, asc, and_, or_, func
 
 # Page configuration
 setup_page_config(page_title="Service Request", page_icon="📋")

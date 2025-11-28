@@ -601,3 +601,101 @@ class QRCode(Base):
 
     def __repr__(self):
         return f"<QRCode(code='{self.qr_code}', type='{self.entity_type}')>"
+
+
+class Sample(Base):
+    """Sample/Module model - stores PV module/cell sample information"""
+    __tablename__ = "samples"
+    __table_args__ = {'extend_existing': True}
+    
+    id = Column(Integer, primary_key=True, index=True)
+    sample_id = Column(String(100), unique=True, nullable=False, index=True)  # e.g., "MOD-2024-001"
+    
+    # Identification
+    batch_number = Column(String(100))  # Manufacturing batch
+    lot_number = Column(String(100))  # Supplier lot number
+    serial_number = Column(String(100), unique=True)
+    
+    # Sample Details
+    sample_type = Column(String(50))  # "module", "cell", "mini-module", "string", etc.
+    manufacturer = Column(String(100))
+    model_number = Column(String(100))
+    technology = Column(String(50))  # "monocrystalline", "polycrystalline", "thin-film", etc.
+    
+    # Physical Properties
+    rated_power = Column(Float)  # Pmax in Watts
+    rated_voltage = Column(Float)  # Vmpp in Volts
+    rated_current = Column(Float)  # Impp in Amperes
+    dimensions = Column(JSON)  # {"length_mm": 1956, "width_mm": 992, "thickness_mm": 40}
+    weight_kg = Column(Float)
+    
+    # Supply Chain
+    received_date = Column(DateTime)
+    expiry_date = Column(DateTime)  # Storage/testing expiry
+    supplier = Column(String(100))
+    purchase_order = Column(String(100))
+    cost = Column(Float)
+    
+    # Status & Storage
+    storage_location = Column(String(100))  # Storage bin/shelf location
+    storage_condition = Column(String(50))  # "normal", "controlled", "cold", etc.
+    is_active = Column(Boolean, default=True)
+    condition_notes = Column(Text)  # Any visible defects or notes
+    
+    # Relationships
+    inspections = relationship("IncomingInspection", foreign_keys="IncomingInspection.sample_id", back_populates="sample")
+    test_executions = relationship("TestExecution", foreign_keys="TestExecution.sample_id", back_populates="sample")
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f"<Sample(id={self.id}, sample_id='{self.sample_id}', manufacturer='{self.manufacturer}')>"
+
+
+class TestName(Base):
+    """Test names/definitions model - stores predefined test names and categories"""
+    __tablename__ = "tests_names"
+    __table_args__ = {'extend_existing': True}
+    
+    id = Column(Integer, primary_key=True, index=True)
+    test_name_id = Column(String(50), unique=True, nullable=False, index=True)  # e.g., "EL_IMAGING"
+    display_name = Column(String(200), nullable=False)  # e.g., "Electroluminescence Imaging"
+    short_name = Column(String(100))  # e.g., "EL"
+    
+    # Test Categorization
+    category = Column(String(50))  # "performance", "degradation", "safety", "environmental", "mechanical", "optical"
+    sub_category = Column(String(50))  # Optional sub-category
+    
+    # Test Details
+    description = Column(Text)  # Detailed description of what the test measures
+    standard_reference = Column(String(200))  # IEC/IEEE standard reference
+    is_destructive = Column(Boolean, default=False)  # True if test destroys/damages sample
+    
+    # Test Configuration
+    typical_duration_hours = Column(Float)  # Approximate test duration
+    requires_equipment = Column(JSON)  # List of equipment codes needed
+    prerequisites = Column(JSON)  # List of prerequisite tests
+    mutually_exclusive = Column(JSON)  # Tests that cannot be run on same sample
+    
+    # Acceptance Criteria
+    acceptance_criteria = Column(JSON)  # Pass/fail criteria definition
+    pass_fail_logic = Column(String(100))  # "all_pass", "any_pass", "majority_pass", etc.
+    
+    # Operational
+    is_active = Column(Boolean, default=True)
+    test_priority = Column(Integer, default=100)  # Lower number = higher priority
+    frequency_in_protocol = Column(Integer)  # How often this test appears in protocols
+    
+    # Metadata
+    notes = Column(Text)
+    created_by = Column(String(100))
+    approved_by = Column(String(100))
+    approval_date = Column(DateTime)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f"<TestName(id={self.id}, test_name_id='{self.test_name_id}', display_name='{self.display_name}')>"
+

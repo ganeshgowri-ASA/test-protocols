@@ -144,6 +144,25 @@ def init_database():
             db.add(admin_user)
             db.commit()
 
+        # Seed test protocols if table is empty
+    protocols_count = db.query(TestProtocol).count()
+    if protocols_count == 0:
+        protocols = [
+            TestProtocol(protocol_id="P1", name="I-V Performance Test", category="performance", is_active=True),
+            TestProtocol(protocol_id="P2", name="PMax Tracking Test", category="performance", is_active=True),
+            TestProtocol(protocol_id="P3", name="Temperature Coefficient", category="performance", is_active=True),
+            TestProtocol(protocol_id="P4", name="Module Thermal Test", category="performance", is_active=True),
+            TestProtocol(protocol_id="P5", name="Humidity-Freeze Test", category="environmental", is_active=True),
+            TestProtocol(protocol_id="P6", name="Hot-Humid Test", category="environmental", is_active=True),
+            TestProtocol(protocol_id="P7", name="Thermal Cycling Test", category="degradation", is_active=True),
+            TestProtocol(protocol_id="P8", name="UV Degradation Test", category="degradation", is_active=True),
+            TestProtocol(protocol_id="P9", name="Mechanical Load Test", category="mechanical", is_active=True),
+            TestProtocol(protocol_id="P10", name="Wet Leakage Test", category="safety", is_active=True),
+        ]
+        for protocol in protocols:
+            db.add(protocol)
+        db.commit()
+
     return SessionLocal
 
 

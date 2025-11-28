@@ -13,6 +13,8 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+from sqlalchemy import select
+
 from config.settings import setup_page_config
 from config.database import get_db
 from config.protocols_registry import get_cached_protocol_registry
@@ -142,9 +144,11 @@ def render_test_execution():
 
     # Link to service request
     with get_db() as db:
-        service_requests = db.query(ServiceRequest).filter(
-            ServiceRequest.status.in_(['approved', 'in_progress'])
-        ).all()
+        service_requests = db.execute(
+            select(ServiceRequest).where(
+                ServiceRequest.status.in_(['approved', 'in_progress'])
+            )
+        ).scalars().all()
 
     if not service_requests:
         st.warning("No approved service requests available. Create a service request first.")
@@ -305,9 +309,11 @@ def render_test_history():
 
     try:
         with get_db() as db:
-            executions = db.query(TestExecution).order_by(
-                TestExecution.created_at.desc()
-            ).limit(20).all()
+            executions = db.execute(
+                select(TestExecution).order_by(
+                    TestExecution.created_at.desc()
+                ).limit(20)
+            ).scalars().all()
 
             if not executions:
                 st.info("No test executions found")

@@ -13,6 +13,8 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+from sqlalchemy import select
+
 from config.settings import setup_page_config
 from config.database import get_db
 from components.navigation import render_header, render_sidebar_navigation
@@ -48,7 +50,7 @@ def render_equipment_list():
 
     try:
         with get_db() as db:
-            equipment = db.query(Equipment).all()
+            equipment = db.execute(select(Equipment)).scalars().all()
 
             if not equipment:
                 # Add sample equipment
@@ -90,7 +92,7 @@ def render_equipment_list():
                     db.add(eq)
 
                 db.commit()
-                equipment = db.query(Equipment).all()
+                equipment = db.execute(select(Equipment)).scalars().all()
 
             # Display equipment cards
             for eq in equipment:
@@ -145,9 +147,11 @@ def render_booking_form():
 
     try:
         with get_db() as db:
-            available_equipment = db.query(Equipment).filter(
-                Equipment.status == EquipmentStatus.AVAILABLE
-            ).all()
+            available_equipment = db.execute(
+                select(Equipment).where(
+                    Equipment.status == EquipmentStatus.AVAILABLE
+                )
+            ).scalars().all()
 
             if not available_equipment:
                 st.warning("⚠️ No equipment currently available for booking")
@@ -225,7 +229,9 @@ def render_booking_form():
                         db.add(booking)
 
                         # Update equipment status
-                        equipment = db.query(Equipment).filter(Equipment.id == equipment_id).first()
+                        equipment = db.execute(
+                            select(Equipment).where(Equipment.id == equipment_id)
+                        ).scalar_one_or_none()
                         equipment.status = EquipmentStatus.IN_USE
 
                         db.commit()
@@ -252,9 +258,11 @@ def render_bookings_list():
 
     try:
         with get_db() as db:
-            bookings = db.query(EquipmentBooking).filter(
-                EquipmentBooking.is_active == True
-            ).order_by(EquipmentBooking.start_time.desc()).limit(20).all()
+            bookings = db.execute(
+                select(EquipmentBooking).where(
+                    EquipmentBooking.is_active == True
+                ).order_by(EquipmentBooking.start_time.desc()).limit(20)
+            ).scalars().all()
 
             if not bookings:
                 st.info("No active bookings found")

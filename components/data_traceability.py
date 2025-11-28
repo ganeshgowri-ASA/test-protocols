@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 import pandas as pd
 import streamlit as st
-from sqlalchemy import desc
+from sqlalchemy import desc, select
 
 from config.database import get_db
 from database.models import AuditLog, User, TestExecution
@@ -75,18 +75,18 @@ def get_audit_trail(
     """
     try:
         with get_db() as db:
-            query = db.query(AuditLog).order_by(desc(AuditLog.created_at))
+            stmt = select(AuditLog).order_by(desc(AuditLog.created_at))
 
             if table_name:
-                query = query.filter(AuditLog.table_name == table_name)
+                stmt = stmt.where(AuditLog.table_name == table_name)
             if record_id:
-                query = query.filter(AuditLog.record_id == record_id)
+                stmt = stmt.where(AuditLog.record_id == record_id)
             if user_id:
-                query = query.filter(AuditLog.user_id == user_id)
+                stmt = stmt.where(AuditLog.user_id == user_id)
             if action:
-                query = query.filter(AuditLog.action == action)
+                stmt = stmt.where(AuditLog.action == action)
 
-            logs = query.limit(limit).all()
+            logs = db.execute(stmt.limit(limit)).scalars().all()
 
             return [
                 {
@@ -196,9 +196,11 @@ def get_data_lineage(test_execution_id: int) -> Dict[str, Any]:
     """
     try:
         with get_db() as db:
-            test = db.query(TestExecution).filter(
-                TestExecution.id == test_execution_id
-            ).first()
+            test = db.execute(
+                select(TestExecution).where(
+                    TestExecution.id == test_execution_id
+                )
+            ).scalar_one_or_none()
 
             if not test:
                 return {}
@@ -410,9 +412,11 @@ def verify_data_integrity(test_execution_id: int) -> Dict[str, Any]:
 
     try:
         with get_db() as db:
-            test = db.query(TestExecution).filter(
-                TestExecution.id == test_execution_id
-            ).first()
+            test = db.execute(
+                select(TestExecution).where(
+                    TestExecution.id == test_execution_id
+                )
+            ).scalar_one_or_none()
 
             if not test:
                 results['is_valid'] = False

@@ -222,7 +222,7 @@ def get_data_lineage(test_execution_id: int) -> Dict[str, Any]:
                 'processing_steps': []
             }
 
-            # Get service request info
+            # Get service request info (already eagerly loaded)
             if test.service_request:
                 lineage['service_request'] = {
                     'id': test.service_request.id,

@@ -17,6 +17,7 @@ from sqlalchemy import select
 
 from config.settings import setup_page_config
 from config.database import get_db
+from sqlalchemy.orm import joinedload
 from components.navigation import render_header, render_sidebar_navigation
 from database.models import Equipment, EquipmentBooking, EquipmentStatus
 
@@ -146,6 +147,7 @@ def render_booking_form():
     st.markdown("### 📅 Create Equipment Booking")
 
     try:
+        # Query and extract equipment data before session closes to avoid DetachedInstanceError
         with get_db() as db:
             available_equipment = db.execute(
                 select(Equipment).where(
@@ -196,35 +198,57 @@ def render_booking_form():
                     placeholder="e.g., P1 - I-V Performance Testing for SR-2024-0001",
                     height=100
                 )
+                start_time = st.time_input("Start Time *", value=datetime.now().time())
 
-                notes = st.text_area("Notes", placeholder="Any special requirements...", height=80)
+            with col2:
+                end_date = st.date_input(
+                    "End Date *",
+                    value=datetime.now() + timedelta(days=1),
+                    min_value=datetime.now()
+                )
+                end_time = st.time_input("End Time *", value=datetime.now().time())
 
-                # Submit
-                submitted = st.form_submit_button("✅ Create Booking", type="primary", use_container_width=True)
+            # Combine date and time
+            start_datetime = datetime.combine(start_date, start_time)
+            end_datetime = datetime.combine(end_date, end_time)
 
-                if submitted:
-                    if not purpose:
-                        st.error("❌ Please enter booking purpose")
-                        return
+            # Purpose
+            purpose = st.text_area(
+                "Purpose *",
+                placeholder="e.g., P1 - I-V Performance Testing for SR-2024-0001",
+                height=100
+            )
 
-                    if end_datetime <= start_datetime:
-                        st.error("❌ End time must be after start time")
-                        return
+            notes = st.text_area("Notes", placeholder="Any special requirements...", height=80)
 
-                    try:
-                        booking_number = generate_booking_number()
+            # Submit
+            submitted = st.form_submit_button("✅ Create Booking", type="primary", use_container_width=True)
 
-                        booking_data = {
-                            'booking_number': booking_number,
-                            'equipment_id': equipment_id,
-                            'booked_by_id': 1,  # Demo user
-                            'start_time': start_datetime,
-                            'end_time': end_datetime,
-                            'purpose': purpose,
-                            'notes': notes,
-                            'is_active': True
-                        }
+            if submitted:
+                if not purpose:
+                    st.error("❌ Please enter booking purpose")
+                    return
 
+                if end_datetime <= start_datetime:
+                    st.error("❌ End time must be after start time")
+                    return
+
+                try:
+                    booking_number = generate_booking_number()
+
+                    booking_data = {
+                        'booking_number': booking_number,
+                        'equipment_id': equipment_id,
+                        'booked_by_id': 1,  # Demo user
+                        'start_time': start_datetime,
+                        'end_time': end_datetime,
+                        'purpose': purpose,
+                        'notes': notes,
+                        'is_active': True
+                    }
+
+                    # Use new session for database operations
+                    with get_db() as db:
                         booking = EquipmentBooking(**booking_data)
                         db.add(booking)
 
@@ -236,16 +260,16 @@ def render_booking_form():
 
                         db.commit()
 
-                        st.success(f"✅ Booking {booking_number} created successfully!")
-                        st.info(f"""
-                        **Booking Details:**
-                        - Equipment: {selected_eq}
-                        - Period: {start_datetime.strftime('%Y-%m-%d %H:%M')} to {end_datetime.strftime('%Y-%m-%d %H:%M')}
-                        - Duration: {(end_datetime - start_datetime).total_seconds() / 3600:.1f} hours
-                        """)
+                    st.success(f"✅ Booking {booking_number} created successfully!")
+                    st.info(f"""
+                    **Booking Details:**
+                    - Equipment: {selected_eq}
+                    - Period: {start_datetime.strftime('%Y-%m-%d %H:%M')} to {end_datetime.strftime('%Y-%m-%d %H:%M')}
+                    - Duration: {(end_datetime - start_datetime).total_seconds() / 3600:.1f} hours
+                    """)
 
-                    except Exception as e:
-                        st.error(f"❌ Error creating booking: {str(e)}")
+                except Exception as e:
+                    st.error(f"❌ Error creating booking: {str(e)}")
 
     except Exception as e:
         st.error(f"Error: {str(e)}")
@@ -257,6 +281,7 @@ def render_bookings_list():
     st.markdown("### 📋 Equipment Bookings")
 
     try:
+        # Query bookings with eager loading and extract data to avoid DetachedInstanceError
         with get_db() as db:
             bookings = db.execute(
                 select(EquipmentBooking).where(
@@ -264,67 +289,94 @@ def render_bookings_list():
                 ).order_by(EquipmentBooking.start_time.desc()).limit(20)
             ).scalars().all()
 
-            if not bookings:
-                st.info("No active bookings found")
-                return
-
+            # Extract all needed data while session is open
+            bookings_data = []
             for booking in bookings:
-                equipment = booking.equipment
+                bookings_data.append({
+                    'id': booking.id,
+                    'booking_number': booking.booking_number,
+                    'start_time': booking.start_time,
+                    'end_time': booking.end_time,
+                    'purpose': booking.purpose,
+                    'notes': booking.notes,
+                    'equipment_id': booking.equipment_id,
+                    'equipment_name': booking.equipment.name if booking.equipment else 'N/A',
+                    'equipment_code': booking.equipment.equipment_code if booking.equipment else 'N/A',
+                })
 
-                is_current = (
-                    booking.start_time <= datetime.now() <= booking.end_time
-                )
+        if not bookings_data:
+            st.info("No active bookings found")
+            return
 
-                status_emoji = "🔵" if is_current else "📅"
+        for booking_info in bookings_data:
+            is_current = (
+                booking_info['start_time'] <= datetime.now() <= booking_info['end_time']
+            )
 
-                with st.expander(
-                    f"{status_emoji} {booking.booking_number} - {equipment.name}",
-                    expanded=is_current
-                ):
-                    col1, col2, col3 = st.columns(3)
+            status_emoji = "🔵" if is_current else "📅"
 
-                    with col1:
-                        st.markdown(f"**Equipment:** {equipment.name}")
-                        st.markdown(f"**Code:** {equipment.equipment_code}")
+            with st.expander(
+                f"{status_emoji} {booking_info['booking_number']} - {booking_info['equipment_name']}",
+                expanded=is_current
+            ):
+                col1, col2, col3 = st.columns(3)
 
-                    with col2:
-                        st.markdown(f"**Start:** {booking.start_time.strftime('%Y-%m-%d %H:%M')}")
-                        st.markdown(f"**End:** {booking.end_time.strftime('%Y-%m-%d %H:%M')}")
+                with col1:
+                    st.markdown(f"**Equipment:** {booking_info['equipment_name']}")
+                    st.markdown(f"**Code:** {booking_info['equipment_code']}")
 
-                    with col3:
-                        duration = (booking.end_time - booking.start_time).total_seconds() / 3600
-                        st.markdown(f"**Duration:** {duration:.1f} hours")
-                        st.markdown(f"**Status:** {'In Progress' if is_current else 'Scheduled'}")
+                with col2:
+                    st.markdown(f"**Start:** {booking_info['start_time'].strftime('%Y-%m-%d %H:%M')}")
+                    st.markdown(f"**End:** {booking_info['end_time'].strftime('%Y-%m-%d %H:%M')}")
 
-                    st.markdown(f"**Purpose:** {booking.purpose}")
+                with col3:
+                    duration = (booking_info['end_time'] - booking_info['start_time']).total_seconds() / 3600
+                    st.markdown(f"**Duration:** {duration:.1f} hours")
+                    st.markdown(f"**Status:** {'In Progress' if is_current else 'Scheduled'}")
 
-                    if booking.notes:
-                        st.markdown(f"**Notes:** {booking.notes}")
+                st.markdown(f"**Purpose:** {booking_info['purpose']}")
 
-                    # Action buttons
-                    col1, col2 = st.columns(2)
+                if booking_info['notes']:
+                    st.markdown(f"**Notes:** {booking_info['notes']}")
 
-                    with col1:
-                        if st.button("✅ Complete Booking", key=f"complete_{booking.id}"):
-                            booking.is_active = False
-                            booking.actual_end_time = datetime.now()
+                # Action buttons
+                col1, col2 = st.columns(2)
 
-                            equipment.status = EquipmentStatus.AVAILABLE
+                with col1:
+                    if st.button("✅ Complete Booking", key=f"complete_{booking_info['id']}"):
+                        with get_db() as db:
+                            booking = db.query(EquipmentBooking).filter(
+                                EquipmentBooking.id == booking_info['id']
+                            ).first()
+                            if booking:
+                                booking.is_active = False
+                                booking.actual_end_time = datetime.now()
+                                equipment = db.query(Equipment).filter(
+                                    Equipment.id == booking_info['equipment_id']
+                                ).first()
+                                if equipment:
+                                    equipment.status = EquipmentStatus.AVAILABLE
+                                db.commit()
+                        st.success("Booking completed!")
+                        st.rerun()
 
-                            db.commit()
-                            st.success("Booking completed!")
-                            st.rerun()
-
-                    with col2:
-                        if st.button("❌ Cancel Booking", key=f"cancel_{booking.id}"):
-                            booking.is_cancelled = True
-                            booking.is_active = False
-
-                            equipment.status = EquipmentStatus.AVAILABLE
-
-                            db.commit()
-                            st.success("Booking cancelled!")
-                            st.rerun()
+                with col2:
+                    if st.button("❌ Cancel Booking", key=f"cancel_{booking_info['id']}"):
+                        with get_db() as db:
+                            booking = db.query(EquipmentBooking).filter(
+                                EquipmentBooking.id == booking_info['id']
+                            ).first()
+                            if booking:
+                                booking.is_cancelled = True
+                                booking.is_active = False
+                                equipment = db.query(Equipment).filter(
+                                    Equipment.id == booking_info['equipment_id']
+                                ).first()
+                                if equipment:
+                                    equipment.status = EquipmentStatus.AVAILABLE
+                                db.commit()
+                        st.success("Booking cancelled!")
+                        st.rerun()
 
     except Exception as e:
         st.error(f"Error loading bookings: {str(e)}")

@@ -104,11 +104,23 @@ def init_database():
     from database.models import (
         User, ServiceRequest, IncomingInspection,
         Equipment, EquipmentBooking, TestProtocol,
-        TestExecution, TestData, AuditLog, QRCode
+        TestExecution, TestData, AuditLog, QRCode,
+        CompanyProfile
     )
 
     engine = get_engine()
 
+
+        # CRITICAL FIX: Configure mappers before creating tables
+    # This ensures all relationships are properly set up
+    from sqlalchemy.orm import configure_mappers
+    try:
+        configure_mappers()
+    except Exception as e:
+        # If mapper configuration fails, clear and retry
+        from sqlalchemy.orm import clear_mappers
+        clear_mappers()
+        configure_mappers()
     # Create all tables
     Base.metadata.create_all(bind=engine)
 
@@ -123,20 +135,14 @@ def init_database():
         ).scalar_one_or_none()
 
         if not admin_exists:
-            from datetime import datetime
-            import hashlib
 
-            # Simple password hashing (use bcrypt in production)
-            password_hash = hashlib.sha256("admin123".encode()).hexdigest()
 
             admin_user = User(
                 username="admin",
                 email="admin@solarpv.com",
-                password_hash=password_hash,
                 full_name="System Administrator",
                 role="admin",
                 is_active=True,
-                created_at=datetime.utcnow()
             )
             db.add(admin_user)
             db.commit()

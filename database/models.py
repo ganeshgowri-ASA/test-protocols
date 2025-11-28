@@ -262,8 +262,7 @@ class IncomingInspection(Base):
 
     # Sample identification
     sample_id = Column(String(100), nullable=False)
-    qr_code = Column(String(100), unique=True)
-
+    qr_code = Column(Text, unique=True)
     # Visual inspection checklist
     physical_damage = Column(Boolean, default=False)
     physical_damage_notes = Column(Text)
@@ -576,8 +575,7 @@ class QRCode(Base):
     __tablename__ = "qr_codes"
 
     id = Column(Integer, primary_key=True, index=True)
-    qr_code = Column(String(100), unique=True, nullable=False, index=True)
-
+    qr_code = Column(Text, unique=False, nullable=False, index=True)
     # What does this QR code point to?
     entity_type = Column(String(50))  # sample, equipment, service_request, etc.
     entity_id = Column(Integer)

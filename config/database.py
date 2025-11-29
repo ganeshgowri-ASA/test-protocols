@@ -8,7 +8,7 @@ import os
 from contextlib import contextmanager
 from typing import Generator
 
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, select, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
@@ -110,8 +110,7 @@ def init_database():
 
     engine = get_engine()
 
-
-        # CRITICAL FIX: Configure mappers before creating tables
+    # CRITICAL FIX: Configure mappers before creating tables
     # This ensures all relationships are properly set up
     from sqlalchemy.orm import configure_mappers
     try:
@@ -129,11 +128,11 @@ def init_database():
 
     # Create default admin user if not exists
     with get_db() as db:
-        admin_exists = db.query(User).filter_by(username="admin").first()
+        admin_exists = db.execute(
+            select(User).where(User.username == "admin")
+        ).scalar_one_or_none()
 
         if not admin_exists:
-
-
             admin_user = User(
                 username="admin",
                 email="admin@solarpv.com",
@@ -145,23 +144,23 @@ def init_database():
             db.commit()
 
         # Seed test protocols if table is empty
-    protocols_count = db.query(TestProtocol).count()
-    if protocols_count == 0:
-        protocols = [
-            TestProtocol(protocol_id="P1", name="I-V Performance Test", category="performance", is_active=True),
-            TestProtocol(protocol_id="P2", name="PMax Tracking Test", category="performance", is_active=True),
-            TestProtocol(protocol_id="P3", name="Temperature Coefficient", category="performance", is_active=True),
-            TestProtocol(protocol_id="P4", name="Module Thermal Test", category="performance", is_active=True),
-            TestProtocol(protocol_id="P5", name="Humidity-Freeze Test", category="environmental", is_active=True),
-            TestProtocol(protocol_id="P6", name="Hot-Humid Test", category="environmental", is_active=True),
-            TestProtocol(protocol_id="P7", name="Thermal Cycling Test", category="degradation", is_active=True),
-            TestProtocol(protocol_id="P8", name="UV Degradation Test", category="degradation", is_active=True),
-            TestProtocol(protocol_id="P9", name="Mechanical Load Test", category="mechanical", is_active=True),
-            TestProtocol(protocol_id="P10", name="Wet Leakage Test", category="safety", is_active=True),
-        ]
-        for protocol in protocols:
-            db.add(protocol)
-        db.commit()
+        protocols_count = db.scalar(select(func.count()).select_from(TestProtocol)) or 0
+        if protocols_count == 0:
+            protocols = [
+                TestProtocol(protocol_id="P1", name="I-V Performance Test", category="performance", is_active=True),
+                TestProtocol(protocol_id="P2", name="PMax Tracking Test", category="performance", is_active=True),
+                TestProtocol(protocol_id="P3", name="Temperature Coefficient", category="performance", is_active=True),
+                TestProtocol(protocol_id="P4", name="Module Thermal Test", category="performance", is_active=True),
+                TestProtocol(protocol_id="P5", name="Humidity-Freeze Test", category="environmental", is_active=True),
+                TestProtocol(protocol_id="P6", name="Hot-Humid Test", category="environmental", is_active=True),
+                TestProtocol(protocol_id="P7", name="Thermal Cycling Test", category="degradation", is_active=True),
+                TestProtocol(protocol_id="P8", name="UV Degradation Test", category="degradation", is_active=True),
+                TestProtocol(protocol_id="P9", name="Mechanical Load Test", category="mechanical", is_active=True),
+                TestProtocol(protocol_id="P10", name="Wet Leakage Test", category="safety", is_active=True),
+            ]
+            for protocol in protocols:
+                db.add(protocol)
+            db.commit()
 
     return SessionLocal
 

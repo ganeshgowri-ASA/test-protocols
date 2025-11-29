@@ -230,8 +230,11 @@ def render_booking_form():
                         db.add(booking)
 
                         # Update equipment status
-                        equipment = db.query(Equipment).filter(Equipment.id == equipment_id).first()
-                        equipment.status = EquipmentStatus.IN_USE
+                        equipment = db.execute(
+                            select(Equipment).where(Equipment.id == equipment_id)
+                        ).scalar_one_or_none()
+                        if equipment:
+                            equipment.status = EquipmentStatus.IN_USE
 
                         db.commit()
 
@@ -258,11 +261,13 @@ def render_bookings_list():
     try:
         # Query bookings with eager loading and extract data to avoid DetachedInstanceError
         with get_db() as db:
-            bookings = db.query(EquipmentBooking).options(
-                joinedload(EquipmentBooking.equipment)
-            ).filter(
-                EquipmentBooking.is_active == True
-            ).order_by(EquipmentBooking.start_time.desc()).limit(20).all()
+            bookings = db.execute(
+                select(EquipmentBooking).options(
+                    joinedload(EquipmentBooking.equipment)
+                ).where(
+                    EquipmentBooking.is_active == True
+                ).order_by(EquipmentBooking.start_time.desc()).limit(20)
+            ).scalars().all()
 
             # Extract all needed data while session is open
             bookings_data = []
@@ -320,15 +325,19 @@ def render_bookings_list():
                 with col1:
                     if st.button("✅ Complete Booking", key=f"complete_{booking_info['id']}"):
                         with get_db() as db:
-                            booking = db.query(EquipmentBooking).filter(
-                                EquipmentBooking.id == booking_info['id']
-                            ).first()
+                            booking = db.execute(
+                                select(EquipmentBooking).where(
+                                    EquipmentBooking.id == booking_info['id']
+                                )
+                            ).scalar_one_or_none()
                             if booking:
                                 booking.is_active = False
                                 booking.actual_end_time = datetime.now()
-                                equipment = db.query(Equipment).filter(
-                                    Equipment.id == booking_info['equipment_id']
-                                ).first()
+                                equipment = db.execute(
+                                    select(Equipment).where(
+                                        Equipment.id == booking_info['equipment_id']
+                                    )
+                                ).scalar_one_or_none()
                                 if equipment:
                                     equipment.status = EquipmentStatus.AVAILABLE
                                 db.commit()
@@ -338,15 +347,19 @@ def render_bookings_list():
                 with col2:
                     if st.button("❌ Cancel Booking", key=f"cancel_{booking_info['id']}"):
                         with get_db() as db:
-                            booking = db.query(EquipmentBooking).filter(
-                                EquipmentBooking.id == booking_info['id']
-                            ).first()
+                            booking = db.execute(
+                                select(EquipmentBooking).where(
+                                    EquipmentBooking.id == booking_info['id']
+                                )
+                            ).scalar_one_or_none()
                             if booking:
                                 booking.is_cancelled = True
                                 booking.is_active = False
-                                equipment = db.query(Equipment).filter(
-                                    Equipment.id == booking_info['equipment_id']
-                                ).first()
+                                equipment = db.execute(
+                                    select(Equipment).where(
+                                        Equipment.id == booking_info['equipment_id']
+                                    )
+                                ).scalar_one_or_none()
                                 if equipment:
                                     equipment.status = EquipmentStatus.AVAILABLE
                                 db.commit()

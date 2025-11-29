@@ -1,5 +1,6 @@
 """Database seed data for test protocols and initial setup"""
 from datetime import datetime
+from sqlalchemy import select, func
 from database.models import TestProtocol
 
 # Comprehensive list of PV Testing Protocols based on IEC/IEEE standards
@@ -212,7 +213,7 @@ def seed_test_protocols(db_session):
     """
     try:
         # Check if protocols already seeded
-        existing_count = db_session.query(TestProtocol).count()
+        existing_count = db_session.scalar(select(func.count()).select_from(TestProtocol)) or 0
         if existing_count > 0:
             print(f"✓ Test protocols already seeded ({existing_count} protocols found)")
             return

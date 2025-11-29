@@ -13,8 +13,6 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from sqlalchemy import select
-
 from config.settings import setup_page_config, config
 from config.database import get_db
 from config.protocols_registry import get_cached_protocol_registry
@@ -254,11 +252,9 @@ def render_requests_list():
 
     try:
         with get_db() as db:
-            requests = db.execute(
-                select(ServiceRequest).order_by(
-                    ServiceRequest.created_at.desc()
-                ).limit(50)
-            ).scalars().all()
+            requests = db.query(ServiceRequest).order_by(
+                ServiceRequest.created_at.desc()
+            ).limit(50).all()
 
             if not requests:
                 st.info("No service requests found")
@@ -362,13 +358,11 @@ def render_search_interface():
     if search_query:
         try:
             with get_db() as db:
-                results = db.execute(
-                    select(ServiceRequest).where(
-                        (ServiceRequest.request_number.contains(search_query)) |
-                        (ServiceRequest.client_name.contains(search_query)) |
-                        (ServiceRequest.client_email.contains(search_query))
-                    )
-                ).scalars().all()
+                results = db.query(ServiceRequest).filter(
+                    (ServiceRequest.request_number.contains(search_query)) |
+                    (ServiceRequest.client_name.contains(search_query)) |
+                    (ServiceRequest.client_email.contains(search_query))
+                ).all()
 
                 st.markdown(f"**Found {len(results)} result(s)**")
 

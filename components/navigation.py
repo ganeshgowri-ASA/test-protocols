@@ -24,7 +24,7 @@ def get_company_branding():
         try:
             from database.models import CompanyProfile
             with get_db() as db:
-                profile = db.query(CompanyProfile).filter_by(company_id="DEFAULT").first()
+                profile = db.execute(select(CompanyProfile).where(CompanyProfile.company_id == "DEFAULT")).scalars().first()
                 if profile:
                     logo_b64 = None
                     if profile.company_logo:

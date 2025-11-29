@@ -50,9 +50,11 @@ def render_new_inspection_form():
 
     # Link to service request - extract data before session closes to avoid DetachedInstanceError
     with get_db() as db:
-        service_requests = db.query(ServiceRequest).filter(
-            ServiceRequest.status.in_(['approved', 'in_progress'])
-        ).all()
+        service_requests = db.execute(
+            select(ServiceRequest).where(
+                ServiceRequest.status.in_(['approved', 'in_progress'])
+            )
+        ).scalars().all()
         # Extract needed data while session is still open
         sr_options = {
             f"{sr.request_number} - {sr.client_name}": sr.id
@@ -233,9 +235,11 @@ def render_inspections_list():
 
     try:
         with get_db() as db:
-            inspections = db.query(IncomingInspection).order_by(
-                IncomingInspection.inspection_date.desc()
-            ).limit(20).all()
+            inspections = db.execute(
+                select(IncomingInspection).order_by(
+                    IncomingInspection.inspection_date.desc()
+                ).limit(20)
+            ).scalars().all()
 
             if not inspections:
                 st.info("No inspections found")

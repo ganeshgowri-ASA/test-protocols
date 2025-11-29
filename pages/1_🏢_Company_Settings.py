@@ -21,6 +21,7 @@ import base64
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+from sqlalchemy import select
 from config.settings import setup_page_config, config, apply_custom_css
 from config.database import get_db
 from components.navigation import render_header, render_sidebar_navigation, clear_company_branding_cache
@@ -164,8 +165,9 @@ def save_company_profile(profile_data: dict, logo_data: dict = None) -> bool:
     try:
         from sqlalchemy import select
         with get_db() as db:
-            stmt = select(CompanyProfile).where(CompanyProfile.company_id == "DEFAULT")
-            profile = db.execute(stmt).scalars().first()
+            profile = db.execute(
+                select(CompanyProfile).where(CompanyProfile.company_id == "DEFAULT")
+            ).scalar_one_or_none()
 
             if not profile:
                 profile = CompanyProfile(company_id="DEFAULT")

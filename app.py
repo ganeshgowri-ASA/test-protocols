@@ -47,13 +47,13 @@ logger.info("=" * 60)
 # DATABASE INITIALIZATION - MOVED HERE AFTER LOGGER SETUP (FIX FOR CRITICAL ISSUE #1)
 # ============================================================================
 try:
-        from config.database import init_database
-            logger.info("Attempting to initialize database...")
-                init_database()
-                    logger.info("✅ Database initialization completed successfully!")
-                    except Exception as e:
-                            logger.warning(f"Database initialization failed (will retry later): {e}")git push origin claude/unified-streamlit-lims-qms-01YJDJGxNMotcr1hNa6JK11g
-                            
+    from config.database import init_database
+    logger.info("Attempting to initialize database...")
+    init_database()
+    logger.info("✅ Database initialization completed successfully!")
+except Exception as e:
+    logger.warning(f"Database initialization failed (will retry later): {e}")
+
 
 # ============================================================================
 # PAGE CONFIG - Must be called first before any other st commands

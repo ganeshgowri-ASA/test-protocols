@@ -662,7 +662,7 @@ def render_test_results_checksheet():
                                 with get_db() as db:
                                     exec_record = db.execute(
                                         select(TestExecution).where(TestExecution.id == execution.id)
-                                    ).scalar_one_or_none()
+                                    ).scalars().first()
                                     exec_record.status = TestStatus.IN_PROGRESS
                                     exec_record.started_at = datetime.utcnow()
                                     db.commit()
@@ -676,7 +676,7 @@ def render_test_results_checksheet():
                                 with get_db() as db:
                                     exec_record = db.execute(
                                         select(TestExecution).where(TestExecution.id == execution.id)
-                                    ).scalar_one_or_none()
+                                    ).scalars().first()
                                     exec_record.status = TestStatus.COMPLETED
                                     exec_record.completed_at = datetime.utcnow()
                                     db.commit()

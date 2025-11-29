@@ -18,7 +18,7 @@ from config.database import get_db
 from config.protocols_registry import get_cached_protocol_registry
 from components.navigation import render_header, render_sidebar_navigation
 from components.visualizations import create_iv_curve, create_pv_curve, render_test_summary_card
-from database.models import TestExecution, TestProtocol, ServiceRequest, TestStatus, TestData
+from database import TestExecution, TestProtocol, ServiceRequest, TestStatus, TestData
 from sqlalchemy import select, desc, asc, and_, or_, func
 
 # Page configuration
@@ -187,17 +187,16 @@ def render_test_execution():
     # FIX Issue #1: sr_options dict MUST be constructed INSIDE the 'with get_db()' block
     # to prevent DetachedInstanceError when accessing ORM object attributes after session closes
     with get_db() as db:
-        # Use SQLAlchemy 2.0 select() syntax instead of legacy .query()
-        stmt = select(ServiceRequest).where(
-            ServiceRequest.status.in_(['approved', 'in_progress'])
-        )
-        service_requests = db.execute(stmt).scalars().all()
-
-        # CRITICAL: Build sr_options dict INSIDE the session block while ORM objects are attached
-        sr_options = {
-            f"{sr.request_number} - {sr.client_name}": sr.id
-            for sr in service_requests
-        }
+        service_requests = db.execute(
+            select(ServiceRequest).where(
+                ServiceRequest.status.in_(['approved', 'in_progress'])
+            )
+        ).scalars().all()
+        # Extract needed data while session is still open
+            sr_options = {
+                f"{sr.request_number} - {sr.client_name}": sr.id
+                for sr in service_requests
+            }
 
     if not sr_options:
         st.warning("No approved service requests available. Create a service request first.")
@@ -544,15 +543,17 @@ def render_test_results_checksheet():
     # Use SQLAlchemy 2.0 select() syntax instead of legacy .query()
     try:
         with get_db() as db:
-            stmt = select(TestExecution).where(
-                TestExecution.status.in_([TestStatus.IN_PROGRESS, TestStatus.NOT_STARTED, TestStatus.PENDING_REVIEW])
-            ).order_by(desc(TestExecution.created_at))
-            active_executions = db.execute(stmt).scalars().all()
+            active_executions = db.execute(
+                select(TestExecution).where(
+                    TestExecution.status.in_([TestStatus.IN_PROGRESS, TestStatus.NOT_STARTED, TestStatus.PENDING_REVIEW])
+                ).order_by(TestExecution.created_at.desc())
+            ).scalars().all()
 
-            stmt = select(TestExecution).where(
-                TestExecution.status == TestStatus.COMPLETED
-            ).order_by(desc(TestExecution.completed_at)).limit(10)
-            completed_executions = db.execute(stmt).scalars().all()
+            completed_executions = db.execute(
+                select(TestExecution).where(
+                    TestExecution.status == TestStatus.COMPLETED
+                ).order_by(TestExecution.completed_at.desc()).limit(10)
+            ).scalars().all()
 
     except Exception as e:
         st.error(f"Error loading executions: {str(e)}")
@@ -658,13 +659,12 @@ def render_test_results_checksheet():
                         if start_test:
                             try:
                                 with get_db() as db:
-                                    # Use SQLAlchemy 2.0 select() syntax
-                                    stmt = select(TestExecution).where(TestExecution.id == execution.id)
-                                    exec_record = db.execute(stmt).scalar_one_or_none()
-                                    if exec_record:
-                                        exec_record.status = TestStatus.IN_PROGRESS
-                                        exec_record.started_at = datetime.utcnow()
-                                        db.commit()
+                                    exec_record = db.execute(
+                                        select(TestExecution).where(TestExecution.id == execution.id)
+                                    ).scalar_one_or_none()
+                                    exec_record.status = TestStatus.IN_PROGRESS
+                                    exec_record.started_at = datetime.utcnow()
+                                    db.commit()
                                 st.success("Test started!")
                                 st.rerun()
                             except Exception as e:
@@ -673,13 +673,12 @@ def render_test_results_checksheet():
                         if complete_test:
                             try:
                                 with get_db() as db:
-                                    # Use SQLAlchemy 2.0 select() syntax
-                                    stmt = select(TestExecution).where(TestExecution.id == execution.id)
-                                    exec_record = db.execute(stmt).scalar_one_or_none()
-                                    if exec_record:
-                                        exec_record.status = TestStatus.COMPLETED
-                                        exec_record.completed_at = datetime.utcnow()
-                                        db.commit()
+                                    exec_record = db.execute(
+                                        select(TestExecution).where(TestExecution.id == execution.id)
+                                    ).scalar_one_or_none()
+                                    exec_record.status = TestStatus.COMPLETED
+                                    exec_record.completed_at = datetime.utcnow()
+                                    db.commit()
                                 st.success("Test completed!")
                                 st.rerun()
                             except Exception as e:
@@ -688,11 +687,11 @@ def render_test_results_checksheet():
                     # Show existing data points
                     try:
                         with get_db() as db:
-                            # Use SQLAlchemy 2.0 select() syntax
-                            stmt = select(TestData).where(
-                                TestData.test_execution_id == execution.id
-                            ).order_by(desc(TestData.timestamp))
-                            data_points = db.execute(stmt).scalars().all()
+                            data_points = db.execute(
+                                select(TestData).where(
+                                    TestData.test_execution_id == execution.id
+                                ).order_by(TestData.timestamp.desc())
+                            ).scalars().all()
 
                             if data_points:
                                 st.markdown("**Recorded Data Points:**")
@@ -713,19 +712,13 @@ def render_test_results_checksheet():
         # to prevent DetachedInstanceError when accessing ORM object attributes after session closes
         try:
             with get_db() as db:
-                # Use SQLAlchemy 2.0 select() syntax instead of legacy .query()
-                stmt = select(ServiceRequest).where(
-                    ServiceRequest.status.in_(['approved', 'in_progress'])
-                )
-                service_requests = db.execute(stmt).scalars().all()
-
-                # CRITICAL: Build sr_options dict INSIDE the session block while ORM objects are attached
-                sr_options = {
-                    f"{sr.request_number} - {sr.client_name}": sr.id
-                    for sr in service_requests
-                }
-        except Exception:
-            sr_options = {}
+                service_requests = db.execute(
+                    select(ServiceRequest).where(
+                        ServiceRequest.status.in_(['approved', 'in_progress'])
+                    )
+                ).scalars().all()
+        except:
+            service_requests = []
 
         if not sr_options:
             st.warning("No approved service requests available. Create a service request first.")
@@ -824,11 +817,11 @@ def render_test_history():
 
     try:
         with get_db() as db:
-            # Use SQLAlchemy 2.0 select() syntax instead of legacy .query()
-            stmt = select(TestExecution).order_by(
-                desc(TestExecution.created_at)
-            ).limit(20)
-            executions = db.execute(stmt).scalars().all()
+            executions = db.execute(
+                select(TestExecution).order_by(
+                    TestExecution.created_at.desc()
+                ).limit(20)
+            ).scalars().all()
 
             if not executions:
                 st.info("No test executions found")

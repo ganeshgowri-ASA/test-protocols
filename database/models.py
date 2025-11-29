@@ -62,6 +62,20 @@ class InspectionStatus(str, enum.Enum):
     CONDITIONAL = "conditional"
 
 
+class IndustryType(str, enum.Enum):
+    """Industry type enumeration for company profile"""
+    SOLAR_PV_TESTING = "solar_pv_testing"
+    RENEWABLE_ENERGY = "renewable_energy"
+    ELECTRICAL_TESTING = "electrical_testing"
+    MATERIALS_TESTING = "materials_testing"
+    ENVIRONMENTAL_TESTING = "environmental_testing"
+    CERTIFICATION_BODY = "certification_body"
+    RESEARCH_INSTITUTION = "research_institution"
+    MANUFACTURING = "manufacturing"
+    CONSULTING = "consulting"
+    OTHER = "other"
+
+
 # Models
 class User(Base):
     """User model for authentication and authorization"""
@@ -88,9 +102,6 @@ class User(Base):
     def __repr__(self):
         return f"<User(username='{self.username}', role='{self.role}')>"
 
-from sqlalchemy import Column, Integer, String, DateTime, Text
-from config.database import Base
-from datetime import datetime
 
 class ServiceRequest(Base):
     """Service request model - entry point for testing workflow"""
@@ -401,8 +412,8 @@ class TestData(Base):
     quality_flag = Column(String(50))  # good, questionable, bad
     notes = Column(Text)
 
-    # Metadata
-    metadata = Column(JSON)  # Additional measurement metadata
+    # Additional measurement metadata (renamed from 'metadata' which is reserved in SQLAlchemy 2.0)
+    extra_metadata = Column(JSON)  # Additional measurement metadata
 
     __table_args__ = (
         Index('idx_test_data_execution', 'test_execution_id'),
@@ -482,3 +493,67 @@ class QRCode(Base):
 
     def __repr__(self):
         return f"<QRCode(code='{self.qr_code}', type='{self.entity_type}')>"
+
+
+class CompanyProfile(Base):
+    """Company profile model for branding and organization settings"""
+    __tablename__ = "company_profile"
+
+    id = Column(Integer, primary_key=True, index=True)
+    company_id = Column(String(50), unique=True, nullable=False, default="DEFAULT")
+
+    # Company Information
+    company_name = Column(String(200), nullable=False, default="Solar PV Testing Lab")
+    tagline = Column(String(200))
+    description = Column(Text)
+
+    # Logo
+    company_logo = Column(Text)  # Base64 encoded or binary blob
+    logo_filename = Column(String(200))
+    logo_content_type = Column(String(100))
+
+    # Contact Information
+    phone = Column(String(50))
+    email = Column(String(200))
+    website = Column(String(200))
+
+    # Address
+    address = Column(Text)
+    city = Column(String(100))
+    state = Column(String(100))
+    zip_code = Column(String(20))
+    country = Column(String(100), default="United States")
+
+    # Business Details
+    industry_type = Column(Enum(IndustryType), default=IndustryType.SOLAR_PV_TESTING)
+    established_date = Column(DateTime)
+    employees_count = Column(Integer)
+    tax_id = Column(String(50))
+    registration_id = Column(String(100))
+
+    # Accreditation
+    accreditation_details = Column(JSON)
+    accreditation_notes = Column(Text)
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    @classmethod
+    def get_default(cls, db_session):
+        """Get or create the default company profile"""
+        from sqlalchemy import select
+        profile = db_session.execute(
+            select(cls).filter_by(company_id="DEFAULT")
+        ).scalar_one_or_none()
+
+        if not profile:
+            profile = cls(company_id="DEFAULT", company_name="Solar PV Testing Lab")
+            db_session.add(profile)
+            db_session.commit()
+            db_session.refresh(profile)
+
+        return profile
+
+    def __repr__(self):
+        return f"<CompanyProfile(name='{self.company_name}')>"

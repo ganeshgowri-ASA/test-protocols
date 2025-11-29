@@ -146,9 +146,9 @@ def render_test_execution():
 
     # Link to service request - extract data before session closes to avoid DetachedInstanceError
     with get_db() as db:
-        service_requests = db.query(ServiceRequest).filter(
+        service_requests = db.execute(select(ServiceRequest).filter(
             ServiceRequest.status.in_(['approved', 'in_progress'])
-        ).all()
+        )).scalars().all()
         # Extract needed data while session is still open
         sr_options = {
             f"{sr.request_number} - {sr.client_name}": sr.id
@@ -489,13 +489,13 @@ def render_test_results_checksheet():
     # Get active test executions (in_progress or pending_review)
     try:
         with get_db() as db:
-            active_executions = db.query(TestExecution).filter(
+            active_executions = db.execute(select(TestExecution).filter(
                 TestExecution.status.in_([TestStatus.IN_PROGRESS, TestStatus.NOT_STARTED, TestStatus.PENDING_REVIEW])
-            ).order_by(TestExecution.created_at.desc()).all()
+            ).order_by(TestExecution.created_at.desc())).scalars().all()
 
-            completed_executions = db.query(TestExecution).filter(
+            completed_executions = db.execute(select(TestExecution).filter(
                 TestExecution.status == TestStatus.COMPLETED
-            ).order_by(TestExecution.completed_at.desc()).limit(10).all()
+            ).order_by(TestExecution.completed_at.desc()).limit(10)).scalars().all()
 
     except Exception as e:
         st.error(f"Error loading executions: {str(e)}")
@@ -601,7 +601,7 @@ def render_test_results_checksheet():
                         if start_test:
                             try:
                                 with get_db() as db:
-                                    exec_record = db.query(TestExecution).filter(TestExecution.id == execution.id).first()
+                                    exec_record = db.execute(select(TestExecution).filter(TestExecution.id == execution.id)).scalar_one_or_none()
                                     exec_record.status = TestStatus.IN_PROGRESS
                                     exec_record.started_at = datetime.utcnow()
                                     db.commit()
@@ -613,7 +613,7 @@ def render_test_results_checksheet():
                         if complete_test:
                             try:
                                 with get_db() as db:
-                                    exec_record = db.query(TestExecution).filter(TestExecution.id == execution.id).first()
+                                    exec_record = db.execute(select(TestExecution).filter(TestExecution.id == execution.id)).scalar_one_or_none()
                                     exec_record.status = TestStatus.COMPLETED
                                     exec_record.completed_at = datetime.utcnow()
                                     db.commit()
@@ -625,9 +625,9 @@ def render_test_results_checksheet():
                     # Show existing data points
                     try:
                         with get_db() as db:
-                            data_points = db.query(TestData).filter(
+                            data_points = db.execute(select(TestData).filter(
                                 TestData.test_execution_id == execution.id
-                            ).order_by(TestData.timestamp.desc()).all()
+                            ).order_by(TestData.timestamp.desc())).scalars().all()
 
                             if data_points:
                                 st.markdown("**Recorded Data Points:**")
@@ -646,9 +646,9 @@ def render_test_results_checksheet():
         # Get service requests
         try:
             with get_db() as db:
-                service_requests = db.query(ServiceRequest).filter(
+                service_requests = db.execute(select(ServiceRequest).filter(
                     ServiceRequest.status.in_(['approved', 'in_progress'])
-                ).all()
+                )).scalars().all()
         except:
             service_requests = []
 
@@ -746,9 +746,9 @@ def render_test_history():
 
     try:
         with get_db() as db:
-            executions = db.query(TestExecution).order_by(
+            executions = db.execute(select(TestExecution).order_by(
                 TestExecution.created_at.desc()
-            ).limit(20).all()
+            ).limit(20)).scalars().all()
 
             if not executions:
                 st.info("No test executions found")

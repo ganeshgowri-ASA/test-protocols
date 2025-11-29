@@ -258,7 +258,7 @@ class DatabaseManager:
 
         Usage:
             with db_manager.get_session() as session:
-                session.query(Model).all()
+                session.execute(select(Model)).scalars().all()
         """
         session = self.session_factory()
         try:

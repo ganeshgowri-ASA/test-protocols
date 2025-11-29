@@ -13,8 +13,8 @@ from sqlalchemy import func
 import streamlit as st
 
 from config.database import get_db
-from database.models import (
 from sqlalchemy import select, desc, asc, and_, or_, func
+from database.models import (
     ServiceRequest, TestExecution, Equipment,
     EquipmentBooking, TestStatus, RequestStatus
 )
@@ -55,14 +55,14 @@ def get_active_requests_count() -> int:
     """Get count of active service requests"""
     try:
         with get_db() as db:
-            count = db.query(ServiceRequest).filter(
+            count = db.execute(select(func.count()).select_from(ServiceRequest).filter(
                 ServiceRequest.status.in_([
                     RequestStatus.SUBMITTED,
                     RequestStatus.APPROVED,
                     RequestStatus.IN_PROGRESS
                 ])
-            ).count()
-            return count
+            )).scalar()
+            return count or 0
     except:
         return 5  # Demo data
 
@@ -76,10 +76,10 @@ def get_active_tests_count() -> int:
     """Get count of tests in progress"""
     try:
         with get_db() as db:
-            count = db.query(TestExecution).filter(
+            count = db.execute(select(func.count()).select_from(TestExecution).filter(
                 TestExecution.status == TestStatus.IN_PROGRESS
-            ).count()
-            return count
+            )).scalar()
+            return count or 0
     except:
         return 8  # Demo data
 
@@ -93,13 +93,13 @@ def get_equipment_utilization() -> int:
     """Get equipment utilization percentage"""
     try:
         with get_db() as db:
-            total_equipment = db.query(Equipment).count()
+            total_equipment = db.execute(select(func.count()).select_from(Equipment)).scalar() or 0
             if total_equipment == 0:
                 return 0
 
-            in_use = db.query(Equipment).filter(
+            in_use = db.execute(select(func.count()).select_from(Equipment).filter(
                 Equipment.status == 'in_use'
-            ).count()
+            )).scalar() or 0
 
             return int((in_use / total_equipment) * 100)
     except:
@@ -116,11 +116,11 @@ def get_completed_this_month() -> int:
     try:
         with get_db() as db:
             start_of_month = datetime.now().replace(day=1, hour=0, minute=0, second=0)
-            count = db.query(TestExecution).filter(
+            count = db.execute(select(func.count()).select_from(TestExecution).filter(
                 TestExecution.status == TestStatus.COMPLETED,
                 TestExecution.completed_at >= start_of_month
-            ).count()
-            return count
+            )).scalar()
+            return count or 0
     except:
         return 24  # Demo data
 

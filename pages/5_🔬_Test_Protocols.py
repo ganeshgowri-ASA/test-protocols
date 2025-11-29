@@ -192,10 +192,10 @@ def render_test_execution():
             ServiceRequest.status.in_(['approved', 'in_progress'])
         ).all()
         # Extract needed data while session is still open
-            sr_options = {
-                f"{sr.request_number} - {sr.client_name}": sr.id
-                for sr in service_requests
-            }
+        sr_options = {
+            f"{sr.request_number} - {sr.client_name}": sr.id
+            for sr in service_requests
+        }
 
     if not sr_options:
         st.warning("No approved service requests available. Create a service request first.")

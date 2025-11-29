@@ -1,24 +1,24 @@
 # Railway Production Configuration
 # ================================
 # Solar PV Testing LIMS-QMS System
-# CRITICAL FIX: Uses health proxy for instant healthcheck response
+# FIXED: Use shell wrapper for proper $PORT expansion
 
 [build]
 builder = "NIXPACKS"
 buildCommand = "pip install -r requirements.txt"
 
 [deploy]
-# Start health proxy (which starts Streamlit in background)
-startCommand = "python health_proxy.py"
+# Streamlit server configuration - using sh -c for proper variable expansion
+startCommand = "sh -c 'streamlit run app.py --server.port=${PORT:-8501} --server.address=0.0.0.0 --server.headless=true --server.enableCORS=false --server.enableXsrfProtection=false'"
 
-# Health check configuration - hits Flask /health endpoint
-healthcheckPath = "/health"
-healthcheckTimeout = 30  # Health proxy responds in <1 second
+# Health check configuration - extended timeout for Streamlit startup
+healthcheckPath = "/"
+healthcheckTimeout = 300
 
 # Restart policy
 restartPolicyType = "ON_FAILURE"
-restartPolicyMaxRetries = 3
+restartPolicyMaxRetries = 10
 
 [service]
-# Internal port for health proxy (Streamlit runs on 8501)
-internalPort = 8000
+# Service naming
+name = "web"

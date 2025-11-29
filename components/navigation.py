@@ -7,6 +7,7 @@ Provides consistent navigation across all pages.
 import streamlit as st
 from datetime import datetime
 import base64
+from sqlalchemy import select
 from config.settings import config, apply_custom_css
 from config.database import check_database_health, get_db
 
@@ -23,7 +24,9 @@ def get_company_branding():
         try:
             from database.models import CompanyProfile
             with get_db() as db:
-                profile = db.query(CompanyProfile).filter_by(company_id="DEFAULT").first()
+                profile = db.execute(
+                    select(CompanyProfile).where(CompanyProfile.company_id == "DEFAULT")
+                ).scalar_one_or_none()
                 if profile:
                     logo_b64 = None
                     if profile.company_logo:

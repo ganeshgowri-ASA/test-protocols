@@ -18,6 +18,7 @@ from config.database import get_db
 from config.protocols_registry import get_cached_protocol_registry
 from components.navigation import render_header, render_sidebar_navigation
 from database.models import ServiceRequest, RequestStatus
+from sqlalchemy import select, desc, asc, and_, or_, func
 
 # Page configuration
 setup_page_config(page_title="Service Request", page_icon="📋")
@@ -252,9 +253,11 @@ def render_requests_list():
 
     try:
         with get_db() as db:
-            requests = db.query(ServiceRequest).order_by(
-                ServiceRequest.created_at.desc()
-            ).limit(50).all()
+            requests = db.execute(
+                select(ServiceRequest).order_by(
+                    ServiceRequest.created_at.desc()
+                ).limit(50)
+            ).scalars().all()
 
             if not requests:
                 st.info("No service requests found")
@@ -358,11 +361,13 @@ def render_search_interface():
     if search_query:
         try:
             with get_db() as db:
-                results = db.query(ServiceRequest).filter(
-                    (ServiceRequest.request_number.contains(search_query)) |
-                    (ServiceRequest.client_name.contains(search_query)) |
-                    (ServiceRequest.client_email.contains(search_query))
-                ).all()
+                results = db.execute(
+                    select(ServiceRequest).where(
+                        (ServiceRequest.request_number.contains(search_query)) |
+                        (ServiceRequest.client_name.contains(search_query)) |
+                        (ServiceRequest.client_email.contains(search_query))
+                    )
+                ).scalars().all()
 
                 st.markdown(f"**Found {len(results)} result(s)**")
 

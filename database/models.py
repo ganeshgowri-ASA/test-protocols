@@ -8,12 +8,11 @@ from datetime import datetime
 from typing import Optional, List
 from sqlalchemy import (
     Column, Integer, String, Float, Boolean, DateTime,
-    Text, ForeignKey, JSON, Enum, UniqueConstraint, Index, LargeBinary, Date
+    Text, ForeignKey, JSON, Enum, UniqueConstraint, Index
 )
 from sqlalchemy.orm import relationship
 from config.database import Base
 import enum
-
 
 
 # Enumerations
@@ -63,120 +62,15 @@ class InspectionStatus(str, enum.Enum):
     CONDITIONAL = "conditional"
 
 
-class IndustryType(str, enum.Enum):
-    """Industry type enumeration for company profiles"""
-    SOLAR_PV_TESTING = "solar_pv_testing"
-    RENEWABLE_ENERGY = "renewable_energy"
-    ELECTRICAL_TESTING = "electrical_testing"
-    MATERIALS_TESTING = "materials_testing"
-    ENVIRONMENTAL_TESTING = "environmental_testing"
-    CERTIFICATION_BODY = "certification_body"
-    RESEARCH_INSTITUTION = "research_institution"
-    MANUFACTURING = "manufacturing"
-    CONSULTING = "consulting"
-    OTHER = "other"
-
-
 # Models
-class CompanyProfile(Base):
-    """
-    Company Profile model - stores organization information and branding
-
-    This is a singleton table (should only have one record) that stores
-    the company's profile information, logo, and accreditation details.
-    """
-    __tablename__ = "company_profiles"
-
-    # Primary key
-    id = Column(Integer, primary_key=True, index=True)
-    company_id = Column(String(50), unique=True, nullable=False, default="DEFAULT")
-
-    # Basic company information
-    company_name = Column(String(255), nullable=False)
-    company_logo = Column(LargeBinary, nullable=True)  # Store logo as binary data
-    logo_filename = Column(String(255), nullable=True)  # Original filename
-    logo_content_type = Column(String(100), nullable=True)  # MIME type (image/png, image/jpeg)
-
-    # Contact information
-    phone = Column(String(50))
-    email = Column(String(100))
-    website = Column(String(255))
-
-    # Address information
-    address = Column(Text)
-    city = Column(String(100))
-    state = Column(String(100))
-    zip_code = Column(String(20))
-    country = Column(String(100), default="United States")
-
-    # Company details
-    industry_type = Column(Enum(IndustryType), default=IndustryType.SOLAR_PV_TESTING)
-    established_date = Column(Date, nullable=True)
-    employees_count = Column(Integer, default=1)
-    tax_id = Column(String(100))  # Tax ID / Registration number
-    registration_id = Column(String(100))  # Business registration ID
-
-    # Accreditation information (stored as JSON for flexibility)
-    accreditation_details = Column(JSON, default=dict)  # e.g., {"ISO_17025": true, "ISO_9001": true}
-    accreditation_notes = Column(Text)  # Additional accreditation notes
-
-    # Company description/tagline
-    description = Column(Text)
-    tagline = Column(String(255))
-
-    # Timestamps
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    # Settings (stored as JSON for extensibility)
-    settings = Column(JSON, default=dict)
-    
-    __table_args__ = {'extend_existing': True}
-
-    def __repr__(self):
-        return f"<CompanyProfile(name='{self.company_name}', id='{self.company_id}')>"
-
-    @classmethod
-    def get_default(cls, db_session):
-        """
-        Get or create the default company profile
-
-        Args:
-            db_session: SQLAlchemy database session
-
-        Returns:
-            CompanyProfile instance
-        """
-        profile = db_session.query(cls).filter_by(company_id="DEFAULT").first()
-        if not profile:
-            profile = cls(
-                company_id="DEFAULT",
-                company_name="Solar PV Testing Laboratory",
-                industry_type=IndustryType.SOLAR_PV_TESTING,
-                email="contact@solarpvlab.com",
-                country="United States",
-                accreditation_details={
-                    "ISO_17025": False,
-                    "ISO_9001": False,
-                    "IEC_61215": False,
-                    "IEC_61730": False,
-                    "UL_1703": False
-                }
-            )
-            db_session.add(profile)
-            db_session.commit()
-            db_session.refresh(profile)
-        return profile
-
-
 class User(Base):
     """User model for authentication and authorization"""
     __tablename__ = "users"
-    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(50), unique=True, nullable=False, index=True)
     email = Column(String(100), unique=True, nullable=False, index=True)
+    password_hash = Column(String(255), nullable=False)
     full_name = Column(String(100), nullable=False)
     role = Column(Enum(UserRole), nullable=False, default=UserRole.TECHNICIAN)
     is_active = Column(Boolean, default=True)
@@ -190,12 +84,13 @@ class User(Base):
     test_executions = relationship("TestExecution", foreign_keys="[TestExecution.technician_id]", back_populates="technician_user")
     reviewed_executions = relationship("TestExecution", foreign_keys="[TestExecution.reviewer_id]", back_populates="reviewer_user")
     audit_logs = relationship("AuditLog", back_populates="user")
-    
-    __table_args__ = {'extend_existing': True}
 
     def __repr__(self):
         return f"<User(username='{self.username}', role='{self.role}')>"
 
+from sqlalchemy import Column, Integer, String, DateTime, Text
+from config.database import Base
+from datetime import datetime
 
 class ServiceRequest(Base):
     """Service request model - entry point for testing workflow"""
@@ -242,7 +137,6 @@ class ServiceRequest(Base):
     __table_args__ = (
         Index('idx_service_request_status', 'status'),
         Index('idx_service_request_created', 'created_at'),
-                {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -263,6 +157,7 @@ class IncomingInspection(Base):
     # Sample identification
     sample_id = Column(String(100), nullable=False)
     qr_code = Column(Text, unique=True)
+
     # Visual inspection checklist
     physical_damage = Column(Boolean, default=False)
     physical_damage_notes = Column(Text)
@@ -292,13 +187,9 @@ class IncomingInspection(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    __table_args__ = {'extend_existing': True}
 
     def __repr__(self):
         return f"<IncomingInspection(number='{self.inspection_number}', status='{self.status}')>"
-
-
 
 
 class Equipment(Base):
@@ -336,12 +227,9 @@ class Equipment(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    __table_args__ = {'extend_existing': True}
 
     def __repr__(self):
-                return f"<Equipment(equipment_code='{self.equipment_code}', name='{self.name}')>"
-        
+        return f"<Equipment(code='{self.equipment_code}', name='{self.name}')>"
 
 
 class EquipmentBooking(Base):
@@ -378,7 +266,6 @@ class EquipmentBooking(Base):
     __table_args__ = (
         Index('idx_booking_period', 'start_time', 'end_time'),
         Index('idx_booking_equipment', 'equipment_id'),
-                {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -417,8 +304,6 @@ class TestProtocol(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    __table_args__ = {'extend_existing': True}
-
     def __repr__(self):
         return f"<TestProtocol(id='{self.protocol_id}', name='{self.name}')>"
 
@@ -439,7 +324,7 @@ class TestExecution(Base):
 
     # Sample information
     sample_id = Column(String(100))
-    qr_code = Column(String(100))
+    qr_code = Column(Text, unique=True)
 
     # Execution tracking
     status = Column(Enum(TestStatus), default=TestStatus.NOT_STARTED)
@@ -449,8 +334,8 @@ class TestExecution(Base):
 
     # Personnel
     technician_id = Column(Integer, ForeignKey("users.id"))
-    reviewer_id = Column(Integer, ForeignKey("users.id"))
     technician_user = relationship("User", foreign_keys=[technician_id], back_populates="test_executions")
+    reviewer_id = Column(Integer, ForeignKey("users.id"))
     reviewer_user = relationship("User", foreign_keys=[reviewer_id], back_populates="reviewed_executions")
 
     # Test data
@@ -476,7 +361,7 @@ class TestExecution(Base):
 
     # Relationships
     test_data_points = relationship("TestData", back_populates="test_execution")
-    equipment_bookings = relationship("EquipmentBooking", foreign_keys="[EquipmentBooking.test_execution_id]")
+    equipment_bookings = relationship("EquipmentBooking", foreign_keys=[EquipmentBooking.test_execution_id])
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -484,7 +369,6 @@ class TestExecution(Base):
     __table_args__ = (
         Index('idx_test_execution_status', 'status'),
         Index('idx_test_execution_protocol', 'protocol_id'),
-                {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -518,13 +402,11 @@ class TestData(Base):
     notes = Column(Text)
 
     # Metadata
-    extra_metadata = Column(JSON)  # Additional measurement metadata
-    measurement_metadata = Column(JSON)  # Additional measurement metadata
+    metadata = Column(JSON)  # Additional measurement metadata
 
     __table_args__ = (
         Index('idx_test_data_execution', 'test_execution_id'),
         Index('idx_test_data_type', 'measurement_type'),
-                {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -563,7 +445,6 @@ class AuditLog(Base):
         Index('idx_audit_log_user', 'user_id'),
         Index('idx_audit_log_table', 'table_name', 'record_id'),
         Index('idx_audit_log_created', 'created_at'),
-                {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -575,7 +456,8 @@ class QRCode(Base):
     __tablename__ = "qr_codes"
 
     id = Column(Integer, primary_key=True, index=True)
-    qr_code = Column(Text, unique=False, nullable=False, index=True)
+    qr_code = Column(String(100), unique=True, nullable=False, index=True)
+
     # What does this QR code point to?
     entity_type = Column(String(50))  # sample, equipment, service_request, etc.
     entity_id = Column(Integer)
@@ -596,106 +478,7 @@ class QRCode(Base):
 
     __table_args__ = (
         Index('idx_qr_entity', 'entity_type', 'entity_id'),
-                {'extend_existing': True}
     )
 
     def __repr__(self):
         return f"<QRCode(code='{self.qr_code}', type='{self.entity_type}')>"
-
-
-class Sample(Base):
-    """Sample/Module model - stores PV module/cell sample information"""
-    __tablename__ = "samples"
-    __table_args__ = {'extend_existing': True}
-    
-    id = Column(Integer, primary_key=True, index=True)
-    sample_id = Column(String(100), unique=True, nullable=False, index=True)  # e.g., "MOD-2024-001"
-    
-    # Identification
-    batch_number = Column(String(100))  # Manufacturing batch
-    lot_number = Column(String(100))  # Supplier lot number
-    serial_number = Column(String(100), unique=True)
-    
-    # Sample Details
-    sample_type = Column(String(50))  # "module", "cell", "mini-module", "string", etc.
-    manufacturer = Column(String(100))
-    model_number = Column(String(100))
-    technology = Column(String(50))  # "monocrystalline", "polycrystalline", "thin-film", etc.
-    
-    # Physical Properties
-    rated_power = Column(Float)  # Pmax in Watts
-    rated_voltage = Column(Float)  # Vmpp in Volts
-    rated_current = Column(Float)  # Impp in Amperes
-    dimensions = Column(JSON)  # {"length_mm": 1956, "width_mm": 992, "thickness_mm": 40}
-    weight_kg = Column(Float)
-    
-    # Supply Chain
-    received_date = Column(DateTime)
-    expiry_date = Column(DateTime)  # Storage/testing expiry
-    supplier = Column(String(100))
-    purchase_order = Column(String(100))
-    cost = Column(Float)
-    
-    # Status & Storage
-    storage_location = Column(String(100))  # Storage bin/shelf location
-    storage_condition = Column(String(50))  # "normal", "controlled", "cold", etc.
-    is_active = Column(Boolean, default=True)
-    condition_notes = Column(Text)  # Any visible defects or notes
-    
-    # Relationships
-    inspections = relationship("IncomingInspection", foreign_keys="IncomingInspection.sample_id", back_populates="sample")
-    test_executions = relationship("TestExecution", foreign_keys="TestExecution.sample_id", back_populates="sample")
-    
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    def __repr__(self):
-        return f"<Sample(id={self.id}, sample_id='{self.sample_id}', manufacturer='{self.manufacturer}')>"
-
-
-class TestName(Base):
-    """Test names/definitions model - stores predefined test names and categories"""
-    __tablename__ = "tests_names"
-    __table_args__ = {'extend_existing': True}
-    
-    id = Column(Integer, primary_key=True, index=True)
-    test_name_id = Column(String(50), unique=True, nullable=False, index=True)  # e.g., "EL_IMAGING"
-    display_name = Column(String(200), nullable=False)  # e.g., "Electroluminescence Imaging"
-    short_name = Column(String(100))  # e.g., "EL"
-    
-    # Test Categorization
-    category = Column(String(50))  # "performance", "degradation", "safety", "environmental", "mechanical", "optical"
-    sub_category = Column(String(50))  # Optional sub-category
-    
-    # Test Details
-    description = Column(Text)  # Detailed description of what the test measures
-    standard_reference = Column(String(200))  # IEC/IEEE standard reference
-    is_destructive = Column(Boolean, default=False)  # True if test destroys/damages sample
-    
-    # Test Configuration
-    typical_duration_hours = Column(Float)  # Approximate test duration
-    requires_equipment = Column(JSON)  # List of equipment codes needed
-    prerequisites = Column(JSON)  # List of prerequisite tests
-    mutually_exclusive = Column(JSON)  # Tests that cannot be run on same sample
-    
-    # Acceptance Criteria
-    acceptance_criteria = Column(JSON)  # Pass/fail criteria definition
-    pass_fail_logic = Column(String(100))  # "all_pass", "any_pass", "majority_pass", etc.
-    
-    # Operational
-    is_active = Column(Boolean, default=True)
-    test_priority = Column(Integer, default=100)  # Lower number = higher priority
-    frequency_in_protocol = Column(Integer)  # How often this test appears in protocols
-    
-    # Metadata
-    notes = Column(Text)
-    created_by = Column(String(100))
-    approved_by = Column(String(100))
-    approval_date = Column(DateTime)
-    
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    def __repr__(self):
-        return f"<TestName(id={self.id}, test_name_id='{self.test_name_id}', display_name='{self.display_name}')>"
-

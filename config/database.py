@@ -5,6 +5,7 @@ Handles database initialization, session management, and connection pooling.
 """
 
 import os
+import sys
 from contextlib import contextmanager
 from typing import Generator
 
@@ -132,8 +133,6 @@ def init_database():
         admin_exists = db.query(User).filter_by(username="admin").first()
 
         if not admin_exists:
-
-
             admin_user = User(
                 username="admin",
                 email="admin@solarpv.com",
@@ -143,25 +142,126 @@ def init_database():
             )
             db.add(admin_user)
             db.commit()
+            print("[DB_INIT] Created default admin user", flush=True)
+            sys.stdout.flush()
 
-        # Seed test protocols if table is empty
-    protocols_count = db.query(TestProtocol).count()
-    if protocols_count == 0:
-        protocols = [
-            TestProtocol(protocol_id="P1", name="I-V Performance Test", category="performance", is_active=True),
-            TestProtocol(protocol_id="P2", name="PMax Tracking Test", category="performance", is_active=True),
-            TestProtocol(protocol_id="P3", name="Temperature Coefficient", category="performance", is_active=True),
-            TestProtocol(protocol_id="P4", name="Module Thermal Test", category="performance", is_active=True),
-            TestProtocol(protocol_id="P5", name="Humidity-Freeze Test", category="environmental", is_active=True),
-            TestProtocol(protocol_id="P6", name="Hot-Humid Test", category="environmental", is_active=True),
-            TestProtocol(protocol_id="P7", name="Thermal Cycling Test", category="degradation", is_active=True),
-            TestProtocol(protocol_id="P8", name="UV Degradation Test", category="degradation", is_active=True),
-            TestProtocol(protocol_id="P9", name="Mechanical Load Test", category="mechanical", is_active=True),
-            TestProtocol(protocol_id="P10", name="Wet Leakage Test", category="safety", is_active=True),
-        ]
-        for protocol in protocols:
-            db.add(protocol)
-        db.commit()
+    # Seed test protocols - MUST be in separate context to ensure fresh session
+    print("[DB_INIT] Starting test protocols seeding check...", flush=True)
+    sys.stdout.flush()
+
+    with get_db() as db:
+        try:
+            protocols_count = db.query(TestProtocol).count()
+            print(f"[DB_INIT] Current protocols count: {protocols_count}", flush=True)
+            sys.stdout.flush()
+
+            if protocols_count < 54:
+                print(f"[DB_INIT] Protocols count ({protocols_count}) < 54, seeding required...", flush=True)
+                sys.stdout.flush()
+
+                protocols = [
+                    TestProtocol(protocol_id="P1", name="I-V Performance Test", category="performance", is_active=True),
+                    TestProtocol(protocol_id="P2", name="PMax Tracking Test", category="performance", is_active=True),
+                    TestProtocol(protocol_id="P3", name="Temperature Coefficient", category="performance", is_active=True),
+                    TestProtocol(protocol_id="P4", name="Module Thermal Test", category="performance", is_active=True),
+                    TestProtocol(protocol_id="P5", name="Humidity-Freeze Test", category="environmental", is_active=True),
+                    TestProtocol(protocol_id="P6", name="Hot-Humid Test", category="environmental", is_active=True),
+                    TestProtocol(protocol_id="P7", name="Thermal Cycling Test", category="degradation", is_active=True),
+                    TestProtocol(protocol_id="P8", name="UV Degradation Test", category="degradation", is_active=True),
+                    TestProtocol(protocol_id="P9", name="Mechanical Load Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P10", name="Wet Leakage Test", category="safety", is_active=True),
+                    TestProtocol(protocol_id="P11", name="Hail Impact Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P12", name="Static Load Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P13", name="Dynamic Load Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P14", name="Bypass Diode Test", category="safety", is_active=True),
+                    TestProtocol(protocol_id="P15", name="Ground Continuity Test", category="safety", is_active=True),
+                    TestProtocol(protocol_id="P16", name="Insulation Resistance Test", category="safety", is_active=True),
+                    TestProtocol(protocol_id="P17", name="Junction Box Test", category="safety", is_active=True),
+                    TestProtocol(protocol_id="P18", name="Connector Test", category="safety", is_active=True),
+                    TestProtocol(protocol_id="P19", name="Fire Safety Test", category="safety", is_active=True),
+                    TestProtocol(protocol_id="P20", name="Hot Spot Endurance Test", category="safety", is_active=True),
+                    TestProtocol(protocol_id="P21", name="EL Imaging Test", category="visual", is_active=True),
+                    TestProtocol(protocol_id="P22", name="IR Thermography Test", category="visual", is_active=True),
+                    TestProtocol(protocol_id="P23", name="Visual Inspection", category="visual", is_active=True),
+                    TestProtocol(protocol_id="P24", name="Cell Crack Detection", category="visual", is_active=True),
+                    TestProtocol(protocol_id="P25", name="Soldering Quality Test", category="visual", is_active=True),
+                    TestProtocol(protocol_id="P26", name="PID Test", category="degradation", is_active=True),
+                    TestProtocol(protocol_id="P27", name="LID Test", category="degradation", is_active=True),
+                    TestProtocol(protocol_id="P28", name="LeTID Test", category="degradation", is_active=True),
+                    TestProtocol(protocol_id="P29", name="Damp Heat Test", category="environmental", is_active=True),
+                    TestProtocol(protocol_id="P30", name="Salt Mist Test", category="environmental", is_active=True),
+                    TestProtocol(protocol_id="P31", name="Ammonia Corrosion Test", category="environmental", is_active=True),
+                    TestProtocol(protocol_id="P32", name="Sand/Dust Test", category="environmental", is_active=True),
+                    TestProtocol(protocol_id="P33", name="Altitude Test", category="environmental", is_active=True),
+                    TestProtocol(protocol_id="P34", name="Snow Load Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P35", name="Wind Load Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P36", name="Vibration Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P37", name="Impact Resistance Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P38", name="Abrasion Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P39", name="Ribbon Pull Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P40", name="Peel Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P41", name="Low Irradiance Test", category="performance", is_active=True),
+                    TestProtocol(protocol_id="P42", name="Spectral Response Test", category="performance", is_active=True),
+                    TestProtocol(protocol_id="P43", name="Angular Response Test", category="performance", is_active=True),
+                    TestProtocol(protocol_id="P44", name="NOCT Measurement", category="performance", is_active=True),
+                    TestProtocol(protocol_id="P45", name="Power Stabilization", category="performance", is_active=True),
+                    TestProtocol(protocol_id="P46", name="Outdoor Exposure Test", category="environmental", is_active=True),
+                    TestProtocol(protocol_id="P47", name="Accelerated Aging Test", category="degradation", is_active=True),
+                    TestProtocol(protocol_id="P48", name="Encapsulant Adhesion Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P49", name="Frame Adhesion Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P50", name="Backsheet Integrity Test", category="visual", is_active=True),
+                    TestProtocol(protocol_id="P51", name="Glass Breakage Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P52", name="Edge Seal Test", category="safety", is_active=True),
+                    TestProtocol(protocol_id="P53", name="Label Durability Test", category="visual", is_active=True),
+                    TestProtocol(protocol_id="P54", name="Warranty Verification Test", category="performance", is_active=True),
+                ]
+
+                inserted_count = 0
+                for protocol in protocols:
+                    try:
+                        # Check if protocol already exists
+                        existing = db.query(TestProtocol).filter_by(protocol_id=protocol.protocol_id).first()
+                        if not existing:
+                            db.add(protocol)
+                            inserted_count += 1
+                            print(f"[DB_INIT] Inserted protocol: {protocol.protocol_id} - {protocol.name}", flush=True)
+                            sys.stdout.flush()
+                        else:
+                            print(f"[DB_INIT] Protocol already exists: {protocol.protocol_id}", flush=True)
+                            sys.stdout.flush()
+                    except Exception as insert_error:
+                        print(f"[DB_INIT] ERROR inserting protocol {protocol.protocol_id}: {insert_error}", flush=True)
+                        sys.stdout.flush()
+                        raise
+
+                db.commit()
+                print(f"[DB_INIT] Successfully inserted {inserted_count} new protocols", flush=True)
+                sys.stdout.flush()
+
+                # Verify final count
+                final_count = db.query(TestProtocol).count()
+                print(f"[DB_INIT] VERIFICATION - Final protocols count: {final_count}", flush=True)
+                sys.stdout.flush()
+
+                if final_count < 54:
+                    error_msg = f"[DB_INIT] CRITICAL ERROR: Expected 54 protocols, but only {final_count} exist!"
+                    print(error_msg, flush=True)
+                    sys.stdout.flush()
+                    raise RuntimeError(error_msg)
+                else:
+                    print(f"[DB_INIT] SUCCESS: All {final_count} protocols seeded correctly", flush=True)
+                    sys.stdout.flush()
+            else:
+                print(f"[DB_INIT] Protocols already seeded ({protocols_count} >= 54), skipping...", flush=True)
+                sys.stdout.flush()
+
+        except Exception as e:
+            print(f"[DB_INIT] CRITICAL SEEDING ERROR: {type(e).__name__}: {e}", flush=True)
+            sys.stdout.flush()
+            raise RuntimeError(f"Failed to seed test protocols: {e}") from e
+
+    print("[DB_INIT] Database initialization complete", flush=True)
+    sys.stdout.flush()
 
     return SessionLocal
 

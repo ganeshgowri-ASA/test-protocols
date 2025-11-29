@@ -291,14 +291,8 @@ def get_protocol_registry() -> ProtocolRegistry:
     return _registry
 
 
-def register_sample_protocols(registry: ProtocolRegistry):
-    """
-    Register all 54 protocol definitions for Solar PV Testing
-    Based on IEC 61215, IEC 61730, and related standards
-    """
-
-    # All 54 protocols organized by category
-    all_protocols = [
+# All 54 protocols organized by category - exposed at module level for database seeding
+ALL_54_PROTOCOLS = [
         # =============================================
         # PERFORMANCE TESTING (P1-P12) - 12 protocols
         # =============================================
@@ -804,9 +798,15 @@ def register_sample_protocols(registry: ProtocolRegistry):
             "estimated_duration_hours": 2.0,
             "required_equipment": ["impulse_voltage_generator"]
         },
-    ]
+]
 
-    for protocol_data in all_protocols:
+
+def register_sample_protocols(registry: ProtocolRegistry):
+    """
+    Register all 54 protocol definitions for Solar PV Testing
+    Based on IEC 61215, IEC 61730, and related standards
+    """
+    for protocol_data in ALL_54_PROTOCOLS:
         metadata = ProtocolMetadata(**protocol_data)
         registry.register_protocol(metadata)
 

@@ -132,8 +132,6 @@ def init_database():
         admin_exists = db.query(User).filter_by(username="admin").first()
 
         if not admin_exists:
-
-
             admin_user = User(
                 username="admin",
                 email="admin@solarpv.com",
@@ -144,26 +142,52 @@ def init_database():
             db.add(admin_user)
             db.commit()
 
-        # Seed test protocols if table is empty
-    protocols_count = db.query(TestProtocol).count()
-    if protocols_count == 0:
-        protocols = [
-            TestProtocol(protocol_id="P1", name="I-V Performance Test", category="performance", is_active=True),
-            TestProtocol(protocol_id="P2", name="PMax Tracking Test", category="performance", is_active=True),
-            TestProtocol(protocol_id="P3", name="Temperature Coefficient", category="performance", is_active=True),
-            TestProtocol(protocol_id="P4", name="Module Thermal Test", category="performance", is_active=True),
-            TestProtocol(protocol_id="P5", name="Humidity-Freeze Test", category="environmental", is_active=True),
-            TestProtocol(protocol_id="P6", name="Hot-Humid Test", category="environmental", is_active=True),
-            TestProtocol(protocol_id="P7", name="Thermal Cycling Test", category="degradation", is_active=True),
-            TestProtocol(protocol_id="P8", name="UV Degradation Test", category="degradation", is_active=True),
-            TestProtocol(protocol_id="P9", name="Mechanical Load Test", category="mechanical", is_active=True),
-            TestProtocol(protocol_id="P10", name="Wet Leakage Test", category="safety", is_active=True),
-        ]
-        for protocol in protocols:
-            db.add(protocol)
-        db.commit()
+    # CRITICAL FIX: Seed test protocols if not all are present
+    # This runs EVERY TIME init_database() is called to handle partial seeding
+    _seed_protocols_idempotent()
 
     return SessionLocal
+
+
+def _seed_protocols_idempotent():
+    """
+    Idempotent protocol seeding - seeds all 54 protocols if not fully populated.
+    Uses INSERT OR IGNORE logic to avoid duplicates.
+    """
+    from config.protocols_registry import ALL_54_PROTOCOLS
+
+    EXPECTED_PROTOCOL_COUNT = 54
+
+    with get_db() as db:
+        protocols_count = db.query(TestProtocol).count()
+
+        # Only seed if we have fewer than expected protocols
+        if protocols_count < EXPECTED_PROTOCOL_COUNT:
+            added_count = 0
+            for protocol_data in ALL_54_PROTOCOLS:
+                # Check if protocol already exists by protocol_id
+                existing = db.query(TestProtocol).filter_by(
+                    protocol_id=protocol_data["protocol_id"]
+                ).first()
+
+                if not existing:
+                    # Create TestProtocol with all available fields from the model
+                    protocol = TestProtocol(
+                        protocol_id=protocol_data["protocol_id"],
+                        name=protocol_data["name"],
+                        category=protocol_data["category"],
+                        description=protocol_data.get("description", ""),
+                        standard_reference=protocol_data.get("standard_reference", ""),
+                        estimated_duration_hours=protocol_data.get("estimated_duration_hours"),
+                        required_equipment=protocol_data.get("required_equipment", []),
+                        is_active=protocol_data.get("is_active", True),
+                    )
+                    db.add(protocol)
+                    added_count += 1
+
+            if added_count > 0:
+                db.commit()
+                print(f"✓ Seeded {added_count} test protocols (total: {protocols_count + added_count})")
 
 
 def reset_database():

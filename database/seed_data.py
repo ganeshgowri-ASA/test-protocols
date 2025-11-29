@@ -1,6 +1,6 @@
 """Database seed data for test protocols and initial setup"""
 from datetime import datetime
-from database.models import TestProtocol
+from database import TestProtocol
 
 # Comprehensive list of PV Testing Protocols based on IEC/IEEE standards
 DEFAULT_PROTOCOLS = [

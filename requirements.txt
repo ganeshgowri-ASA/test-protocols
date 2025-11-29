@@ -35,6 +35,7 @@ Pillow>=11.0.0
 # ===================
 # PDF Generation
 reportlab>=4.2.5
+fpdf2>=2.7.6
 weasyprint>=62.3
 
 # Authentication

@@ -15,14 +15,12 @@ from datetime import datetime, timedelta
 
 from sqlalchemy import create_engine, event, text, pool
 from sqlalchemy.engine import Engine
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session, scoped_session
 from sqlalchemy.pool import QueuePool, NullPool
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
 
-
-# Base for all models
-Base = declarative_base()
+# Import Base from config to avoid duplicate table definitions
+from config.database import Base
 
 
 class DatabaseConfig:

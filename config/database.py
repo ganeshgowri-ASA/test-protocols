@@ -9,7 +9,7 @@ import logging
 from contextlib import contextmanager
 from typing import Generator, List, Dict, Any
 
-from sqlalchemy import create_engine, event, select
+from sqlalchemy import create_engine, event, select, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
@@ -84,7 +84,7 @@ def get_db() -> Generator[Session, None, None]:
 
     Usage:
         with get_db() as db:
-            db.query(Model).all()
+            db.execute(select(Model)).scalars().all()
     """
     SessionLocal = get_session_local()
     db = SessionLocal()

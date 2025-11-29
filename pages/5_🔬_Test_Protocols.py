@@ -2,6 +2,7 @@
 Test Protocols Module
 ====================
 Protocol selector and execution framework with Test Results Entry Checksheet.
+Last verified: 2025-11-29 - Clean syntax validation
 """
 
 import streamlit as st

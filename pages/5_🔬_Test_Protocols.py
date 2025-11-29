@@ -144,15 +144,17 @@ def render_test_execution():
 
     st.divider()
 
-    # Link to service request - extract data before session closes to avoid DetachedInstanceError
+    # Link to service request - extract data inside session to avoid DetachedInstanceError
     with get_db() as db:
-        service_requests = db.query(ServiceRequest).filter(
-            ServiceRequest.status.in_(['approved', 'in_progress'])
-        ).all()
+        sr_results = db.execute(
+            select(ServiceRequest).where(
+                ServiceRequest.status.in_(['approved', 'in_progress'])
+            )
+        ).scalars().all()
         # Extract needed data while session is still open
         sr_options = {
             f"{sr.request_number} - {sr.client_name}": sr.id
-            for sr in service_requests
+            for sr in sr_results
         }
 
     if not sr_options:
@@ -215,11 +217,16 @@ def render_p1_iv_performance(protocol, sr_id, sample_id):
             # Save test execution
             try:
                 execution_number = generate_execution_number()
+                protocol_db_id = get_protocol_db_id(protocol.protocol_id)
+
+                if not protocol_db_id:
+                    st.error(f"Protocol {protocol.protocol_id} not found in database")
+                    return
 
                 test_data = {
                     'execution_number': execution_number,
                     'service_request_id': sr_id,
-                    'protocol_id': 1,  # Assuming P1 is ID 1
+                    'protocol_id': protocol_db_id,
                     'sample_id': sample_id,
                     'status': TestStatus.COMPLETED,
                     'started_at': datetime.utcnow(),
@@ -423,6 +430,11 @@ def render_generic_protocol(protocol, sr_id, sample_id):
 
             try:
                 execution_number = generate_execution_number()
+                protocol_db_id = get_protocol_db_id(protocol.protocol_id)
+
+                if not protocol_db_id:
+                    st.error(f"Protocol {protocol.protocol_id} not found in database")
+                    return
 
                 # Calculate derived values if performance test
                 results = measurements.copy()
@@ -435,7 +447,7 @@ def render_generic_protocol(protocol, sr_id, sample_id):
                 test_data = {
                     'execution_number': execution_number,
                     'service_request_id': sr_id,
-                    'protocol_id': 1,  # Would need to map protocol_id to database ID
+                    'protocol_id': protocol_db_id,
                     'sample_id': sample_id,
                     'status': TestStatus.COMPLETED,
                     'started_at': datetime.combine(test_date, test_start_time),
@@ -487,15 +499,50 @@ def render_test_results_checksheet():
     st.markdown("Enter and update test results for ongoing test executions.")
 
     # Get active test executions (in_progress or pending_review)
+    # Extract all needed data INSIDE the session to avoid DetachedInstanceError
     try:
         with get_db() as db:
-            active_executions = db.query(TestExecution).filter(
-                TestExecution.status.in_([TestStatus.IN_PROGRESS, TestStatus.NOT_STARTED, TestStatus.PENDING_REVIEW])
-            ).order_by(TestExecution.created_at.desc()).all()
+            active_results = db.execute(
+                select(TestExecution).where(
+                    TestExecution.status.in_([TestStatus.IN_PROGRESS, TestStatus.NOT_STARTED, TestStatus.PENDING_REVIEW])
+                ).order_by(desc(TestExecution.created_at))
+            ).scalars().all()
 
-            completed_executions = db.query(TestExecution).filter(
-                TestExecution.status == TestStatus.COMPLETED
-            ).order_by(TestExecution.completed_at.desc()).limit(10).all()
+            # Extract data from ORM objects while session is still open
+            active_executions = [
+                {
+                    'id': ex.id,
+                    'execution_number': ex.execution_number,
+                    'sample_id': ex.sample_id,
+                    'status': ex.status,
+                    'started_at': ex.started_at,
+                    'protocol_id': ex.protocol_id,
+                    'technician_id': ex.technician_id,
+                }
+                for ex in active_results
+            ]
+
+            completed_results = db.execute(
+                select(TestExecution).where(
+                    TestExecution.status == TestStatus.COMPLETED
+                ).order_by(desc(TestExecution.completed_at)).limit(10)
+            ).scalars().all()
+
+            # Extract data from ORM objects while session is still open
+            completed_executions = [
+                {
+                    'id': ex.id,
+                    'execution_number': ex.execution_number,
+                    'sample_id': ex.sample_id,
+                    'protocol_id': ex.protocol_id,
+                    'completed_at': ex.completed_at,
+                    'test_passed': ex.test_passed,
+                    'qa_passed': ex.qa_passed,
+                    'results': ex.results,
+                    'remarks': ex.remarks,
+                }
+                for ex in completed_results
+            ]
 
     except Exception as e:
         st.error(f"Error loading executions: {str(e)}")
@@ -511,33 +558,36 @@ def render_test_results_checksheet():
             st.info("No active test executions. Start a new test from the 'Execute Test' tab or create a new entry below.")
         else:
             for execution in active_executions:
+                exec_status = execution['status']
                 status_color = {
                     TestStatus.NOT_STARTED: "gray",
                     TestStatus.IN_PROGRESS: "blue",
                     TestStatus.PENDING_REVIEW: "orange"
-                }.get(execution.status, "gray")
+                }.get(exec_status, "gray")
 
-                with st.expander(f"🔬 {execution.execution_number} - {execution.sample_id or 'No Sample'} ({execution.status.value})", expanded=True):
+                with st.expander(f"🔬 {execution['execution_number']} - {execution['sample_id'] or 'No Sample'} ({exec_status.value})", expanded=True):
                     # Display current data
                     col1, col2, col3 = st.columns(3)
 
                     with col1:
-                        st.markdown(f"**Execution #:** {execution.execution_number}")
-                        st.markdown(f"**Sample ID:** {execution.sample_id or 'N/A'}")
+                        st.markdown(f"**Execution #:** {execution['execution_number']}")
+                        st.markdown(f"**Sample ID:** {execution['sample_id'] or 'N/A'}")
 
                     with col2:
-                        st.markdown(f"**Status:** {execution.status.value}")
-                        st.markdown(f"**Started:** {execution.started_at.strftime('%Y-%m-%d %H:%M') if execution.started_at else 'Not started'}")
+                        st.markdown(f"**Status:** {exec_status.value}")
+                        started_at = execution['started_at']
+                        st.markdown(f"**Started:** {started_at.strftime('%Y-%m-%d %H:%M') if started_at else 'Not started'}")
 
                     with col3:
-                        st.markdown(f"**Protocol:** P{execution.protocol_id}")
-                        st.markdown(f"**Technician:** ID {execution.technician_id or 'N/A'}")
+                        st.markdown(f"**Protocol:** P{execution['protocol_id']}")
+                        st.markdown(f"**Technician:** ID {execution['technician_id'] or 'N/A'}")
 
                     # Data Entry Form
                     st.divider()
                     st.markdown("**Update Results:**")
 
-                    with st.form(f"update_{execution.id}"):
+                    exec_id = execution['id']
+                    with st.form(f"update_{exec_id}"):
                         # Measurement data entry
                         col1, col2 = st.columns(2)
 
@@ -545,18 +595,18 @@ def render_test_results_checksheet():
                             new_measurement_type = st.selectbox(
                                 "Measurement Type",
                                 ["voltage", "current", "power", "temperature", "irradiance", "resistance", "other"],
-                                key=f"mtype_{execution.id}"
+                                key=f"mtype_{exec_id}"
                             )
-                            new_value = st.number_input("Value", value=0.0, step=0.01, key=f"val_{execution.id}")
-                            new_unit = st.text_input("Unit", placeholder="V, A, W, °C, etc.", key=f"unit_{execution.id}")
+                            new_value = st.number_input("Value", value=0.0, step=0.01, key=f"val_{exec_id}")
+                            new_unit = st.text_input("Unit", placeholder="V, A, W, °C, etc.", key=f"unit_{exec_id}")
 
                         with col2:
-                            new_setpoint = st.number_input("Setpoint (target)", value=0.0, step=0.01, key=f"sp_{execution.id}")
-                            new_tolerance = st.number_input("Tolerance (%)", value=5.0, step=0.1, key=f"tol_{execution.id}")
-                            quality_flag = st.selectbox("Quality Flag", ["good", "questionable", "bad"], key=f"qf_{execution.id}")
+                            new_setpoint = st.number_input("Setpoint (target)", value=0.0, step=0.01, key=f"sp_{exec_id}")
+                            new_tolerance = st.number_input("Tolerance (%)", value=5.0, step=0.1, key=f"tol_{exec_id}")
+                            quality_flag = st.selectbox("Quality Flag", ["good", "questionable", "bad"], key=f"qf_{exec_id}")
 
                         # Notes
-                        data_notes = st.text_area("Notes", height=60, key=f"notes_{execution.id}",
+                        data_notes = st.text_area("Notes", height=60, key=f"notes_{exec_id}",
                                                   placeholder="Observations about this measurement...")
 
                         col1, col2, col3 = st.columns(3)
@@ -565,13 +615,13 @@ def render_test_results_checksheet():
                             add_data = st.form_submit_button("➕ Add Data Point", use_container_width=True)
 
                         with col2:
-                            if execution.status == TestStatus.IN_PROGRESS:
+                            if exec_status == TestStatus.IN_PROGRESS:
                                 complete_test = st.form_submit_button("✅ Complete Test", type="primary", use_container_width=True)
                             else:
                                 complete_test = False
 
                         with col3:
-                            if execution.status == TestStatus.NOT_STARTED:
+                            if exec_status == TestStatus.NOT_STARTED:
                                 start_test = st.form_submit_button("▶️ Start Test", use_container_width=True)
                             else:
                                 start_test = False
@@ -580,7 +630,7 @@ def render_test_results_checksheet():
                             try:
                                 with get_db() as db:
                                     data_point = TestData(
-                                        test_execution_id=execution.id,
+                                        test_execution_id=exec_id,
                                         measurement_type=new_measurement_type,
                                         value=new_value,
                                         unit=new_unit,
@@ -601,7 +651,9 @@ def render_test_results_checksheet():
                         if start_test:
                             try:
                                 with get_db() as db:
-                                    exec_record = db.query(TestExecution).filter(TestExecution.id == execution.id).first()
+                                    exec_record = db.execute(
+                                        select(TestExecution).where(TestExecution.id == exec_id)
+                                    ).scalar()
                                     exec_record.status = TestStatus.IN_PROGRESS
                                     exec_record.started_at = datetime.utcnow()
                                     db.commit()
@@ -613,7 +665,9 @@ def render_test_results_checksheet():
                         if complete_test:
                             try:
                                 with get_db() as db:
-                                    exec_record = db.query(TestExecution).filter(TestExecution.id == execution.id).first()
+                                    exec_record = db.execute(
+                                        select(TestExecution).where(TestExecution.id == exec_id)
+                                    ).scalar()
                                     exec_record.status = TestStatus.COMPLETED
                                     exec_record.completed_at = datetime.utcnow()
                                     db.commit()
@@ -622,20 +676,34 @@ def render_test_results_checksheet():
                             except Exception as e:
                                 st.error(f"Error: {str(e)}")
 
-                    # Show existing data points
+                    # Show existing data points - extract inside session to avoid DetachedInstanceError
                     try:
                         with get_db() as db:
-                            data_points = db.query(TestData).filter(
-                                TestData.test_execution_id == execution.id
-                            ).order_by(TestData.timestamp.desc()).all()
+                            data_points_results = db.execute(
+                                select(TestData).where(
+                                    TestData.test_execution_id == exec_id
+                                ).order_by(desc(TestData.timestamp))
+                            ).scalars().all()
 
-                            if data_points:
-                                st.markdown("**Recorded Data Points:**")
-                                for dp in data_points:
-                                    st.markdown(
-                                        f"- {dp.measurement_type}: **{dp.value} {dp.unit or ''}** "
-                                        f"(Quality: {dp.quality_flag}) @ {dp.timestamp.strftime('%H:%M:%S')}"
-                                    )
+                            # Extract data while session is still open
+                            data_points = [
+                                {
+                                    'measurement_type': dp.measurement_type,
+                                    'value': dp.value,
+                                    'unit': dp.unit,
+                                    'quality_flag': dp.quality_flag,
+                                    'timestamp': dp.timestamp,
+                                }
+                                for dp in data_points_results
+                            ]
+
+                        if data_points:
+                            st.markdown("**Recorded Data Points:**")
+                            for dp in data_points:
+                                st.markdown(
+                                    f"- {dp['measurement_type']}: **{dp['value']} {dp['unit'] or ''}** "
+                                    f"(Quality: {dp['quality_flag']}) @ {dp['timestamp'].strftime('%H:%M:%S')}"
+                                )
                     except Exception as e:
                         pass
 
@@ -643,26 +711,29 @@ def render_test_results_checksheet():
         st.markdown("#### Create New Test Entry")
         st.markdown("Manually create a test execution entry for data recording.")
 
-        # Get service requests
+        # Get service requests - extract data inside session to avoid DetachedInstanceError
         try:
             with get_db() as db:
-                service_requests = db.query(ServiceRequest).filter(
-                    ServiceRequest.status.in_(['approved', 'in_progress'])
-                ).all()
+                sr_results = db.execute(
+                    select(ServiceRequest).where(
+                        ServiceRequest.status.in_(['approved', 'in_progress'])
+                    )
+                ).scalars().all()
+                # Extract needed data while session is still open
+                sr_options = {
+                    f"{sr.request_number} - {sr.client_name}": sr.id
+                    for sr in sr_results
+                }
         except:
-            service_requests = []
+            sr_options = {}
 
-        if not service_requests:
+        if not sr_options:
             st.warning("No approved service requests available. Create a service request first.")
         else:
             with st.form("new_test_entry"):
                 col1, col2 = st.columns(2)
 
                 with col1:
-                    sr_options = {
-                        f"{sr.request_number} - {sr.client_name}": sr.id
-                        for sr in service_requests
-                    }
                     selected_sr = st.selectbox("Service Request *", options=list(sr_options.keys()))
 
                     sample_id = st.text_input("Sample ID *", placeholder="Enter sample ID...")
@@ -687,11 +758,17 @@ def render_test_results_checksheet():
                         try:
                             execution_number = generate_execution_number()
                             sr_id = sr_options[selected_sr]
+                            protocol_id_str = protocol_options[selected_protocol]
+                            protocol_db_id = get_protocol_db_id(protocol_id_str)
+
+                            if not protocol_db_id:
+                                st.error(f"Protocol {protocol_id_str} not found in database")
+                                return
 
                             test_data = {
                                 'execution_number': execution_number,
                                 'service_request_id': sr_id,
-                                'protocol_id': 1,  # Default protocol ID
+                                'protocol_id': protocol_db_id,
                                 'sample_id': sample_id,
                                 'status': TestStatus.NOT_STARTED,
                                 'technician_id': 1,
@@ -717,26 +794,27 @@ def render_test_results_checksheet():
             st.info("No completed test executions found.")
         else:
             for execution in completed_executions:
-                with st.expander(f"✅ {execution.execution_number} - {execution.sample_id}", expanded=False):
+                with st.expander(f"✅ {execution['execution_number']} - {execution['sample_id']}", expanded=False):
                     col1, col2, col3 = st.columns(3)
 
                     with col1:
-                        st.markdown(f"**Sample:** {execution.sample_id}")
-                        st.markdown(f"**Protocol:** P{execution.protocol_id}")
+                        st.markdown(f"**Sample:** {execution['sample_id']}")
+                        st.markdown(f"**Protocol:** P{execution['protocol_id']}")
 
                     with col2:
-                        st.markdown(f"**Completed:** {execution.completed_at.strftime('%Y-%m-%d %H:%M') if execution.completed_at else 'N/A'}")
-                        st.markdown(f"**Result:** {'✅ Passed' if execution.test_passed else '❌ Failed'}")
+                        completed_at = execution['completed_at']
+                        st.markdown(f"**Completed:** {completed_at.strftime('%Y-%m-%d %H:%M') if completed_at else 'N/A'}")
+                        st.markdown(f"**Result:** {'✅ Passed' if execution['test_passed'] else '❌ Failed'}")
 
                     with col3:
-                        st.markdown(f"**QA:** {'✅ Passed' if execution.qa_passed else '⏳ Pending'}")
+                        st.markdown(f"**QA:** {'✅ Passed' if execution['qa_passed'] else '⏳ Pending'}")
 
-                    if execution.results:
+                    if execution['results']:
                         st.markdown("**Results:**")
-                        st.json(execution.results)
+                        st.json(execution['results'])
 
-                    if execution.remarks:
-                        st.markdown(f"**Remarks:** {execution.remarks}")
+                    if execution['remarks']:
+                        st.markdown(f"**Remarks:** {execution['remarks']}")
 
 
 def render_test_history():
@@ -744,55 +822,92 @@ def render_test_history():
 
     st.markdown("### 📋 Test Execution History")
 
+    # Extract all needed data INSIDE the session to avoid DetachedInstanceError
     try:
         with get_db() as db:
-            executions = db.query(TestExecution).order_by(
-                TestExecution.created_at.desc()
-            ).limit(20).all()
+            exec_results = db.execute(
+                select(TestExecution).order_by(desc(TestExecution.created_at)).limit(20)
+            ).scalars().all()
 
-            if not executions:
-                st.info("No test executions found")
-                return
-
-            for execution in executions:
-                status_emoji = {
-                    TestStatus.NOT_STARTED: "⏳",
-                    TestStatus.IN_PROGRESS: "🔵",
-                    TestStatus.COMPLETED: "✅",
-                    TestStatus.FAILED: "❌",
-                    TestStatus.PENDING_REVIEW: "⏸️"
-                }.get(execution.status, "❓")
-
-                with st.expander(
-                    f"{status_emoji} {execution.execution_number} - {execution.sample_id} ({execution.status.value.upper()})",
-                    expanded=False
-                ):
-                    col1, col2, col3 = st.columns(3)
-
-                    with col1:
-                        st.markdown(f"**Sample ID:** {execution.sample_id}")
-                        st.markdown(f"**Protocol ID:** {execution.protocol_id}")
-
-                    with col2:
-                        st.markdown(f"**Status:** {execution.status.value.upper()}")
-                        st.markdown(f"**Started:** {execution.started_at.strftime('%Y-%m-%d %H:%M') if execution.started_at else 'N/A'}")
-
-                    with col3:
-                        st.markdown(f"**Completed:** {execution.completed_at.strftime('%Y-%m-%d %H:%M') if execution.completed_at else 'N/A'}")
-                        st.markdown(f"**Result:** {'✅ Passed' if execution.test_passed else '❌ Failed'}")
-
-                    if execution.results:
-                        st.markdown("**Results:**")
-                        st.json(execution.results)
+            # Extract data from ORM objects while session is still open
+            executions = [
+                {
+                    'execution_number': ex.execution_number,
+                    'sample_id': ex.sample_id,
+                    'status': ex.status,
+                    'protocol_id': ex.protocol_id,
+                    'started_at': ex.started_at,
+                    'completed_at': ex.completed_at,
+                    'test_passed': ex.test_passed,
+                    'results': ex.results,
+                }
+                for ex in exec_results
+            ]
 
     except Exception as e:
         st.error(f"Error loading test history: {str(e)}")
+        return
+
+    if not executions:
+        st.info("No test executions found")
+        return
+
+    for execution in executions:
+        exec_status = execution['status']
+        status_emoji = {
+            TestStatus.NOT_STARTED: "⏳",
+            TestStatus.IN_PROGRESS: "🔵",
+            TestStatus.COMPLETED: "✅",
+            TestStatus.FAILED: "❌",
+            TestStatus.PENDING_REVIEW: "⏸️"
+        }.get(exec_status, "❓")
+
+        with st.expander(
+            f"{status_emoji} {execution['execution_number']} - {execution['sample_id']} ({exec_status.value.upper()})",
+            expanded=False
+        ):
+            col1, col2, col3 = st.columns(3)
+
+            with col1:
+                st.markdown(f"**Sample ID:** {execution['sample_id']}")
+                st.markdown(f"**Protocol ID:** {execution['protocol_id']}")
+
+            with col2:
+                st.markdown(f"**Status:** {exec_status.value.upper()}")
+                started_at = execution['started_at']
+                st.markdown(f"**Started:** {started_at.strftime('%Y-%m-%d %H:%M') if started_at else 'N/A'}")
+
+            with col3:
+                completed_at = execution['completed_at']
+                st.markdown(f"**Completed:** {completed_at.strftime('%Y-%m-%d %H:%M') if completed_at else 'N/A'}")
+                st.markdown(f"**Result:** {'✅ Passed' if execution['test_passed'] else '❌ Failed'}")
+
+            if execution['results']:
+                st.markdown("**Results:**")
+                st.json(execution['results'])
 
 
 def generate_execution_number() -> str:
     """Generate unique execution number"""
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     return f"TEST-{timestamp[-10:]}"
+
+
+def get_protocol_db_id(protocol_id_str: str) -> int:
+    """
+    Get the database ID for a protocol given its protocol_id string (P1, P2, etc.)
+
+    Args:
+        protocol_id_str: The protocol identifier string (e.g., 'P1', 'P2')
+
+    Returns:
+        The database primary key ID for the protocol, or None if not found
+    """
+    with get_db() as db:
+        result = db.execute(
+            select(TestProtocol.id).where(TestProtocol.protocol_id == protocol_id_str)
+        ).scalar()
+        return result
 
 
 if __name__ == "__main__":

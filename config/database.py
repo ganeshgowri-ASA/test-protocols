@@ -8,7 +8,7 @@ import os
 from contextlib import contextmanager
 from typing import Generator
 
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, select, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
@@ -80,7 +80,7 @@ def get_db() -> Generator[Session, None, None]:
 
     Usage:
         with get_db() as db:
-            db.query(Model).all()
+            db.execute(select(Model)).scalars().all()
     """
     SessionLocal = get_session_local()
     db = SessionLocal()
@@ -129,7 +129,7 @@ def init_database():
 
     # Create default admin user if not exists
     with get_db() as db:
-        admin_exists = db.query(User).filter_by(username="admin").first()
+        admin_exists = db.execute(select(User).where(User.username == "admin")).scalar_one_or_none()
 
         if not admin_exists:
 
@@ -145,7 +145,7 @@ def init_database():
             db.commit()
 
         # Seed test protocols if table is empty
-    protocols_count = db.query(TestProtocol).count()
+    protocols_count = db.execute(select(func.count()).select_from(TestProtocol)).scalar()
     if protocols_count == 0:
         protocols = [
             TestProtocol(protocol_id="P1", name="I-V Performance Test", category="performance", is_active=True),

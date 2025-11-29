@@ -101,6 +101,7 @@ def init_database():
     Returns:
         Database session factory
     """
+    from sqlalchemy import select, func
     from database.models import (
         User, ServiceRequest, IncomingInspection,
         Equipment, EquipmentBooking, TestProtocol,
@@ -110,8 +111,7 @@ def init_database():
 
     engine = get_engine()
 
-
-        # CRITICAL FIX: Configure mappers before creating tables
+    # CRITICAL FIX: Configure mappers before creating tables
     # This ensures all relationships are properly set up
     from sqlalchemy.orm import configure_mappers
     try:
@@ -121,6 +121,7 @@ def init_database():
         from sqlalchemy.orm import clear_mappers
         clear_mappers()
         configure_mappers()
+
     # Create all tables
     Base.metadata.create_all(bind=engine)
 
@@ -132,8 +133,6 @@ def init_database():
         admin_exists = db.execute(select(User).where(User.username == "admin")).scalar_one_or_none()
 
         if not admin_exists:
-
-
             admin_user = User(
                 username="admin",
                 email="admin@solarpv.com",

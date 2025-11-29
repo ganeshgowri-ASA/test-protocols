@@ -22,8 +22,10 @@ def get_company_branding():
     # Use session state caching to avoid repeated DB calls
     if 'company_branding' not in st.session_state:
         try:
-            from database.models import CompanyProfile
+            from database import CompanyProfile
             with get_db() as db:
+                stmt = select(CompanyProfile).where(CompanyProfile.company_id == "DEFAULT")
+                profile = db.execute(stmt).scalars().first()
                 profile = db.execute(
                     select(CompanyProfile).where(CompanyProfile.company_id == "DEFAULT")
                 ).scalar_one_or_none()

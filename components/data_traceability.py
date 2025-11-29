@@ -12,7 +12,7 @@ from sqlalchemy import desc, select
 from sqlalchemy.orm import joinedload
 
 from config.database import get_db
-from database.models import AuditLog, User, TestExecution
+from database import AuditLog, User, TestExecution
 
 
 def log_action(

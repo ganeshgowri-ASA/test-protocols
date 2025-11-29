@@ -13,6 +13,8 @@ from sqlalchemy import func, select
 import streamlit as st
 
 from config.database import get_db
+from sqlalchemy import select, desc, asc, and_, or_, func
+from database import (
 from database.models import (
     ServiceRequest, TestExecution, Equipment,
     EquipmentBooking, TestStatus, RequestStatus

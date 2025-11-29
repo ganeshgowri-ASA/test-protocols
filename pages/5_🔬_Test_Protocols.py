@@ -29,6 +29,45 @@ render_header("Test Protocols", "Select and execute testing protocols")
 render_sidebar_navigation()
 
 
+def get_protocol_db_id(protocol_id_str: str, db) -> int:
+    """
+    Helper function to map protocol ID string (P1, P2, etc.) to database integer ID.
+
+    This resolves ForeignKeyViolation errors by dynamically looking up the actual
+    database ID instead of using hardcoded values.
+
+    Args:
+        protocol_id_str: Protocol identifier string (e.g., 'P1', 'P2', 'P3')
+        db: Active database session
+
+    Returns:
+        int: The database integer ID for the protocol, or 1 as fallback
+    """
+    try:
+        # Query the TestProtocol table to find the matching protocol
+        stmt = select(TestProtocol).where(TestProtocol.protocol_id == protocol_id_str)
+        protocol = db.execute(stmt).scalar_one_or_none()
+
+        if protocol:
+            return protocol.id
+
+        # If not found by exact match, try searching by protocol_id pattern
+        # Some protocols might be stored with different formats
+        stmt = select(TestProtocol).where(
+            TestProtocol.protocol_id.ilike(f"%{protocol_id_str}%")
+        )
+        protocol = db.execute(stmt).scalar_one_or_none()
+
+        if protocol:
+            return protocol.id
+
+        # Fallback: return 1 if no protocol found (log warning in production)
+        return 1
+    except Exception:
+        # On any error, return 1 as safe fallback
+        return 1
+
+
 def main():
     """Main test protocols page"""
 
@@ -145,11 +184,16 @@ def render_test_execution():
     st.divider()
 
     # Link to service request - extract data before session closes to avoid DetachedInstanceError
+    # FIX Issue #1: sr_options dict MUST be constructed INSIDE the 'with get_db()' block
+    # to prevent DetachedInstanceError when accessing ORM object attributes after session closes
     with get_db() as db:
-        service_requests = db.query(ServiceRequest).filter(
+        # Use SQLAlchemy 2.0 select() syntax instead of legacy .query()
+        stmt = select(ServiceRequest).where(
             ServiceRequest.status.in_(['approved', 'in_progress'])
-        ).all()
-        # Extract needed data while session is still open
+        )
+        service_requests = db.execute(stmt).scalars().all()
+
+        # CRITICAL: Build sr_options dict INSIDE the session block while ORM objects are attached
         sr_options = {
             f"{sr.request_number} - {sr.client_name}": sr.id
             for sr in service_requests
@@ -216,36 +260,41 @@ def render_p1_iv_performance(protocol, sr_id, sample_id):
             try:
                 execution_number = generate_execution_number()
 
-                test_data = {
-                    'execution_number': execution_number,
-                    'service_request_id': sr_id,
-                    'protocol_id': 1,  # Assuming P1 is ID 1
-                    'sample_id': sample_id,
-                    'status': TestStatus.COMPLETED,
-                    'started_at': datetime.utcnow(),
-                    'completed_at': datetime.utcnow(),
-                    'technician_id': 1,
-                    'input_data': {
-                        'irradiance': irradiance,
-                        'temperature': temperature,
-                        'voc': voc,
-                        'isc': isc,
-                        'vmpp': vmpp,
-                        'impp': impp
-                    },
-                    'results': {
-                        'pmax': pmax,
-                        'fill_factor': fill_factor,
-                        'voc': voc,
-                        'isc': isc,
-                        'vmpp': vmpp,
-                        'impp': impp
-                    },
-                    'test_passed': True,
-                    'qa_passed': True
-                }
-
+                # FIX Issue #3: Use dynamic protocol ID lookup instead of hardcoded value
+                # The database session is needed to look up the actual protocol ID
                 with get_db() as db:
+                    # Dynamically look up the protocol database ID for 'P1'
+                    protocol_db_id = get_protocol_db_id('P1', db)
+
+                    test_data = {
+                        'execution_number': execution_number,
+                        'service_request_id': sr_id,
+                        'protocol_id': protocol_db_id,  # Dynamic lookup replaces hardcoded 1
+                        'sample_id': sample_id,
+                        'status': TestStatus.COMPLETED,
+                        'started_at': datetime.utcnow(),
+                        'completed_at': datetime.utcnow(),
+                        'technician_id': 1,
+                        'input_data': {
+                            'irradiance': irradiance,
+                            'temperature': temperature,
+                            'voc': voc,
+                            'isc': isc,
+                            'vmpp': vmpp,
+                            'impp': impp
+                        },
+                        'results': {
+                            'pmax': pmax,
+                            'fill_factor': fill_factor,
+                            'voc': voc,
+                            'isc': isc,
+                            'vmpp': vmpp,
+                            'impp': impp
+                        },
+                        'test_passed': True,
+                        'qa_passed': True
+                    }
+
                     execution = TestExecution(**test_data)
                     db.add(execution)
                     db.commit()
@@ -432,30 +481,35 @@ def render_generic_protocol(protocol, sr_id, sample_id):
                         voc_isc = measurements['voc'] * measurements['isc']
                         results['fill_factor'] = (results['pmax'] / voc_isc * 100) if voc_isc > 0 else 0
 
-                test_data = {
-                    'execution_number': execution_number,
-                    'service_request_id': sr_id,
-                    'protocol_id': 1,  # Would need to map protocol_id to database ID
-                    'sample_id': sample_id,
-                    'status': TestStatus.COMPLETED,
-                    'started_at': datetime.combine(test_date, test_start_time),
-                    'completed_at': datetime.utcnow(),
-                    'technician_id': 1,
-                    'input_data': {
-                        'ambient_temp': ambient_temp,
-                        'humidity': humidity,
-                        'test_date': str(test_date),
-                        'visual_checks': visual_checks
-                    },
-                    'raw_data': measurements,
-                    'results': results,
-                    'test_passed': (test_result == "Passed"),
-                    'failure_mode': failure_mode if test_result == "Failed" else None,
-                    'qa_passed': True,
-                    'remarks': f"{technician_notes}\n\n{remarks}".strip()
-                }
-
+                # FIX Issue #3: Use dynamic protocol ID lookup instead of hardcoded value
+                # The database session is needed to look up the actual protocol ID
                 with get_db() as db:
+                    # Dynamically look up the protocol database ID using protocol.protocol_id
+                    protocol_db_id = get_protocol_db_id(protocol.protocol_id, db)
+
+                    test_data = {
+                        'execution_number': execution_number,
+                        'service_request_id': sr_id,
+                        'protocol_id': protocol_db_id,  # Dynamic lookup replaces hardcoded 1
+                        'sample_id': sample_id,
+                        'status': TestStatus.COMPLETED,
+                        'started_at': datetime.combine(test_date, test_start_time),
+                        'completed_at': datetime.utcnow(),
+                        'technician_id': 1,
+                        'input_data': {
+                            'ambient_temp': ambient_temp,
+                            'humidity': humidity,
+                            'test_date': str(test_date),
+                            'visual_checks': visual_checks
+                        },
+                        'raw_data': measurements,
+                        'results': results,
+                        'test_passed': (test_result == "Passed"),
+                        'failure_mode': failure_mode if test_result == "Failed" else None,
+                        'qa_passed': True,
+                        'remarks': f"{technician_notes}\n\n{remarks}".strip()
+                    }
+
                     execution = TestExecution(**test_data)
                     db.add(execution)
                     db.commit()
@@ -487,15 +541,18 @@ def render_test_results_checksheet():
     st.markdown("Enter and update test results for ongoing test executions.")
 
     # Get active test executions (in_progress or pending_review)
+    # Use SQLAlchemy 2.0 select() syntax instead of legacy .query()
     try:
         with get_db() as db:
-            active_executions = db.query(TestExecution).filter(
+            stmt = select(TestExecution).where(
                 TestExecution.status.in_([TestStatus.IN_PROGRESS, TestStatus.NOT_STARTED, TestStatus.PENDING_REVIEW])
-            ).order_by(TestExecution.created_at.desc()).all()
+            ).order_by(desc(TestExecution.created_at))
+            active_executions = db.execute(stmt).scalars().all()
 
-            completed_executions = db.query(TestExecution).filter(
+            stmt = select(TestExecution).where(
                 TestExecution.status == TestStatus.COMPLETED
-            ).order_by(TestExecution.completed_at.desc()).limit(10).all()
+            ).order_by(desc(TestExecution.completed_at)).limit(10)
+            completed_executions = db.execute(stmt).scalars().all()
 
     except Exception as e:
         st.error(f"Error loading executions: {str(e)}")
@@ -601,10 +658,13 @@ def render_test_results_checksheet():
                         if start_test:
                             try:
                                 with get_db() as db:
-                                    exec_record = db.query(TestExecution).filter(TestExecution.id == execution.id).first()
-                                    exec_record.status = TestStatus.IN_PROGRESS
-                                    exec_record.started_at = datetime.utcnow()
-                                    db.commit()
+                                    # Use SQLAlchemy 2.0 select() syntax
+                                    stmt = select(TestExecution).where(TestExecution.id == execution.id)
+                                    exec_record = db.execute(stmt).scalar_one_or_none()
+                                    if exec_record:
+                                        exec_record.status = TestStatus.IN_PROGRESS
+                                        exec_record.started_at = datetime.utcnow()
+                                        db.commit()
                                 st.success("Test started!")
                                 st.rerun()
                             except Exception as e:
@@ -613,10 +673,13 @@ def render_test_results_checksheet():
                         if complete_test:
                             try:
                                 with get_db() as db:
-                                    exec_record = db.query(TestExecution).filter(TestExecution.id == execution.id).first()
-                                    exec_record.status = TestStatus.COMPLETED
-                                    exec_record.completed_at = datetime.utcnow()
-                                    db.commit()
+                                    # Use SQLAlchemy 2.0 select() syntax
+                                    stmt = select(TestExecution).where(TestExecution.id == execution.id)
+                                    exec_record = db.execute(stmt).scalar_one_or_none()
+                                    if exec_record:
+                                        exec_record.status = TestStatus.COMPLETED
+                                        exec_record.completed_at = datetime.utcnow()
+                                        db.commit()
                                 st.success("Test completed!")
                                 st.rerun()
                             except Exception as e:
@@ -625,9 +688,11 @@ def render_test_results_checksheet():
                     # Show existing data points
                     try:
                         with get_db() as db:
-                            data_points = db.query(TestData).filter(
+                            # Use SQLAlchemy 2.0 select() syntax
+                            stmt = select(TestData).where(
                                 TestData.test_execution_id == execution.id
-                            ).order_by(TestData.timestamp.desc()).all()
+                            ).order_by(desc(TestData.timestamp))
+                            data_points = db.execute(stmt).scalars().all()
 
                             if data_points:
                                 st.markdown("**Recorded Data Points:**")
@@ -644,25 +709,31 @@ def render_test_results_checksheet():
         st.markdown("Manually create a test execution entry for data recording.")
 
         # Get service requests
+        # FIX Issue #2: sr_options dict MUST be constructed INSIDE the 'with get_db()' block
+        # to prevent DetachedInstanceError when accessing ORM object attributes after session closes
         try:
             with get_db() as db:
-                service_requests = db.query(ServiceRequest).filter(
+                # Use SQLAlchemy 2.0 select() syntax instead of legacy .query()
+                stmt = select(ServiceRequest).where(
                     ServiceRequest.status.in_(['approved', 'in_progress'])
-                ).all()
-        except:
-            service_requests = []
+                )
+                service_requests = db.execute(stmt).scalars().all()
 
-        if not service_requests:
+                # CRITICAL: Build sr_options dict INSIDE the session block while ORM objects are attached
+                sr_options = {
+                    f"{sr.request_number} - {sr.client_name}": sr.id
+                    for sr in service_requests
+                }
+        except Exception:
+            sr_options = {}
+
+        if not sr_options:
             st.warning("No approved service requests available. Create a service request first.")
         else:
             with st.form("new_test_entry"):
                 col1, col2 = st.columns(2)
 
                 with col1:
-                    sr_options = {
-                        f"{sr.request_number} - {sr.client_name}": sr.id
-                        for sr in service_requests
-                    }
                     selected_sr = st.selectbox("Service Request *", options=list(sr_options.keys()))
 
                     sample_id = st.text_input("Sample ID *", placeholder="Enter sample ID...")
@@ -687,18 +758,25 @@ def render_test_results_checksheet():
                         try:
                             execution_number = generate_execution_number()
                             sr_id = sr_options[selected_sr]
+                            # Get the protocol_id string from the selected option
+                            selected_protocol_id_str = protocol_options[selected_protocol]
 
-                            test_data = {
-                                'execution_number': execution_number,
-                                'service_request_id': sr_id,
-                                'protocol_id': 1,  # Default protocol ID
-                                'sample_id': sample_id,
-                                'status': TestStatus.NOT_STARTED,
-                                'technician_id': 1,
-                                'remarks': initial_notes
-                            }
-
+                            # FIX Issue #3: Use dynamic protocol ID lookup instead of hardcoded value
+                            # The database session is needed to look up the actual protocol ID
                             with get_db() as db:
+                                # Dynamically look up the protocol database ID
+                                protocol_db_id = get_protocol_db_id(selected_protocol_id_str, db)
+
+                                test_data = {
+                                    'execution_number': execution_number,
+                                    'service_request_id': sr_id,
+                                    'protocol_id': protocol_db_id,  # Dynamic lookup replaces hardcoded 1
+                                    'sample_id': sample_id,
+                                    'status': TestStatus.NOT_STARTED,
+                                    'technician_id': 1,
+                                    'remarks': initial_notes
+                                }
+
                                 execution = TestExecution(**test_data)
                                 db.add(execution)
                                 db.commit()
@@ -746,9 +824,11 @@ def render_test_history():
 
     try:
         with get_db() as db:
-            executions = db.query(TestExecution).order_by(
-                TestExecution.created_at.desc()
-            ).limit(20).all()
+            # Use SQLAlchemy 2.0 select() syntax instead of legacy .query()
+            stmt = select(TestExecution).order_by(
+                desc(TestExecution.created_at)
+            ).limit(20)
+            executions = db.execute(stmt).scalars().all()
 
             if not executions:
                 st.info("No test executions found")

@@ -14,7 +14,7 @@ import streamlit as st
 
 from config.settings import config, STATIC_DIR
 from config.database import get_db
-from database.models import QRCode
+from database import QRCode
 
 
 class QRCodeGenerator:

@@ -24,7 +24,7 @@ sys.path.insert(0, str(project_root))
 from config.settings import setup_page_config, config, apply_custom_css
 from config.database import get_db
 from components.navigation import render_header, render_sidebar_navigation, clear_company_branding_cache
-from database.models import CompanyProfile, IndustryType
+from database import CompanyProfile, IndustryType
 
 # Page configuration
 setup_page_config(page_title="Company Settings", page_icon="🏢")
@@ -162,8 +162,10 @@ def save_company_profile(profile_data: dict, logo_data: dict = None) -> bool:
         True if save successful, False otherwise
     """
     try:
+        from sqlalchemy import select
         with get_db() as db:
-            profile = db.query(CompanyProfile).filter_by(company_id="DEFAULT").first()
+            stmt = select(CompanyProfile).where(CompanyProfile.company_id == "DEFAULT")
+            profile = db.execute(stmt).scalars().first()
 
             if not profile:
                 profile = CompanyProfile(company_id="DEFAULT")
@@ -197,8 +199,10 @@ def clear_company_logo() -> bool:
         True if successful, False otherwise
     """
     try:
+        from sqlalchemy import select
         with get_db() as db:
-            profile = db.query(CompanyProfile).filter_by(company_id="DEFAULT").first()
+            stmt = select(CompanyProfile).where(CompanyProfile.company_id == "DEFAULT")
+            profile = db.execute(stmt).scalars().first()
             if profile:
                 profile.company_logo = None
                 profile.logo_filename = None

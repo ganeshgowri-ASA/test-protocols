@@ -17,7 +17,7 @@ from config.settings import setup_page_config
 from config.database import get_db
 from components.navigation import render_header, render_sidebar_navigation
 from components.qr_generator import render_qr_code_generator_ui, get_qr_generator
-from database.models import IncomingInspection, ServiceRequest, InspectionStatus
+from database import IncomingInspection, ServiceRequest, InspectionStatus
 from sqlalchemy import select, desc, asc, and_, or_, func
 
 # Page configuration

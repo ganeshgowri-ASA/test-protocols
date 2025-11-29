@@ -22,9 +22,10 @@ def get_company_branding():
     # Use session state caching to avoid repeated DB calls
     if 'company_branding' not in st.session_state:
         try:
-            from database.models import CompanyProfile
+            from database import CompanyProfile
             with get_db() as db:
-                profile = db.query(CompanyProfile).filter_by(company_id="DEFAULT").first()
+                stmt = select(CompanyProfile).where(CompanyProfile.company_id == "DEFAULT")
+                profile = db.execute(stmt).scalars().first()
                 if profile:
                     logo_b64 = None
                     if profile.company_logo:

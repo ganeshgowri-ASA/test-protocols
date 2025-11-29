@@ -17,7 +17,7 @@ from config.settings import setup_page_config
 from config.database import get_db
 from sqlalchemy.orm import joinedload
 from components.navigation import render_header, render_sidebar_navigation
-from database.models import Equipment, EquipmentBooking, EquipmentStatus
+from database import Equipment, EquipmentBooking, EquipmentStatus
 from sqlalchemy import select, desc, asc, and_, or_, func
 
 # Page configuration

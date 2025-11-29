@@ -147,6 +147,7 @@ def init_database():
     protocols_count = db.execute(select(func.count()).select_from(TestProtocol)).scalar()
     if protocols_count == 0:
         protocols = [
+            # Original P1-P10 protocols
             TestProtocol(protocol_id="P1", name="I-V Performance Test", category="performance", is_active=True),
             TestProtocol(protocol_id="P2", name="PMax Tracking Test", category="performance", is_active=True),
             TestProtocol(protocol_id="P3", name="Temperature Coefficient", category="performance", is_active=True),
@@ -157,6 +158,55 @@ def init_database():
             TestProtocol(protocol_id="P8", name="UV Degradation Test", category="degradation", is_active=True),
             TestProtocol(protocol_id="P9", name="Mechanical Load Test", category="mechanical", is_active=True),
             TestProtocol(protocol_id="P10", name="Wet Leakage Test", category="safety", is_active=True),
+            # P11-P20: Degradation category
+            TestProtocol(protocol_id="P11", name="Light-Induced Degradation Test", category="degradation", is_active=True),
+            TestProtocol(protocol_id="P12", name="Potential-Induced Degradation Test", category="degradation", is_active=True),
+            TestProtocol(protocol_id="P13", name="LeTID Degradation Test", category="degradation", is_active=True),
+            TestProtocol(protocol_id="P14", name="Encapsulant Discoloration Test", category="degradation", is_active=True),
+            TestProtocol(protocol_id="P15", name="Backsheet Degradation Test", category="degradation", is_active=True),
+            TestProtocol(protocol_id="P16", name="Solder Bond Degradation Test", category="degradation", is_active=True),
+            TestProtocol(protocol_id="P17", name="Cell Microcrack Propagation Test", category="degradation", is_active=True),
+            TestProtocol(protocol_id="P18", name="Hotspot Degradation Test", category="degradation", is_active=True),
+            TestProtocol(protocol_id="P19", name="Corrosion Resistance Test", category="degradation", is_active=True),
+            TestProtocol(protocol_id="P20", name="Long-term Outdoor Exposure Test", category="degradation", is_active=True),
+            # P21-P30: Environmental category
+            TestProtocol(protocol_id="P21", name="Salt Mist Corrosion Test", category="environmental", is_active=True),
+            TestProtocol(protocol_id="P22", name="Ammonia Corrosion Test", category="environmental", is_active=True),
+            TestProtocol(protocol_id="P23", name="Sand and Dust Exposure Test", category="environmental", is_active=True),
+            TestProtocol(protocol_id="P24", name="Hail Impact Test", category="environmental", is_active=True),
+            TestProtocol(protocol_id="P25", name="Snow Load Test", category="environmental", is_active=True),
+            TestProtocol(protocol_id="P26", name="Wind Load Test", category="environmental", is_active=True),
+            TestProtocol(protocol_id="P27", name="Rain Penetration Test", category="environmental", is_active=True),
+            TestProtocol(protocol_id="P28", name="Static Environmental Load Test", category="environmental", is_active=True),
+            TestProtocol(protocol_id="P29", name="Dynamic Environmental Load Test", category="environmental", is_active=True),
+            TestProtocol(protocol_id="P30", name="Altitude Simulation Test", category="environmental", is_active=True),
+            # P31-P40: Mechanical category
+            TestProtocol(protocol_id="P31", name="Junction Box Pull Test", category="mechanical", is_active=True),
+            TestProtocol(protocol_id="P32", name="Cable Stress Test", category="mechanical", is_active=True),
+            TestProtocol(protocol_id="P33", name="Connector Durability Test", category="mechanical", is_active=True),
+            TestProtocol(protocol_id="P34", name="Frame Integrity Test", category="mechanical", is_active=True),
+            TestProtocol(protocol_id="P35", name="Glass Breakage Test", category="mechanical", is_active=True),
+            TestProtocol(protocol_id="P36", name="Mounting System Test", category="mechanical", is_active=True),
+            TestProtocol(protocol_id="P37", name="Vibration Test", category="mechanical", is_active=True),
+            TestProtocol(protocol_id="P38", name="Transport Simulation Test", category="mechanical", is_active=True),
+            TestProtocol(protocol_id="P39", name="Edge Seal Adhesion Test", category="mechanical", is_active=True),
+            TestProtocol(protocol_id="P40", name="Laminate Adhesion Test", category="mechanical", is_active=True),
+            # P41-P50: Safety category
+            TestProtocol(protocol_id="P41", name="Electrical Insulation Test", category="safety", is_active=True),
+            TestProtocol(protocol_id="P42", name="Dielectric Withstand Test", category="safety", is_active=True),
+            TestProtocol(protocol_id="P43", name="Ground Continuity Test", category="safety", is_active=True),
+            TestProtocol(protocol_id="P44", name="Bypass Diode Test", category="safety", is_active=True),
+            TestProtocol(protocol_id="P45", name="Reverse Current Overload Test", category="safety", is_active=True),
+            TestProtocol(protocol_id="P46", name="Fire Classification Test", category="safety", is_active=True),
+            TestProtocol(protocol_id="P47", name="Arc Fault Detection Test", category="safety", is_active=True),
+            TestProtocol(protocol_id="P48", name="Hot Spot Endurance Test", category="safety", is_active=True),
+            TestProtocol(protocol_id="P49", name="Sharp Edge Test", category="safety", is_active=True),
+            TestProtocol(protocol_id="P50", name="Accessibility Test", category="safety", is_active=True),
+            # P51-P54: Performance category
+            TestProtocol(protocol_id="P51", name="Low Irradiance Performance Test", category="performance", is_active=True),
+            TestProtocol(protocol_id="P52", name="Spectral Response Test", category="performance", is_active=True),
+            TestProtocol(protocol_id="P53", name="Angular Response Test", category="performance", is_active=True),
+            TestProtocol(protocol_id="P54", name="Nominal Operating Cell Temperature Test", category="performance", is_active=True),
         ]
         for protocol in protocols:
             db.add(protocol)

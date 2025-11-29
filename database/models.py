@@ -412,8 +412,8 @@ class TestData(Base):
     quality_flag = Column(String(50))  # good, questionable, bad
     notes = Column(Text)
 
-    # Metadata
-    metadata = Column(JSON)  # Additional measurement metadata
+    # Additional data
+    extra_metadata = Column(JSON)  # Additional measurement metadata (renamed from 'metadata' to avoid SQLAlchemy conflict)
 
     __table_args__ = (
         Index('idx_test_data_execution', 'test_execution_id'),

@@ -13,7 +13,7 @@ _cached_models = get_models()
 
 # Re-export all model classes
 User = _cached_models.User
-ServiceRequest = _cached_models.ServiceRequest  
+ServiceRequest = _cached_models.ServiceRequest
 IncomingInspection = _cached_models.IncomingInspection
 Equipment = _cached_models.Equipment
 EquipmentBooking = _cached_models.EquipmentBooking
@@ -22,6 +22,7 @@ TestExecution = _cached_models.TestExecution
 TestData = _cached_models.TestData
 AuditLog = _cached_models.AuditLog
 QRCode = _cached_models.QRCode
+CompanyProfile = _cached_models.CompanyProfile
 
 # Export enums
 UserRole = _cached_models.UserRole
@@ -29,3 +30,4 @@ RequestStatus = _cached_models.RequestStatus
 TestStatus = _cached_models.TestStatus
 EquipmentStatus = _cached_models.EquipmentStatus
 InspectionStatus = _cached_models.InspectionStatus
+IndustryType = _cached_models.IndustryType

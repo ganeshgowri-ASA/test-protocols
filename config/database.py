@@ -9,7 +9,7 @@ import sys
 from contextlib import contextmanager
 from typing import Generator
 
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, select, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
@@ -81,7 +81,7 @@ def get_db() -> Generator[Session, None, None]:
 
     Usage:
         with get_db() as db:
-            db.query(Model).all()
+            db.execute(select(Model)).scalars().all()
     """
     SessionLocal = get_session_local()
     db = SessionLocal()
@@ -102,6 +102,7 @@ def init_database():
     Returns:
         Database session factory
     """
+    from sqlalchemy import select, func
     from database.models import (
         User, ServiceRequest, IncomingInspection,
         Equipment, EquipmentBooking, TestProtocol,
@@ -111,8 +112,7 @@ def init_database():
 
     engine = get_engine()
 
-
-        # CRITICAL FIX: Configure mappers before creating tables
+    # CRITICAL FIX: Configure mappers before creating tables
     # This ensures all relationships are properly set up
     from sqlalchemy.orm import configure_mappers
     try:
@@ -122,6 +122,7 @@ def init_database():
         from sqlalchemy.orm import clear_mappers
         clear_mappers()
         configure_mappers()
+
     # Create all tables
     Base.metadata.create_all(bind=engine)
 
@@ -130,7 +131,7 @@ def init_database():
 
     # Create default admin user if not exists
     with get_db() as db:
-        admin_exists = db.query(User).filter_by(username="admin").first()
+        admin_exists = db.execute(select(User).where(User.username == "admin")).scalar_one_or_none()
 
         if not admin_exists:
             admin_user = User(

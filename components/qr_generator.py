@@ -12,9 +12,10 @@ from datetime import datetime
 import json
 import streamlit as st
 
+from sqlalchemy import select
 from config.settings import config, STATIC_DIR
 from config.database import get_db
-from database.models import QRCode
+from database import QRCode
 
 
 class QRCodeGenerator:
@@ -193,10 +194,12 @@ class QRCodeGenerator:
         """
         try:
             with get_db() as db:
-                qr_record = db.query(QRCode).filter(
-                    QRCode.qr_code == qr_code_string,
-                    QRCode.is_active == True
-                ).first()
+                qr_record = db.execute(
+                    select(QRCode).where(
+                        QRCode.qr_code == qr_code_string,
+                        QRCode.is_active == True
+                    )
+                ).scalar_one_or_none()
 
                 if qr_record:
                     # Update scan tracking

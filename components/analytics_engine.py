@@ -9,12 +9,11 @@ from typing import Dict, List, Any, Optional
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
-from sqlalchemy import func
+from sqlalchemy import func, select, desc, asc, and_, or_
 import streamlit as st
 
 from config.database import get_db
 from database.models import (
-from sqlalchemy import select, desc, asc, and_, or_, func
     ServiceRequest, TestExecution, Equipment,
     EquipmentBooking, TestStatus, RequestStatus
 )

@@ -5,6 +5,7 @@ Handles database initialization, session management, and connection pooling.
 """
 
 import os
+import sys
 from contextlib import contextmanager
 from typing import Generator
 
@@ -143,195 +144,126 @@ def init_database():
             )
             db.add(admin_user)
             db.commit()
+            print("[DB_INIT] Created default admin user", flush=True)
+            sys.stdout.flush()
 
-        # Seed ALL 54 test protocols - use idempotent INSERT logic
-        # Check if we need to seed (either empty or missing protocols)
-        protocols_count = db.query(TestProtocol).count()
-        if protocols_count < 54:
-            # All 54 protocols matching protocols_registry.py
-            all_protocols = [
-                # PERFORMANCE TESTING (P1-P12) - 12 protocols
-                {"protocol_id": "P1", "name": "I-V Performance Characterization", "category": "performance",
-                 "description": "Measure current-voltage characteristics under STC (Standard Test Conditions)",
-                 "standard_reference": "IEC 61215-2:2021 MQT 06", "estimated_duration_hours": 2.0, "is_active": True},
-                {"protocol_id": "P2", "name": "P-V Performance Analysis", "category": "performance",
-                 "description": "Power-voltage characteristic measurement and maximum power point analysis",
-                 "standard_reference": "IEC 61215-2:2021 MQT 06", "estimated_duration_hours": 2.0, "is_active": True},
-                {"protocol_id": "P3", "name": "STC Power Rating", "category": "performance",
-                 "description": "Power rating at Standard Test Conditions (1000 W/m², 25°C, AM1.5G)",
-                 "standard_reference": "IEC 61215-1:2021", "estimated_duration_hours": 2.0, "is_active": True},
-                {"protocol_id": "P4", "name": "NOCT Determination", "category": "performance",
-                 "description": "Nominal Operating Cell Temperature determination",
-                 "standard_reference": "IEC 61215-2:2021 MQT 05", "estimated_duration_hours": 8.0, "is_active": True},
-                {"protocol_id": "P5", "name": "Temperature Coefficient Measurement", "category": "performance",
-                 "description": "Determine temperature coefficients for Isc, Voc, and Pmax",
-                 "standard_reference": "IEC 61215-2:2021 MQT 04", "estimated_duration_hours": 6.0, "is_active": True},
-                {"protocol_id": "P6", "name": "Low Irradiance Performance", "category": "performance",
-                 "description": "Performance measurement at 200 W/m² irradiance",
-                 "standard_reference": "IEC 61215-2:2021 MQT 07", "estimated_duration_hours": 3.0, "is_active": True},
-                {"protocol_id": "P7", "name": "Performance Matrix Test", "category": "performance",
-                 "description": "Multi-condition performance mapping (IEC 61853-1)",
-                 "standard_reference": "IEC 61853-1:2011", "estimated_duration_hours": 24.0, "is_active": True},
-                {"protocol_id": "P8", "name": "Spectral Response Measurement", "category": "performance",
-                 "description": "Measure spectral response and quantum efficiency",
-                 "standard_reference": "IEC 60904-8:2014", "estimated_duration_hours": 4.0, "is_active": True},
-                {"protocol_id": "P9", "name": "Incidence Angle Modifier (IAM)", "category": "performance",
-                 "description": "Measure power output vs. angle of incidence",
-                 "standard_reference": "IEC 61853-2:2016", "estimated_duration_hours": 6.0, "is_active": True},
-                {"protocol_id": "P10", "name": "Bifacial Performance Test", "category": "performance",
-                 "description": "Characterization of bifacial module performance and bifaciality factor",
-                 "standard_reference": "IEC TS 60904-1-2:2019", "estimated_duration_hours": 8.0, "is_active": True},
-                {"protocol_id": "P11", "name": "Energy Rating Test", "category": "performance",
-                 "description": "Energy yield prediction and rating under reference conditions",
-                 "standard_reference": "IEC 61853-3:2018", "estimated_duration_hours": 4.0, "is_active": True},
-                {"protocol_id": "P12", "name": "Bypass Diode Functionality", "category": "performance",
-                 "description": "Verify bypass diode operation under partial shading",
-                 "standard_reference": "IEC 61215-2:2021 MQT 18", "estimated_duration_hours": 2.0, "is_active": True},
+    # Seed test protocols - MUST be in separate context to ensure fresh session
+    print("[DB_INIT] Starting test protocols seeding check...", flush=True)
+    sys.stdout.flush()
 
-                # DEGRADATION TESTING (P13-P27) - 15 protocols
-                {"protocol_id": "P13", "name": "Light-Induced Degradation (LID)", "category": "degradation",
-                 "description": "Assess power degradation under continuous light exposure",
-                 "standard_reference": "IEC 61215-2:2021 MQT 19", "estimated_duration_hours": 48.0, "is_active": True},
-                {"protocol_id": "P14", "name": "Light & Elevated Temperature ID (LETID)", "category": "degradation",
-                 "description": "Light and elevated temperature induced degradation test",
-                 "standard_reference": "IEC TS 63202-1:2021", "estimated_duration_hours": 162.0, "is_active": True},
-                {"protocol_id": "P15", "name": "Potential-Induced Degradation (PID)", "category": "degradation",
-                 "description": "Test for voltage stress induced degradation",
-                 "standard_reference": "IEC TS 62804-1:2015", "estimated_duration_hours": 96.0, "is_active": True},
-                {"protocol_id": "P16", "name": "PID Recovery Test", "category": "degradation",
-                 "description": "Evaluate PID reversibility under recovery conditions",
-                 "standard_reference": "IEC TS 62804-1:2015", "estimated_duration_hours": 48.0, "is_active": True},
-                {"protocol_id": "P17", "name": "UV Degradation Test", "category": "degradation",
-                 "description": "Assess degradation from UV exposure (UV preconditioning)",
-                 "standard_reference": "IEC 61215-2:2021 MQT 10", "estimated_duration_hours": 120.0, "is_active": True},
-                {"protocol_id": "P18", "name": "Hot Spot Endurance Test", "category": "degradation",
-                 "description": "Verify module resilience to localized heating (hot spots)",
-                 "standard_reference": "IEC 61215-2:2021 MQT 09", "estimated_duration_hours": 5.0, "is_active": True},
-                {"protocol_id": "P19", "name": "Snail Trail Assessment", "category": "degradation",
-                 "description": "Visual and electrical assessment of snail trail formation",
-                 "standard_reference": "IEC 62759-1:2015", "estimated_duration_hours": 2.0, "is_active": True},
-                {"protocol_id": "P20", "name": "Cell Crack Detection", "category": "degradation",
-                 "description": "Electroluminescence imaging for micro-crack detection",
-                 "standard_reference": "IEC TS 60904-13:2018", "estimated_duration_hours": 1.0, "is_active": True},
-                {"protocol_id": "P21", "name": "Solder Bond Degradation", "category": "degradation",
-                 "description": "Evaluate solder joint integrity and interconnect degradation",
-                 "standard_reference": "IEC 61215-1:2021", "estimated_duration_hours": 4.0, "is_active": True},
-                {"protocol_id": "P22", "name": "Delamination Assessment", "category": "degradation",
-                 "description": "Identify and quantify delamination in module layers",
-                 "standard_reference": "IEC 61215-1:2021", "estimated_duration_hours": 2.0, "is_active": True},
-                {"protocol_id": "P23", "name": "Yellowing/Browning Test", "category": "degradation",
-                 "description": "Assess encapsulant discoloration and its effect on performance",
-                 "standard_reference": "IEC 62788-1-6:2017", "estimated_duration_hours": 2.0, "is_active": True},
-                {"protocol_id": "P24", "name": "Corrosion Assessment", "category": "degradation",
-                 "description": "Evaluate corrosion of metallic components and interconnects",
-                 "standard_reference": "IEC 61701:2020", "estimated_duration_hours": 2.0, "is_active": True},
-                {"protocol_id": "P25", "name": "Backsheet Chalking Test", "category": "degradation",
-                 "description": "Assess backsheet surface degradation and chalking",
-                 "standard_reference": "IEC 62788-2-1:2021", "estimated_duration_hours": 1.0, "is_active": True},
-                {"protocol_id": "P26", "name": "Junction Box Degradation", "category": "degradation",
-                 "description": "Evaluate junction box integrity and connector condition",
-                 "standard_reference": "IEC 62790:2020", "estimated_duration_hours": 2.0, "is_active": True},
-                {"protocol_id": "P27", "name": "Long-term Outdoor Exposure", "category": "degradation",
-                 "description": "Natural weathering and outdoor degradation monitoring",
-                 "standard_reference": "IEC 61215-1:2021", "estimated_duration_hours": 8760.0, "is_active": True},
+    with get_db() as db:
+        try:
+            protocols_count = db.query(TestProtocol).count()
+            print(f"[DB_INIT] Current protocols count: {protocols_count}", flush=True)
+            sys.stdout.flush()
 
-                # ENVIRONMENTAL TESTING (P28-P39) - 12 protocols
-                {"protocol_id": "P28", "name": "Humidity Freeze Test", "category": "environmental",
-                 "description": "Assess module resistance to humidity freeze cycles (10 cycles)",
-                 "standard_reference": "IEC 61215-2:2021 MQT 12", "estimated_duration_hours": 240.0, "is_active": True},
-                {"protocol_id": "P29", "name": "Damp Heat Test (1000h)", "category": "environmental",
-                 "description": "Exposure to 85°C/85% RH for 1000 hours",
-                 "standard_reference": "IEC 61215-2:2021 MQT 13", "estimated_duration_hours": 1000.0, "is_active": True},
-                {"protocol_id": "P30", "name": "Damp Heat Extended (2000h)", "category": "environmental",
-                 "description": "Extended damp heat test for enhanced durability",
-                 "standard_reference": "IEC 61215-2:2021", "estimated_duration_hours": 2000.0, "is_active": True},
-                {"protocol_id": "P31", "name": "Thermal Cycling Test (200 cycles)", "category": "environmental",
-                 "description": "Temperature cycling from -40°C to +85°C (200 cycles)",
-                 "standard_reference": "IEC 61215-2:2021 MQT 11", "estimated_duration_hours": 800.0, "is_active": True},
-                {"protocol_id": "P32", "name": "Salt Mist Corrosion Test", "category": "environmental",
-                 "description": "Exposure to salt spray for coastal environment simulation",
-                 "standard_reference": "IEC 61701:2020", "estimated_duration_hours": 500.0, "is_active": True},
-                {"protocol_id": "P33", "name": "Ammonia Corrosion Test", "category": "environmental",
-                 "description": "Ammonia exposure for agricultural environment simulation",
-                 "standard_reference": "IEC 62716:2013", "estimated_duration_hours": 500.0, "is_active": True},
-                {"protocol_id": "P34", "name": "Sand/Dust Abrasion Test", "category": "environmental",
-                 "description": "Sand and dust abrasion resistance testing",
-                 "standard_reference": "IEC 60068-2-68:1994", "estimated_duration_hours": 4.0, "is_active": True},
-                {"protocol_id": "P35", "name": "SO2/H2S Corrosion Test", "category": "environmental",
-                 "description": "Sulfur dioxide and hydrogen sulfide exposure",
-                 "standard_reference": "IEC 60068-2-42:2003", "estimated_duration_hours": 240.0, "is_active": True},
-                {"protocol_id": "P36", "name": "Desert Climate Simulation", "category": "environmental",
-                 "description": "High temperature, low humidity, and UV stress testing",
-                 "standard_reference": "IEC 62892:2019", "estimated_duration_hours": 720.0, "is_active": True},
-                {"protocol_id": "P37", "name": "Tropical Climate Simulation", "category": "environmental",
-                 "description": "High humidity and temperature cycling for tropical environments",
-                 "standard_reference": "IEC 62892:2019", "estimated_duration_hours": 720.0, "is_active": True},
-                {"protocol_id": "P38", "name": "Snow Load Test", "category": "environmental",
-                 "description": "Static load test simulating accumulated snow",
-                 "standard_reference": "IEC 61215-2:2021 MQT 16", "estimated_duration_hours": 4.0, "is_active": True},
-                {"protocol_id": "P39", "name": "UV Exposure Test", "category": "environmental",
-                 "description": "Accelerated UV exposure (15 kWh/m² minimum)",
-                 "standard_reference": "IEC 61215-2:2021 MQT 10", "estimated_duration_hours": 120.0, "is_active": True},
+            if protocols_count < 54:
+                print(f"[DB_INIT] Protocols count ({protocols_count}) < 54, seeding required...", flush=True)
+                sys.stdout.flush()
 
-                # MECHANICAL TESTING (P40-P47) - 8 protocols
-                {"protocol_id": "P40", "name": "Mechanical Load Test", "category": "mechanical",
-                 "description": "Static and cyclic mechanical load testing (2400 Pa / 5400 Pa)",
-                 "standard_reference": "IEC 61215-2:2021 MQT 16", "estimated_duration_hours": 8.0, "is_active": True},
-                {"protocol_id": "P41", "name": "Dynamic Mechanical Load", "category": "mechanical",
-                 "description": "Dynamic loading cycles (1000 cycles at 1000 Pa)",
-                 "standard_reference": "IEC TS 62782:2016", "estimated_duration_hours": 24.0, "is_active": True},
-                {"protocol_id": "P42", "name": "Hail Impact Test", "category": "mechanical",
-                 "description": "Impact resistance test with ice balls (25mm @ 23 m/s)",
-                 "standard_reference": "IEC 61215-2:2021 MQT 17", "estimated_duration_hours": 2.0, "is_active": True},
-                {"protocol_id": "P43", "name": "Wind Load Simulation", "category": "mechanical",
-                 "description": "Cyclic wind load simulation for structural integrity",
-                 "standard_reference": "IEC 61215-2:2021 MQT 16", "estimated_duration_hours": 4.0, "is_active": True},
-                {"protocol_id": "P44", "name": "Module Twist Test", "category": "mechanical",
-                 "description": "Torsional stress test for frame and laminate integrity",
-                 "standard_reference": "IEC 62892:2019", "estimated_duration_hours": 2.0, "is_active": True},
-                {"protocol_id": "P45", "name": "Vibration Test", "category": "mechanical",
-                 "description": "Transportation and installation vibration simulation",
-                 "standard_reference": "IEC 60068-2-6:2007", "estimated_duration_hours": 6.0, "is_active": True},
-                {"protocol_id": "P46", "name": "Frame/Mounting Stress Test", "category": "mechanical",
-                 "description": "Mounting point load test and frame integrity verification",
-                 "standard_reference": "IEC 61215-2:2021", "estimated_duration_hours": 4.0, "is_active": True},
-                {"protocol_id": "P47", "name": "Robustness of Terminations", "category": "mechanical",
-                 "description": "Pull and push test on cables and connectors",
-                 "standard_reference": "IEC 61215-2:2021 MQT 14", "estimated_duration_hours": 2.0, "is_active": True},
+                protocols = [
+                    TestProtocol(protocol_id="P1", name="I-V Performance Test", category="performance", is_active=True),
+                    TestProtocol(protocol_id="P2", name="PMax Tracking Test", category="performance", is_active=True),
+                    TestProtocol(protocol_id="P3", name="Temperature Coefficient", category="performance", is_active=True),
+                    TestProtocol(protocol_id="P4", name="Module Thermal Test", category="performance", is_active=True),
+                    TestProtocol(protocol_id="P5", name="Humidity-Freeze Test", category="environmental", is_active=True),
+                    TestProtocol(protocol_id="P6", name="Hot-Humid Test", category="environmental", is_active=True),
+                    TestProtocol(protocol_id="P7", name="Thermal Cycling Test", category="degradation", is_active=True),
+                    TestProtocol(protocol_id="P8", name="UV Degradation Test", category="degradation", is_active=True),
+                    TestProtocol(protocol_id="P9", name="Mechanical Load Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P10", name="Wet Leakage Test", category="safety", is_active=True),
+                    TestProtocol(protocol_id="P11", name="Hail Impact Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P12", name="Static Load Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P13", name="Dynamic Load Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P14", name="Bypass Diode Test", category="safety", is_active=True),
+                    TestProtocol(protocol_id="P15", name="Ground Continuity Test", category="safety", is_active=True),
+                    TestProtocol(protocol_id="P16", name="Insulation Resistance Test", category="safety", is_active=True),
+                    TestProtocol(protocol_id="P17", name="Junction Box Test", category="safety", is_active=True),
+                    TestProtocol(protocol_id="P18", name="Connector Test", category="safety", is_active=True),
+                    TestProtocol(protocol_id="P19", name="Fire Safety Test", category="safety", is_active=True),
+                    TestProtocol(protocol_id="P20", name="Hot Spot Endurance Test", category="safety", is_active=True),
+                    TestProtocol(protocol_id="P21", name="EL Imaging Test", category="visual", is_active=True),
+                    TestProtocol(protocol_id="P22", name="IR Thermography Test", category="visual", is_active=True),
+                    TestProtocol(protocol_id="P23", name="Visual Inspection", category="visual", is_active=True),
+                    TestProtocol(protocol_id="P24", name="Cell Crack Detection", category="visual", is_active=True),
+                    TestProtocol(protocol_id="P25", name="Soldering Quality Test", category="visual", is_active=True),
+                    TestProtocol(protocol_id="P26", name="PID Test", category="degradation", is_active=True),
+                    TestProtocol(protocol_id="P27", name="LID Test", category="degradation", is_active=True),
+                    TestProtocol(protocol_id="P28", name="LeTID Test", category="degradation", is_active=True),
+                    TestProtocol(protocol_id="P29", name="Damp Heat Test", category="environmental", is_active=True),
+                    TestProtocol(protocol_id="P30", name="Salt Mist Test", category="environmental", is_active=True),
+                    TestProtocol(protocol_id="P31", name="Ammonia Corrosion Test", category="environmental", is_active=True),
+                    TestProtocol(protocol_id="P32", name="Sand/Dust Test", category="environmental", is_active=True),
+                    TestProtocol(protocol_id="P33", name="Altitude Test", category="environmental", is_active=True),
+                    TestProtocol(protocol_id="P34", name="Snow Load Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P35", name="Wind Load Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P36", name="Vibration Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P37", name="Impact Resistance Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P38", name="Abrasion Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P39", name="Ribbon Pull Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P40", name="Peel Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P41", name="Low Irradiance Test", category="performance", is_active=True),
+                    TestProtocol(protocol_id="P42", name="Spectral Response Test", category="performance", is_active=True),
+                    TestProtocol(protocol_id="P43", name="Angular Response Test", category="performance", is_active=True),
+                    TestProtocol(protocol_id="P44", name="NOCT Measurement", category="performance", is_active=True),
+                    TestProtocol(protocol_id="P45", name="Power Stabilization", category="performance", is_active=True),
+                    TestProtocol(protocol_id="P46", name="Outdoor Exposure Test", category="environmental", is_active=True),
+                    TestProtocol(protocol_id="P47", name="Accelerated Aging Test", category="degradation", is_active=True),
+                    TestProtocol(protocol_id="P48", name="Encapsulant Adhesion Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P49", name="Frame Adhesion Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P50", name="Backsheet Integrity Test", category="visual", is_active=True),
+                    TestProtocol(protocol_id="P51", name="Glass Breakage Test", category="mechanical", is_active=True),
+                    TestProtocol(protocol_id="P52", name="Edge Seal Test", category="safety", is_active=True),
+                    TestProtocol(protocol_id="P53", name="Label Durability Test", category="visual", is_active=True),
+                    TestProtocol(protocol_id="P54", name="Warranty Verification Test", category="performance", is_active=True),
+                ]
 
-                # SAFETY & ELECTRICAL TESTING (P48-P54) - 7 protocols
-                {"protocol_id": "P48", "name": "Wet Leakage Current Test", "category": "safety",
-                 "description": "Measure leakage current under wet conditions",
-                 "standard_reference": "IEC 61215-2:2021 MQT 15", "estimated_duration_hours": 4.0, "is_active": True},
-                {"protocol_id": "P49", "name": "Insulation Resistance Test", "category": "safety",
-                 "description": "Dry insulation resistance measurement (1000V DC)",
-                 "standard_reference": "IEC 61215-2:2021 MQT 03", "estimated_duration_hours": 1.0, "is_active": True},
-                {"protocol_id": "P50", "name": "Dielectric Withstand Test", "category": "safety",
-                 "description": "High voltage insulation test (system voltage + 1000V)",
-                 "standard_reference": "IEC 61730-2:2016 MST 16", "estimated_duration_hours": 1.0, "is_active": True},
-                {"protocol_id": "P51", "name": "Ground Continuity Test", "category": "safety",
-                 "description": "Frame grounding and continuity verification",
-                 "standard_reference": "IEC 61730-2:2016 MST 13", "estimated_duration_hours": 0.5, "is_active": True},
-                {"protocol_id": "P52", "name": "Fire Resistance Test", "category": "safety",
-                 "description": "Spread of flame test for building-integrated applications",
-                 "standard_reference": "IEC 61730-2:2016 MST 23-25", "estimated_duration_hours": 4.0, "is_active": True},
-                {"protocol_id": "P53", "name": "Reverse Current Overload", "category": "safety",
-                 "description": "Bypass diode thermal test under reverse current",
-                 "standard_reference": "IEC 61215-2:2021 MQT 18", "estimated_duration_hours": 2.0, "is_active": True},
-                {"protocol_id": "P54", "name": "Impulse Voltage Test", "category": "safety",
-                 "description": "Lightning impulse withstand test (1.2/50 μs)",
-                 "standard_reference": "IEC 61730-2:2016 MST 14", "estimated_duration_hours": 2.0, "is_active": True},
-            ]
+                inserted_count = 0
+                for protocol in protocols:
+                    try:
+                        # Check if protocol already exists
+                        existing = db.query(TestProtocol).filter_by(protocol_id=protocol.protocol_id).first()
+                        if not existing:
+                            db.add(protocol)
+                            inserted_count += 1
+                            print(f"[DB_INIT] Inserted protocol: {protocol.protocol_id} - {protocol.name}", flush=True)
+                            sys.stdout.flush()
+                        else:
+                            print(f"[DB_INIT] Protocol already exists: {protocol.protocol_id}", flush=True)
+                            sys.stdout.flush()
+                    except Exception as insert_error:
+                        print(f"[DB_INIT] ERROR inserting protocol {protocol.protocol_id}: {insert_error}", flush=True)
+                        sys.stdout.flush()
+                        raise
 
-            # Idempotent INSERT - check if protocol exists before inserting
-            for protocol_data in all_protocols:
-                existing = db.query(TestProtocol).filter_by(
-                    protocol_id=protocol_data["protocol_id"]
-                ).first()
-                if not existing:
-                    protocol = TestProtocol(**protocol_data)
-                    db.add(protocol)
-            db.commit()
+                db.commit()
+                print(f"[DB_INIT] Successfully inserted {inserted_count} new protocols", flush=True)
+                sys.stdout.flush()
+
+                # Verify final count
+                final_count = db.query(TestProtocol).count()
+                print(f"[DB_INIT] VERIFICATION - Final protocols count: {final_count}", flush=True)
+                sys.stdout.flush()
+
+                if final_count < 54:
+                    error_msg = f"[DB_INIT] CRITICAL ERROR: Expected 54 protocols, but only {final_count} exist!"
+                    print(error_msg, flush=True)
+                    sys.stdout.flush()
+                    raise RuntimeError(error_msg)
+                else:
+                    print(f"[DB_INIT] SUCCESS: All {final_count} protocols seeded correctly", flush=True)
+                    sys.stdout.flush()
+            else:
+                print(f"[DB_INIT] Protocols already seeded ({protocols_count} >= 54), skipping...", flush=True)
+                sys.stdout.flush()
+
+        except Exception as e:
+            print(f"[DB_INIT] CRITICAL SEEDING ERROR: {type(e).__name__}: {e}", flush=True)
+            sys.stdout.flush()
+            raise RuntimeError(f"Failed to seed test protocols: {e}") from e
+
+    print("[DB_INIT] Database initialization complete", flush=True)
+    sys.stdout.flush()
 
     return SessionLocal
 

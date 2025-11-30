@@ -854,11 +854,8 @@ def render_test_history():
 
 def generate_execution_number() -> str:
     """Generate unique execution number"""
-    import random
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S%f")  # Include microseconds
-random_suffix = random.randint(1000, 9999)  # Add random component
-    rn f"TEST-{timestamp[-12:]}{random_suffix}"
-
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    return f"TEST-{timestamp}"
 
 if __name__ == "__main__":
     main()

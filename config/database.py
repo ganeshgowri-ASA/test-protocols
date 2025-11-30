@@ -67,6 +67,7 @@ def get_session_local():
         _SessionLocal = sessionmaker(
             autocommit=False,
             autoflush=False,
+                        expire_on_commit=False,
             bind=engine
         )
 

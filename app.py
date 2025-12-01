@@ -58,7 +58,8 @@ def run_phase1_migration_if_needed():
             logger.info("Phase 1 tables not found. Running migration...")
             migration_file = Path(__file__).parent / 'docs' / 'migrations' / '001_equipment_management_UP.sql'
             with open(migration_file, 'r') as f:
-        if True:  # FORCE MIGRATION - TEMPORARY FIX            cursor.execute(migration_sql)
+        if True:  # FORCE MIGRATION - TEMPORARY FIX            
+                        cursor.execute(migration_sql)
             conn.commit()
             logger.info("✅ Phase 1 migration completed successfully!")
         else:

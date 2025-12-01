@@ -61,6 +61,7 @@ def run_phase1_migration_if_needed():
                 migration_sql = f.read()
                     cursor.execute(migration_sql)
             conn.commit()
+                        # Migration executed successfully
             logger.info("✅ Phase 1 migration completed successfully!")
         else:
             logger.info("Phase 1 tables already exist. Skipping migration.")

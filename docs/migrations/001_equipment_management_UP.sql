@@ -68,8 +68,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER equipment_update_timestamp
-BEFORE UPDATE ON equipment
-FOR EACH ROW
+BEFORE UPDATE ON equipment_phase1FOR EACH ROW
 EXECUTE FUNCTION update_equipment_timestamp();
 
 -- Create trigger to auto-UPDATE equipment_phase1 status based on calibration
@@ -136,5 +135,6 @@ ORDER BY e.next_calibration_due ASC NULLS LAST;
 -- GRANT SELECT, INSERT, UPDATE, DELETE ON equipment TO your_app_user;
 -- GRANT SELECT, INSERT, UPDATE, DELETE ON calibration_records_phase1 TO your_app_user;
 -- GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO your_app_user;
+
 
 COMMIT;

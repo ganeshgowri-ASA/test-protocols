@@ -48,7 +48,7 @@ logger.info("=" * 60)
 # ============================================================================
 try:
         from config.database import init_database
-            logger.info("Attempting to initialize database...")
+            er.info("Attempting to initialize database...")
                 init_database()
                     logger.info("✅ Database initialization completed successfully!")
                     except Exception as e:

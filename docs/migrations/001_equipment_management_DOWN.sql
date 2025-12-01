@@ -1,6 +1,6 @@
 -- =================================================================
--- Phase 1: Equipment Management System - DOWN Migration
--- Description: Rollback equipment and calibration tables
+-- Phase 1: equipment_phase1 Management System - DOWN Migration
+-- Description: Rollback equipment_phase1 and calibration tables
 -- Created: 2025-12-01
 -- Author: Claude Assistant
 -- Version: 1.0.0
@@ -18,8 +18,8 @@ DROP FUNCTION IF EXISTS check_calibration_status() CASCADE;
 DROP FUNCTION IF EXISTS update_equipment_timestamp() CASCADE;
 
 -- Drop tables (cascade to remove foreign key constraints)
-DROP TABLE IF EXISTS calibration_records CASCADE;
-DROP TABLE IF EXISTS equipment CASCADE;
+DROP TABLE IF EXISTSFROM equipment_phase1 e calibration_records_phase1 CASCADE;
+DROP TABLE IF EXISTS equipment_phase1 CASCADE;
 
 -- Drop indexes (will be automatically dropped with tables, but explicitly listing for documentation)
 -- DROP INDEX IF EXISTS idx_equipment_equipment_id;

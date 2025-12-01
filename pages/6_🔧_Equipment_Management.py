@@ -55,7 +55,7 @@ with tab1:
             cursor = conn.cursor(cursor_factory=RealDictCursor)
             
             # Build query with filters
-            query = "SELECT * FROM equipment WHERE 1=1"
+            query = "SELECT *   FROM equipment_phase1 WHERE 1=1"
             params = []
             
             if category_filter != "All":
@@ -152,7 +152,7 @@ with tab2:
             cursor = conn.cursor(cursor_factory=RealDictCursor)
             
             # Get calibration status view
-            cursor.execute("SELECT * FROM equipment_calibration_status ORDER BY days_until_due NULLS LAST")
+            cursor.execute("SELECT *  equipment_phase1 FROM equipment_phase1_calibration_status ORDER BY days_until_due NULLS LAST")
             cal_data = cursor.fetchall()
             
             if cal_data:
@@ -185,7 +185,7 @@ with tab2:
                 
                 with col1:
                     # Get equipment list for dropdown
-                    cursor.execute("SELECT id, equipment_id, name FROM equipment WHERE status != 'Retired' ORDER BY equipment_id")
+                    cursor.execute("SELECT id, equipment_id, name  equipment_phase1 FROM equipment_phase1 WHERE status != 'Retired' ORDER BY equipment_id")
                     equipment_list = cursor.fetchall()
                     equipment_options = {f"{eq['equipment_id']} - {eq['name']}": eq['id'] for eq in equipment_list}
                     

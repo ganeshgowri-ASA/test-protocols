@@ -7,7 +7,7 @@
 -- =================================================================
 
 -- Create equipment table
-CREATE TABLE IF NOT EXISTS equipment (
+CREATE TABLE IF NOT EXISTS equipment_phase1 (
     id SERIAL PRIMARY KEY,
     equipment_id VARCHAR(50) UNIQUE NOT NULL,
     name VARCHAR(200) NOT NULL,
@@ -33,9 +33,9 @@ CREATE TABLE IF NOT EXISTS equipment (
 );
 
 -- Create calibration_records table
-CREATE TABLE IF NOT EXISTS calibration_records (
+CREATE TABLE IF NOT EXISTS calibration_records_phase1 (
     id SERIAL PRIMARY KEY,
-    equipment_id INTEGER NOT NULL REFERENCES equipment(id) ON DELETE CASCADE,
+    equipment_id INTEGER NOT NULL REFERENCES equipment_phase1(id) ON DELETE CASCADE,
     calibration_date DATE NOT NULL,
     calibration_due_date DATE NOT NULL,
     calibrated_by VARCHAR(150) NOT NULL,
@@ -51,12 +51,12 @@ CREATE TABLE IF NOT EXISTS calibration_records (
 );
 
 -- Create indexes for performance
-CREATE INDEX IF NOT EXISTS idx_equipment_equipment_id ON equipment(equipment_id);
-CREATE INDEX IF NOT EXISTS idx_equipment_category ON equipment(category);
-CREATE INDEX IF NOT EXISTS idx_equipment_status ON equipment(status);
-CREATE INDEX IF NOT EXISTS idx_equipment_next_calibration ON equipment(next_calibration_due);
-CREATE INDEX IF NOT EXISTS idx_calibration_equipment_id ON calibration_records(equipment_id);
-CREATE INDEX IF NOT EXISTS idx_calibration_date ON calibration_records(calibration_date);
+CREATE INDEX IF NOT EXISTS idx_equipment_equipment_id ON equipment_phase1(equipment_id);
+CREATE INDEX IF NOT EXISTS idx_equipment_category ON equipment_phase1(category);
+CREATE INDEX IF NOT EXISTS idx_equipment_status ON equipment_phase1(status);
+CREATE INDEX IF NOT EXISTS idx_equipment_next_calibration ON equipment_phase1(next_calibration_due);
+CREATE INDEX IF NOT EXISTS idx_calibration_equipment_id ON calibration_records_phase1(equipment_id);
+CREATE INDEX IF NOT EXISTS idx_calibration_date ON calibration_records_phase1(calibration_date);
 
 -- Create trigger to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_equipment_timestamp()
@@ -72,12 +72,12 @@ BEFORE UPDATE ON equipment
 FOR EACH ROW
 EXECUTE FUNCTION update_equipment_timestamp();
 
--- Create trigger to auto-update equipment status based on calibration
+-- Create trigger to auto-UPDATE equipment_phase1 status based on calibration
 CREATE OR REPLACE FUNCTION check_calibration_status()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- Update equipment last calibration date
-    UPDATE equipment 
+    -- UPDATE equipment_phase1 last calibration date
+    UPDATE equipment_phase1 
     SET last_calibration_date = NEW.calibration_date,
         next_calibration_due = NEW.calibration_due_date,
         status = CASE 
@@ -93,12 +93,12 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER calibration_status_update
-AFTER INSERT ON calibration_records
+AFTER INSERT ON calibration_records_phase1
 FOR EACH ROW
 EXECUTE FUNCTION check_calibration_status();
 
 -- Seed initial equipment data
-INSERT INTO equipment (equipment_id, name, category, manufacturer, model_number, location, status, calibration_frequency_days, created_by)
+INSERT INTO equipment_phase1 (equipment_id, name, category, manufacturer, model_number, location, status, calibration_frequency_days, created_by)
 VALUES 
     ('EQP-001', 'Solar Simulator AAA Class', 'Testing Equipment', 'Pasan', 'HighLIGHT LED+', 'Testing Lab 1', 'Active', 365, 'System'),
     ('EQP-002', 'IV Curve Tracer', 'Testing Equipment', 'Keysight', 'B2900A', 'Testing Lab 1', 'Active', 365, 'System'),
@@ -128,13 +128,13 @@ SELECT
         ELSE 'Current'
     END AS calibration_status,
     e.next_calibration_due - CURRENT_DATE AS days_until_due
-FROM equipment e
+FROM equipment_phase1 e
 WHERE e.status != 'Retired'
 ORDER BY e.next_calibration_due ASC NULLS LAST;
 
 -- Grant permissions (adjust as needed for your setup)
 -- GRANT SELECT, INSERT, UPDATE, DELETE ON equipment TO your_app_user;
--- GRANT SELECT, INSERT, UPDATE, DELETE ON calibration_records TO your_app_user;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON calibration_records_phase1 TO your_app_user;
 -- GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO your_app_user;
 
 COMMIT;

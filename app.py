@@ -18,6 +18,7 @@ import os
 import sys
 import time
 import threading
+import psycopg2
 
 # ============================================================================
 # CRITICAL FIX: Initialize database IMMEDIATELY on app startup
@@ -43,6 +44,33 @@ logger.info(f"Python version: {sys.version}")
 logger.info(f"Working directory: {os.getcwd()}")
 logger.info("=" * 60)
 
+def run_phase1_migration_if_needed():
+    """Auto-run Phase 1 migration if tables don't exist."""
+    try:
+        conn = psycopg2.connect(os.getenv('DATABASE_URL'))
+        cursor = conn.cursor()
+        
+        # Check if Phase 1 tables exist
+        cursor.execute("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'equipment_phase1')")
+        table_exists = cursor.fetchone()[0]
+        
+        if not table_exists:
+            logger.info("Phase 1 tables not found. Running migration...")
+            migration_file = Path(__file__).parent / 'docs' / 'migrations' / '001_equipment_management_UP.sql'
+            with open(migration_file, 'r') as f:
+                migration_sql = f.read()
+            cursor.execute(migration_sql)
+            conn.commit()
+            logger.info("✅ Phase 1 migration completed successfully!")
+        else:
+            logger.info("Phase 1 tables already exist. Skipping migration.")
+        
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        logger.warning(f"Phase 1 migration check failed: {e}")
+
+
 # ============================================================================
 # DATABASE INITIALIZATION - MOVED HERE AFTER LOGGER SETUP (FIX FOR CRITICAL ISSUE #1)
 # ============================================================================
@@ -50,6 +78,7 @@ try:
     from config.database import init_database
     logger.info("Attempting to initialize database...")
     init_database()
+        run_phase1_migration_if_needed()
     logger.info("✅ Database initialization completed successfully!")
 except Exception as e:
     logger.warning(f"Database initialization failed (will retry later): {e}")

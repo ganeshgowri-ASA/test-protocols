@@ -78,7 +78,7 @@ try:
     from config.database import init_database
     logger.info("Attempting to initialize database...")
     init_database()
-        run_phase1_migration_if_needed()
+            run_phase1_migration_if_needed()
     logger.info("✅ Database initialization completed successfully!")
 except Exception as e:
     logger.warning(f"Database initialization failed (will retry later): {e}")

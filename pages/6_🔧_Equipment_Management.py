@@ -16,13 +16,7 @@ st.set_page_config(
 def get_db_connection():
     """Create database connection."""
     try:
-        conn = psycopg2.connect(
-            host=os.getenv('PGHOST'),
-            database=os.getenv('PGDATABASE'),
-            user=os.getenv('PGUSER'),
-            password=os.getenv('PGPASSWORD'),
-            port=os.getenv('PGPORT', 5432)
-        )
+        conn = psycopg2.connect(os.getenv('DATABASE_URL'))
         return conn
     except Exception as e:
         st.error(f"Database connection failed: {str(e)}")

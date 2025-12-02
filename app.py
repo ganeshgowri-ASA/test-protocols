@@ -71,7 +71,6 @@ def run_phase1_migration_if_needed():
         raise
     finally:
         if 'conn' in locals():
-            conn.close()            conn.close()
 # ============================================================================
 # DATABASE INITIALIZATION - MOVED HERE AFTER LOGGER SETUP (FIX FOR CRITICAL ISSUE #1)
 # ============================================================================

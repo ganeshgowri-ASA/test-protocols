@@ -69,6 +69,10 @@ def run_phase1_migration_if_needed():
         conn.close()
     except Exception as e:
         logger.warning(f"Phase 1 migration check failed: {e}")
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        logger.warning(f"Phase 1 migration check failed: {e}")
 
 
 # ============================================================================

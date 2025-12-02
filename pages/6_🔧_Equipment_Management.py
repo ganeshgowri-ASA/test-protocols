@@ -45,7 +45,7 @@ def init_calibration_table():
                 );
                 
                 CREATE INDEX IF NOT EXISTS idx_calibration_equipment_id 
-                ON calibration_records(equipment_id);
+                    ON calibration_records(equipment_id);
             """)
             conn.commit()
             cursor.close()
@@ -73,12 +73,13 @@ with tab1:
     with col1:
         category_filter = st.selectbox(
             "Category",
-            ["All", "Testing Equipment", "Imaging Equipment", "Environmental Testing", "Measurement Device", "Calibration Standard", "chamber", "tester"]
+            ["All", "Testing Equipment", "Imaging Equipment", "Environmental Testing", 
+             "Measurement Device", "Calibration Standard", "chamber", "tester"]
         )
     with col2:
         status_filter = st.selectbox(
             "Status",
-            ["All", "Active", "Inactive", "Under Maintenance", "Calibration Due", "Retired"]
+            ["All", "Active", "Inactive", "Under Maintenance", "Calibration Due", "Retired", "AVAILABLE"]
         )
     with col3:
         search = st.text_input("Search Equipment", placeholder="Search by name or ID")
@@ -129,7 +130,7 @@ with tab1:
                 st.markdown("---")
                 
                 # Display equipment table
-                display_cols = [col for col in ['equipment_code', 'name', 'category', 'manufacturer', 'model'] if col in df.columns]
+                display_cols = [col for col in ['equipment_code', 'name', 'category', 'manufacturer', 'model', 'status'] if col in df.columns]
                 if display_cols:
                     st.dataframe(
                         df[display_cols],
@@ -159,8 +160,7 @@ with tab1:
                         
                         with col2:
                             st.markdown(f"**Model:** {eq_data.get('model', 'N/A')}")
-                            if 'status' in eq_data:
-                                st.markdown(f"**Status:** {eq_data.get('status', 'N/A')}")
+                            st.markdown(f"**Status:** {eq_data.get('status', 'N/A')}")
             else:
                 st.info("No equipment found matching the filters.")
             
@@ -268,7 +268,7 @@ with tab3:
             category = st.selectbox(
                 "Category *",
                 ["Testing Equipment", "Imaging Equipment", "Environmental Testing", 
-                 "Measurement Device", "Calibration Standard", "chamber", "tester", "Other"]
+                 "Measurement Device", "Calibration Standard", "chamber", "tester", "simulator", "Other"]
             )
             manufacturer = st.text_input("Manufacturer")
             model_number = st.text_input("Model Number")
@@ -286,19 +286,19 @@ with tab3:
                 if conn:
                     try:
                         cursor = conn.cursor()
-                        # Removed status from INSERT - database will use default value
+                        # FIX: Added status='AVAILABLE' to INSERT statement to ensure Equipment Booking integration works
                         cursor.execute(
                             """
                             INSERT INTO equipment 
-                            (equipment_code, name, category, manufacturer, model)
-                            VALUES (%s, %s, %s, %s, %s)
+                            (equipment_code, name, category, manufacturer, model, status)
+                            VALUES (%s, %s, %s, %s, %s, %s)
                             """,
-                            (equipment_code, name, category, manufacturer, model_number)
+                            (equipment_code, name, category, manufacturer, model_number, 'AVAILABLE')
                         )
                         conn.commit()
                         cursor.close()
                         conn.close()
-                        st.success(f"✅ Equipment {equipment_code} added successfully!")
+                        st.success(f"✅ Equipment {equipment_code} added successfully! Status set to AVAILABLE.")
                         st.rerun()
                     except psycopg2.IntegrityError:
                         st.error(f"Equipment Code '{equipment_code}' already exists. Please use a unique code.")

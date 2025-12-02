@@ -65,10 +65,10 @@ try:
         else:
             logger.info("Phase 1 tables already exist. Skipping migration.")
         
-        cursor.close()
-    except Exception as e:
+        cursor.clos   ase 1 migration error: {e}")
+            except Exception as e:
         logger.error(f"Phase 1 migration error: {e}")
-        if 'cursor' in locals():
+if 'cursor' in locals():
             cursor.close()
         if 'conn' in locals():
             conn.close()

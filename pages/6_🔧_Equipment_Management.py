@@ -274,10 +274,6 @@ with tab3:
             model_number = st.text_input("Model Number")
         
         with col2:
-            status = st.selectbox(
-                "Status",
-                ["Active", "Inactive", "Under Maintenance"]
-            )
             notes = st.text_area("Notes")
         
         submitted = st.form_submit_button("Add Equipment")
@@ -290,13 +286,14 @@ with tab3:
                 if conn:
                     try:
                         cursor = conn.cursor()
+                        # Removed status from INSERT - database will use default value
                         cursor.execute(
                             """
                             INSERT INTO equipment 
-                            (equipment_code, name, category, manufacturer, model, status)
-                            VALUES (%s, %s, %s, %s, %s, %s)
+                            (equipment_code, name, category, manufacturer, model)
+                            VALUES (%s, %s, %s, %s, %s)
                             """,
-                            (equipment_code, name, category, manufacturer, model_number, status)
+                            (equipment_code, name, category, manufacturer, model_number)
                         )
                         conn.commit()
                         cursor.close()

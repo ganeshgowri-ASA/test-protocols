@@ -1,0 +1,150 @@
+{
+  "metadata": {
+    "version": "2.0",
+    "description": "Comprehensive Test Protocols for Solar PV Module Testing",
+    "standards": ["IEC 61215", "IEC 61730", "IEC 60904", "IEC TS 62804", "IEC 60812", "IEC TS 62915"],
+    "last_updated": "2025-01-15",
+    "compliance_level": "Production Grade"
+  },
+  "test_protocols": [
+    {
+      "protocol_id": "MQT-01",
+      "name": "Visual Inspection",
+      "category": "Quality Control",
+      "standard": "IEC 61215",
+      "description": "Identification of major visual defects",
+      "duration_hours": 0.5,
+      "pass_criteria": "No major defects per IEC 61215 Annex A",
+      "equipment_required": ["Visual inspection station", "Magnifying glass", "Standard lighting"],
+      "personnel_required": "Skilled inspector"
+    },
+    {
+      "protocol_id": "MQT-02",
+      "name": "Maximum Power Determination",
+      "category": "Performance Testing",
+      "standard": "IEC 60904",
+      "description": "STC measurement and temperature coefficient determination",
+      "duration_hours": 4,
+      "irradiance_conditions": {
+        "sTC": 1000,
+        "minimum_for_temp_tests": 700
+      },
+      "temperature_range_celsius": "15-55",
+      "pass_criteria": "Within 10% of rated Pmax per IEC 60904-3",
+      "equipment_required": ["Solar simulator", "Current-voltage tracer", "Pyranometer", "Thermal chamber"]
+    },
+    {
+      "protocol_id": "MQT-03",
+      "name": "Insulation Test",
+      "category": "Safety Testing",
+      "standard": "IEC 61730",
+      "description": "Dielectric withstand and insulation resistance",
+      "duration_hours": 2,
+      "humidity_condition": "Max 75% RH",
+      "voltage_test": "1500VDC for 1 minute",
+      "insulation_resistance_min_mohm": 400,
+      "pass_criteria": "No breakdown, IR > 400 MOhm",
+      "equipment_required": ["Insulation tester", "High-voltage source", "Climate chamber"]
+    },
+    {
+      "protocol_id": "MQT-04",
+      "name": "Temperature Coefficient",
+      "category": "Performance Characterization",
+      "standard": "IEC 60904-5",
+      "description": "Temperature-related performance changes",
+      "duration_hours": 6,
+      "ambient_temperature_range": "20-55°C",
+      "pass_criteria": "Within ±0.5%/°C for Voc, ±0.05%/°C for Isc per IEC standard",
+      "equipment_required": ["Thermal chamber", "Solar simulator", "I-V tracer", "Temperature probes"]
+    },
+    {
+      "protocol_id": "MQT-11",
+      "name": "Thermal Cycling Test",
+      "category": "Durability Testing",
+      "standard": "IEC 61215-2",
+      "description": "Module durability under thermal stress",
+      "number_of_cycles": 50-200,
+      "temperature_min_celsius": -40,
+      "temperature_max_celsius": 85,
+      "ramp_rate_celsius_per_minute": 100,
+      "duration_per_cycle_hours": 1,
+      "pass_criteria": "Power loss < 3%, no visible cracks or delamination",
+      "equipment_required": ["Thermal cycling chamber", "I-V tracer", "Thermal imaging camera"]
+    },
+    {
+      "protocol_id": "MQT-13",
+      "name": "Damp Heat Test",
+      "category": "Environmental Testing",
+      "standard": "IEC 61215-2",
+      "description": "Module performance in humid hot conditions",
+      "duration_hours": 1000,
+      "temperature_celsius": 85,
+      "humidity_rh_percent": 85,
+      "pass_criteria": "Power loss < 5%, no corrosion or delamination",
+      "equipment_required": ["Damp heat chamber", "I-V tracer", "Corrosion monitoring equipment"]
+    },
+    {
+      "protocol_id": "MQT-21",
+      "name": "Potential Induced Degradation (PID) Test",
+      "category": "Degradation Testing",
+      "standard": "IEC TS 62804-1",
+      "description": "Potential-induced degradation assessment",
+      "duration_hours": 96,
+      "temperature_celsius": 85,
+      "humidity_rh_percent": 85,
+      "system_voltage_v": "Max 1200V",
+      "pass_criteria": "Leakage current < 5mA/m2, no visual degradation",
+      "equipment_required": ["Damp heat chamber", "Insulation voltage source", "Leakage current meter"]
+    }
+  ],
+  "environmental_conditions": {
+    "ambient_temperature_range_celsius": "20-55",
+    "relative_humidity_max_percent": 75,
+    "irradiance_requirements": {
+      "sTC_wm2": 1000,
+      "minimum_for_temperature_tests_wm2": 700
+    },
+    "atmospheric_pressure_kpa": "86-106"
+  },
+  "calibration_maintenance": {
+    "calibration_frequency_years": 1,
+    "calibration_body": "Accredited laboratories only",
+    "traceability_si_units": ["Voltage", "Current", "Temperature", "Irradiance"],
+    "reference_modules": {
+      "matching_requirement": "Matched to production modules",
+      "monitoring": "Regular degradation monitoring"
+    },
+    "control_plans": "Documented for all measurement procedures"
+  },
+  "manpower_requirements": {
+    "skilled_personnel": "Required for test execution",
+    "capabilities": [
+      "Test protocol execution",
+      "Data analysis and interpretation",
+      "Standards compliance verification",
+      "Equipment maintenance and troubleshooting"
+    ]
+  },
+  "key_performance_indicators": [
+    {
+      "name": "Power Output Stability",
+      "measured_at": ["STC", "Low Irradiance (200W/m2)"]
+    },
+    {
+      "name": "Insulation Resistance",
+      "target_value_mohm": ">400"
+    },
+    {
+      "name": "Leakage Current",
+      "target_value_ma_m2": "<5"
+    },
+    {
+      "name": "Thermal Durability",
+      "max_power_loss_percent": 3
+    },
+    {
+      "name": "Mechanical Durability",
+      "maximum_load_pa": 2400
+    }
+  ]
+}

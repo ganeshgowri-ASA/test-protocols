@@ -60,7 +60,7 @@ def run_phase1_migration_if_needed():
             with open(migration_file, 'r') as f:
                     migration_sql = f.read()
                     cursor.execute(migration_sql)
-                                            conn.commit()
+                                                conn.commit()
                         # Migration executed successfully
             logger.info("✅ Phase 1 migration completed successfully!")
         else:

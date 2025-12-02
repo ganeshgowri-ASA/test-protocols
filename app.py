@@ -56,12 +56,11 @@ def run_phase1_migration_if_needed():
         
         if not table_exists:
             logger.info("Phase 1 tables not found. Running migration...")
-                                    mimigration_file = Path(__file__).parent / 'docs' / 'migrations' / '001_equipment_management_UP.sql'
-                with open(migration_file, 'r') as f:
-                    migration_sql = f.read()
-                cursor.execute(migration_sql)
-                conn.commit()ommit()
-                        # Migration executed successfully
+            migration_file = Path(__file__).parent / 'docs' / 'migrations' / '001_equipment_management_UP.sql'
+            with open(migration_file, 'r') as f:
+                migration_sql = f.read()
+            cursor.execute(migration_sql)
+            conn.commit()
             logger.info("✅ Phase 1 migration completed successfully!")
         else:
             logger.info("Phase 1 tables already exist. Skipping migration.")

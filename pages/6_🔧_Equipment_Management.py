@@ -22,6 +22,41 @@ def get_db_connection():
         st.error(f"Database connection failed: {str(e)}")
         return None
 
+# Initialize calibration table if it doesn't exist
+def init_calibration_table():
+    """Create calibration_records table if it doesn't exist."""
+    conn = get_db_connection()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS calibration_records (
+                    id SERIAL PRIMARY KEY,
+                    equipment_id INTEGER NOT NULL,
+                    calibration_date DATE NOT NULL,
+                    calibration_due_date DATE NOT NULL,
+                    calibrated_by VARCHAR(150) NOT NULL,
+                    calibration_agency VARCHAR(200),
+                    certificate_number VARCHAR(150),
+                    calibration_result VARCHAR(50) NOT NULL,
+                    remarks TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    created_by VARCHAR(100)
+                );
+                
+                CREATE INDEX IF NOT EXISTS idx_calibration_equipment_id 
+                ON calibration_records(equipment_id);
+            """)
+            conn.commit()
+            cursor.close()
+        except Exception as e:
+            st.error(f"Failed to initialize calibration table: {str(e)}")
+        finally:
+            conn.close()
+
+# Initialize on page load
+init_calibration_table()
+
 # Page header
 st.title("🔧 Equipment Management System")
 st.markdown("### Manage laboratory equipment and calibration records")
@@ -38,7 +73,7 @@ with tab1:
     with col1:
         category_filter = st.selectbox(
             "Category",
-            ["All", "Testing Equipment", "Imaging Equipment", "Environmental Testing", "Measurement Device", "Calibration Standard"]
+            ["All", "Testing Equipment", "Imaging Equipment", "Environmental Testing", "Measurement Device", "Calibration Standard", "chamber", "tester"]
         )
     with col2:
         status_filter = st.selectbox(
@@ -55,7 +90,7 @@ with tab1:
             cursor = conn.cursor(cursor_factory=RealDictCursor)
             
             # Build query with filters
-            query = "SELECT *   FROM equipment_phase1 WHERE 1=1"
+            query = "SELECT * FROM equipment WHERE 1=1"
             params = []
             
             if category_filter != "All":
@@ -67,10 +102,10 @@ with tab1:
                 params.append(status_filter)
             
             if search:
-                query += " AND (name ILIKE %s OR equipment_id ILIKE %s)"
+                query += " AND (name ILIKE %s OR equipment_code ILIKE %s)"
                 params.extend([f"%{search}%", f"%{search}%"])
             
-            query += " ORDER BY equipment_id"
+            query += " ORDER BY equipment_code"
             
             cursor.execute(query, params)
             equipment_data = cursor.fetchall()
@@ -84,55 +119,48 @@ with tab1:
                 with col1:
                     st.metric("Total Equipment", len(df))
                 with col2:
-                    active_count = len(df[df['status'] == 'Active'])
+                    active_count = len(df[df.get('status', pd.Series()) == 'Active']) if 'status' in df.columns else 0
                     st.metric("Active", active_count)
                 with col3:
-                    due_count = len(df[df['status'] == 'Calibration Due'])
-                    st.metric("Calibration Due", due_count, delta="-" if due_count > 0 else None)
+                    st.metric("Total Items", len(df))
                 with col4:
-                    maintenance_count = len(df[df['status'] == 'Under Maintenance'])
-                    st.metric("Under Maintenance", maintenance_count)
+                    st.metric("Categories", df['category'].nunique() if 'category' in df.columns else 0)
                 
                 st.markdown("---")
                 
                 # Display equipment table
-                display_cols = ['equipment_id', 'name', 'category', 'status', 'location', 'last_calibration_date', 'next_calibration_due']
-                st.dataframe(
-                    df[display_cols],
-                    use_container_width=True,
-                    hide_index=True
-                )
+                display_cols = [col for col in ['equipment_code', 'name', 'category', 'manufacturer', 'model'] if col in df.columns]
+                if display_cols:
+                    st.dataframe(
+                        df[display_cols],
+                        use_container_width=True,
+                        hide_index=True
+                    )
                 
                 # Equipment details
                 st.markdown("### Equipment Details")
-                selected_equipment = st.selectbox(
-                    "Select equipment for details",
-                    options=df['equipment_id'].tolist(),
-                    format_func=lambda x: f"{x} - {df[df['equipment_id'] == x]['name'].values[0]}"
-                )
-                
-                if selected_equipment:
-                    eq_data = df[df['equipment_id'] == selected_equipment].iloc[0]
+                equipment_codes = df['equipment_code'].tolist() if 'equipment_code' in df.columns else []
+                if equipment_codes:
+                    selected_equipment = st.selectbox(
+                        "Select equipment for details",
+                        options=equipment_codes,
+                        format_func=lambda x: f"{x} - {df[df['equipment_code'] == x]['name'].values[0]}" if 'name' in df.columns else x
+                    )
                     
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        st.markdown(f"**Equipment ID:** {eq_data['equipment_id']}")
-                        st.markdown(f"**Name:** {eq_data['name']}")
-                        st.markdown(f"**Category:** {eq_data['category']}")
-                        st.markdown(f"**Status:** {eq_data['status']}")
-                        st.markdown(f"**Manufacturer:** {eq_data['manufacturer']}")
-                        st.markdown(f"**Model:** {eq_data['model_number']}")
-                    
-                    with col2:
-                        st.markdown(f"**Serial Number:** {eq_data['serial_number']}")
-                        st.markdown(f"**Location:** {eq_data['location']}")
-                        st.markdown(f"**Last Calibration:** {eq_data['last_calibration_date']}")
-                        st.markdown(f"**Next Calibration Due:** {eq_data['next_calibration_due']}")
-                        st.markdown(f"**Calibration Frequency:** {eq_data['calibration_frequency_days']} days")
-                    
-                    if eq_data['maintenance_notes']:
-                        st.markdown("**Maintenance Notes:**")
-                        st.info(eq_data['maintenance_notes'])
+                    if selected_equipment:
+                        eq_data = df[df['equipment_code'] == selected_equipment].iloc[0]
+                        
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.markdown(f"**Equipment Code:** {eq_data.get('equipment_code', 'N/A')}")
+                            st.markdown(f"**Name:** {eq_data.get('name', 'N/A')}")
+                            st.markdown(f"**Category:** {eq_data.get('category', 'N/A')}")
+                            st.markdown(f"**Manufacturer:** {eq_data.get('manufacturer', 'N/A')}")
+                        
+                        with col2:
+                            st.markdown(f"**Model:** {eq_data.get('model', 'N/A')}")
+                            if 'status' in eq_data:
+                                st.markdown(f"**Status:** {eq_data.get('status', 'N/A')}")
             else:
                 st.info("No equipment found matching the filters.")
             
@@ -151,30 +179,29 @@ with tab2:
         try:
             cursor = conn.cursor(cursor_factory=RealDictCursor)
             
-            # Get calibration status view
-            cursor.execute("SELECT *  equipment_phase1 FROM equipment_phase1_calibration_status ORDER BY days_until_due NULLS LAST")
+            # Get calibration records with equipment details
+            cursor.execute("""
+                SELECT 
+                    e.id,
+                    e.equipment_code,
+                    e.name,
+                    e.category,
+                    cr.calibration_date,
+                    cr.calibration_due_date,
+                    cr.calibration_result,
+                    cr.calibrated_by
+                FROM equipment e
+                LEFT JOIN calibration_records cr ON e.id = cr.equipment_id
+                ORDER BY cr.calibration_due_date DESC NULLS LAST
+            """)
             cal_data = cursor.fetchall()
             
             if cal_data:
                 df_cal = pd.DataFrame(cal_data)
-                
-                # Display upcoming calibrations
-                st.markdown("#### ⚠️ Calibration Alerts")
-                
-                overdue = df_cal[df_cal['calibration_status'] == 'Overdue']
-                due_soon = df_cal[df_cal['calibration_status'] == 'Due Soon']
-                
-                if len(overdue) > 0:
-                    st.error(f"**{len(overdue)} equipment overdue for calibration!**")
-                    st.dataframe(overdue[['equipment_id', 'name', 'category', 'next_calibration_due', 'days_until_due']], hide_index=True)
-                
-                if len(due_soon) > 0:
-                    st.warning(f"**{len(due_soon)} equipment due for calibration soon**")
-                    st.dataframe(due_soon[['equipment_id', 'name', 'category', 'next_calibration_due', 'days_until_due']], hide_index=True)
-                
-                st.markdown("---")
                 st.markdown("#### Complete Calibration Schedule")
                 st.dataframe(df_cal, use_container_width=True, hide_index=True)
+            else:
+                st.info("No calibration records found.")
             
             # Add calibration record
             st.markdown("---")
@@ -185,9 +212,9 @@ with tab2:
                 
                 with col1:
                     # Get equipment list for dropdown
-                    cursor.execute("SELECT id, equipment_id, name  equipment_phase1 FROM equipment_phase1 WHERE status != 'Retired' ORDER BY equipment_id")
+                    cursor.execute("SELECT id, equipment_code, name FROM equipment ORDER BY equipment_code")
                     equipment_list = cursor.fetchall()
-                    equipment_options = {f"{eq['equipment_id']} - {eq['name']}": eq['id'] for eq in equipment_list}
+                    equipment_options = {f"{eq['equipment_code']} - {eq['name']}": eq['id'] for eq in equipment_list}
                     
                     selected_eq = st.selectbox("Equipment", options=list(equipment_options.keys()))
                     cal_date = st.date_input("Calibration Date", value=datetime.now())
@@ -236,31 +263,27 @@ with tab3:
         col1, col2 = st.columns(2)
         
         with col1:
-            equipment_id = st.text_input("Equipment ID *", placeholder="EQP-XXX")
+            equipment_code = st.text_input("Equipment Code *", placeholder="EQP-XXX")
             name = st.text_input("Equipment Name *")
             category = st.selectbox(
                 "Category *",
                 ["Testing Equipment", "Imaging Equipment", "Environmental Testing", 
-                 "Measurement Device", "Calibration Standard", "Other"]
+                 "Measurement Device", "Calibration Standard", "chamber", "tester", "Other"]
             )
             manufacturer = st.text_input("Manufacturer")
             model_number = st.text_input("Model Number")
-            serial_number = st.text_input("Serial Number")
         
         with col2:
-            purchase_date = st.date_input("Purchase Date")
-            location = st.text_input("Location *")
             status = st.selectbox(
                 "Status",
                 ["Active", "Inactive", "Under Maintenance"]
             )
-            cal_frequency = st.number_input("Calibration Frequency (days)", min_value=30, max_value=3650, value=365, step=30)
-            maintenance_notes = st.text_area("Maintenance Notes")
+            notes = st.text_area("Notes")
         
         submitted = st.form_submit_button("Add Equipment")
         
         if submitted:
-            if not equipment_id or not name or not category or not location:
+            if not equipment_code or not name or not category:
                 st.error("Please fill all required fields marked with *")
             else:
                 conn = get_db_connection()
@@ -270,20 +293,18 @@ with tab3:
                         cursor.execute(
                             """
                             INSERT INTO equipment 
-                            (equipment_id, name, category, manufacturer, model_number, serial_number,
-                             purchase_date, location, status, calibration_frequency_days, maintenance_notes, created_by)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                            (equipment_code, name, category, manufacturer, model, status)
+                            VALUES (%s, %s, %s, %s, %s, %s)
                             """,
-                            (equipment_id, name, category, manufacturer, model_number, serial_number,
-                             purchase_date, location, status, cal_frequency, maintenance_notes, "System User")
+                            (equipment_code, name, category, manufacturer, model_number, status)
                         )
                         conn.commit()
                         cursor.close()
                         conn.close()
-                        st.success(f"✅ Equipment {equipment_id} added successfully!")
+                        st.success(f"✅ Equipment {equipment_code} added successfully!")
                         st.rerun()
                     except psycopg2.IntegrityError:
-                        st.error(f"Equipment ID '{equipment_id}' already exists. Please use a unique ID.")
+                        st.error(f"Equipment Code '{equipment_code}' already exists. Please use a unique code.")
                     except Exception as e:
                         st.error(f"Error adding equipment: {str(e)}")
                     finally:

@@ -49,23 +49,23 @@ def run_phase1_migration_if_needed():
     try:
         conn = psycopg2.connect(os.getenv('DATABASE_URL'))
         cursor = conn.cursor()
-        
+
         # Check if Phase 1 tables exist
         cursor.execute("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'equipment_phase1')")
         table_exists = cursor.fetchone()[0]
-        
+
         if not table_exists:
             logger.info("Phase 1 tables not found. Running migration...")
-            migration_file = Path(__file__).parent / 'docs' / 'migrations' / '001_equipment_management_UP.sql'                                    
+            migration_file = Path(__file__).parent / 'docs' / 'migrations' / '001_equipment_management_UP.sql'
             with open(migration_file, 'r') as f:
                     migration_sql = f.read()
-                        cursor.execute(migration_sql)
+                    cursor.execute(migration_sql)
                                             conn.commit()
                         # Migration executed successfully
             logger.info("✅ Phase 1 migration completed successfully!")
         else:
             logger.info("Phase 1 tables already exist. Skipping migration.")
-        
+
         cursor.close()
         conn.close()
     except Exception as e:

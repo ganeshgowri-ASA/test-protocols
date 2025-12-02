@@ -46,7 +46,7 @@ logger.info("=" * 60)
 
 def run_phase1_migration_if_needed():
     """Auto-run Phase 1 migration if tables don't exist."""
-try:
+    try:
         conn = sqlite3.connect('lims_qms.db')
         cursor = conn.cursor()
         
@@ -65,17 +65,13 @@ try:
         else:
             logger.info("Phase 1 tables already exist. Skipping migration.")
         
-        cursor.clos   ase 1 migration error: {e}")e()
-            except Exception as e:
+        cursor.close()
+    except Exception as e:
         logger.error(f"Phase 1 migration error: {e}")
-if 'cursor' in locals():
-            cursor.close()
-        if 'conn' in locals():
-            conn.close()
         raise
     finally:
         if 'conn' in locals():
-            conn.close()
+            conn.close()            conn.close()
 # ============================================================================
 # DATABASE INITIALIZATION - MOVED HERE AFTER LOGGER SETUP (FIX FOR CRITICAL ISSUE #1)
 # ============================================================================

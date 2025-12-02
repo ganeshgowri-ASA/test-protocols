@@ -1,48 +1,32 @@
--- ============================================================================
--- PHASE 1: EQUIPMENT MANAGEMENT - DOWN MIGRATION (ROLLBACK)
--- File: migrations/001_equipment_management_DOWN.sql
--- Description: Rollback equipment management changes
--- Author: Claude Opus 4.5 (Perplexity)
--- Date: 2025-12-01
--- WARNING: This will delete all equipment and calibration data!
--- ============================================================================
+-- =================================================================
+-- Phase 1: equipment_phase1 Management System - DOWN Migration
+-- Description: Rollback equipment_phase1 and calibration tables
+-- Created: 2025-12-01
+-- Author: Claude Assistant
+-- Version: 1.0.0
+-- =================================================================
 
--- Verify tables exist before attempting to drop
-DO $$
-BEGIN
-    IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'equipment_calibration') THEN
-        RAISE NOTICE '⚠️  Found equipment_calibration table - proceeding with DROP';
-    ELSE
-        RAISE NOTICE 'ℹ️  equipment_calibration table not found - skipping';
-    END IF;
-    
-    IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'equipment') THEN
-        RAISE NOTICE '⚠️  Found equipment table - proceeding with DROP';
-    ELSE
-        RAISE NOTICE 'ℹ️  equipment table not found - skipping';
-    END IF;
-END $$;
+-- Drop view first
+DROP VIEW IF EXISTS equipment_calibration_status CASCADE;
 
--- Drop tables (cascade will automatically drop dependent objects)
-DROP TABLE IF EXISTS equipment_calibration CASCADE;
-DROP TABLE IF EXISTS equipment CASCADE;
+-- Drop triggers
+DROP TRIGGER IF EXISTS calibration_status_update ON calibration_records;
+DROP TRIGGER IF EXISTS equipment_update_timestamp ON equipment;
 
--- Drop trigger (if it exists)
-DROP TRIGGER IF EXISTS set_equipment_updated_at ON equipment;
+-- Drop functions
+DROP FUNCTION IF EXISTS check_calibration_status() CASCADE;
+DROP FUNCTION IF EXISTS update_equipment_timestamp() CASCADE;
 
--- Drop trigger function
-DROP FUNCTION IF EXISTS update_equipment_updated_at() CASCADE;
+-- Drop tables (cascade to remove foreign key constraints)
+DROP TABLE IF EXISTSFROM equipment_phase1 e calibration_records_phase1 CASCADE;
+DROP TABLE IF EXISTS equipment_phase1 CASCADE;
 
--- Drop indexes (automatically dropped with tables, but being explicit)
--- DROP INDEX IF EXISTS idx_equipment_code;
+-- Drop indexes (will be automatically dropped with tables, but explicitly listing for documentation)
+-- DROP INDEX IF EXISTS idx_equipment_equipment_id;
+-- DROP INDEX IF EXISTS idx_equipment_category;
 -- DROP INDEX IF EXISTS idx_equipment_status;
--- DROP INDEX IF EXISTS idx_equipment_next_cal_date;
--- DROP INDEX IF EXISTS idx_equipment_calibration_equip_id;
+-- DROP INDEX IF EXISTS idx_equipment_next_calibration;
+-- DROP INDEX IF EXISTS idx_calibration_equipment_id;
+-- DROP INDEX IF EXISTS idx_calibration_date;
 
--- Rollback completion message
-DO $$
-BEGIN
-    RAISE NOTICE '✅ Rollback completed successfully';
-    RAISE NOTICE '✅ Removed tables: equipment, equipment_calibration';
-    RAISE NOTICE '✅ System restored to pre-Phase 1 state';
-END $$;
+COMMIT;

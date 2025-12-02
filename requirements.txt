@@ -35,6 +35,7 @@ Pillow>=11.0.0
 # ===================
 # PDF Generation
 reportlab>=4.2.5
+fpdf2>=2.7.6
 weasyprint>=62.3
 
 # Authentication
@@ -67,8 +68,7 @@ psycopg2-binary>=2.9.9
 
 
 # ====================
-# Phase 1 - Equipment Management & AI Assistant
+# Phase 1: Equipment Management & AI Assistant
 # ====================
 pinecone-client>=3.0.0
 anthropic>=0.7.0
-pandas>=2.0.0

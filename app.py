@@ -59,7 +59,7 @@ def run_phase1_migration_if_needed():
             migration_file = Path(__file__).parent / 'docs' / 'migrations' / '001_equipment_management_UP.sql'                                    
             with open(migration_file, 'r') as f:
                     migration_sql = f.read()
-                                cursor.execute(migration_sql)
+                        cursor.execute(migration_sql)
                                             conn.commit()
                         # Migration executed successfully
             logger.info("✅ Phase 1 migration completed successfully!")

@@ -54,17 +54,17 @@ st.set_page_config(
 # ============================================================================
 # DATABASE STATE MANAGEMENT
 # ============================================================================
-DB_STATE = {
-                'initialized': False,
-                'connected': False,
-                'error': None,
-                'retry_count': 0,
-                'max_retries': 5,
-                'last_attempt': None
-            }
-            
-def get_db_status():
-    """Get current database status safely"""
+            DB_STATE = {
+                            'initialized': False,
+                            'connected': False,
+                            'error': None,
+                            'retry_count': 0,
+                            'max_retries': 5,
+                            'last_attempt': None
+                        }
+                        
+            def get_db_status():
+                """Get current database status safely"""
     return DB_STATE.copy()
 
 def try_database_connection():

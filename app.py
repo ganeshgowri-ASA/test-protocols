@@ -46,35 +46,36 @@ logger.info("=" * 60)
 
 def run_phase1_migration_if_needed():
     """Auto-run Phase 1 migration if tables don't exist."""
-    try:
-        conn = psycopg2.connect(os.getenv('DATABASE_URL'))
+try:
+        conn = sqlite3.connect('lims_qms.db')
         cursor = conn.cursor()
         
-        # Check if Phase 1 tables exist
-        cursor.execute("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'equipment_phase1')")
-        table_exists = cursor.fetchone()[0]
+        # Check if equipment_management table exists
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='equipment_management'")
+        table_exists = cursor.fetchone()
         
         if not table_exists:
             logger.info("Phase 1 tables not found. Running migration...")
             migration_file = Path(__file__).parent / 'docs' / 'migrations' / '001_equipment_management_UP.sql'
-with open(migration_file, 'r') as f:
+            with open(migration_file, 'r') as f:
                 migration_sql = f.read()
-            cursor.execute(migration_sql)
-            conn.commit()
+                cursor.execute(migration_sql)
+                conn.commit()
             logger.info("✅ Phase 1 migration completed successfully!")
         else:
             logger.info("Phase 1 tables already exist. Skipping migration.")
         
         cursor.close()
-        conn.close()
     except Exception as e:
-        logger.warning(f"Phase 1 migration check failed: {e}")
-        cursor.close()
-        conn.close()
-    except Exception as e:
-        logger.warning(f"Phase 1 migration check failed: {e}")
-
-
+        logger.error(f"Phase 1 migration error: {e}")
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
+        raise
+    finally:
+        if 'conn' in locals():
+            conn.close()
 # ============================================================================
 # DATABASE INITIALIZATION - MOVED HERE AFTER LOGGER SETUP (FIX FOR CRITICAL ISSUE #1)
 # ============================================================================

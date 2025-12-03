@@ -8,7 +8,7 @@ st.set_page_config(page_title="Database Seeding", page_icon="🌱")
 st.title("🌱 Database Seeding Admin")
 st.warning("⚠️ This is a one-time admin page. Use only once to seed the database.")
 
-if st.button("🚀 SEED ALL 54 PROTOCOLS NOW", type="primary", use_container_width=True):
+if st.button("🚀 SEED ALL 54 PROTOCOLS NOW", type="primary", width="stretch"):
     with st.spinner("Seeding database with all 54 test protocols..."):
         try:
             # Get database session

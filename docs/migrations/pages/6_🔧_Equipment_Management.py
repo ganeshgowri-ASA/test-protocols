@@ -88,7 +88,7 @@ with tab1:
                 if cal_filter != "All":
                     filtered_df = filtered_df[filtered_df['calibration_status'] == cal_filter]
                 
-                st.dataframe(filtered_df, use_container_width=True, height=400)
+                st.dataframe(filtered_df, width="stretch", height=400)
             else:
                 st.info("No equipment found. Add equipment using 'Add Equipment' tab.")
             
@@ -139,7 +139,7 @@ with tab2:
                     st.metric("🟢 Upcoming (< 60d)", upcoming)
                 
                 st.markdown("---")
-                st.dataframe(df, use_container_width=True, height=450)
+                st.dataframe(df, width="stretch", height=450)
             else:
                 st.success("✅ All equipment calibrations are current (no items due within 60 days)")
             

@@ -154,7 +154,7 @@ def render_sidebar_navigation():
         ]
 
         for label, page in nav_items:
-            if st.button(label, use_container_width=True, key=f"nav_{page}"):
+            if st.button(label, width="stretch", key=f"nav_{page}"):
                 # Clear branding cache when navigating to Company Settings
                 if "Company_Settings" in page:
                     clear_company_branding_cache()
@@ -204,7 +204,7 @@ def render_user_profile():
             </div>
             """, unsafe_allow_html=True)
 
-        if st.button("🚪 Logout", use_container_width=True, key="logout_btn"):
+        if st.button("🚪 Logout", width="stretch", key="logout_btn"):
             # Clear session state
             for key in list(st.session_state.keys()):
                 del st.session_state[key]
@@ -225,7 +225,7 @@ def render_context_panel():
         **Status:** {sr.get('status', 'N/A').upper()}
         """)
 
-        if st.button("Clear Context", use_container_width=True):
+        if st.button("Clear Context", width="stretch"):
             st.session_state.active_service_request = None
             st.rerun()
     else:
@@ -245,7 +245,7 @@ def render_quick_actions():
     ]
 
     for label, action_key in quick_actions:
-        if st.button(label, use_container_width=True, key=f"qa_{action_key}"):
+        if st.button(label, width="stretch", key=f"qa_{action_key}"):
             handle_quick_action(action_key)
 
 
@@ -320,7 +320,7 @@ def render_page_actions(actions: list):
     for idx, (label, callback, variant) in enumerate(actions):
         with cols[idx]:
             button_type = "primary" if variant == "primary" else "secondary"
-            if st.button(label, use_container_width=True, type=button_type):
+            if st.button(label, width="stretch", type=button_type):
                 callback()
 
 
@@ -361,11 +361,11 @@ def confirm_dialog(title: str, message: str, confirm_label: str = "Confirm", can
         col1, col2 = st.columns(2)
 
         with col1:
-            if st.button(confirm_label, use_container_width=True, type="primary"):
+            if st.button(confirm_label, width="stretch", type="primary"):
                 return True
 
         with col2:
-            if st.button(cancel_label, use_container_width=True):
+            if st.button(cancel_label, width="stretch"):
                 return False
 
     return False

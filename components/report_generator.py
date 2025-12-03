@@ -891,7 +891,7 @@ def render_report_generator_ui():
     results_df = pd.DataFrame(default_results)
     edited_df = st.data_editor(
         results_df,
-        use_container_width=True,
+        width="stretch",
         num_rows="dynamic"
     )
 
@@ -916,7 +916,7 @@ def render_report_generator_ui():
     results_data = edited_df.to_dict('records')
 
     with col1:
-        if st.button("Generate PDF Report", type="primary", use_container_width=True):
+        if st.button("Generate PDF Report", type="primary", width="stretch"):
             if REPORTLAB_AVAILABLE:
                 generator = PDFReportGenerator()
                 pdf_bytes = generator.generate_test_report(test_data, results_data)
@@ -943,7 +943,7 @@ def render_report_generator_ui():
                 st.error("No PDF library available. Install reportlab or fpdf2.")
 
     with col2:
-        if st.button("Generate Excel Report", use_container_width=True):
+        if st.button("Generate Excel Report", width="stretch"):
             if OPENPYXL_AVAILABLE:
                 generator = ExcelReportGenerator()
                 excel_bytes = generator.generate_test_report(test_data, results_data)
@@ -959,7 +959,7 @@ def render_report_generator_ui():
                 st.error("OpenPyXL not available. Install with: pip install openpyxl")
 
     with col3:
-        if st.button("Preview Report", use_container_width=True):
+        if st.button("Preview Report", width="stretch"):
             st.info("Report Preview")
 
             # Summary statistics

@@ -169,10 +169,10 @@ def render_new_request_form():
             st.caption("* Required fields")
 
         with col2:
-            submit_draft = st.form_submit_button("💾 Save Draft", use_container_width=True)
+            submit_draft = st.form_submit_button("💾 Save Draft", width="stretch")
 
         with col3:
-            submit_final = st.form_submit_button("✅ Submit Request", use_container_width=True, type="primary")
+            submit_final = st.form_submit_button("✅ Submit Request", width="stretch", type="primary")
 
         # Process form submission
         if submit_draft or submit_final:

@@ -162,7 +162,7 @@ def render_new_inspection_form():
         col1, col2 = st.columns([3, 1])
 
         with col2:
-            submitted = st.form_submit_button("✅ Complete Inspection", use_container_width=True, type="primary")
+            submitted = st.form_submit_button("✅ Complete Inspection", width="stretch", type="primary")
 
         if submitted:
             if not sample_id:
@@ -293,7 +293,7 @@ def render_qr_code_section():
                 data=qr_data['qr_image'],
                 file_name=f"{qr_data['sample_id']}_qr.png",
                 mime="image/png",
-                use_container_width=True
+                width="stretch"
             )
 
         with col2:

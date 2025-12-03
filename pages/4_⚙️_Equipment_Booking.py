@@ -199,7 +199,7 @@ def render_booking_form():
             notes = st.text_area("Notes", placeholder="Any special requirements...", height=80)
 
             # Submit
-            submitted = st.form_submit_button("✅ Create Booking", type="primary", use_container_width=True)
+            submitted = st.form_submit_button("✅ Create Booking", type="primary", width="stretch")
 
             if submitted:
                 if not purpose:

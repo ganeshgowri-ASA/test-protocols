@@ -320,7 +320,7 @@ def render_p1_iv_performance(protocol, sr_id, sample_id):
                 current = isc * (1 - (voltage / voc) ** 2)
 
                 fig = create_iv_curve(voltage.tolist(), current.tolist(), "I-V Curve - Test Results")
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width="stretch")
 
             except Exception as e:
                 st.error(f"Error saving test: {str(e)}")
@@ -461,7 +461,7 @@ def render_generic_protocol(protocol, sr_id, sample_id):
 
         remarks = st.text_area("Final Remarks", height=80)
 
-        submitted = st.form_submit_button("✅ Complete Test", type="primary", use_container_width=True)
+        submitted = st.form_submit_button("✅ Complete Test", type="primary", width="stretch")
 
         if submitted:
             if not sample_id:
@@ -615,17 +615,17 @@ def render_test_results_checksheet():
                         col1, col2, col3 = st.columns(3)
 
                         with col1:
-                            add_data = st.form_submit_button("➕ Add Data Point", use_container_width=True)
+                            add_data = st.form_submit_button("➕ Add Data Point", width="stretch")
 
                         with col2:
                             if execution.status == TestStatus.IN_PROGRESS:
-                                complete_test = st.form_submit_button("✅ Complete Test", type="primary", use_container_width=True)
+                                complete_test = st.form_submit_button("✅ Complete Test", type="primary", width="stretch")
                             else:
                                 complete_test = False
 
                         with col3:
                             if execution.status == TestStatus.NOT_STARTED:
-                                start_test = st.form_submit_button("▶️ Start Test", use_container_width=True)
+                                start_test = st.form_submit_button("▶️ Start Test", width="stretch")
                             else:
                                 start_test = False
 
@@ -734,7 +734,7 @@ def render_test_results_checksheet():
 
                     initial_notes = st.text_area("Initial Notes", height=80)
 
-                create_entry = st.form_submit_button("📝 Create Test Entry", type="primary", use_container_width=True)
+                create_entry = st.form_submit_button("📝 Create Test Entry", type="primary", width="stretch")
 
                 if create_entry:
                     if not sample_id:

@@ -325,28 +325,28 @@ def render_sidebar():
         # Navigation
         st.markdown("### 📌 Main Menu")
         
-        if st.button("🏠 Home", use_container_width=True, key="nav_home"):
+        if st.button("🏠 Home", width="stretch", key="nav_home"):
             pass  # Already on home
         
-        if st.button("📋 Service Request", use_container_width=True, key="nav_sr"):
+        if st.button("📋 Service Request", width="stretch", key="nav_sr"):
             try:
                 st.switch_page("pages/2_📋_Service_Request.py")
             except:
                 st.info("Service Request page loading...")
         
-        if st.button("📦 Incoming Inspection", use_container_width=True, key="nav_ii"):
+        if st.button("📦 Incoming Inspection", width="stretch", key="nav_ii"):
             try:
                 st.switch_page("pages/3_📦_Incoming_Inspection.py")
             except:
                 st.info("Incoming Inspection page loading...")
         
-        if st.button("⚙️ Equipment Booking", use_container_width=True, key="nav_eq"):
+        if st.button("⚙️ Equipment Booking", width="stretch", key="nav_eq"):
             try:
                 st.switch_page("pages/4_⚙️_Equipment_Booking.py")
             except:
                 st.info("Equipment Booking page loading...")
         
-        if st.button("🔬 Test Protocols", use_container_width=True, key="nav_tp"):
+        if st.button("🔬 Test Protocols", width="stretch", key="nav_tp"):
             try:
                 st.switch_page("pages/5_🔬_Test_Protocols.py")
             except:
@@ -439,28 +439,28 @@ def render_dashboard():
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        if st.button("📝 New Service Request", use_container_width=True, type="primary"):
+        if st.button("📝 New Service Request", width="stretch", type="primary"):
             try:
                 st.switch_page("pages/2_📋_Service_Request.py")
             except:
                 st.info("Navigate to Service Request page")
     
     with col2:
-        if st.button("📦 Incoming Inspection", use_container_width=True):
+        if st.button("📦 Incoming Inspection", width="stretch"):
             try:
                 st.switch_page("pages/3_📦_Incoming_Inspection.py")
             except:
                 st.info("Navigate to Incoming Inspection page")
     
     with col3:
-        if st.button("⚙️ Book Equipment", use_container_width=True):
+        if st.button("⚙️ Book Equipment", width="stretch"):
             try:
                 st.switch_page("pages/4_⚙️_Equipment_Booking.py")
             except:
                 st.info("Navigate to Equipment Booking page")
     
     with col4:
-        if st.button("🔬 Start Testing", use_container_width=True):
+        if st.button("🔬 Start Testing", width="stretch"):
             try:
                 st.switch_page("pages/5_🔬_Test_Protocols.py")
             except:
@@ -568,7 +568,7 @@ def render_analytics_tab():
                 hole=.3
             )])
             fig.update_layout(title="Tests by Protocol Category", height=350)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
         
         with col2:
             # Monthly test trend
@@ -589,7 +589,7 @@ def render_analytics_tab():
                 yaxis_title="Tests Completed",
                 height=350
             )
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
         
         # Equipment utilization
         st.markdown("### ⚙️ Equipment Utilization (Last 7 Days)")
@@ -606,7 +606,7 @@ def render_analytics_tab():
             color_continuous_scale='Blues'
         )
         fig.update_layout(height=300)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         
     except ImportError as e:
         st.warning("Plotly charts not available. Install with: pip install plotly")

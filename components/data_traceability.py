@@ -308,7 +308,7 @@ def render_data_lineage_viewer(test_execution_id: int):
         st.markdown("#### Timeline")
 
         timeline_df = pd.DataFrame(lineage['timeline'])
-        st.dataframe(timeline_df, use_container_width=True)
+        st.dataframe(timeline_df, width="stretch")
 
     # Data files
     if lineage['data_files']:

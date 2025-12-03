@@ -134,7 +134,7 @@ with tab1:
                 if display_cols:
                     st.dataframe(
                         df[display_cols],
-                        use_container_width=True,
+                        width="stretch",
                         hide_index=True
                     )
                 
@@ -199,7 +199,7 @@ with tab2:
             if cal_data:
                 df_cal = pd.DataFrame(cal_data)
                 st.markdown("#### Complete Calibration Schedule")
-                st.dataframe(df_cal, use_container_width=True, hide_index=True)
+                st.dataframe(df_cal, width="stretch", hide_index=True)
             else:
                 st.info("No calibration records found.")
             

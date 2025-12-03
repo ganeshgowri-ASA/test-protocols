@@ -345,7 +345,7 @@ def render_company_profile_tab(profile_data: dict):
             )
 
         # Form submission
-        submitted = st.form_submit_button("💾 Save Company Profile", use_container_width=True, type="primary")
+        submitted = st.form_submit_button("💾 Save Company Profile", width="stretch", type="primary")
 
         if submitted:
             # Validation
@@ -448,7 +448,7 @@ def render_address_tab(profile_data: dict):
         st.info("💡 **Tip:** After saving, your address can be used in reports and certificates.")
 
         # Form submission
-        submitted = st.form_submit_button("💾 Save Address", use_container_width=True, type="primary")
+        submitted = st.form_submit_button("💾 Save Address", width="stretch", type="primary")
 
         if submitted:
             # Validation
@@ -581,7 +581,7 @@ def render_accreditation_tab(profile_data: dict):
         )
 
         # Form submission
-        submitted = st.form_submit_button("💾 Save Accreditation Details", use_container_width=True, type="primary")
+        submitted = st.form_submit_button("💾 Save Accreditation Details", width="stretch", type="primary")
 
         if submitted:
             # Save accreditation details
@@ -630,7 +630,7 @@ def render_logo_management_tab(profile_data: dict):
             st.markdown("---")
 
             # Remove logo button
-            if st.button("🗑️ Remove Logo", use_container_width=True, type="secondary"):
+            if st.button("🗑️ Remove Logo", width="stretch", type="secondary"):
                 if clear_company_logo():
                     st.success("✅ Logo removed successfully!")
                     st.cache_data.clear()
@@ -673,7 +673,7 @@ def render_logo_management_tab(profile_data: dict):
             col1, col2 = st.columns([2, 1])
 
             with col1:
-                st.image(uploaded_file, use_container_width=True)
+                st.image(uploaded_file, width="stretch")
 
             with col2:
                 st.markdown(f"**Filename:** {uploaded_file.name}")
@@ -681,7 +681,7 @@ def render_logo_management_tab(profile_data: dict):
                 st.markdown(f"**Size:** {uploaded_file.size / 1024:.1f} KB")
 
             # Save button
-            if st.button("💾 Save Logo", use_container_width=True, type="primary"):
+            if st.button("💾 Save Logo", width="stretch", type="primary"):
                 # Read file data
                 logo_bytes = uploaded_file.read()
 

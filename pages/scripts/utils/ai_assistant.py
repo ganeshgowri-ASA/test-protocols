@@ -100,7 +100,7 @@ def render_ai_assistant_sidebar():
                 key="ai_namespace"
             )
         
-        if st.button("Ask AI", type="primary", use_container_width=True):
+        if st.button("Ask AI", type="primary", width="stretch"):
             if user_question:
                 with st.spinner("Thinking..."):
                     response = assistant.query(user_question, namespace)

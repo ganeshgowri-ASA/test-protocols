@@ -1,4 +1,4 @@
-"""
+width="stretch"    width="stretch""""
 Sample Receipt Module
 =====================
 Record and manage sample receipts from clients/couriers.
@@ -205,7 +205,7 @@ def render_new_receipt_form():
             st.caption("* Required fields")
 
         with col3:
-            submit = st.form_submit_button("📥 Record Receipt", type="primary", use_container_width=True)
+            submit = st.form_submit_button("📥 Record Receipt", type="primary", width="stretch")
 
         # Process form submission
         if submit:

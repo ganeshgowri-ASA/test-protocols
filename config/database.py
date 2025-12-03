@@ -17,11 +17,29 @@ import streamlit as st
 from config.settings import config
 
 # Create declarative base for models
-Base = declarative_base()
+# CRITICAL FIX: Create custom declarative base with extend_existing=True
+# This prevents "Table already defined" errors in Streamlit multi-page apps
+from sqlalchemy.ext.declarative import declared_attr
+
+class ExtendExistingBase:
+    """Base class that automatically sets extend_existing for all tables"""
+    @declared_attr
+    def __table_args__(cls):
+        # Get existing __table_args__ if defined
+        existing_args = getattr(cls, '_ExtendExistingBase__table_args__', None)
+        if existing_args is None:
+            return {'extend_existing': True}
+        elif isinstance(existing_args, dict):
+            existing_args['extend_existing'] = True
+            return existing_args
+        else:
+            # tuple format
+            return existing_args + ({'extend_existing': True},)
+
+Base = declarative_base(cls=ExtendExistingBase)
 
 # Database engine
 _engine = None
-_SessionLocal = None
 
 
 def get_engine():
@@ -124,7 +142,7 @@ def init_database():
         configure_mappers()
 
     # Create all tables
-    Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=enginebind=engine, checkfirst=True)
 
     # Initialize session factory
     SessionLocal = get_session_local()

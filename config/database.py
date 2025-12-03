@@ -142,11 +142,10 @@ def init_database():
         configure_mappers()
 
     # Create all tables
-    Base.metadata.create_all(bind=enginebind=engine, checkfirst=True)
+        Base.metadata.create_all(bind=engine)
 
     # Initialize session factory
     SessionLocal = get_session_local()
-
     # Create default admin user if not exists
     with get_db() as db:
         admin_exists = db.execute(select(User).where(User.username == "admin")).scalar_one_or_none()

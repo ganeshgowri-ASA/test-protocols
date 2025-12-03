@@ -78,10 +78,11 @@ def render_new_request_form():
 
         with col2:
             sample_count = st.number_input(
-                "Number of Samples *",
+                "Expected Sample Quantity *",
                 min_value=1,
                 max_value=100,
-                value=1
+                value=1,
+                help="Number of samples expected to be received"
             )
 
         with col3:
@@ -90,6 +91,16 @@ def render_new_request_form():
                 ["Normal", "High", "Urgent"],
                 index=0
             )
+
+        # Sample receipt workflow info
+        st.info("""
+        **Sample Workflow:**
+        1. Submit service request with expected sample count
+        2. Record sample receipt when samples arrive
+        3. Inspect samples (visual inspection)
+        4. If inspection passes, samples are allocated unique IDs and QR codes
+        5. Samples proceed to testing
+        """)
 
         col1, col2 = st.columns(2)
 

@@ -76,6 +76,79 @@ class IndustryType(str, enum.Enum):
     OTHER = "other"
 
 
+class SampleStatus(str, enum.Enum):
+    """Sample lifecycle status"""
+    RECEIVED = "received"
+    INSPECTED = "inspected"
+    ALLOCATED = "allocated"
+    ASSIGNED = "assigned"
+    IN_TEST = "in_test"
+    COMPLETED = "completed"
+    ANALYZED = "analyzed"
+    REPORTED = "reported"
+    REJECTED = "rejected"
+    ON_HOLD = "on_hold"
+
+
+class DocumentCategory(str, enum.Enum):
+    """Document category enumeration"""
+    PROCEDURE = "procedure"
+    WORK_INSTRUCTION = "work_instruction"
+    FORM = "form"
+    RECORD = "record"
+    SPECIFICATION = "specification"
+    DRAWING = "drawing"
+    CERTIFICATE = "certificate"
+    REPORT = "report"
+    MANUAL = "manual"
+    POLICY = "policy"
+    OTHER = "other"
+
+
+class TrainingStatus(str, enum.Enum):
+    """Training status enumeration"""
+    SCHEDULED = "scheduled"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    EXPIRED = "expired"
+    CANCELLED = "cancelled"
+
+
+class BOMItemType(str, enum.Enum):
+    """BOM item type enumeration"""
+    MATERIAL = "material"
+    CONSUMABLE = "consumable"
+    EQUIPMENT = "equipment"
+    SERVICE = "service"
+    LABOR = "labor"
+
+
+class ReceiptStatus(str, enum.Enum):
+    """Sample receipt status"""
+    PENDING = "pending"
+    APPROVED = "approved"
+    PROCESSED = "processed"
+    REJECTED = "rejected"
+
+
+class InventoryStatus(str, enum.Enum):
+    """Inventory status"""
+    IN_STOCK = "in_stock"
+    IN_TEST = "in_test"
+    DISPOSED = "disposed"
+    RETURNED = "returned"
+    SHIPPED = "shipped"
+
+
+class DocumentStatus(str, enum.Enum):
+    """Document status"""
+    DRAFT = "draft"
+    IN_REVIEW = "in_review"
+    APPROVED = "approved"
+    SUPERSEDED = "superseded"
+    OBSOLETE = "obsolete"
+
+
 # Models
 class User(Base):
     """User model for authentication and authorization"""
@@ -558,3 +631,875 @@ class CompanyProfile(Base):
 
     def __repr__(self):
         return f"<CompanyProfile(company_id='{self.company_id}', name='{self.company_name}')>"
+
+
+# ============================================================================
+# SAMPLE MANAGEMENT MODELS
+# ============================================================================
+
+class SampleReceipt(Base):
+    """Sample receipt model - tracks physical receipt of samples"""
+    __tablename__ = "sample_receipts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    receipt_number = Column(String(50), unique=True, nullable=False, index=True)
+
+    # Link to service request
+    service_request_id = Column(Integer, ForeignKey("service_requests.id"))
+
+    # Receipt details
+    received_date = Column(DateTime, default=datetime.utcnow)
+    received_by_id = Column(Integer, ForeignKey("users.id"))
+
+    # Client/Source information
+    client_name = Column(String(100))
+    client_reference = Column(String(100))
+    courier_name = Column(String(100))
+    tracking_number = Column(String(100))
+
+    # Package details
+    package_count = Column(Integer, default=1)
+    package_condition = Column(String(50))  # good, damaged, sealed, opened
+    package_photos = Column(JSON)
+
+    # Sample counts
+    expected_sample_count = Column(Integer)
+    actual_sample_count = Column(Integer)
+    quantity_mismatch = Column(Boolean, default=False)
+    mismatch_notes = Column(Text)
+
+    # Approval workflow
+    requires_supervisor_approval = Column(Boolean, default=False)
+    supervisor_approved = Column(Boolean)
+    supervisor_id = Column(Integer, ForeignKey("users.id"))
+    approval_date = Column(DateTime)
+    approval_notes = Column(Text)
+
+    # Status and notes
+    status = Column(String(20), default="pending")
+    remarks = Column(Text)
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    received_by_user = relationship("User", foreign_keys=[received_by_id])
+    supervisor_user = relationship("User", foreign_keys=[supervisor_id])
+    samples = relationship("Sample", back_populates="receipt")
+
+    __table_args__ = (
+        Index('idx_sample_receipts_service_request', 'service_request_id'),
+        Index('idx_sample_receipts_received_date', 'received_date'),
+        Index('idx_sample_receipts_status', 'status'),
+    )
+
+    def __repr__(self):
+        return f"<SampleReceipt(number='{self.receipt_number}', status='{self.status}')>"
+
+
+class Sample(Base):
+    """Core sample tracking model with auto-generated IDs"""
+    __tablename__ = "samples"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    # Auto-generated identifiers
+    sample_id = Column(String(50), unique=True, nullable=False, index=True)  # SAMPLE-YYYY-XXXXX
+    project_id = Column(String(50), index=True)  # PROJECT-YYYY-XXXXX
+
+    # Links
+    service_request_id = Column(Integer, ForeignKey("service_requests.id"))
+    receipt_id = Column(Integer, ForeignKey("sample_receipts.id"))
+    inspection_id = Column(Integer, ForeignKey("incoming_inspections.id"))
+
+    # Sample details
+    sample_type = Column(String(50))
+    manufacturer = Column(String(100))
+    model_number = Column(String(100))
+    serial_number = Column(String(100))
+    batch_number = Column(String(100))
+
+    # Physical properties
+    length_mm = Column(Float)
+    width_mm = Column(Float)
+    thickness_mm = Column(Float)
+    weight_kg = Column(Float)
+
+    # QR Code
+    qr_code = Column(String(200), unique=True)
+    qr_code_image_path = Column(String(200))
+    qr_data = Column(JSON)
+
+    # Current status and location
+    status = Column(Enum(SampleStatus), default=SampleStatus.RECEIVED)
+    current_location = Column(String(100))
+    storage_location = Column(String(100))
+
+    # Workflow tracking
+    allocation_date = Column(DateTime)
+    allocated_by_id = Column(Integer, ForeignKey("users.id"))
+
+    # Test assignment tracking
+    assigned_protocol_ids = Column(JSON)
+    current_test_id = Column(Integer)
+    tests_completed = Column(Integer, default=0)
+    tests_total = Column(Integer, default=0)
+
+    # Results summary
+    overall_result = Column(String(20))
+    result_summary = Column(Text)
+
+    # Metadata
+    specifications = Column(JSON)
+    notes = Column(Text)
+    photos = Column(JSON)
+    custody_history = Column(JSON)
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    completed_at = Column(DateTime)
+    disposed_at = Column(DateTime)
+
+    # Relationships
+    receipt = relationship("SampleReceipt", back_populates="samples")
+    allocated_by_user = relationship("User", foreign_keys=[allocated_by_id])
+    status_history = relationship("SampleStatusHistory", back_populates="sample")
+    route_cards = relationship("RouteCard", back_populates="sample")
+    test_assignments = relationship("SampleTestAssignment", back_populates="sample")
+    inventory_records = relationship("SampleInventory", back_populates="sample")
+
+    __table_args__ = (
+        Index('idx_samples_sample_id', 'sample_id'),
+        Index('idx_samples_project_id', 'project_id'),
+        Index('idx_samples_service_request', 'service_request_id'),
+        Index('idx_samples_status', 'status'),
+        Index('idx_samples_qr_code', 'qr_code'),
+    )
+
+    def __repr__(self):
+        return f"<Sample(id='{self.sample_id}', status='{self.status}')>"
+
+
+class SampleStatusHistory(Base):
+    """Complete audit trail of sample status changes"""
+    __tablename__ = "sample_status_history"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    # Sample reference
+    sample_id = Column(Integer, ForeignKey("samples.id"), nullable=False)
+
+    # Status change details
+    previous_status = Column(String(20))
+    new_status = Column(String(20), nullable=False)
+
+    # Location change
+    previous_location = Column(String(100))
+    new_location = Column(String(100))
+
+    # Who made the change
+    changed_by_id = Column(Integer, ForeignKey("users.id"))
+    changed_by_name = Column(String(100))
+
+    # How it was changed
+    change_source = Column(String(50))  # manual, qr_scan, system, workflow
+    qr_scan_id = Column(Integer)
+
+    # Additional info
+    reason = Column(Text)
+    notes = Column(Text)
+    metadata = Column(JSON)
+
+    # Timestamp
+    changed_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    sample = relationship("Sample", back_populates="status_history")
+    changed_by_user = relationship("User", foreign_keys=[changed_by_id])
+
+    __table_args__ = (
+        Index('idx_sample_status_history_sample', 'sample_id'),
+        Index('idx_sample_status_history_changed_at', 'changed_at'),
+        Index('idx_sample_status_history_status', 'new_status'),
+    )
+
+    def __repr__(self):
+        return f"<SampleStatusHistory(sample_id={self.sample_id}, status='{self.new_status}')>"
+
+
+class RouteCard(Base):
+    """Workflow documentation for samples"""
+    __tablename__ = "route_cards"
+
+    id = Column(Integer, primary_key=True, index=True)
+    route_card_number = Column(String(50), unique=True, nullable=False, index=True)
+
+    # Sample reference
+    sample_id = Column(Integer, ForeignKey("samples.id"))
+    project_id = Column(String(50))
+
+    # Service request link
+    service_request_id = Column(Integer, ForeignKey("service_requests.id"))
+
+    # Route card details
+    title = Column(String(200))
+    description = Column(Text)
+
+    # Workflow steps
+    workflow_steps = Column(JSON)
+    current_step = Column(Integer, default=1)
+    total_steps = Column(Integer)
+
+    # Assigned protocols
+    assigned_protocols = Column(JSON)
+
+    # Timeline
+    planned_start_date = Column(DateTime)
+    planned_end_date = Column(DateTime)
+    actual_start_date = Column(DateTime)
+    actual_end_date = Column(DateTime)
+
+    # PDF generation
+    pdf_path = Column(String(200))
+    pdf_generated_at = Column(DateTime)
+
+    # Status
+    status = Column(String(20), default="draft")
+
+    # Personnel
+    created_by_id = Column(Integer, ForeignKey("users.id"))
+    assigned_to_id = Column(Integer, ForeignKey("users.id"))
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    sample = relationship("Sample", back_populates="route_cards")
+    created_by_user = relationship("User", foreign_keys=[created_by_id])
+    assigned_to_user = relationship("User", foreign_keys=[assigned_to_id])
+
+    __table_args__ = (
+        Index('idx_route_cards_sample', 'sample_id'),
+        Index('idx_route_cards_service_request', 'service_request_id'),
+        Index('idx_route_cards_status', 'status'),
+    )
+
+    def __repr__(self):
+        return f"<RouteCard(number='{self.route_card_number}', status='{self.status}')>"
+
+
+class SampleTestAssignment(Base):
+    """Assignment of samples to specific tests"""
+    __tablename__ = "sample_test_assignments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    assignment_number = Column(String(50), unique=True, nullable=False, index=True)
+
+    # Links
+    sample_id = Column(Integer, ForeignKey("samples.id"), nullable=False)
+    test_execution_id = Column(Integer, ForeignKey("test_executions.id"))
+    protocol_id = Column(Integer, ForeignKey("test_protocols.id"), nullable=False)
+    route_card_id = Column(Integer, ForeignKey("route_cards.id"))
+
+    # Assignment details
+    sequence_number = Column(Integer)
+    priority = Column(Integer, default=5)
+
+    # Personnel
+    assigned_by_id = Column(Integer, ForeignKey("users.id"))
+    assigned_to_id = Column(Integer, ForeignKey("users.id"))
+
+    # Scheduling
+    scheduled_start = Column(DateTime)
+    scheduled_end = Column(DateTime)
+    actual_start = Column(DateTime)
+    actual_end = Column(DateTime)
+
+    # Equipment booking
+    equipment_booking_id = Column(Integer, ForeignKey("equipment_bookings.id"))
+    required_equipment = Column(JSON)
+
+    # Status
+    status = Column(String(20), default="pending")
+
+    # Results
+    test_passed = Column(Boolean)
+    result_summary = Column(Text)
+
+    # Notes
+    instructions = Column(Text)
+    notes = Column(Text)
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    sample = relationship("Sample", back_populates="test_assignments")
+    protocol = relationship("TestProtocol")
+    assigned_by_user = relationship("User", foreign_keys=[assigned_by_id])
+    assigned_to_user = relationship("User", foreign_keys=[assigned_to_id])
+
+    __table_args__ = (
+        Index('idx_sample_test_assignments_sample', 'sample_id'),
+        Index('idx_sample_test_assignments_protocol', 'protocol_id'),
+        Index('idx_sample_test_assignments_status', 'status'),
+    )
+
+    def __repr__(self):
+        return f"<SampleTestAssignment(number='{self.assignment_number}', status='{self.status}')>"
+
+
+class SampleInventory(Base):
+    """Inventory tracking and storage management"""
+    __tablename__ = "sample_inventory"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    # Sample reference
+    sample_id = Column(Integer, ForeignKey("samples.id"))
+    sample_id_code = Column(String(50))
+
+    # Location tracking
+    storage_area = Column(String(50))
+    storage_zone = Column(String(50))
+    storage_rack = Column(String(50))
+    storage_shelf = Column(String(50))
+    storage_position = Column(String(50))
+    full_location_path = Column(String(200))
+
+    # Physical status
+    condition = Column(String(50))
+    condition_notes = Column(Text)
+    photos = Column(JSON)
+
+    # Inventory status
+    inventory_status = Column(Enum(InventoryStatus), default=InventoryStatus.IN_STOCK)
+
+    # Check in/out tracking
+    checked_out = Column(Boolean, default=False)
+    checked_out_by_id = Column(Integer, ForeignKey("users.id"))
+    checked_out_at = Column(DateTime)
+    checked_out_reason = Column(Text)
+    expected_return = Column(DateTime)
+
+    # Return tracking
+    checked_in_by_id = Column(Integer, ForeignKey("users.id"))
+    checked_in_at = Column(DateTime)
+
+    # Disposal/Return
+    disposal_date = Column(DateTime)
+    disposal_method = Column(String(50))
+    disposal_notes = Column(Text)
+    return_date = Column(DateTime)
+    return_tracking_number = Column(String(100))
+
+    # Last inventory count
+    last_inventory_date = Column(DateTime)
+    inventoried_by_id = Column(Integer, ForeignKey("users.id"))
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    sample = relationship("Sample", back_populates="inventory_records")
+    checked_out_by_user = relationship("User", foreign_keys=[checked_out_by_id])
+    checked_in_by_user = relationship("User", foreign_keys=[checked_in_by_id])
+    inventoried_by_user = relationship("User", foreign_keys=[inventoried_by_id])
+
+    __table_args__ = (
+        Index('idx_sample_inventory_sample', 'sample_id'),
+        Index('idx_sample_inventory_location', 'storage_area', 'storage_zone', 'storage_rack'),
+        Index('idx_sample_inventory_status', 'inventory_status'),
+    )
+
+    def __repr__(self):
+        return f"<SampleInventory(sample='{self.sample_id_code}', location='{self.full_location_path}')>"
+
+
+# ============================================================================
+# STAFF TRAINING MODELS
+# ============================================================================
+
+class StaffTraining(Base):
+    """Training management and competency tracking"""
+    __tablename__ = "staff_training"
+
+    id = Column(Integer, primary_key=True, index=True)
+    training_id = Column(String(50), unique=True, nullable=False, index=True)
+
+    # Training details
+    title = Column(String(200), nullable=False)
+    description = Column(Text)
+    category = Column(String(50))  # safety, equipment, protocol, qms, general
+    training_type = Column(String(50))  # initial, refresher, advanced, certification
+
+    # Requirements
+    required_for_roles = Column(JSON)
+    required_for_protocols = Column(JSON)
+    prerequisite_trainings = Column(JSON)
+
+    # Content
+    materials_path = Column(String(200))
+    duration_hours = Column(Float)
+    assessment_required = Column(Boolean, default=True)
+    passing_score = Column(Float, default=80.0)
+
+    # Validity
+    valid_months = Column(Integer, default=12)
+
+    # Metadata
+    created_by_id = Column(Integer, ForeignKey("users.id"))
+    is_active = Column(Boolean, default=True)
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    created_by_user = relationship("User", foreign_keys=[created_by_id])
+    training_records = relationship("StaffTrainingRecord", back_populates="training")
+
+    __table_args__ = (
+        Index('idx_staff_training_category', 'category'),
+        Index('idx_staff_training_active', 'is_active'),
+    )
+
+    def __repr__(self):
+        return f"<StaffTraining(id='{self.training_id}', title='{self.title}')>"
+
+
+class StaffTrainingRecord(Base):
+    """Individual training completion records"""
+    __tablename__ = "staff_training_records"
+
+    id = Column(Integer, primary_key=True, index=True)
+    record_number = Column(String(50), unique=True, nullable=False, index=True)
+
+    # Links
+    training_id = Column(Integer, ForeignKey("staff_training.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    # Training session
+    scheduled_date = Column(DateTime)
+    completion_date = Column(DateTime)
+    trainer_id = Column(Integer, ForeignKey("users.id"))
+    trainer_name = Column(String(100))
+
+    # Status
+    status = Column(Enum(TrainingStatus), default=TrainingStatus.SCHEDULED)
+
+    # Assessment
+    assessment_score = Column(Float)
+    assessment_passed = Column(Boolean)
+    assessment_date = Column(DateTime)
+    assessment_notes = Column(Text)
+
+    # Certificate
+    certificate_number = Column(String(50))
+    certificate_path = Column(String(200))
+
+    # Validity tracking
+    expiry_date = Column(DateTime)
+    is_current = Column(Boolean, default=False)
+
+    # Notes
+    notes = Column(Text)
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    training = relationship("StaffTraining", back_populates="training_records")
+    user = relationship("User", foreign_keys=[user_id])
+    trainer = relationship("User", foreign_keys=[trainer_id])
+
+    __table_args__ = (
+        Index('idx_staff_training_records_training', 'training_id'),
+        Index('idx_staff_training_records_user', 'user_id'),
+        Index('idx_staff_training_records_status', 'status'),
+        Index('idx_staff_training_records_expiry', 'expiry_date'),
+    )
+
+    def __repr__(self):
+        return f"<StaffTrainingRecord(number='{self.record_number}', status='{self.status}')>"
+
+
+# ============================================================================
+# DOCUMENT MANAGEMENT MODELS
+# ============================================================================
+
+class Document(Base):
+    """Document control and version management"""
+    __tablename__ = "documents"
+
+    id = Column(Integer, primary_key=True, index=True)
+    document_number = Column(String(50), unique=True, nullable=False, index=True)
+
+    # Document details
+    title = Column(String(200), nullable=False)
+    description = Column(Text)
+    category = Column(Enum(DocumentCategory), default=DocumentCategory.OTHER)
+    document_type = Column(String(50))
+
+    # Classification
+    department = Column(String(50))
+    process_area = Column(String(100))
+    tags = Column(JSON)
+
+    # Version control
+    version = Column(String(20), default="1.0")
+    revision_number = Column(Integer, default=1)
+    is_current_version = Column(Boolean, default=True)
+    previous_version_id = Column(Integer, ForeignKey("documents.id"))
+
+    # File storage
+    file_path = Column(String(200))
+    file_name = Column(String(200))
+    file_size_bytes = Column(Integer)
+    file_hash = Column(String(64))
+
+    # Review and approval
+    author_id = Column(Integer, ForeignKey("users.id"))
+    reviewer_id = Column(Integer, ForeignKey("users.id"))
+    approver_id = Column(Integer, ForeignKey("users.id"))
+    review_date = Column(DateTime)
+    approval_date = Column(DateTime)
+
+    # Status
+    status = Column(Enum(DocumentStatus), default=DocumentStatus.DRAFT)
+
+    # Effective dates
+    effective_date = Column(DateTime)
+    next_review_date = Column(DateTime)
+    obsolete_date = Column(DateTime)
+
+    # Access control
+    access_level = Column(String(20), default="internal")
+    allowed_roles = Column(JSON)
+    distribution_list = Column(JSON)
+
+    # Notes
+    change_summary = Column(Text)
+    notes = Column(Text)
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    author = relationship("User", foreign_keys=[author_id])
+    reviewer = relationship("User", foreign_keys=[reviewer_id])
+    approver = relationship("User", foreign_keys=[approver_id])
+    previous_version = relationship("Document", remote_side=[id])
+    access_logs = relationship("DocumentAccessLog", back_populates="document")
+
+    __table_args__ = (
+        Index('idx_documents_number', 'document_number'),
+        Index('idx_documents_category', 'category'),
+        Index('idx_documents_status', 'status'),
+        Index('idx_documents_current', 'is_current_version'),
+    )
+
+    def __repr__(self):
+        return f"<Document(number='{self.document_number}', version='{self.version}')>"
+
+
+class DocumentAccessLog(Base):
+    """Track document access and downloads"""
+    __tablename__ = "document_access_log"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    # Document reference
+    document_id = Column(Integer, ForeignKey("documents.id"), nullable=False)
+
+    # User
+    user_id = Column(Integer, ForeignKey("users.id"))
+    user_name = Column(String(100))
+
+    # Access details
+    access_type = Column(String(20))  # view, download, print, edit
+    access_timestamp = Column(DateTime, default=datetime.utcnow)
+
+    # Context
+    ip_address = Column(String(50))
+    user_agent = Column(String(200))
+
+    # Notes
+    notes = Column(Text)
+
+    # Relationships
+    document = relationship("Document", back_populates="access_logs")
+    user = relationship("User", foreign_keys=[user_id])
+
+    __table_args__ = (
+        Index('idx_document_access_log_document', 'document_id'),
+        Index('idx_document_access_log_user', 'user_id'),
+        Index('idx_document_access_log_timestamp', 'access_timestamp'),
+    )
+
+    def __repr__(self):
+        return f"<DocumentAccessLog(doc_id={self.document_id}, type='{self.access_type}')>"
+
+
+# ============================================================================
+# BOM MANAGEMENT MODELS
+# ============================================================================
+
+class BOMItem(Base):
+    """Bill of Materials item"""
+    __tablename__ = "bom_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    item_code = Column(String(50), unique=True, nullable=False, index=True)
+
+    # Item details
+    name = Column(String(200), nullable=False)
+    description = Column(Text)
+    item_type = Column(Enum(BOMItemType), default=BOMItemType.MATERIAL)
+    category = Column(String(50))
+
+    # Specifications
+    specifications = Column(JSON)
+    unit = Column(String(20))
+
+    # Inventory
+    current_stock = Column(Float, default=0)
+    minimum_stock = Column(Float, default=0)
+    reorder_point = Column(Float, default=0)
+    reorder_quantity = Column(Float)
+
+    # Cost tracking
+    unit_cost = Column(Float, default=0)
+    currency = Column(String(10), default="USD")
+    cost_center = Column(String(50))
+
+    # Supplier info
+    supplier_name = Column(String(100))
+    supplier_code = Column(String(50))
+    supplier_part_number = Column(String(50))
+    lead_time_days = Column(Integer)
+
+    # Shelf life
+    has_expiry = Column(Boolean, default=False)
+    shelf_life_days = Column(Integer)
+
+    # Status
+    is_active = Column(Boolean, default=True)
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    protocol_requirements = relationship("BOMProtocolRequirement", back_populates="bom_item")
+    usage_logs = relationship("BOMUsageLog", back_populates="bom_item")
+
+    __table_args__ = (
+        Index('idx_bom_items_code', 'item_code'),
+        Index('idx_bom_items_type', 'item_type'),
+        Index('idx_bom_items_category', 'category'),
+    )
+
+    def __repr__(self):
+        return f"<BOMItem(code='{self.item_code}', name='{self.name}')>"
+
+
+class BOMProtocolRequirement(Base):
+    """Link BOM items to test protocols"""
+    __tablename__ = "bom_protocol_requirements"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    # Links
+    protocol_id = Column(Integer, ForeignKey("test_protocols.id"), nullable=False)
+    bom_item_id = Column(Integer, ForeignKey("bom_items.id"), nullable=False)
+
+    # Requirement details
+    quantity_per_test = Column(Float, nullable=False)
+    is_mandatory = Column(Boolean, default=True)
+    notes = Column(Text)
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    protocol = relationship("TestProtocol")
+    bom_item = relationship("BOMItem", back_populates="protocol_requirements")
+
+    __table_args__ = (
+        UniqueConstraint('protocol_id', 'bom_item_id', name='uq_protocol_bom_item'),
+        Index('idx_bom_protocol_req_protocol', 'protocol_id'),
+        Index('idx_bom_protocol_req_item', 'bom_item_id'),
+    )
+
+    def __repr__(self):
+        return f"<BOMProtocolRequirement(protocol={self.protocol_id}, item={self.bom_item_id})>"
+
+
+class BOMUsageLog(Base):
+    """Track consumption of BOM items"""
+    __tablename__ = "bom_usage_log"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    # Item reference
+    bom_item_id = Column(Integer, ForeignKey("bom_items.id"), nullable=False)
+
+    # Usage context
+    test_execution_id = Column(Integer, ForeignKey("test_executions.id"))
+    sample_id = Column(Integer, ForeignKey("samples.id"))
+    service_request_id = Column(Integer, ForeignKey("service_requests.id"))
+
+    # Usage details
+    quantity_used = Column(Float, nullable=False)
+    usage_type = Column(String(20))  # consumed, returned, wasted
+
+    # User
+    used_by_id = Column(Integer, ForeignKey("users.id"))
+
+    # Lot/Batch tracking
+    lot_number = Column(String(50))
+    expiry_date = Column(DateTime)
+
+    # Notes
+    notes = Column(Text)
+
+    # Timestamp
+    used_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    bom_item = relationship("BOMItem", back_populates="usage_logs")
+    used_by_user = relationship("User", foreign_keys=[used_by_id])
+
+    __table_args__ = (
+        Index('idx_bom_usage_log_item', 'bom_item_id'),
+        Index('idx_bom_usage_log_test', 'test_execution_id'),
+        Index('idx_bom_usage_log_date', 'used_at'),
+    )
+
+    def __repr__(self):
+        return f"<BOMUsageLog(item={self.bom_item_id}, qty={self.quantity_used})>"
+
+
+# ============================================================================
+# QR SCAN LOG MODEL
+# ============================================================================
+
+class QRScanLog(Base):
+    """Log all QR code scans for tracking"""
+    __tablename__ = "qr_scan_log"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    # QR code data
+    qr_code = Column(String(200), nullable=False)
+    decoded_data = Column(JSON)
+
+    # Entity reference
+    entity_type = Column(String(50))
+    entity_id = Column(Integer)
+
+    # Scan details
+    scanned_by_id = Column(Integer, ForeignKey("users.id"))
+    scanned_by_name = Column(String(100))
+    scan_timestamp = Column(DateTime, default=datetime.utcnow)
+
+    # Location at scan
+    scan_location = Column(String(100))
+    latitude = Column(Float)
+    longitude = Column(Float)
+
+    # Device info
+    device_type = Column(String(50))
+    device_info = Column(String(200))
+
+    # Action taken
+    action_type = Column(String(50))
+    action_result = Column(String(50))
+
+    # Status update triggered
+    status_changed = Column(Boolean, default=False)
+    previous_status = Column(String(20))
+    new_status = Column(String(20))
+
+    # Notes
+    notes = Column(Text)
+
+    # Relationships
+    scanned_by_user = relationship("User", foreign_keys=[scanned_by_id])
+
+    __table_args__ = (
+        Index('idx_qr_scan_log_qr_code', 'qr_code'),
+        Index('idx_qr_scan_log_entity', 'entity_type', 'entity_id'),
+        Index('idx_qr_scan_log_timestamp', 'scan_timestamp'),
+    )
+
+    def __repr__(self):
+        return f"<QRScanLog(qr='{self.qr_code[:20]}...', action='{self.action_type}')>"
+
+
+# ============================================================================
+# CALIBRATION RECORDS MODEL
+# ============================================================================
+
+class CalibrationRecord(Base):
+    """Calibration records for equipment"""
+    __tablename__ = "calibration_records"
+
+    id = Column(Integer, primary_key=True, index=True)
+    calibration_number = Column(String(50), unique=True, nullable=False, index=True)
+
+    # Equipment reference
+    equipment_id = Column(Integer, ForeignKey("equipment.id"), nullable=False)
+
+    # Calibration details
+    calibration_date = Column(DateTime, nullable=False)
+    next_calibration_date = Column(DateTime)
+    calibration_type = Column(String(50))
+
+    # Provider
+    performed_by = Column(String(100))
+    provider_certificate = Column(String(100))
+    technician_name = Column(String(100))
+
+    # Results
+    calibration_passed = Column(Boolean)
+    deviation_found = Column(Boolean, default=False)
+    deviation_details = Column(Text)
+    adjustment_made = Column(Boolean, default=False)
+    adjustment_details = Column(Text)
+
+    # Documentation
+    certificate_number = Column(String(100))
+    certificate_path = Column(String(200))
+    report_path = Column(String(200))
+
+    # Traceability
+    reference_standards = Column(JSON)
+
+    # Notes
+    notes = Column(Text)
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    created_by_id = Column(Integer, ForeignKey("users.id"))
+
+    # Relationships
+    equipment = relationship("Equipment")
+    created_by_user = relationship("User", foreign_keys=[created_by_id])
+
+    __table_args__ = (
+        Index('idx_calibration_records_equipment', 'equipment_id'),
+        Index('idx_calibration_records_date', 'calibration_date'),
+        Index('idx_calibration_records_next', 'next_calibration_date'),
+    )
+
+    def __repr__(self):
+        return f"<CalibrationRecord(number='{self.calibration_number}', equipment={self.equipment_id})>"

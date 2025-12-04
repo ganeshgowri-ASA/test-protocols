@@ -1654,6 +1654,83 @@ class SampleAllocation(Base):
         Index('idx_allocations_status', 'status'),
         Index('idx_allocations_schedule', 'scheduled_start', 'scheduled_end'),
     )
-    
+
     def __repr__(self):
         return f"<SampleAllocation(number='{self.allocation_number}', status='{self.status}')>"
+
+
+# ============================================================================
+# DATA ANALYSIS MODELS
+# ============================================================================
+
+class AnalysisResult(Base):
+    """Analysis results model - stores data analysis results and statistics"""
+    __tablename__ = "analysis_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    analysis_id = Column(String(50), unique=True, nullable=False, index=True)
+
+    # Analysis metadata
+    analysis_type = Column(String(100))  # Trend, Comparison, Statistical
+    date_range_start = Column(DateTime)
+    date_range_end = Column(DateTime)
+    filters_applied = Column(JSON)  # Store filter parameters
+
+    # Metrics
+    total_tests = Column(Integer)
+    pass_count = Column(Integer)
+    fail_count = Column(Integer)
+    pass_rate = Column(Float)
+
+    # Statistical measures
+    mean_value = Column(Float)
+    median_value = Column(Float)
+    std_deviation = Column(Float)
+
+    # Chart data
+    chart_type = Column(String(50))
+    chart_data = Column(JSON)  # Store Plotly chart JSON
+
+    # Audit fields
+    created_by = Column(String(100))
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    __table_args__ = (
+        Index('idx_analysis_type', 'analysis_type'),
+        Index('idx_analysis_created', 'created_at'),
+        {'extend_existing': True}
+    )
+
+    def __repr__(self):
+        return f"<AnalysisResult(id='{self.analysis_id}', type='{self.analysis_type}')>"
+
+
+class DataExport(Base):
+    """Data export model - tracks data exports"""
+    __tablename__ = "data_exports"
+
+    id = Column(Integer, primary_key=True, index=True)
+    export_id = Column(String(50), unique=True, nullable=False, index=True)
+
+    # Export metadata
+    export_type = Column(String(50))  # Excel, CSV, PDF
+    export_name = Column(String(200))
+    file_path = Column(String(255))
+
+    # Export parameters
+    date_range = Column(String(100))
+    filters = Column(JSON)
+    records_count = Column(Integer)
+
+    # Audit fields
+    exported_by = Column(String(100))
+    exported_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    __table_args__ = (
+        Index('idx_export_type', 'export_type'),
+        Index('idx_export_date', 'exported_at'),
+        {'extend_existing': True}
+    )
+
+    def __repr__(self):
+        return f"<DataExport(id='{self.export_id}', type='{self.export_type}')>"

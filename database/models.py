@@ -218,9 +218,9 @@ class ServiceRequest(Base):
     notes = Column(Text)
     attachments = Column(JSON)  # List of file paths
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_service_request_status', 'status'),
-        Index('idx_service_request_created', 'created_at'),
+        Index('idx_service_request_created', 'created_at')
     )
 
     def __repr__(self):
@@ -347,9 +347,9 @@ class EquipmentBooking(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_booking_period', 'start_time', 'end_time'),
-        Index('idx_booking_equipment', 'equipment_id'),
+        Index('idx_booking_equipment', 'equipment_id')
     )
 
     def __repr__(self):
@@ -450,9 +450,9 @@ class TestExecution(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_test_execution_status', 'status'),
-        Index('idx_test_execution_protocol', 'protocol_id'),
+        Index('idx_test_execution_protocol', 'protocol_id')
     )
 
     def __repr__(self):
@@ -487,9 +487,9 @@ class TestData(Base):
 
     # Metadata
     extra_metadata = Column(JSON)  # Additional measurement metadata
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_test_data_execution', 'test_execution_id'),
-        Index('idx_test_data_type', 'measurement_type'),
+        Index('idx_test_data_type', 'measurement_type')
     )
 
     def __repr__(self):
@@ -524,10 +524,10 @@ class AuditLog(Base):
     # Timestamp
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_audit_log_user', 'user_id'),
         Index('idx_audit_log_table', 'table_name', 'record_id'),
-        Index('idx_audit_log_created', 'created_at'),
+        Index('idx_audit_log_created', 'created_at')
     )
 
     def __repr__(self):
@@ -559,7 +559,7 @@ class QRCode(Base):
     last_scanned_at = Column(DateTime)
     scan_count = Column(Integer, default=0)
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_qr_entity', 'entity_type', 'entity_id'),
     )
 
@@ -688,10 +688,10 @@ class SampleReceipt(Base):
     supervisor_user = relationship("User", foreign_keys=[supervisor_id])
     samples = relationship("Sample", back_populates="receipt")
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_sample_receipts_service_request', 'service_request_id'),
         Index('idx_sample_receipts_received_date', 'received_date'),
-        Index('idx_sample_receipts_status', 'status'),
+        Index('idx_sample_receipts_status', 'status')
     )
 
     def __repr__(self):
@@ -770,12 +770,12 @@ class Sample(Base):
     test_assignments = relationship("SampleTestAssignment", back_populates="sample")
     inventory_records = relationship("SampleInventory", back_populates="sample")
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_samples_sample_id', 'sample_id'),
         Index('idx_samples_project_id', 'project_id'),
         Index('idx_samples_service_request', 'service_request_id'),
         Index('idx_samples_status', 'status'),
-        Index('idx_samples_qr_code', 'qr_code'),
+        Index('idx_samples_qr_code', 'qr_code')
     )
 
     def __repr__(self):
@@ -810,7 +810,7 @@ class SampleStatusHistory(Base):
     # Additional info
     reason = Column(Text)
     notes = Column(Text)
-    metadata = Column(JSON)
+    extra_data = Column(JSON)  # Renamed from metadata (reserved name)
 
     # Timestamp
     changed_at = Column(DateTime, default=datetime.utcnow)
@@ -819,10 +819,10 @@ class SampleStatusHistory(Base):
     sample = relationship("Sample", back_populates="status_history")
     changed_by_user = relationship("User", foreign_keys=[changed_by_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_sample_status_history_sample', 'sample_id'),
         Index('idx_sample_status_history_changed_at', 'changed_at'),
-        Index('idx_sample_status_history_status', 'new_status'),
+        Index('idx_sample_status_history_status', 'new_status')
     )
 
     def __repr__(self):
@@ -881,10 +881,10 @@ class RouteCard(Base):
     created_by_user = relationship("User", foreign_keys=[created_by_id])
     assigned_to_user = relationship("User", foreign_keys=[assigned_to_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_route_cards_sample', 'sample_id'),
         Index('idx_route_cards_service_request', 'service_request_id'),
-        Index('idx_route_cards_status', 'status'),
+        Index('idx_route_cards_status', 'status')
     )
 
     def __repr__(self):
@@ -943,10 +943,10 @@ class SampleTestAssignment(Base):
     assigned_by_user = relationship("User", foreign_keys=[assigned_by_id])
     assigned_to_user = relationship("User", foreign_keys=[assigned_to_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_sample_test_assignments_sample', 'sample_id'),
         Index('idx_sample_test_assignments_protocol', 'protocol_id'),
-        Index('idx_sample_test_assignments_status', 'status'),
+        Index('idx_sample_test_assignments_status', 'status')
     )
 
     def __repr__(self):
@@ -1011,10 +1011,10 @@ class SampleInventory(Base):
     checked_in_by_user = relationship("User", foreign_keys=[checked_in_by_id])
     inventoried_by_user = relationship("User", foreign_keys=[inventoried_by_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_sample_inventory_sample', 'sample_id'),
         Index('idx_sample_inventory_location', 'storage_area', 'storage_zone', 'storage_rack'),
-        Index('idx_sample_inventory_status', 'inventory_status'),
+        Index('idx_sample_inventory_status', 'inventory_status')
     )
 
     def __repr__(self):
@@ -1064,9 +1064,9 @@ class StaffTraining(Base):
     created_by_user = relationship("User", foreign_keys=[created_by_id])
     training_records = relationship("StaffTrainingRecord", back_populates="training")
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_staff_training_category', 'category'),
-        Index('idx_staff_training_active', 'is_active'),
+        Index('idx_staff_training_active', 'is_active')
     )
 
     def __repr__(self):
@@ -1119,11 +1119,11 @@ class StaffTrainingRecord(Base):
     user = relationship("User", foreign_keys=[user_id])
     trainer = relationship("User", foreign_keys=[trainer_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_staff_training_records_training', 'training_id'),
         Index('idx_staff_training_records_user', 'user_id'),
         Index('idx_staff_training_records_status', 'status'),
-        Index('idx_staff_training_records_expiry', 'expiry_date'),
+        Index('idx_staff_training_records_expiry', 'expiry_date')
     )
 
     def __repr__(self):
@@ -1199,11 +1199,11 @@ class Document(Base):
     previous_version = relationship("Document", remote_side=[id])
     access_logs = relationship("DocumentAccessLog", back_populates="document")
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_documents_number', 'document_number'),
         Index('idx_documents_category', 'category'),
         Index('idx_documents_status', 'status'),
-        Index('idx_documents_current', 'is_current_version'),
+        Index('idx_documents_current', 'is_current_version')
     )
 
     def __repr__(self):
@@ -1238,10 +1238,10 @@ class DocumentAccessLog(Base):
     document = relationship("Document", back_populates="access_logs")
     user = relationship("User", foreign_keys=[user_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_document_access_log_document', 'document_id'),
         Index('idx_document_access_log_user', 'user_id'),
-        Index('idx_document_access_log_timestamp', 'access_timestamp'),
+        Index('idx_document_access_log_timestamp', 'access_timestamp')
     )
 
     def __repr__(self):
@@ -1301,10 +1301,10 @@ class BOMItem(Base):
     protocol_requirements = relationship("BOMProtocolRequirement", back_populates="bom_item")
     usage_logs = relationship("BOMUsageLog", back_populates="bom_item")
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_bom_items_code', 'item_code'),
         Index('idx_bom_items_type', 'item_type'),
-        Index('idx_bom_items_category', 'category'),
+        Index('idx_bom_items_category', 'category')
     )
 
     def __repr__(self):
@@ -1333,7 +1333,7 @@ class BOMProtocolRequirement(Base):
     protocol = relationship("TestProtocol")
     bom_item = relationship("BOMItem", back_populates="protocol_requirements")
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         UniqueConstraint('protocol_id', 'bom_item_id', name='uq_protocol_bom_item'),
         Index('idx_bom_protocol_req_protocol', 'protocol_id'),
         Index('idx_bom_protocol_req_item', 'bom_item_id'),
@@ -1378,10 +1378,10 @@ class BOMUsageLog(Base):
     bom_item = relationship("BOMItem", back_populates="usage_logs")
     used_by_user = relationship("User", foreign_keys=[used_by_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_bom_usage_log_item', 'bom_item_id'),
         Index('idx_bom_usage_log_test', 'test_execution_id'),
-        Index('idx_bom_usage_log_date', 'used_at'),
+        Index('idx_bom_usage_log_date', 'used_at')
     )
 
     def __repr__(self):
@@ -1435,10 +1435,10 @@ class QRScanLog(Base):
     # Relationships
     scanned_by_user = relationship("User", foreign_keys=[scanned_by_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_qr_scan_log_qr_code', 'qr_code'),
         Index('idx_qr_scan_log_entity', 'entity_type', 'entity_id'),
-        Index('idx_qr_scan_log_timestamp', 'scan_timestamp'),
+        Index('idx_qr_scan_log_timestamp', 'scan_timestamp')
     )
 
     def __repr__(self):
@@ -1495,11 +1495,82 @@ class CalibrationRecord(Base):
     equipment = relationship("Equipment")
     created_by_user = relationship("User", foreign_keys=[created_by_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_calibration_records_equipment', 'equipment_id'),
         Index('idx_calibration_records_date', 'calibration_date'),
-        Index('idx_calibration_records_next', 'next_calibration_date'),
+        Index('idx_calibration_records_next', 'next_calibration_date')
     )
 
     def __repr__(self):
         return f"<CalibrationRecord(number='{self.calibration_number}', equipment={self.equipment_id})>"
+
+
+class AnalysisResult(Base):
+    """Analysis results model - stores data analysis results and statistics"""
+    __tablename__ = "analysis_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    analysis_id = Column(String(50), unique=True, nullable=False, index=True)
+    
+    # Analysis metadata
+    analysis_type = Column(String(100))  # Trend, Comparison, Statistical
+    date_range_start = Column(DateTime)
+    date_range_end = Column(DateTime)
+    filters_applied = Column(JSON)  # Store filter parameters
+    
+    # Metrics
+    total_tests = Column(Integer)
+    pass_count = Column(Integer)
+    fail_count = Column(Integer)
+    pass_rate = Column(Float)
+    
+    # Statistical measures
+    mean_value = Column(Float)
+    median_value = Column(Float)
+    std_deviation = Column(Float)
+    
+    # Chart data
+    chart_type = Column(String(50))
+    chart_data = Column(JSON)  # Store Plotly chart JSON
+    
+    # Audit fields
+    created_by = Column(String(100))
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    __table_args__ = (
+        Index('idx_analysis_type', 'analysis_type'),
+        Index('idx_analysis_created', 'created_at'),
+    )
+
+    def __repr__(self):
+        return f"<AnalysisResult(id='{self.analysis_id}', type='{self.analysis_type}')>"
+
+
+class DataExport(Base):
+    """Data export model - tracks data exports"""
+    __tablename__ = "data_exports"
+
+    id = Column(Integer, primary_key=True, index=True)
+    export_id = Column(String(50), unique=True, nullable=False, index=True)
+    
+    # Export metadata
+    export_type = Column(String(50))  # Excel, CSV, PDF
+    export_name = Column(String(200))
+    file_path = Column(String(255))
+    
+    # Export parameters
+    date_range = Column(String(100))
+    filters = Column(JSON)
+    records_count = Column(Integer)
+    
+    # Audit fields
+    exported_by = Column(String(100))
+    exported_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    __table_args__ = (
+        Index('idx_export_type', 'export_type'),
+        Index('idx_export_date', 'exported_at'),
+    )
+
+    def __repr__(self):
+        return f"<DataExport(id='{self.export_id}', type='{self.export_type}')>"

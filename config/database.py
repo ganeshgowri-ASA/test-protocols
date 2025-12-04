@@ -126,7 +126,7 @@ def init_database():
         User, ServiceRequest, IncomingInspection,
         Equipment, EquipmentBooking, TestProtocol,
         TestExecution, TestData, AuditLog, QRCode,
-        CompanyProfile
+        CompanyProfile, AnalysisResult, DataExport
     )
 
     engine = get_engine()

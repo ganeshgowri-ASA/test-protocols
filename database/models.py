@@ -218,7 +218,7 @@ class ServiceRequest(Base):
     notes = Column(Text)
     attachments = Column(JSON)  # List of file paths
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_service_request_status', 'status'),
         Index('idx_service_request_created', 'created_at'),
     )
@@ -347,7 +347,7 @@ class EquipmentBooking(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_booking_period', 'start_time', 'end_time'),
         Index('idx_booking_equipment', 'equipment_id'),
     )
@@ -450,7 +450,7 @@ class TestExecution(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_test_execution_status', 'status'),
         Index('idx_test_execution_protocol', 'protocol_id'),
     )
@@ -487,7 +487,7 @@ class TestData(Base):
 
     # Metadata
     extra_metadata = Column(JSON)  # Additional measurement metadata
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_test_data_execution', 'test_execution_id'),
         Index('idx_test_data_type', 'measurement_type'),
     )
@@ -524,7 +524,7 @@ class AuditLog(Base):
     # Timestamp
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_audit_log_user', 'user_id'),
         Index('idx_audit_log_table', 'table_name', 'record_id'),
         Index('idx_audit_log_created', 'created_at'),
@@ -559,7 +559,7 @@ class QRCode(Base):
     last_scanned_at = Column(DateTime)
     scan_count = Column(Integer, default=0)
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_qr_entity', 'entity_type', 'entity_id'),
     )
 
@@ -688,7 +688,7 @@ class SampleReceipt(Base):
     supervisor_user = relationship("User", foreign_keys=[supervisor_id])
     samples = relationship("Sample", back_populates="receipt")
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_sample_receipts_service_request', 'service_request_id'),
         Index('idx_sample_receipts_received_date', 'received_date'),
         Index('idx_sample_receipts_status', 'status'),
@@ -770,7 +770,7 @@ class Sample(Base):
     test_assignments = relationship("SampleTestAssignment", back_populates="sample")
     inventory_records = relationship("SampleInventory", back_populates="sample")
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_samples_sample_id', 'sample_id'),
         Index('idx_samples_project_id', 'project_id'),
         Index('idx_samples_service_request', 'service_request_id'),
@@ -810,7 +810,7 @@ class SampleStatusHistory(Base):
     # Additional info
     reason = Column(Text)
     notes = Column(Text)
-    metadata = Column(JSON)
+    status_metadata = Column(JSON)
 
     # Timestamp
     changed_at = Column(DateTime, default=datetime.utcnow)
@@ -819,7 +819,7 @@ class SampleStatusHistory(Base):
     sample = relationship("Sample", back_populates="status_history")
     changed_by_user = relationship("User", foreign_keys=[changed_by_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_sample_status_history_sample', 'sample_id'),
         Index('idx_sample_status_history_changed_at', 'changed_at'),
         Index('idx_sample_status_history_status', 'new_status'),
@@ -881,7 +881,7 @@ class RouteCard(Base):
     created_by_user = relationship("User", foreign_keys=[created_by_id])
     assigned_to_user = relationship("User", foreign_keys=[assigned_to_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_route_cards_sample', 'sample_id'),
         Index('idx_route_cards_service_request', 'service_request_id'),
         Index('idx_route_cards_status', 'status'),
@@ -943,7 +943,7 @@ class SampleTestAssignment(Base):
     assigned_by_user = relationship("User", foreign_keys=[assigned_by_id])
     assigned_to_user = relationship("User", foreign_keys=[assigned_to_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_sample_test_assignments_sample', 'sample_id'),
         Index('idx_sample_test_assignments_protocol', 'protocol_id'),
         Index('idx_sample_test_assignments_status', 'status'),
@@ -1011,7 +1011,7 @@ class SampleInventory(Base):
     checked_in_by_user = relationship("User", foreign_keys=[checked_in_by_id])
     inventoried_by_user = relationship("User", foreign_keys=[inventoried_by_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_sample_inventory_sample', 'sample_id'),
         Index('idx_sample_inventory_location', 'storage_area', 'storage_zone', 'storage_rack'),
         Index('idx_sample_inventory_status', 'inventory_status'),
@@ -1064,7 +1064,7 @@ class StaffTraining(Base):
     created_by_user = relationship("User", foreign_keys=[created_by_id])
     training_records = relationship("StaffTrainingRecord", back_populates="training")
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_staff_training_category', 'category'),
         Index('idx_staff_training_active', 'is_active'),
     )
@@ -1119,7 +1119,7 @@ class StaffTrainingRecord(Base):
     user = relationship("User", foreign_keys=[user_id])
     trainer = relationship("User", foreign_keys=[trainer_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_staff_training_records_training', 'training_id'),
         Index('idx_staff_training_records_user', 'user_id'),
         Index('idx_staff_training_records_status', 'status'),
@@ -1199,7 +1199,7 @@ class Document(Base):
     previous_version = relationship("Document", remote_side=[id])
     access_logs = relationship("DocumentAccessLog", back_populates="document")
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_documents_number', 'document_number'),
         Index('idx_documents_category', 'category'),
         Index('idx_documents_status', 'status'),
@@ -1238,7 +1238,7 @@ class DocumentAccessLog(Base):
     document = relationship("Document", back_populates="access_logs")
     user = relationship("User", foreign_keys=[user_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_document_access_log_document', 'document_id'),
         Index('idx_document_access_log_user', 'user_id'),
         Index('idx_document_access_log_timestamp', 'access_timestamp'),
@@ -1301,7 +1301,7 @@ class BOMItem(Base):
     protocol_requirements = relationship("BOMProtocolRequirement", back_populates="bom_item")
     usage_logs = relationship("BOMUsageLog", back_populates="bom_item")
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_bom_items_code', 'item_code'),
         Index('idx_bom_items_type', 'item_type'),
         Index('idx_bom_items_category', 'category'),
@@ -1333,7 +1333,7 @@ class BOMProtocolRequirement(Base):
     protocol = relationship("TestProtocol")
     bom_item = relationship("BOMItem", back_populates="protocol_requirements")
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         UniqueConstraint('protocol_id', 'bom_item_id', name='uq_protocol_bom_item'),
         Index('idx_bom_protocol_req_protocol', 'protocol_id'),
         Index('idx_bom_protocol_req_item', 'bom_item_id'),
@@ -1378,7 +1378,7 @@ class BOMUsageLog(Base):
     bom_item = relationship("BOMItem", back_populates="usage_logs")
     used_by_user = relationship("User", foreign_keys=[used_by_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_bom_usage_log_item', 'bom_item_id'),
         Index('idx_bom_usage_log_test', 'test_execution_id'),
         Index('idx_bom_usage_log_date', 'used_at'),
@@ -1435,7 +1435,7 @@ class QRScanLog(Base):
     # Relationships
     scanned_by_user = relationship("User", foreign_keys=[scanned_by_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_qr_scan_log_qr_code', 'qr_code'),
         Index('idx_qr_scan_log_entity', 'entity_type', 'entity_id'),
         Index('idx_qr_scan_log_timestamp', 'scan_timestamp'),
@@ -1495,7 +1495,7 @@ class CalibrationRecord(Base):
     equipment = relationship("Equipment")
     created_by_user = relationship("User", foreign_keys=[created_by_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_calibration_records_equipment', 'equipment_id'),
         Index('idx_calibration_records_date', 'calibration_date'),
         Index('idx_calibration_records_next', 'next_calibration_date'),

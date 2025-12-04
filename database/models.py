@@ -149,6 +149,15 @@ class DocumentStatus(str, enum.Enum):
     OBSOLETE = "obsolete"
 
 
+class AllocationStatus(str, enum.Enum):
+    """Sample allocation status"""
+    SCHEDULED = "scheduled"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+    ON_HOLD = "on_hold"
+
+
 # Models
 class User(Base):
     """User model for authentication and authorization"""
@@ -1503,3 +1512,56 @@ class CalibrationRecord(Base):
 
     def __repr__(self):
         return f"<CalibrationRecord(number='{self.calibration_number}', equipment={self.equipment_id})>"
+
+
+class SampleAllocation(Base):
+    """Sample allocation to test protocols with resource scheduling"""
+    __tablename__ = 'sample_allocations'
+    __table_args__ = {'extend_existing': True}
+    
+    id = Column(Integer, primary_key=True, index=True)
+    allocation_number = Column(String(50), unique=True, nullable=False, index=True)
+    
+    # Sample and Protocol links
+    sample_id = Column(Integer, ForeignKey('samples.id'), nullable=False)
+    protocol_id = Column(Integer, ForeignKey('test_protocols.id'), nullable=False)
+    
+    # Resource allocation
+    equipment_id = Column(Integer, ForeignKey('equipment.id'))
+    technician_id = Column(Integer, ForeignKey('users.id'))
+    
+    # Scheduling
+    scheduled_start = Column(DateTime, nullable=False)
+    scheduled_end = Column(DateTime, nullable=False)
+    actual_start = Column(DateTime, nullable=True)
+    actual_end = Column(DateTime, nullable=True)
+    
+    # Status and priority
+    status = Column(Enum(AllocationStatus), default=AllocationStatus.SCHEDULED)
+    priority = Column(Integer, default=2)  # 1=High, 2=Medium, 3=Low
+    
+    # Additional info
+    notes = Column(Text)
+    
+    # Audit fields
+    created_at = Column(DateTime, default=datetime.utcnow)
+    created_by_id = Column(Integer, ForeignKey('users.id'))
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    sample = relationship('Sample', foreign_keys=[sample_id])
+    protocol = relationship('TestProtocol', foreign_keys=[protocol_id])
+    equipment = relationship('Equipment', foreign_keys=[equipment_id])
+    technician = relationship('User', foreign_keys=[technician_id])
+    created_by = relationship('User', foreign_keys=[created_by_id])
+    
+    __table_args__ = ({'extend_existing': True},
+        Index('idx_allocations_sample', 'sample_id'),
+        Index('idx_allocations_protocol', 'protocol_id'),
+        Index('idx_allocations_equipment', 'equipment_id'),
+        Index('idx_allocations_status', 'status'),
+        Index('idx_allocations_schedule', 'scheduled_start', 'scheduled_end'),
+    )
+    
+    def __repr__(self):
+        return f"<SampleAllocation(number='{self.allocation_number}', status='{self.status}')>"

@@ -25,7 +25,7 @@ from config.settings import config
 class ExtendExistingMixin:
     """Mixin to add extend_existing=True to all model tables"""
     @declared_attr
-        def __table_args__(cls):
+    def __table_args__(cls):
         # CRITICAL FIX: Merge extend_existing with any model-specific __table_args__
         # Models may define __table_args__ as tuple (for indexes) - we must preserve them
         args = cls.__dict__.get('__table_args__', ())

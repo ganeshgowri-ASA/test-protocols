@@ -213,3 +213,5 @@ data/
 logs/
 static/qrcodes/
 uploads/
+reports/*.pdf
+reports/*.xlsx

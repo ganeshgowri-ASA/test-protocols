@@ -1,3 +1,4 @@
+"""
 Sample Receipt Module
 =====================
 Record and manage sample receipts from clients/couriers.

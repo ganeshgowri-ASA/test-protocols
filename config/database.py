@@ -153,10 +153,15 @@ def init_database():
         admin_exists = db.execute(select(User).where(User.username == "admin")).scalar_one_or_none()
 
         if not admin_exists:
+            # Hash the default password securely
+            from infrastructure.security import PasswordManager
+            password_manager = PasswordManager()
+            hashed_password = password_manager.hash_password("admin123")
+            
             admin_user = User(
                 username="admin",
                 email="admin@solarpv.com",
-                password_hash="admin123",  # Default password (should be changed)
+                password_hash=hashed_password,
                 full_name="System Administrator",
                 role="admin",
                 is_active=True,

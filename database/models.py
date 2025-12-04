@@ -1074,14 +1074,14 @@ class StorageLocation(Base):
     def is_full(self):
         """Check if location is at capacity"""
         if self.capacity and self.capacity > 0:
-            return self.current_count >= self.capacity
+            return (self.current_count or 0) >= self.capacity
         return False
     
     @property
     def utilization_percentage(self):
         """Calculate storage utilization percentage"""
         if self.capacity and self.capacity > 0:
-            return (self.current_count / self.capacity) * 100
+            return ((self.current_count or 0) / self.capacity) * 100
         return 0.0
 
 

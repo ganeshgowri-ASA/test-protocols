@@ -1610,43 +1610,43 @@ class CalibrationRecord(Base):
 class SampleAllocation(Base):
     """Sample allocation to test protocols with resource scheduling"""
     __tablename__ = 'sample_allocations'
-    
+
     id = Column(Integer, primary_key=True, index=True)
     allocation_number = Column(String(50), unique=True, nullable=False, index=True)
-    
+
     # Sample and Protocol links
     sample_id = Column(Integer, ForeignKey('samples.id'), nullable=False)
     protocol_id = Column(Integer, ForeignKey('test_protocols.id'), nullable=False)
-    
+
     # Resource allocation
     equipment_id = Column(Integer, ForeignKey('equipment.id'))
     technician_id = Column(Integer, ForeignKey('users.id'))
-    
+
     # Scheduling
     scheduled_start = Column(DateTime, nullable=False)
     scheduled_end = Column(DateTime, nullable=False)
     actual_start = Column(DateTime, nullable=True)
     actual_end = Column(DateTime, nullable=True)
-    
+
     # Status and priority
     status = Column(Enum(AllocationStatus), default=AllocationStatus.SCHEDULED)
     priority = Column(Integer, default=2)  # 1=High, 2=Medium, 3=Low
-    
+
     # Additional info
     notes = Column(Text)
-    
+
     # Audit fields
     created_at = Column(DateTime, default=datetime.utcnow)
     created_by_id = Column(Integer, ForeignKey('users.id'))
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+
     # Relationships
     sample = relationship('Sample', foreign_keys=[sample_id])
     protocol = relationship('TestProtocol', foreign_keys=[protocol_id])
     equipment = relationship('Equipment', foreign_keys=[equipment_id])
     technician = relationship('User', foreign_keys=[technician_id])
     created_by = relationship('User', foreign_keys=[created_by_id])
-    
+
     __table_args__ = ({'extend_existing': True},
         Index('idx_allocations_sample', 'sample_id'),
         Index('idx_allocations_protocol', 'protocol_id'),
@@ -1734,3 +1734,114 @@ class DataExport(Base):
 
     def __repr__(self):
         return f"<DataExport(id='{self.export_id}', type='{self.export_type}')>"
+
+
+# ============================================================================
+# Report Generation Models
+# ============================================================================
+
+class ReportTemplate(Base):
+    """Report template model for custom report generation"""
+    __tablename__ = 'report_templates'
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True, index=True)
+    template_id = Column(String(50), unique=True, nullable=False, index=True)
+    template_name = Column(String(200), nullable=False)
+    template_type = Column(String(100))  # IEC 61215, IEC 61730, NABL, Custom
+    version = Column(String(20))
+
+    # Template structure
+    header_content = Column(JSON)  # Header configuration
+    body_sections = Column(JSON)  # Array of section definitions
+    footer_content = Column(JSON)  # Footer configuration
+
+    # Branding
+    logo_path = Column(String(255))
+    color_scheme = Column(JSON)  # Color configuration for template
+
+    # Status and metadata
+    is_active = Column(Boolean, default=True)
+    description = Column(Text)
+
+    # Audit fields
+    created_by = Column(String(100))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, onupdate=datetime.utcnow)
+    updated_by = Column(String(100))
+
+    def __repr__(self):
+        return f"<ReportTemplate(id='{self.template_id}', name='{self.template_name}')>"
+
+
+class GeneratedReport(Base):
+    """Generated report model for tracking created reports"""
+    __tablename__ = 'generated_reports'
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True, index=True)
+    report_id = Column(String(50), unique=True, nullable=False, index=True)
+    report_number = Column(String(100), unique=True, nullable=False, index=True)
+    report_title = Column(String(255), nullable=False)
+    template_id = Column(String(50), index=True)
+
+    # Associated data
+    sample_ids = Column(JSON)  # Array of sample IDs
+    test_ids = Column(JSON)  # Array of test IDs
+
+    # File details
+    file_path = Column(String(255))
+    file_size = Column(Integer)  # in bytes
+    language = Column(String(50), default='English')
+
+    # Status tracking
+    status = Column(String(50), default='Draft', index=True)  # Draft, Pending Signature, Signed, Distributed
+
+    # Signatures (digital signature support)
+    signatures = Column(JSON)  # Array of signature records with role, timestamp, signature data
+
+    # Distribution tracking
+    distributed_to = Column(JSON)  # Email addresses list
+    distribution_date = Column(DateTime)
+
+    # Metadata
+    generated_by = Column(String(100))
+    generated_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    def __repr__(self):
+        return f"<GeneratedReport(number='{self.report_number}', status='{self.status}')>"
+
+
+class ScheduledReport(Base):
+    """Scheduled report model for automated report generation"""
+    __tablename__ = 'scheduled_reports'
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True, index=True)
+    schedule_id = Column(String(50), unique=True, nullable=False, index=True)
+    schedule_name = Column(String(200), nullable=False)
+    template_id = Column(String(50), index=True)
+
+    # Schedule parameters
+    frequency = Column(String(50))  # Daily, Weekly, Monthly, On Test Completion
+    trigger_time = Column(String(10))  # HH:MM format for scheduled reports
+
+    # Filters for report data
+    filters = Column(JSON)  # Protocol, date range, sample type filters
+
+    # Distribution configuration
+    recipients = Column(JSON)  # Email list for distribution
+
+    # Status and execution tracking
+    is_active = Column(Boolean, default=True, index=True)
+    last_run = Column(DateTime)
+    next_run = Column(DateTime, index=True)
+    last_status = Column(String(50))  # Success, Failed, etc.
+
+    # Audit fields
+    created_by = Column(String(100))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, onupdate=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<ScheduledReport(name='{self.schedule_name}', frequency='{self.frequency}')>"

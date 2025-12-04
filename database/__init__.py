@@ -54,6 +54,15 @@ CalibrationRecord = _cached_models.CalibrationRecord
 # Sample Allocation Model
 SampleAllocation = _cached_models.SampleAllocation
 
+# Data Analysis Models
+AnalysisResult = _cached_models.AnalysisResult
+DataExport = _cached_models.DataExport
+
+# Report Generation Models
+ReportTemplate = _cached_models.ReportTemplate
+GeneratedReport = _cached_models.GeneratedReport
+ScheduledReport = _cached_models.ScheduledReport
+
 # Export enums
 UserRole = _cached_models.UserRole
 RequestStatus = _cached_models.RequestStatus

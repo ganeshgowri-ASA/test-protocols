@@ -49,6 +49,11 @@ BOMUsageLog = _cached_models.BOMUsageLog
 QRScanLog = _cached_models.QRScanLog
 CalibrationRecord = _cached_models.CalibrationRecord
 
+# Report Generation Models
+ReportTemplate = _cached_models.ReportTemplate
+GeneratedReport = _cached_models.GeneratedReport
+ScheduledReport = _cached_models.ScheduledReport
+
 # Export enums
 UserRole = _cached_models.UserRole
 RequestStatus = _cached_models.RequestStatus

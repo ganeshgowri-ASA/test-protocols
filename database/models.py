@@ -1512,7 +1512,7 @@ class CalibrationRecord(Base):
 class ReportTemplate(Base):
     """Report template model for custom report generation"""
     __tablename__ = 'report_templates'
-    __table_args__ = ({'extend_existing': True},)
+    __table_args__ = {'extend_existing': True}
     
     id = Column(Integer, primary_key=True, index=True)
     template_id = Column(String(50), unique=True, nullable=False, index=True)
@@ -1546,7 +1546,7 @@ class ReportTemplate(Base):
 class GeneratedReport(Base):
     """Generated report model for tracking created reports"""
     __tablename__ = 'generated_reports'
-    __table_args__ = ({'extend_existing': True},)
+    __table_args__ = {'extend_existing': True}
     
     id = Column(Integer, primary_key=True, index=True)
     report_id = Column(String(50), unique=True, nullable=False, index=True)
@@ -1584,7 +1584,7 @@ class GeneratedReport(Base):
 class ScheduledReport(Base):
     """Scheduled report model for automated report generation"""
     __tablename__ = 'scheduled_reports'
-    __table_args__ = ({'extend_existing': True},)
+    __table_args__ = {'extend_existing': True}
     
     id = Column(Integer, primary_key=True, index=True)
     schedule_id = Column(String(50), unique=True, nullable=False, index=True)

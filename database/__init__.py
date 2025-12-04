@@ -28,6 +28,7 @@ CompanyProfile = _cached_models.CompanyProfile
 Sample = _cached_models.Sample
 SampleReceipt = _cached_models.SampleReceipt
 SampleStatusHistory = _cached_models.SampleStatusHistory
+CustodyLog = _cached_models.SampleStatusHistory  # Alias for chain of custody tracking
 RouteCard = _cached_models.RouteCard
 SampleTestAssignment = _cached_models.SampleTestAssignment
 SampleInventory = _cached_models.SampleInventory

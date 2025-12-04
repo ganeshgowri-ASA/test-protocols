@@ -41,6 +41,7 @@ class ExtendExistingMixin:
 
 # Database engine
 _engine = None
+_SessionLocal = None
 
 Base = declarative_base(cls=ExtendExistingMixin)
 def get_engine():
@@ -143,7 +144,7 @@ def init_database():
         configure_mappers()
 
     # Create all tables
-        Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
 
     # Initialize session factory
     SessionLocal = get_session_local()
@@ -155,6 +156,7 @@ def init_database():
             admin_user = User(
                 username="admin",
                 email="admin@solarpv.com",
+                password_hash="admin123",  # Default password (should be changed)
                 full_name="System Administrator",
                 role="admin",
                 is_active=True,

@@ -4,6 +4,10 @@ Tests for Document Management Module
 Tests for document version control, digital signatures, and approval workflow.
 """
 
+# Set environment variable before any imports
+import os
+os.environ['STREAMLIT_SERVER_HEADLESS'] = 'true'
+
 import sys
 from pathlib import Path
 from datetime import datetime, timedelta
@@ -11,10 +15,6 @@ from datetime import datetime, timedelta
 # Add project root to path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
-
-# Skip streamlit import for testing
-import os
-os.environ['STREAMLIT_SERVER_HEADLESS'] = 'true'
 
 
 def test_document_model_has_signature_fields():

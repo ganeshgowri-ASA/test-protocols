@@ -9,7 +9,7 @@ from contextlib import contextmanager
 from typing import Generator
 
 from sqlalchemy import create_engine, event, select, func
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
 import streamlit as st
@@ -17,13 +17,32 @@ import streamlit as st
 from config.settings import config
 
 # Create declarative base for models
-Base = declarative_base()
+# CRITICAL FIX: Create custom declarative base with extend_existing=True
+# SYSTEMATIC FIX: Use standard declarative_base() pattern
+# The @st.cache_resource in database/__init__.py already prevents model reimports correctly
+
+# Mixin class for extend_existing support
+class ExtendExistingMixin:
+    """Mixin to add extend_existing=True to all model tables"""
+    @declared_attr
+    def __table_args__(cls):
+        # CRITICAL FIX: Merge extend_existing with any model-specific __table_args__
+        # Models may define __table_args__ as tuple (for indexes) - we must preserve them
+        args = cls.__dict__.get('__table_args__', ())
+        if isinstance(args, tuple):
+            # If tuple, append extend_existing dict to the tuple
+            return args + ({'extend_existing': True},)
+        elif isinstance(args, dict):
+            # If dict, merge extend_existing into it
+            return {**args, 'extend_existing': True}
+        else:
+            # Default: return dict with extend_existing
+            return {'extend_existing': True}
 
 # Database engine
 _engine = None
-_SessionLocal = None
 
-
+Base = declarative_base(cls=ExtendExistingMixin)
 def get_engine():
     """Get or create database engine (singleton pattern)"""
     global _engine
@@ -124,11 +143,10 @@ def init_database():
         configure_mappers()
 
     # Create all tables
-    Base.metadata.create_all(bind=engine)
+        Base.metadata.create_all(bind=engine)
 
     # Initialize session factory
     SessionLocal = get_session_local()
-
     # Create default admin user if not exists
     with get_db() as db:
         admin_exists = db.execute(select(User).where(User.username == "admin")).scalar_one_or_none()

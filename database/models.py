@@ -1517,7 +1517,6 @@ class CalibrationRecord(Base):
 class SampleAllocation(Base):
     """Sample allocation to test protocols with resource scheduling"""
     __tablename__ = 'sample_allocations'
-    __table_args__ = {'extend_existing': True}
     
     id = Column(Integer, primary_key=True, index=True)
     allocation_number = Column(String(50), unique=True, nullable=False, index=True)

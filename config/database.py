@@ -20,11 +20,16 @@ from config.settings import config
 # CRITICAL FIX: Create custom declarative base with extend_existing=True
 # SYSTEMATIC FIX: Use standard declarative_base() pattern
 # The @st.cache_resource in database/__init__.py already prevents model reimports correctly
-Base = declarative_base()
+
+# Mixin class for extend_existing support
+class ExtendExistingMixin:
+    """Mixin to add extend_existing=True to all model tables"""
+    __table_args__ = {'extend_existing': True}
+
 # Database engine
 _engine = None
 
-
+Base = declarative_base(cls=ExtendExistingMixin)
 def get_engine():
     """Get or create database engine (singleton pattern)"""
     global _engine

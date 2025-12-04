@@ -1351,6 +1351,7 @@ class BOMProtocolRequirement(Base):
     bom_item = relationship("BOMItem", back_populates="protocol_requirements")
 
     __table_args__ = (
+        UniqueConstraint('protocol_id', 'bom_item_id', name='uq_protocol_bom_item'),
         Index('idx_bom_protocol_req_protocol', 'protocol_id'),
         Index('idx_bom_protocol_req_item', 'bom_item_id'),
         {'extend_existing': True}

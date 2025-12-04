@@ -31,6 +31,7 @@ SampleStatusHistory = _cached_models.SampleStatusHistory
 RouteCard = _cached_models.RouteCard
 SampleTestAssignment = _cached_models.SampleTestAssignment
 SampleInventory = _cached_models.SampleInventory
+StorageLocation = _cached_models.StorageLocation
 
 # Training Models
 StaffTraining = _cached_models.StaffTraining

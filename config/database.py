@@ -9,7 +9,7 @@ from contextlib import contextmanager
 from typing import Generator
 
 from sqlalchemy import create_engine, event, select, func
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import, declared_attr declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
 import streamlit as st
@@ -24,7 +24,9 @@ from config.settings import config
 # Mixin class for extend_existing support
 class ExtendExistingMixin:
     """Mixin to add extend_existing=True to all model tables"""
-    __table_args__ = {'extend_existing': True}
+    @declared_attr
+    def __table_args__(cls):
+        return {'extend_existing': True}
 
 # Database engine
 _engine = None

@@ -1647,12 +1647,13 @@ class SampleAllocation(Base):
     technician = relationship('User', foreign_keys=[technician_id])
     created_by = relationship('User', foreign_keys=[created_by_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_allocations_sample', 'sample_id'),
         Index('idx_allocations_protocol', 'protocol_id'),
         Index('idx_allocations_equipment', 'equipment_id'),
         Index('idx_allocations_status', 'status'),
         Index('idx_allocations_schedule', 'scheduled_start', 'scheduled_end'),
+        {'extend_existing': True}
     )
 
     def __repr__(self):

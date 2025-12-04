@@ -1194,6 +1194,14 @@ class Document(Base):
     review_date = Column(DateTime)
     approval_date = Column(DateTime)
 
+    # Digital signatures
+    author_signature = Column(Text)  # Base64 encoded signature or signature data
+    author_signature_date = Column(DateTime)
+    reviewer_signature = Column(Text)
+    reviewer_signature_date = Column(DateTime)
+    approver_signature = Column(Text)
+    approver_signature_date = Column(DateTime)
+
     # Status
     status = Column(Enum(DocumentStatus), default=DocumentStatus.DRAFT)
 

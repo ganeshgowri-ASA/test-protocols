@@ -1042,6 +1042,70 @@ class SampleInventory(Base):
         return f"<SampleInventory(sample='{self.sample_id_code}', location='{self.full_location_path}')>"
 
 
+class StorageLocation(Base):
+    """Storage location hierarchy and capacity management"""
+    __tablename__ = "storage_locations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    
+    # Location identifier
+    location_code = Column(String(50), unique=True, nullable=False, index=True)
+    
+    # Hierarchical structure
+    building = Column(String(50))
+    room = Column(String(50))
+    rack = Column(String(50))
+    shelf = Column(String(50))
+    
+    # Full path for easy reference
+    full_path = Column(String(200))
+    
+    # Capacity management
+    capacity = Column(Integer, default=0)
+    current_count = Column(Integer, default=0)
+    
+    # Environmental controls
+    temperature_controlled = Column(Boolean, default=False)
+    min_temperature = Column(Float)
+    max_temperature = Column(Float)
+    humidity_controlled = Column(Boolean, default=False)
+    
+    # Location details
+    description = Column(Text)
+    notes = Column(Text)
+    
+    # Status
+    is_active = Column(Boolean, default=True)
+    
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    __table_args__ = (
+        Index('idx_storage_location_code', 'location_code'),
+        Index('idx_storage_location_building', 'building', 'room'),
+        Index('idx_storage_location_active', 'is_active'),
+        {'extend_existing': True}
+    )
+    
+    def __repr__(self):
+        return f"<StorageLocation(code='{self.location_code}', capacity={self.current_count}/{self.capacity})>"
+    
+    @property
+    def is_full(self):
+        """Check if location is at capacity"""
+        if self.capacity and self.capacity > 0:
+            return (self.current_count or 0) >= self.capacity
+        return False
+    
+    @property
+    def utilization_percentage(self):
+        """Calculate storage utilization percentage"""
+        if self.capacity and self.capacity > 0:
+            return ((self.current_count or 0) / self.capacity) * 100
+        return 0.0
+
+
 # ============================================================================
 # STAFF TRAINING MODELS
 # ============================================================================

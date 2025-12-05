@@ -1,0 +1,158 @@
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                   Sample Inventory - Warehouse Management                    │
+│                         Architecture Overview                                │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              USER INTERFACE                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────┬─────────────────┬─────────────────┬─────────────────┐
+│ 📊 Inventory    │ 🔍 Search &     │ 📦 Transfer     │ 📈 Reports      │
+│    Overview     │    Locate       │    Samples      │                 │
+└─────────────────┴─────────────────┴─────────────────┴─────────────────┘
+│                 │                 │                 │                 │
+│ • Metrics       │ • Sample ID     │ • Single        │ • Summary       │
+│ • Capacity      │ • QR/Barcode    │ • Batch         │ • Utilization   │
+│ • Status        │ • Client        │ • Manage Locs   │ • Overdue       │
+│ • Activity      │ • Location      │                 │ • Capacity      │
+│                 │ • Status        │                 │                 │
+└─────────────────┴─────────────────┴─────────────────┴─────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            BUSINESS LOGIC                                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│  Capacity Management         Transfer Operations        Report Generation │
+│  • Utilization calc          • Validation              • Excel export     │
+│  • Warning thresholds        • Audit trail             • CSV export       │
+│  • Color coding              • Batch processing        • Plotly charts    │
+└──────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            DATABASE LAYER                                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌───────────────────┐    ┌───────────────────┐    ┌───────────────────┐
+│  Sample           │    │ SampleInventory   │    │ StorageLocation   │
+├───────────────────┤    ├───────────────────┤    ├───────────────────┤
+│ • sample_id       │───▶│ • sample_id (FK)  │    │ • location_code   │
+│ • sample_type     │    │ • storage_area    │───▶│ • building        │
+│ • manufacturer    │    │ • storage_zone    │    │ • room            │
+│ • model_number    │    │ • storage_rack    │    │ • rack            │
+│ • serial_number   │    │ • storage_shelf   │    │ • shelf           │
+│ • qr_code         │    │ • full_location   │    │ • capacity        │
+│ • status          │    │ • inventory_status│    │ • current_count   │
+│ • current_location│    │ • condition       │    │ • temp_controlled │
+│                   │    │ • checked_out     │    │ • is_active       │
+└───────────────────┘    └───────────────────┘    └───────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         DATA FLOW EXAMPLES                                   │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+1. BARCODE SEARCH FLOW
+   ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
+   │ Scanner  │───▶│ Search   │───▶│ Database │───▶│ Display  │
+   │ Input    │    │ Function │    │ Query    │    │ Results  │
+   └──────────┘    └──────────┘    └──────────┘    └──────────┘
+        QR/Barcode   Match QR/ID    Sample +         Location
+                                    Inventory        + Status
+
+2. TRANSFER FLOW (with Capacity Check)
+   ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
+   │ Select   │───▶│ Validate │───▶│ Update   │───▶│ Update   │
+   │ Sample + │    │ Capacity │    │ Inventory│    │ Counts   │
+   │ Dest.    │    │          │    │          │    │          │
+   └──────────┘    └──────────┘    └──────────┘    └──────────┘
+        User          Check           Update          Increment
+        Input         is_full         location        dest count
+                                                      Decrement
+                                                      source count
+
+3. BATCH TRANSFER FLOW
+   ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
+   │ Select   │───▶│ Validate │───▶│ Loop     │───▶│ Commit   │
+   │ Multiple │    │ Total    │    │ Update   │    │ All      │
+   │ Samples  │    │ Capacity │    │ Each     │    │ Changes  │
+   └──────────┘    └──────────┘    └──────────┘    └──────────┘
+        DataFrame     Sum check      For each        Transaction
+                                     sample
+
+4. REPORT GENERATION FLOW
+   ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
+   │ Select   │───▶│ Query    │───▶│ Format   │───▶│ Export   │
+   │ Report   │    │ Data     │    │ to DF    │    │ File     │
+   │ Type     │    │          │    │          │    │          │
+   └──────────┘    └──────────┘    └──────────┘    └──────────┘
+        User          Database       Pandas          Excel/CSV
+        Choice        Select         DataFrame
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         STORAGE HIERARCHY                                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+Building A
+├── Room 101
+│   ├── Rack R1
+│   │   ├── Shelf S1  [Capacity: 50, Used: 25] 🟢 50%
+│   │   ├── Shelf S2  [Capacity: 50, Used: 42] 🟡 84%
+│   │   └── Shelf S3  [Capacity: 50, Used: 48] 🔴 96%
+│   └── Rack R2
+│       ├── Shelf S1  [Capacity: 30, Used: 10] 🟢 33%
+│       └── Shelf S2  [Capacity: 30, Used: 20] 🟢 67%
+└── Room 102
+    └── Rack R1
+        └── Shelf S1  [Capacity: 100, Used: 75] 🟡 75%
+
+Building B (Temperature Controlled)
+├── Room 201 (20-25°C)
+│   └── Rack R1
+│       ├── Shelf S1  [Capacity: 40, Used: 35] 🟡 87%
+│       └── Shelf S2  [Capacity: 40, Used: 15] 🟢 37%
+└── Room 202 (Humidity Controlled)
+    └── Rack R1
+        └── Shelf S1  [Capacity: 60, Used: 12] 🟢 20%
+
+Location Code Format: Building-Room-Rack-Shelf
+Example: BuildingA-Room101-R1-S1
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      CAPACITY WARNING SYSTEM                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+Utilization Level   Color   Status      Action
+─────────────────────────────────────────────────────────────────────────
+0% - 74%            🟢     Healthy      Normal operations
+75% - 89%           🟡     Warning      Plan reorganization
+90% - 100%          🔴     Critical     Immediate action required
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         SEARCH CAPABILITIES                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+Method              Input                    Searches
+─────────────────────────────────────────────────────────────────────────
+Sample ID           SAMPLE-2024-00001        Sample.sample_id (LIKE)
+QR/Barcode          Scanned code             Sample.qr_code (=)
+                                             Sample.sample_id (fallback)
+Client Name         Solar Corp               Via ServiceRequest link
+Location            BuildingA-Room101-R1     SampleInventory.full_location_path
+Status              in_stock                 SampleInventory.inventory_status
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      EXPORT FORMATS SUPPORTED                                │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+Report Type                  Excel    CSV     Chart
+────────────────────────────────────────────────────────────
+Current Inventory Summary     ✅      ✅       -
+Location Utilization          ✅      -        ✅ (Bar)
+Overdue Check-outs            ✅      -        -
+Storage Capacity Analysis     -       -        ✅ (Metrics)
+
+File Naming: {report_type}_{YYYYMMDD_HHMMSS}.{ext}
+Example: inventory_summary_20241204_103000.xlsx
+```

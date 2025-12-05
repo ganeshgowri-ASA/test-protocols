@@ -1,8 +1,8 @@
 """
-Sample Allocation Module
-========================
-Allocate unique Sample IDs and QR codes to samples after inspection.
-Generate route cards and prepare samples for testing.
+Sample Registration Module
+===========================
+Register samples after inspection by allocating unique Sample IDs and QR codes.
+Generate route cards and prepare samples for testing workflow.
 """
 
 import streamlit as st
@@ -34,10 +34,10 @@ from database import (
 from sqlalchemy import select, desc, and_
 
 # Page configuration
-setup_page_config(page_title="Sample Allocation", page_icon="🏷️")
+setup_page_config(page_title="Sample Registration", page_icon="🏷️")
 
 # Render navigation
-render_header("Sample Allocation", "Allocate Sample IDs and generate QR codes")
+render_header("Sample Registration", "Register samples and generate QR codes")
 render_sidebar_navigation()
 
 

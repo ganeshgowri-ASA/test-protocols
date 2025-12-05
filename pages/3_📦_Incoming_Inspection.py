@@ -17,7 +17,8 @@ from config.settings import setup_page_config
 from config.database import get_db
 from components.navigation import render_header, render_sidebar_navigation
 from components.qr_generator import render_qr_code_generator_ui, get_qr_generator
-from database import IncomingInspection, ServiceRequest, InspectionStatus
+from components.sample_management import allocate_samples_from_inspection
+from database import IncomingInspection, ServiceRequest, SampleReceipt, InspectionStatus
 from sqlalchemy import select, desc, asc, and_, or_, func
 
 # Page configuration
@@ -48,6 +49,15 @@ def render_new_inspection_form():
 
     st.markdown("### New Incoming Inspection")
 
+    # Workflow info
+    st.info("""
+    **Inspection Workflow:**
+    - Link inspection to a Sample Receipt (optional) and Service Request
+    - Complete visual inspection checklist
+    - If inspection **PASSES**, samples will be automatically allocated unique IDs and QR codes
+    - Allocated samples can then proceed to testing
+    """)
+
     # Link to service request - extract data before session closes to avoid DetachedInstanceError
     with get_db() as db:
         service_requests = db.execute(
@@ -61,13 +71,34 @@ def render_new_inspection_form():
             for sr in service_requests
         }
 
+        # Get approved receipts for linking
+        receipts = db.execute(
+            select(SampleReceipt)
+            .where(SampleReceipt.status == 'approved')
+            .order_by(desc(SampleReceipt.received_date))
+        ).scalars().all()
+        receipt_options = {
+            f"{r.receipt_number} - {r.client_name or 'N/A'} ({r.actual_sample_count} samples)": r
+            for r in receipts
+        }
+
     if not sr_options:
         st.warning("⚠️ No approved service requests available")
         return
 
+    col1, col2 = st.columns(2)
 
-    selected_sr = st.selectbox("Link to Service Request *", options=list(sr_options.keys()))
-    sr_id = sr_options[selected_sr]
+    with col1:
+        selected_sr = st.selectbox("Link to Service Request *", options=list(sr_options.keys()))
+        sr_id = sr_options[selected_sr]
+
+    with col2:
+        selected_receipt = st.selectbox(
+            "Link to Sample Receipt (optional)",
+            options=["-- No Receipt --"] + list(receipt_options.keys()),
+            help="Link this inspection to a specific sample receipt"
+        )
+        receipt_id = receipt_options[selected_receipt].id if selected_receipt != "-- No Receipt --" else None
 
     with st.form("incoming_inspection"):
         # Sample Identification
@@ -189,6 +220,7 @@ def render_new_inspection_form():
                 inspection_data = {
                     'inspection_number': inspection_number,
                     'service_request_id': sr_id,
+                    'receipt_id': receipt_id,  # Link to receipt
                     'sample_id': sample_id,
                     'qr_code': qr_string,
                     'physical_damage': physical_damage,
@@ -206,16 +238,55 @@ def render_new_inspection_form():
                     'passed': (passed == "Passed"),
                     'remarks': remarks,
                     'inspector_id': 1,  # Demo user
-                    'inspection_date': datetime.utcnow()
+                    'inspection_date': datetime.utcnow(),
+                    'allocation_triggered': False  # Will be updated if PASSED
                 }
 
                 with get_db() as db:
                     inspection = IncomingInspection(**inspection_data)
                     db.add(inspection)
                     db.commit()
+                    db.refresh(inspection)
 
                     st.success(f"✅ Inspection {inspection_number} completed successfully!")
                     st.info(f"📱 QR Code generated for sample {sample_id}")
+
+                    # If inspection PASSED, trigger automatic sample allocation
+                    if passed == "Passed":
+                        st.markdown("---")
+                        st.markdown("### 🏷️ Automatic Sample Allocation")
+
+                        try:
+                            allocated_samples = allocate_samples_from_inspection(
+                                inspection_id=inspection.id,
+                                service_request_id=sr_id,
+                                allocated_by_id=1,  # Demo user
+                                sample_count=1
+                            )
+
+                            if allocated_samples:
+                                for sample_info in allocated_samples:
+                                    st.success(f"✅ Sample allocated: **{sample_info['sample_id']}**")
+                                    st.markdown(f"**Project ID:** {sample_info['project_id']}")
+
+                                    if sample_info.get('qr_code_path') and Path(sample_info['qr_code_path']).exists():
+                                        col1, col2 = st.columns([1, 2])
+                                        with col1:
+                                            st.image(sample_info['qr_code_path'], caption="Sample QR Code", width=150)
+                                        with col2:
+                                            with open(sample_info['qr_code_path'], 'rb') as f:
+                                                st.download_button(
+                                                    label="📥 Download Sample QR Code",
+                                                    data=f.read(),
+                                                    file_name=f"{sample_info['sample_id']}_qr.png",
+                                                    mime="image/png"
+                                                )
+
+                                st.info("📋 Navigate to **Sample Allocation** page to generate route cards and manage samples")
+
+                        except Exception as alloc_error:
+                            st.warning(f"⚠️ Auto-allocation failed: {str(alloc_error)}")
+                            st.info("You can manually allocate samples from the Sample Allocation page")
 
                     # Store QR in session for display
                     st.session_state.last_generated_qr = {

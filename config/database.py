@@ -9,7 +9,7 @@ from contextlib import contextmanager
 from typing import Generator
 
 from sqlalchemy import create_engine, event, select, func
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
 import streamlit as st
@@ -17,13 +17,33 @@ import streamlit as st
 from config.settings import config
 
 # Create declarative base for models
-Base = declarative_base()
+# CRITICAL FIX: Create custom declarative base with extend_existing=True
+# SYSTEMATIC FIX: Use standard declarative_base() pattern
+# The @st.cache_resource in database/__init__.py already prevents model reimports correctly
+
+# Mixin class for extend_existing support
+class ExtendExistingMixin:
+    """Mixin to add extend_existing=True to all model tables"""
+    @declared_attr
+    def __table_args__(cls):
+        # CRITICAL FIX: Merge extend_existing with any model-specific __table_args__
+        # Models may define __table_args__ as tuple (for indexes) - we must preserve them
+        args = cls.__dict__.get('__table_args__', ())
+        if isinstance(args, tuple):
+            # If tuple, append extend_existing dict to the tuple
+            return args + ({'extend_existing': True},)
+        elif isinstance(args, dict):
+            # If dict, merge extend_existing into it
+            return {**args, 'extend_existing': True}
+        else:
+            # Default: return dict with extend_existing
+            return {'extend_existing': True}
 
 # Database engine
 _engine = None
 _SessionLocal = None
 
-
+Base = declarative_base(cls=ExtendExistingMixin)
 def get_engine():
     """Get or create database engine (singleton pattern)"""
     global _engine
@@ -128,21 +148,35 @@ def init_database():
 
     # Initialize session factory
     SessionLocal = get_session_local()
-
     # Create default admin user if not exists
     with get_db() as db:
         admin_exists = db.execute(select(User).where(User.username == "admin")).scalar_one_or_none()
 
         if not admin_exists:
+            # NOTE: This is a temporary password for initial setup
+            # In production, use bcrypt/argon2 and require password change on first login
+            import hashlib
+            import secrets
+            
+            # Generate a random strong password for first-time setup
+            temp_password = secrets.token_urlsafe(16)
+            # Use SHA-256 as a placeholder - production should use bcrypt/argon2
+            password_hash = hashlib.sha256(temp_password.encode()).hexdigest()
+            
             admin_user = User(
                 username="admin",
                 email="admin@solarpv.com",
+                password_hash=password_hash,
                 full_name="System Administrator",
                 role="admin",
                 is_active=True,
             )
             db.add(admin_user)
             db.commit()
+            
+            # Log the temporary password (in production, send via secure channel)
+            print(f"INFO: Created admin user with temporary password: {temp_password}")
+            print("SECURITY: Please change this password immediately on first login!")
 
         # Seed ALL 54 test protocols - use idempotent INSERT logic
         # Check if we need to seed (either empty or missing protocols)

@@ -286,6 +286,9 @@ class IncomingInspection(Base):
     passed = Column(Boolean)
     remarks = Column(Text)
 
+    # Allocation workflow
+    allocation_triggered = Column(Boolean, default=False)
+
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

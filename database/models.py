@@ -181,6 +181,13 @@ class User(Base):
     reviewed_executions = relationship("TestExecution", foreign_keys="[TestExecution.reviewer_id]", back_populates="reviewer_user")
     audit_logs = relationship("AuditLog", back_populates="user")
 
+    __table_args__ = (
+        Index('idx_users_username', 'username'),
+        Index('idx_users_email', 'email'),
+        Index('idx_users_role', 'role'),
+        {'extend_existing': True}
+    )
+
     def __repr__(self):
         return f"<User(username='{self.username}', role='{self.role}')>"
 
@@ -282,6 +289,13 @@ class IncomingInspection(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    __table_args__ = (
+        Index('idx_incoming_inspections_number', 'inspection_number'),
+        Index('idx_incoming_inspections_status', 'status'),
+        Index('idx_incoming_inspections_date', 'inspection_date'),
+        {'extend_existing': True}
+    )
+
     def __repr__(self):
         return f"<IncomingInspection(number='{self.inspection_number}', status='{self.status}')>"
 
@@ -321,6 +335,14 @@ class Equipment(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    __table_args__ = (
+        Index('idx_equipment_code', 'equipment_code'),
+        Index('idx_equipment_status', 'status'),
+        Index('idx_equipment_category', 'category'),
+        Index('idx_equipment_calibration', 'next_calibration_date'),
+        {'extend_existing': True}
+    )
 
     def __repr__(self):
         return f"<Equipment(code='{self.equipment_code}', name='{self.name}')>"
@@ -398,6 +420,13 @@ class TestProtocol(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    __table_args__ = (
+        Index('idx_test_protocols_id', 'protocol_id'),
+        Index('idx_test_protocols_category', 'category'),
+        Index('idx_test_protocols_active', 'is_active'),
+        {'extend_existing': True}
+    )
 
     def __repr__(self):
         return f"<TestProtocol(id='{self.protocol_id}', name='{self.name}')>"
@@ -630,6 +659,11 @@ class CompanyProfile(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    __table_args__ = (
+        Index('idx_company_profile_id', 'company_id'),
+        {'extend_existing': True}
+    )
 
     @classmethod
     def get_default(cls, db):

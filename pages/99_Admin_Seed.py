@@ -62,3 +62,38 @@ if st.button("🔍 Check Current Protocol Count"):
             
     except Exception as e:
         st.error(f"Error checking database: {str(e)}")
+
+
+# ==================== DATABASE MIGRATION RUNNER ====================
+st.divider()
+st.subheader("🔧 Database Migrations")
+
+if st.button("⬆️ RUN MIGRATION 004 (Add Missing Columns)", type="secondary", use_container_width=True):
+    try:
+        import os
+        SessionLocal = get_session_local()
+        db = SessionLocal()
+        
+        # Read migration SQL file
+        migration_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'migrations', '004_add_missing_columns_UP.sql')
+        
+        with open(migration_path, 'r') as f:
+            migration_sql = f.read()
+        
+        # Split by semicolon and execute each statement
+        statements = [s.strip() for s in migration_sql.split(';') if s.strip() and not s.strip().startswith('--')]
+        
+        for statement in statements:
+            if statement and 'ALTER TABLE' in statement.upper():
+                db.execute(statement)
+        
+        db.commit()
+        db.close()
+        
+        st.success("✅ Migration 004 completed successfully! All missing columns have been added.")
+        st.balloons()
+        st.info("🔄 Please refresh the Sample Receipt and Report Generation pages to verify the fix.")
+        
+    except Exception as e:
+        st.error(f"❌ Migration failed: {str(e)}")
+        st.exception(e)

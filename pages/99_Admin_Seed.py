@@ -86,7 +86,7 @@ if st.button("⬆️ RUN MIGRATION 004 (Add Missing Columns)", type="secondary",
         
         for statement in statements:
             if statement and 'ALTER TABLE' in statement.upper():
-                db.executetext(statement)
+                db.execute(text(statement))
         
         db.commit()
         db.close()

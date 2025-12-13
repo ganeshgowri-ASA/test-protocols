@@ -1,80 +1,114 @@
-"""Database package initialization with Streamlit caching to prevent model reimport"""
-import streamlit as st
+"""Database package initialization - direct imports from models module"""
 
-# Use Streamlit's resource caching to import models only once
-@st.cache_resource
-def get_models():
-    """Import and cache database models to prevent table redefinition errors"""
-    from database import models
-    return models
+# Direct imports from models - no caching needed
+# All models have extend_existing=True in __table_args__ which prevents redefinition errors
+from database.models import (
+    # Core Models
+    User,
+    ServiceRequest,
+    IncomingInspection,
+    Equipment,
+    EquipmentBooking,
+    TestProtocol,
+    TestExecution,
+    TestData,
+    AuditLog,
+    QRCode,
+    CompanyProfile,
 
-# Import models through cache
-_cached_models = get_models()
+    # Sample Management Models
+    Sample,
+    SampleReceipt,
+    SampleStatusHistory,
+    RouteCard,
+    SampleTestAssignment,
+    SampleInventory,
 
-# Re-export all model classes
-User = _cached_models.User
-ServiceRequest = _cached_models.ServiceRequest
-IncomingInspection = _cached_models.IncomingInspection
-Equipment = _cached_models.Equipment
-EquipmentBooking = _cached_models.EquipmentBooking
-TestProtocol = _cached_models.TestProtocol
-TestExecution = _cached_models.TestExecution
-TestData = _cached_models.TestData
-AuditLog = _cached_models.AuditLog
-QRCode = _cached_models.QRCode
-CompanyProfile = _cached_models.CompanyProfile
+    # Training Models
+    StaffTraining,
+    StaffTrainingRecord,
 
-# Sample Management Models
-Sample = _cached_models.Sample
-SampleReceipt = _cached_models.SampleReceipt
-SampleStatusHistory = _cached_models.SampleStatusHistory
-CustodyLog = _cached_models.SampleStatusHistory  # Alias for chain of custody tracking
-RouteCard = _cached_models.RouteCard
-SampleTestAssignment = _cached_models.SampleTestAssignment
-SampleInventory = _cached_models.SampleInventory
-StorageLocation = _cached_models.StorageLocation
+    # Document Models
+    Document,
+    DocumentAccessLog,
 
-# Training Models
-StaffTraining = _cached_models.StaffTraining
-StaffTrainingRecord = _cached_models.StaffTrainingRecord
+    # BOM Models
+    BOMItem,
+    BOMProtocolRequirement,
+    BOMUsageLog,
 
-# Document Models
-Document = _cached_models.Document
-DocumentAccessLog = _cached_models.DocumentAccessLog
+    # QR and Calibration Models
+    QRScanLog,
+    CalibrationRecord,
 
-# BOM Models
-BOMItem = _cached_models.BOMItem
-BOMProtocolRequirement = _cached_models.BOMProtocolRequirement
-BOMUsageLog = _cached_models.BOMUsageLog
+    # Enums
+    UserRole,
+    RequestStatus,
+    TestStatus,
+    EquipmentStatus,
+    InspectionStatus,
+    IndustryType,
+    SampleStatus,
+    DocumentCategory,
+    TrainingStatus,
+    BOMItemType,
+    ReceiptStatus,
+    InventoryStatus,
+    DocumentStatus,
+)
 
-# QR and Calibration Models
-QRScanLog = _cached_models.QRScanLog
-CalibrationRecord = _cached_models.CalibrationRecord
+# Export all for easy access
+__all__ = [
+    # Core Models
+    'User',
+    'ServiceRequest',
+    'IncomingInspection',
+    'Equipment',
+    'EquipmentBooking',
+    'TestProtocol',
+    'TestExecution',
+    'TestData',
+    'AuditLog',
+    'QRCode',
+    'CompanyProfile',
 
-# Sample Allocation Model
-SampleAllocation = _cached_models.SampleAllocation
+    # Sample Management Models
+    'Sample',
+    'SampleReceipt',
+    'SampleStatusHistory',
+    'RouteCard',
+    'SampleTestAssignment',
+    'SampleInventory',
 
-# Data Analysis Models
-AnalysisResult = _cached_models.AnalysisResult
-DataExport = _cached_models.DataExport
+    # Training Models
+    'StaffTraining',
+    'StaffTrainingRecord',
 
-# Report Generation Models
-ReportTemplate = _cached_models.ReportTemplate
-GeneratedReport = _cached_models.GeneratedReport
-ScheduledReport = _cached_models.ScheduledReport
+    # Document Models
+    'Document',
+    'DocumentAccessLog',
 
-# Export enums
-UserRole = _cached_models.UserRole
-RequestStatus = _cached_models.RequestStatus
-TestStatus = _cached_models.TestStatus
-EquipmentStatus = _cached_models.EquipmentStatus
-InspectionStatus = _cached_models.InspectionStatus
-IndustryType = _cached_models.IndustryType
-SampleStatus = _cached_models.SampleStatus
-DocumentCategory = _cached_models.DocumentCategory
-TrainingStatus = _cached_models.TrainingStatus
-BOMItemType = _cached_models.BOMItemType
-ReceiptStatus = _cached_models.ReceiptStatus
-InventoryStatus = _cached_models.InventoryStatus
-DocumentStatus = _cached_models.DocumentStatus
-AllocationStatus = _cached_models.AllocationStatus
+    # BOM Models
+    'BOMItem',
+    'BOMProtocolRequirement',
+    'BOMUsageLog',
+
+    # QR and Calibration Models
+    'QRScanLog',
+    'CalibrationRecord',
+
+    # Enums
+    'UserRole',
+    'RequestStatus',
+    'TestStatus',
+    'EquipmentStatus',
+    'InspectionStatus',
+    'IndustryType',
+    'SampleStatus',
+    'DocumentCategory',
+    'TrainingStatus',
+    'BOMItemType',
+    'ReceiptStatus',
+    'InventoryStatus',
+    'DocumentStatus',
+]

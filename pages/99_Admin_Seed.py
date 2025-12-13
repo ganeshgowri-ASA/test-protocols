@@ -95,7 +95,12 @@ if st.button("⬆️ RUN MIGRATION 004 (Add Missing Columns)", type="secondary",
         st.balloons()
         st.info("🔄 Please refresh the Sample Receipt and Report Generation pages to verify the fix.")
 
-    # Migration 006: Add Service Request Columns for Sample Receipt Integration
+        
+    except Exception as e:
+        st.error(f"❌ Migration failed: {str(e)}")
+        st.exception(e)
+
+# Migration 006: Add Service Request Columns for Sample Receipt Integration
 if st.button("🔧 RUN MIGRATION 006 (Service Requests Columns)", type="secondary", use_container_width=True):
     try:
         import os
@@ -124,8 +129,4 @@ if st.button("🔧 RUN MIGRATION 006 (Service Requests Columns)", type="secondar
         
     except Exception as e:
         st.error(f"Migration failed: {str(e)}")
-        st.exception(e)
-        
-    except Exception as e:
-        st.error(f"❌ Migration failed: {str(e)}")
         st.exception(e)

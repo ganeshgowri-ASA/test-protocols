@@ -23,8 +23,8 @@ from database.models import (
     RouteCard,
     SampleTestAssignment,
     SampleInventory,
-    SampleAllocation,
-
+        SampleAllocation,
+    StorageLocation,
     # Training Models
     StaffTraining,
     StaffTrainingRecord,
@@ -42,6 +42,14 @@ from database.models import (
     QRScanLog,
     CalibrationRecord,
 
+    # Data Analysis Models
+    AnalysisResult,
+    DataExport,
+
+    # Report Generation Models
+    ReportTemplate,
+    ScheduledReport,
+
     # Enums
     UserRole,
     RequestStatus,
@@ -56,6 +64,7 @@ from database.models import (
     ReceiptStatus,
     InventoryStatus,
     DocumentStatus,
+    AllocationStatus,
 )
 
 # Export all for easy access
@@ -81,6 +90,7 @@ __all__ = [
     'SampleTestAssignment',
     'SampleInventory',
         'SampleAllocation',
+        'StorageLocation',
 
     # Training Models
     'StaffTraining',
@@ -112,5 +122,13 @@ __all__ = [
     'BOMItemType',
     'ReceiptStatus',
     'InventoryStatus',
-    'DocumentStatus',
-]
+        'DocumentStatus',
+    'AllocationStatus',
+
+    # Data Analysis Models
+    'AnalysisResult',
+    'DataExport',
+
+    # Report Generation Models
+    'ReportTemplate',
+    'ScheduledReport',]

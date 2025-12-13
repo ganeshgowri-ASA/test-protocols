@@ -94,6 +94,37 @@ if st.button("⬆️ RUN MIGRATION 004 (Add Missing Columns)", type="secondary",
         st.success("✅ Migration 004 completed successfully! All missing columns have been added.")
         st.balloons()
         st.info("🔄 Please refresh the Sample Receipt and Report Generation pages to verify the fix.")
+
+    # Migration 006: Add Service Request Columns for Sample Receipt Integration
+if st.button("🔧 RUN MIGRATION 006 (Service Requests Columns)", type="secondary", use_container_width=True):
+    try:
+        import os
+        SessionLocal = get_session_local()
+        db = SessionLocal()
+        
+        # Read migration SQL file
+        migration_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'migrations', '006_service_requests_columns_UP.sql')
+        
+        with open(migration_path, 'r') as f:
+            migration_sql = f.read()
+        
+        # Split by semicolon and execute each statement
+        statements = [s.strip() for s in migration_sql.split(';') if s.strip() and not s.strip().startswith('--')]
+        
+        for statement in statements:
+            if statement and 'ALTER TABLE' in statement.upper():
+                db.execute(text(statement))
+        
+        db.commit()
+        db.close()
+        
+        st.success("✅ Migration 006 completed successfully! Service request columns added for Sample Receipt integration.")
+        st.balloons()
+        st.info("📘 Please refresh the Sample Receipt page to test the workflow integration.")
+        
+    except Exception as e:
+        st.error(f"Migration failed: {str(e)}")
+        st.exception(e)
         
     except Exception as e:
         st.error(f"❌ Migration failed: {str(e)}")

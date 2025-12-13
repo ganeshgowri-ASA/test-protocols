@@ -41,6 +41,7 @@ class ExtendExistingMixin:
 
 # Database engine
 _engine = None
+_SessionLocal = None
 
 Base = declarative_base(cls=ExtendExistingMixin)
 def get_engine():
@@ -143,7 +144,7 @@ def init_database():
         configure_mappers()
 
     # Create all tables
-        Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
 
     # Initialize session factory
     SessionLocal = get_session_local()
@@ -152,15 +153,30 @@ def init_database():
         admin_exists = db.execute(select(User).where(User.username == "admin")).scalar_one_or_none()
 
         if not admin_exists:
+            # NOTE: This is a temporary password for initial setup
+            # In production, use bcrypt/argon2 and require password change on first login
+            import hashlib
+            import secrets
+            
+            # Generate a random strong password for first-time setup
+            temp_password = secrets.token_urlsafe(16)
+            # Use SHA-256 as a placeholder - production should use bcrypt/argon2
+            password_hash = hashlib.sha256(temp_password.encode()).hexdigest()
+            
             admin_user = User(
                 username="admin",
                 email="admin@solarpv.com",
+                password_hash=password_hash,
                 full_name="System Administrator",
                 role="admin",
                 is_active=True,
             )
             db.add(admin_user)
             db.commit()
+            
+            # Log the temporary password (in production, send via secure channel)
+            print(f"INFO: Created admin user with temporary password: {temp_password}")
+            print("SECURITY: Please change this password immediately on first login!")
 
         # Seed ALL 54 test protocols - use idempotent INSERT logic
         # Check if we need to seed (either empty or missing protocols)

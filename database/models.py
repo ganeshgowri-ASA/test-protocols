@@ -149,6 +149,15 @@ class DocumentStatus(str, enum.Enum):
     OBSOLETE = "obsolete"
 
 
+class AllocationStatus(str, enum.Enum):
+    """Sample allocation status"""
+    SCHEDULED = "scheduled"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+    ON_HOLD = "on_hold"
+
+
 # Models
 class User(Base):
     """User model for authentication and authorization"""
@@ -171,6 +180,13 @@ class User(Base):
     test_executions = relationship("TestExecution", foreign_keys="[TestExecution.technician_id]", back_populates="technician_user")
     reviewed_executions = relationship("TestExecution", foreign_keys="[TestExecution.reviewer_id]", back_populates="reviewer_user")
     audit_logs = relationship("AuditLog", back_populates="user")
+
+    __table_args__ = (
+        Index('idx_users_username', 'username'),
+        Index('idx_users_email', 'email'),
+        Index('idx_users_role', 'role'),
+        {'extend_existing': True}
+    )
 
     def __repr__(self):
         return f"<User(username='{self.username}', role='{self.role}')>"
@@ -218,9 +234,17 @@ class ServiceRequest(Base):
     notes = Column(Text)
     attachments = Column(JSON)  # List of file paths
 
+    # Sample quantity tracking (added to match migration 002)
+    expected_sample_quantity = Column(Integer, default=1)
+    actual_sample_quantity = Column(Integer)
+    quantity_verified = Column(Boolean, default=False)
+    receipt_id = Column(Integer, ForeignKey("sample_receipts.id"))
+
     __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_service_request_status', 'status'),
         Index('idx_service_request_created', 'created_at'),
+        {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -269,8 +293,26 @@ class IncomingInspection(Base):
     passed = Column(Boolean)
     remarks = Column(Text)
 
+    # Allocation workflow
+    allocation_triggered = Column(Boolean, default=False)
+
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Link to sample receipt (added to match migration 002)
+    receipt_id = Column(Integer, ForeignKey("sample_receipts.id"))
+
+    # Allocation tracking (added to match migration 002)
+    allocation_triggered = Column(Boolean, default=False)
+    allocated_sample_id = Column(Integer)
+
+    __table_args__ = ({'extend_existing': True},)
+    __table_args__ = (
+        Index('idx_incoming_inspections_number', 'inspection_number'),
+        Index('idx_incoming_inspections_status', 'status'),
+        Index('idx_incoming_inspections_date', 'inspection_date'),
+        {'extend_existing': True}
+    )
 
     def __repr__(self):
         return f"<IncomingInspection(number='{self.inspection_number}', status='{self.status}')>"
@@ -312,6 +354,14 @@ class Equipment(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    __table_args__ = (
+        Index('idx_equipment_code', 'equipment_code'),
+        Index('idx_equipment_status', 'status'),
+        Index('idx_equipment_category', 'category'),
+        Index('idx_equipment_calibration', 'next_calibration_date'),
+        {'extend_existing': True}
+    )
+
     def __repr__(self):
         return f"<Equipment(code='{self.equipment_code}', name='{self.name}')>"
 
@@ -347,9 +397,10 @@ class EquipmentBooking(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_booking_period', 'start_time', 'end_time'),
         Index('idx_booking_equipment', 'equipment_id'),
+        {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -387,6 +438,13 @@ class TestProtocol(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    __table_args__ = (
+        Index('idx_test_protocols_id', 'protocol_id'),
+        Index('idx_test_protocols_category', 'category'),
+        Index('idx_test_protocols_active', 'is_active'),
+        {'extend_existing': True}
+    )
 
     def __repr__(self):
         return f"<TestProtocol(id='{self.protocol_id}', name='{self.name}')>"
@@ -450,9 +508,10 @@ class TestExecution(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_test_execution_status', 'status'),
         Index('idx_test_execution_protocol', 'protocol_id'),
+        {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -487,9 +546,10 @@ class TestData(Base):
 
     # Metadata
     extra_metadata = Column(JSON)  # Additional measurement metadata
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_test_data_execution', 'test_execution_id'),
         Index('idx_test_data_type', 'measurement_type'),
+        {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -524,10 +584,11 @@ class AuditLog(Base):
     # Timestamp
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_audit_log_user', 'user_id'),
         Index('idx_audit_log_table', 'table_name', 'record_id'),
         Index('idx_audit_log_created', 'created_at'),
+        {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -559,8 +620,9 @@ class QRCode(Base):
     last_scanned_at = Column(DateTime)
     scan_count = Column(Integer, default=0)
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_qr_entity', 'entity_type', 'entity_id'),
+        {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -615,6 +677,11 @@ class CompanyProfile(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    __table_args__ = (
+        Index('idx_company_profile_id', 'company_id'),
+        {'extend_existing': True}
+    )
 
     @classmethod
     def get_default(cls, db):
@@ -688,10 +755,11 @@ class SampleReceipt(Base):
     supervisor_user = relationship("User", foreign_keys=[supervisor_id])
     samples = relationship("Sample", back_populates="receipt")
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_sample_receipts_service_request', 'service_request_id'),
         Index('idx_sample_receipts_received_date', 'received_date'),
         Index('idx_sample_receipts_status', 'status'),
+        {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -770,12 +838,13 @@ class Sample(Base):
     test_assignments = relationship("SampleTestAssignment", back_populates="sample")
     inventory_records = relationship("SampleInventory", back_populates="sample")
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_samples_sample_id', 'sample_id'),
         Index('idx_samples_project_id', 'project_id'),
         Index('idx_samples_service_request', 'service_request_id'),
         Index('idx_samples_status', 'status'),
         Index('idx_samples_qr_code', 'qr_code'),
+        {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -810,7 +879,7 @@ class SampleStatusHistory(Base):
     # Additional info
     reason = Column(Text)
     notes = Column(Text)
-    metadata = Column(JSON)
+    change_metadata = Column(JSON)  # Renamed from metadata (reserved word in SQLAlchemy)
 
     # Timestamp
     changed_at = Column(DateTime, default=datetime.utcnow)
@@ -819,10 +888,11 @@ class SampleStatusHistory(Base):
     sample = relationship("Sample", back_populates="status_history")
     changed_by_user = relationship("User", foreign_keys=[changed_by_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_sample_status_history_sample', 'sample_id'),
         Index('idx_sample_status_history_changed_at', 'changed_at'),
         Index('idx_sample_status_history_status', 'new_status'),
+        {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -881,10 +951,11 @@ class RouteCard(Base):
     created_by_user = relationship("User", foreign_keys=[created_by_id])
     assigned_to_user = relationship("User", foreign_keys=[assigned_to_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_route_cards_sample', 'sample_id'),
         Index('idx_route_cards_service_request', 'service_request_id'),
         Index('idx_route_cards_status', 'status'),
+        {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -943,10 +1014,11 @@ class SampleTestAssignment(Base):
     assigned_by_user = relationship("User", foreign_keys=[assigned_by_id])
     assigned_to_user = relationship("User", foreign_keys=[assigned_to_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_sample_test_assignments_sample', 'sample_id'),
         Index('idx_sample_test_assignments_protocol', 'protocol_id'),
         Index('idx_sample_test_assignments_status', 'status'),
+        {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -1011,14 +1083,79 @@ class SampleInventory(Base):
     checked_in_by_user = relationship("User", foreign_keys=[checked_in_by_id])
     inventoried_by_user = relationship("User", foreign_keys=[inventoried_by_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_sample_inventory_sample', 'sample_id'),
         Index('idx_sample_inventory_location', 'storage_area', 'storage_zone', 'storage_rack'),
         Index('idx_sample_inventory_status', 'inventory_status'),
+        {'extend_existing': True}
     )
 
     def __repr__(self):
         return f"<SampleInventory(sample='{self.sample_id_code}', location='{self.full_location_path}')>"
+
+
+class StorageLocation(Base):
+    """Storage location hierarchy and capacity management"""
+    __tablename__ = "storage_locations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    
+    # Location identifier
+    location_code = Column(String(50), unique=True, nullable=False, index=True)
+    
+    # Hierarchical structure
+    building = Column(String(50))
+    room = Column(String(50))
+    rack = Column(String(50))
+    shelf = Column(String(50))
+    
+    # Full path for easy reference
+    full_path = Column(String(200))
+    
+    # Capacity management
+    capacity = Column(Integer, default=0)
+    current_count = Column(Integer, default=0)
+    
+    # Environmental controls
+    temperature_controlled = Column(Boolean, default=False)
+    min_temperature = Column(Float)
+    max_temperature = Column(Float)
+    humidity_controlled = Column(Boolean, default=False)
+    
+    # Location details
+    description = Column(Text)
+    notes = Column(Text)
+    
+    # Status
+    is_active = Column(Boolean, default=True)
+    
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    __table_args__ = (
+        Index('idx_storage_location_code', 'location_code'),
+        Index('idx_storage_location_building', 'building', 'room'),
+        Index('idx_storage_location_active', 'is_active'),
+        {'extend_existing': True}
+    )
+    
+    def __repr__(self):
+        return f"<StorageLocation(code='{self.location_code}', capacity={self.current_count}/{self.capacity})>"
+    
+    @property
+    def is_full(self):
+        """Check if location is at capacity"""
+        if self.capacity and self.capacity > 0:
+            return (self.current_count or 0) >= self.capacity
+        return False
+    
+    @property
+    def utilization_percentage(self):
+        """Calculate storage utilization percentage"""
+        if self.capacity and self.capacity > 0:
+            return ((self.current_count or 0) / self.capacity) * 100
+        return 0.0
 
 
 # ============================================================================
@@ -1064,9 +1201,10 @@ class StaffTraining(Base):
     created_by_user = relationship("User", foreign_keys=[created_by_id])
     training_records = relationship("StaffTrainingRecord", back_populates="training")
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_staff_training_category', 'category'),
         Index('idx_staff_training_active', 'is_active'),
+        {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -1119,11 +1257,12 @@ class StaffTrainingRecord(Base):
     user = relationship("User", foreign_keys=[user_id])
     trainer = relationship("User", foreign_keys=[trainer_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_staff_training_records_training', 'training_id'),
         Index('idx_staff_training_records_user', 'user_id'),
         Index('idx_staff_training_records_status', 'status'),
         Index('idx_staff_training_records_expiry', 'expiry_date'),
+        {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -1171,6 +1310,14 @@ class Document(Base):
     review_date = Column(DateTime)
     approval_date = Column(DateTime)
 
+    # Digital signatures
+    author_signature = Column(Text)  # Base64 encoded signature or signature data
+    author_signature_date = Column(DateTime)
+    reviewer_signature = Column(Text)
+    reviewer_signature_date = Column(DateTime)
+    approver_signature = Column(Text)
+    approver_signature_date = Column(DateTime)
+
     # Status
     status = Column(Enum(DocumentStatus), default=DocumentStatus.DRAFT)
 
@@ -1199,11 +1346,12 @@ class Document(Base):
     previous_version = relationship("Document", remote_side=[id])
     access_logs = relationship("DocumentAccessLog", back_populates="document")
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_documents_number', 'document_number'),
         Index('idx_documents_category', 'category'),
         Index('idx_documents_status', 'status'),
         Index('idx_documents_current', 'is_current_version'),
+        {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -1238,10 +1386,11 @@ class DocumentAccessLog(Base):
     document = relationship("Document", back_populates="access_logs")
     user = relationship("User", foreign_keys=[user_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_document_access_log_document', 'document_id'),
         Index('idx_document_access_log_user', 'user_id'),
         Index('idx_document_access_log_timestamp', 'access_timestamp'),
+        {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -1301,10 +1450,11 @@ class BOMItem(Base):
     protocol_requirements = relationship("BOMProtocolRequirement", back_populates="bom_item")
     usage_logs = relationship("BOMUsageLog", back_populates="bom_item")
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_bom_items_code', 'item_code'),
         Index('idx_bom_items_type', 'item_type'),
         Index('idx_bom_items_category', 'category'),
+        {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -1333,10 +1483,11 @@ class BOMProtocolRequirement(Base):
     protocol = relationship("TestProtocol")
     bom_item = relationship("BOMItem", back_populates="protocol_requirements")
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         UniqueConstraint('protocol_id', 'bom_item_id', name='uq_protocol_bom_item'),
         Index('idx_bom_protocol_req_protocol', 'protocol_id'),
         Index('idx_bom_protocol_req_item', 'bom_item_id'),
+        {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -1378,10 +1529,11 @@ class BOMUsageLog(Base):
     bom_item = relationship("BOMItem", back_populates="usage_logs")
     used_by_user = relationship("User", foreign_keys=[used_by_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_bom_usage_log_item', 'bom_item_id'),
         Index('idx_bom_usage_log_test', 'test_execution_id'),
         Index('idx_bom_usage_log_date', 'used_at'),
+        {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -1435,10 +1587,11 @@ class QRScanLog(Base):
     # Relationships
     scanned_by_user = relationship("User", foreign_keys=[scanned_by_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_qr_scan_log_qr_code', 'qr_code'),
         Index('idx_qr_scan_log_entity', 'entity_type', 'entity_id'),
         Index('idx_qr_scan_log_timestamp', 'scan_timestamp'),
+        {'extend_existing': True}
     )
 
     def __repr__(self):
@@ -1495,11 +1648,253 @@ class CalibrationRecord(Base):
     equipment = relationship("Equipment")
     created_by_user = relationship("User", foreign_keys=[created_by_id])
 
-    __table_args__ = ({'extend_existing': True},
+    __table_args__ = (
         Index('idx_calibration_records_equipment', 'equipment_id'),
         Index('idx_calibration_records_date', 'calibration_date'),
         Index('idx_calibration_records_next', 'next_calibration_date'),
+        {'extend_existing': True}
     )
 
     def __repr__(self):
         return f"<CalibrationRecord(number='{self.calibration_number}', equipment={self.equipment_id})>"
+
+
+class SampleAllocation(Base):
+    """Sample allocation to test protocols with resource scheduling"""
+    __tablename__ = 'sample_allocations'
+
+    id = Column(Integer, primary_key=True, index=True)
+    allocation_number = Column(String(50), unique=True, nullable=False, index=True)
+
+    # Sample and Protocol links
+    sample_id = Column(Integer, ForeignKey('samples.id'), nullable=False)
+    protocol_id = Column(Integer, ForeignKey('test_protocols.id'), nullable=False)
+
+    # Resource allocation
+    equipment_id = Column(Integer, ForeignKey('equipment.id'))
+    technician_id = Column(Integer, ForeignKey('users.id'))
+
+    # Scheduling
+    scheduled_start = Column(DateTime, nullable=False)
+    scheduled_end = Column(DateTime, nullable=False)
+    actual_start = Column(DateTime, nullable=True)
+    actual_end = Column(DateTime, nullable=True)
+
+    # Status and priority
+    status = Column(Enum(AllocationStatus), default=AllocationStatus.SCHEDULED)
+    priority = Column(Integer, default=2)  # 1=High, 2=Medium, 3=Low
+
+    # Additional info
+    notes = Column(Text)
+
+    # Audit fields
+    created_at = Column(DateTime, default=datetime.utcnow)
+    created_by_id = Column(Integer, ForeignKey('users.id'))
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    sample = relationship('Sample', foreign_keys=[sample_id])
+    protocol = relationship('TestProtocol', foreign_keys=[protocol_id])
+    equipment = relationship('Equipment', foreign_keys=[equipment_id])
+    technician = relationship('User', foreign_keys=[technician_id])
+    created_by = relationship('User', foreign_keys=[created_by_id])
+
+    __table_args__ = (
+        Index('idx_allocations_sample', 'sample_id'),
+        Index('idx_allocations_protocol', 'protocol_id'),
+        Index('idx_allocations_equipment', 'equipment_id'),
+        Index('idx_allocations_status', 'status'),
+        Index('idx_allocations_schedule', 'scheduled_start', 'scheduled_end'),
+        {'extend_existing': True}
+    )
+
+    def __repr__(self):
+        return f"<SampleAllocation(number='{self.allocation_number}', status='{self.status}')>"
+
+
+# ============================================================================
+# DATA ANALYSIS MODELS
+# ============================================================================
+
+class AnalysisResult(Base):
+    """Analysis results model - stores data analysis results and statistics"""
+    __tablename__ = "analysis_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    analysis_id = Column(String(50), unique=True, nullable=False, index=True)
+
+    # Analysis metadata
+    analysis_type = Column(String(100))  # Trend, Comparison, Statistical
+    date_range_start = Column(DateTime)
+    date_range_end = Column(DateTime)
+    filters_applied = Column(JSON)  # Store filter parameters
+
+    # Metrics
+    total_tests = Column(Integer)
+    pass_count = Column(Integer)
+    fail_count = Column(Integer)
+    pass_rate = Column(Float)
+
+    # Statistical measures
+    mean_value = Column(Float)
+    median_value = Column(Float)
+    std_deviation = Column(Float)
+
+    # Chart data
+    chart_type = Column(String(50))
+    chart_data = Column(JSON)  # Store Plotly chart JSON
+
+    # Audit fields
+    created_by = Column(String(100))
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    __table_args__ = (
+        Index('idx_analysis_type', 'analysis_type'),
+        Index('idx_analysis_created', 'created_at'),
+        {'extend_existing': True}
+    )
+
+    def __repr__(self):
+        return f"<AnalysisResult(id='{self.analysis_id}', type='{self.analysis_type}')>"
+
+
+class DataExport(Base):
+    """Data export model - tracks data exports"""
+    __tablename__ = "data_exports"
+
+    id = Column(Integer, primary_key=True, index=True)
+    export_id = Column(String(50), unique=True, nullable=False, index=True)
+
+    # Export metadata
+    export_type = Column(String(50))  # Excel, CSV, PDF
+    export_name = Column(String(200))
+    file_path = Column(String(255))
+
+    # Export parameters
+    date_range = Column(String(100))
+    filters = Column(JSON)
+    records_count = Column(Integer)
+
+    # Audit fields
+    exported_by = Column(String(100))
+    exported_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    __table_args__ = (
+        Index('idx_export_type', 'export_type'),
+        Index('idx_export_date', 'exported_at'),
+        {'extend_existing': True}
+    )
+
+    def __repr__(self):
+        return f"<DataExport(id='{self.export_id}', type='{self.export_type}')>"
+
+
+# ============================================================================
+# Report Generation Models
+# ============================================================================
+
+class ReportTemplate(Base):
+    """Report template model for custom report generation"""
+    __tablename__ = 'report_templates'
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True, index=True)
+    template_id = Column(String(50), unique=True, nullable=False, index=True)
+    template_name = Column(String(200), nullable=False)
+    template_type = Column(String(100))  # IEC 61215, IEC 61730, NABL, Custom
+    version = Column(String(20))
+
+    # Template structure
+    header_content = Column(JSON)  # Header configuration
+    body_sections = Column(JSON)  # Array of section definitions
+    footer_content = Column(JSON)  # Footer configuration
+
+    # Branding
+    logo_path = Column(String(255))
+    color_scheme = Column(JSON)  # Color configuration for template
+
+    # Status and metadata
+    is_active = Column(Boolean, default=True)
+    description = Column(Text)
+
+    # Audit fields
+    created_by = Column(String(100))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, onupdate=datetime.utcnow)
+    updated_by = Column(String(100))
+
+    def __repr__(self):
+        return f"<ReportTemplate(id='{self.template_id}', name='{self.template_name}')>"
+
+
+class GeneratedReport(Base):
+    """Generated report model for tracking created reports"""
+    __tablename__ = 'generated_reports'
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True, index=True)
+    report_id = Column(String(50), unique=True, nullable=False, index=True)
+    report_number = Column(String(100), unique=True, nullable=False, index=True)
+    report_title = Column(String(255), nullable=False)
+    template_id = Column(String(50), index=True)
+
+    # Associated data
+    sample_ids = Column(JSON)  # Array of sample IDs
+    test_ids = Column(JSON)  # Array of test IDs
+
+    # File details
+    file_path = Column(String(255))
+    file_size = Column(Integer)  # in bytes
+    language = Column(String(50), default='English')
+
+    # Status tracking
+    status = Column(String(50), default='Draft', index=True)  # Draft, Pending Signature, Signed, Distributed
+
+    # Signatures (digital signature support)
+    signatures = Column(JSON)  # Array of signature records with role, timestamp, signature data
+
+    # Distribution tracking
+    distributed_to = Column(JSON)  # Email addresses list
+    distribution_date = Column(DateTime)
+
+    # Metadata
+    generated_by = Column(String(100))
+    generated_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    def __repr__(self):
+        return f"<GeneratedReport(number='{self.report_number}', status='{self.status}')>"
+
+
+class ScheduledReport(Base):
+    """Scheduled report model for automated report generation"""
+    __tablename__ = 'scheduled_reports'
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True, index=True)
+    schedule_id = Column(String(50), unique=True, nullable=False, index=True)
+    schedule_name = Column(String(200), nullable=False)
+    template_id = Column(String(50), index=True)
+
+    # Schedule parameters
+    frequency = Column(String(50))  # Daily, Weekly, Monthly, On Test Completion
+    trigger_time = Column(String(10))  # HH:MM format for scheduled reports
+
+    # Filters for report data
+    filters = Column(JSON)  # Protocol, date range, sample type filters
+
+    # Distribution configuration
+    recipients = Column(JSON)  # Email list for distribution
+
+    # Status and execution tracking
+    is_active = Column(Boolean, default=True, index=True)
+    last_run = Column(DateTime)
+    next_run = Column(DateTime, index=True)
+    last_status = Column(String(50))  # Success, Failed, etc.
+
+    # Audit fields
+    created_by = Column(String(100))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, onupdate=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<ScheduledReport(name='{self.schedule_name}', frequency='{self.frequency}')>"

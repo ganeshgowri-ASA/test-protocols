@@ -85,7 +85,7 @@ if st.button("⬆️ RUN MIGRATION 004 (Add Missing Columns)", type="secondary",
         statements = [s.strip() for s in migration_sql.split(';') if s.strip() and not s.strip().startswith('--')]
         
         for statement in statements:
-            if statement and 'ALTER TABLE' in statement.upper():
+            if statement and ('ALTER TABLE' in statement.upper() or 'DO $$' in statement):
                 db.execute(text(statement))
         
         db.commit()
@@ -117,7 +117,7 @@ if st.button("🔧 RUN MIGRATION 006 (Service Requests Columns)", type="secondar
         statements = [s.strip() for s in migration_sql.split(';') if s.strip() and not s.strip().startswith('--')]
         
         for statement in statements:
-            if statement and 'ALTER TABLE' in statement.upper():
+            if statement and ('ALTER TABLE' in statement.upper() or 'DO $$' in statement):
                 db.execute(text(statement))
         
         db.commit()

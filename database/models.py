@@ -218,6 +218,12 @@ class ServiceRequest(Base):
     notes = Column(Text)
     attachments = Column(JSON)  # List of file paths
 
+    # Sample quantity tracking (from migration 002)
+    expected_sample_quantity = Column(Integer, default=1)
+    actual_sample_quantity = Column(Integer)
+    quantity_verified = Column(Boolean, default=False)
+    receipt_id = Column(Integer, ForeignKey("sample_receipts.id"))
+
     __table_args__ = ({'extend_existing': True},
         Index('idx_service_request_status', 'status'),
         Index('idx_service_request_created', 'created_at'),
@@ -268,6 +274,11 @@ class IncomingInspection(Base):
     # Results
     passed = Column(Boolean)
     remarks = Column(Text)
+
+    # Receipt linkage and allocation tracking (from migration 002)
+    receipt_id = Column(Integer, ForeignKey("sample_receipts.id"))
+    allocation_triggered = Column(Boolean, default=False)
+    allocated_sample_id = Column(Integer)
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

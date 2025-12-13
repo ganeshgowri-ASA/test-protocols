@@ -39,6 +39,130 @@ def generate_document_number():
         return f"DOC-{datetime.now().year}-{count + 1:05d}"
 
 
+def create_new_version(old_doc, db):
+    """Create a new version of an existing document"""
+    # Mark old version as superseded
+    old_doc.status = DocumentStatus.SUPERSEDED
+    old_doc.is_current_version = False
+    old_doc.obsolete_date = datetime.utcnow()
+    
+    # Parse version number and increment
+    try:
+        major, minor = map(int, old_doc.version.split('.'))
+        new_version = f"{major}.{minor + 1}"
+    except:
+        new_version = "1.0"
+    
+    # Create new document version
+    new_doc = Document(
+        document_number=old_doc.document_number,
+        title=old_doc.title,
+        description=old_doc.description,
+        category=old_doc.category,
+        document_type=old_doc.document_type,
+        department=old_doc.department,
+        process_area=old_doc.process_area,
+        tags=old_doc.tags,
+        version=new_version,
+        revision_number=old_doc.revision_number + 1,
+        is_current_version=True,
+        previous_version_id=old_doc.id,
+        status=DocumentStatus.DRAFT,
+        access_level=old_doc.access_level,
+        allowed_roles=old_doc.allowed_roles,
+        author_id=old_doc.author_id,
+        effective_date=datetime.utcnow(),
+        next_review_date=datetime.utcnow() + timedelta(days=365)
+    )
+    db.add(new_doc)
+    db.commit()
+    db.refresh(new_doc)
+    return new_doc
+
+
+def render_signature_section(document, user_role, db):
+    """Render digital signature section for document approval"""
+    st.markdown("#### ✍️ Digital Signatures")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("**Author**")
+        if document.author_signature:
+            st.success(f"✅ Signed on {document.author_signature_date.strftime('%Y-%m-%d %H:%M') if document.author_signature_date else 'N/A'}")
+        else:
+            if user_role == "author":
+                signature_text = st.text_input("Enter your full name to sign", key=f"author_sig_{document.id}")
+                if st.button("Sign as Author", key=f"author_sign_{document.id}"):
+                    if signature_text:
+                        document.author_signature = signature_text
+                        document.author_signature_date = datetime.utcnow()
+                        db.commit()
+                        st.success("Document signed!")
+                        st.rerun()
+    
+    with col2:
+        st.markdown("**Reviewer**")
+        if document.reviewer_signature:
+            st.success(f"✅ Signed on {document.reviewer_signature_date.strftime('%Y-%m-%d %H:%M') if document.reviewer_signature_date else 'N/A'}")
+        else:
+            if user_role == "reviewer" and document.status == DocumentStatus.IN_REVIEW:
+                signature_text = st.text_input("Enter your full name to sign", key=f"reviewer_sig_{document.id}")
+                if st.button("Sign as Reviewer", key=f"reviewer_sign_{document.id}"):
+                    if signature_text:
+                        document.reviewer_signature = signature_text
+                        document.reviewer_signature_date = datetime.utcnow()
+                        document.reviewer_id = 1  # In real app, use actual user ID
+                        document.review_date = datetime.utcnow()
+                        db.commit()
+                        st.success("Review signed!")
+                        st.rerun()
+    
+    with col3:
+        st.markdown("**Approver**")
+        if document.approver_signature:
+            st.success(f"✅ Signed on {document.approver_signature_date.strftime('%Y-%m-%d %H:%M') if document.approver_signature_date else 'N/A'}")
+        else:
+            if user_role == "approver" and document.status == DocumentStatus.IN_REVIEW and document.reviewer_signature:
+                signature_text = st.text_input("Enter your full name to sign", key=f"approver_sig_{document.id}")
+                if st.button("Sign as Approver", key=f"approver_sign_{document.id}"):
+                    if signature_text:
+                        document.approver_signature = signature_text
+                        document.approver_signature_date = datetime.utcnow()
+                        document.approver_id = 1  # In real app, use actual user ID
+                        document.approval_date = datetime.utcnow()
+                        db.commit()
+                        st.success("Approval signed!")
+                        st.rerun()
+
+
+def render_version_history(document, db):
+    """Render version history for a document"""
+    st.markdown("#### 📜 Version History")
+    
+    # Get all versions of this document
+    versions = []
+    current = document
+    
+    # Get all versions with same document_number
+    all_versions = db.execute(
+        select(Document)
+        .where(Document.document_number == document.document_number)
+        .order_by(desc(Document.revision_number))
+    ).scalars().all()
+    
+    if len(all_versions) > 1:
+        for version in all_versions:
+            status_icon = "🟢" if version.is_current_version else "⚪"
+            col1, col2, col3, col4 = st.columns([1, 2, 2, 2])
+            col1.markdown(f"{status_icon} **v{version.version}**")
+            col2.markdown(f"Rev {version.revision_number}")
+            col3.markdown(f"{version.status.value.upper() if version.status else 'N/A'}")
+            col4.markdown(f"{version.updated_at.strftime('%Y-%m-%d') if version.updated_at else 'N/A'}")
+    else:
+        st.info("This is the first version of this document")
+
+
 def main():
     """Main document management page"""
 
@@ -200,6 +324,21 @@ def render_document_library():
                         if doc.change_summary:
                             st.info(f"**Change Summary:** {doc.change_summary}")
 
+                        # Version history
+                        if st.checkbox("📜 Show Version History", key=f"history_{doc.id}"):
+                            render_version_history(doc, db)
+
+                        # Digital signatures display
+                        if doc.status in [DocumentStatus.APPROVED, DocumentStatus.IN_REVIEW]:
+                            if st.checkbox("✍️ Show Signatures", key=f"sigs_{doc.id}"):
+                                cols = st.columns(3)
+                                if doc.author_signature:
+                                    cols[0].success(f"Author: {doc.author_signature}")
+                                if doc.reviewer_signature:
+                                    cols[1].success(f"Reviewer: {doc.reviewer_signature}")
+                                if doc.approver_signature:
+                                    cols[2].success(f"Approver: {doc.approver_signature}")
+
                         # Action buttons
                         col1, col2, col3, col4 = st.columns(4)
 
@@ -219,7 +358,9 @@ def render_document_library():
                         with col2:
                             if doc.status == DocumentStatus.APPROVED:
                                 if st.button("🔄 New Version", key=f"newver_{doc.id}"):
-                                    st.session_state.new_version_doc = doc.id
+                                    new_doc = create_new_version(doc, db)
+                                    st.success(f"✅ New version created: v{new_doc.version}")
+                                    st.rerun()
 
                         with col3:
                             if doc.status == DocumentStatus.DRAFT:
@@ -378,6 +519,11 @@ def render_pending_reviews():
                         if doc.description:
                             st.markdown(f"**Description:** {doc.description[:100]}...")
 
+                    # Digital signatures section
+                    st.markdown("---")
+                    render_signature_section(doc, "reviewer", db)  # For reviewers
+                    st.markdown("---")
+
                     # Review actions
                     review_notes = st.text_area(
                         "Review Comments",
@@ -388,21 +534,35 @@ def render_pending_reviews():
                     col1, col2, col3 = st.columns(3)
 
                     with col1:
-                        if st.button("✅ Approve", key=f"approve_{doc.id}", type="primary"):
-                            doc.status = DocumentStatus.APPROVED
-                            doc.reviewer_id = 1
-                            doc.review_date = datetime.utcnow()
-                            doc.approval_date = datetime.utcnow()
-                            doc.approver_id = 1
-                            doc.notes = review_notes
-                            db.commit()
-                            st.success("Document approved!")
-                            st.rerun()
+                        # Require signatures before approval
+                        can_approve = doc.reviewer_signature is not None
+                        if st.button("✅ Approve", key=f"approve_{doc.id}", type="primary", disabled=not can_approve):
+                            if can_approve:
+                                # Check if approver signature exists
+                                if doc.approver_signature:
+                                    doc.status = DocumentStatus.APPROVED
+                                    doc.reviewer_id = 1
+                                    doc.review_date = datetime.utcnow()
+                                    doc.approval_date = datetime.utcnow()
+                                    doc.approver_id = 1
+                                    doc.notes = review_notes
+                                    db.commit()
+                                    st.success("Document approved!")
+                                    st.rerun()
+                                else:
+                                    st.warning("Approver signature required before final approval")
+                        if not can_approve:
+                            st.caption("⚠️ Reviewer signature required")
 
                     with col2:
                         if st.button("🔄 Request Changes", key=f"changes_{doc.id}"):
                             doc.status = DocumentStatus.DRAFT
                             doc.notes = f"Changes requested: {review_notes}"
+                            # Clear signatures when requesting changes
+                            doc.reviewer_signature = None
+                            doc.reviewer_signature_date = None
+                            doc.approver_signature = None
+                            doc.approver_signature_date = None
                             db.commit()
                             st.warning("Sent back for revisions")
                             st.rerun()

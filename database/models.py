@@ -240,7 +240,6 @@ class ServiceRequest(Base):
     quantity_verified = Column(Boolean, default=False)
     receipt_id = Column(Integer, ForeignKey("sample_receipts.id"))
 
-    __table_args__ = ({'extend_existing': True},
     __table_args__ = (
         Index('idx_service_request_status', 'status'),
         Index('idx_service_request_created', 'created_at'),

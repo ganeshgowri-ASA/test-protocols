@@ -23,6 +23,7 @@ from database.models import (
     RouteCard,
     SampleTestAssignment,
     SampleInventory,
+    SampleAllocation,
 
     # Training Models
     StaffTraining,
@@ -79,6 +80,7 @@ __all__ = [
     'RouteCard',
     'SampleTestAssignment',
     'SampleInventory',
+        'SampleAllocation',
 
     # Training Models
     'StaffTraining',

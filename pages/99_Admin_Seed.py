@@ -2,6 +2,7 @@
 import streamlit as st
 from config.database import get_session_local
 from database.seed_data import seed_test_protocols
+from sqlalchemy import text
 
 st.set_page_config(page_title="Database Seeding", page_icon="🌱")
 
@@ -85,7 +86,7 @@ if st.button("⬆️ RUN MIGRATION 004 (Add Missing Columns)", type="secondary",
         
         for statement in statements:
             if statement and 'ALTER TABLE' in statement.upper():
-                db.execute(statement)
+                db.executetext(statement))
         
         db.commit()
         db.close()

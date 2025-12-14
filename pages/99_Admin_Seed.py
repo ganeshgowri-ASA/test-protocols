@@ -129,4 +129,66 @@ if st.button("🔧 RUN MIGRATION 006 (Service Requests Columns)", type="secondar
         
     except Exception as e:
         st.error(f"Migration failed: {str(e)}")
+
+        # Migration 009: Add ISO 17025 Sample IDs
+        if st.button("🔬 RUN MIGRATION 009 (ISO 17025 Sample IDs)", type="secondary", use_container_width=True):
+                try:
+                            import os
+                            SessionLocal = get_session_local()
+                            db = SessionLocal()
+
+                # Read migration SQL file
+                migration_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'migrations', '009_add_iso17025_sample_ids_UP.sql')
+
+                with open(migration_path, 'r') as f:
+                                migration_sql = f.read()
+
+                # Split by semicolon and execute each statement
+                statements = [s.strip() for s in migration_sql.split(';') if s.strip() and not s.strip().startswith('--')]
+
+                for statement in statements:
+                                if statement and ('ALTER TABLE' in statement.upper() or 'DO $$' in statement):
+                                                    db.execute(text(statement))
+
+                db.commit()
+                db.close()
+
+                st.success("✅ Migration 009 completed successfully! ISO 17025 sample ID columns added.")
+                st.balloons()
+                st.info("🔬 Please refresh the Sample Receipt page to test ISO 17025 sample tracking.")
+
+            except Exception as e:
+                        st.error(f"Migration failed: {str(e)}")
+                        st.exception(e)
+
+    # Migration 010: Add Missing Columns to Multiple Tables
+    if st.button("⚙️ RUN MIGRATION 010 (Add Missing Columns)", type="secondary", use_container_width=True):
+            try:
+                        import os
+                        SessionLocal = get_session_local()
+                        db = SessionLocal()
+
+        # Read migration SQL file
+        migration_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'migrations', '010_add_missing_columns_UP.sql')
+
+        with open(migration_path, 'r') as f:
+                        migration_sql = f.read()
+
+        # Split by semicolon and execute each statement
+        statements = [s.strip() for s in migration_sql.split(';') if s.strip() and not s.strip().startswith('--')]
+
+        for statement in statements:
+                        if statement and ('ALTER TABLE' in statement.upper() or 'DO $$' in statement):
+                                            db.execute(text(statement))
+
+        db.commit()
+        db.close()
+
+        st.success("✅ Migration 010 completed successfully! All missing columns have been added.")
+        st.balloons()
+        st.info("🔄 Please refresh all pages to verify the database schema updates.")
+
+    except Exception as e:
+        st.error(f"Migration failed: {str(e)}")
         st.exception(e)
+        

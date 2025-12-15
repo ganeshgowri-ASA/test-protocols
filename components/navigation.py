@@ -268,6 +268,34 @@ def handle_quick_action(action: str):
         st.switch_page("pages/1_🏢_Company_Settings.py")
 
 
+def get_equipment_status_counts():
+    """
+    Get equipment availability counts from database.
+
+    Returns:
+        Tuple of (available_count, total_count)
+    """
+    try:
+        from database import Equipment
+        from database.models import EquipmentStatus
+        from sqlalchemy import func
+
+        with get_db() as db:
+            total = db.execute(
+                select(func.count(Equipment.id))
+            ).scalar() or 0
+
+            available = db.execute(
+                select(func.count(Equipment.id)).where(
+                    Equipment.status == EquipmentStatus.AVAILABLE
+                )
+            ).scalar() or 0
+
+            return available, total
+    except Exception:
+        return None, None
+
+
 def render_system_status():
     """Render system status indicators"""
 
@@ -281,11 +309,15 @@ def render_system_status():
     else:
         st.error("❌ Database Error")
 
-    # Equipment status (placeholder)
-    st.info("⚙️ Equipment: 12/15 Available")
+    # Equipment status - query real data
+    available, total = get_equipment_status_counts()
+    if available is not None and total is not None:
+        st.info(f"⚙️ Equipment: {available}/{total} Available")
+    else:
+        st.info("⚙️ Equipment: N/A")
 
-    # Active users (placeholder)
-    st.info("👥 Active Users: 8")
+    # Active users (placeholder - would require session tracking)
+    st.info("👥 Active Users: --")
 
 
 def render_breadcrumb(items: list):

@@ -192,3 +192,30 @@ if st.button("⚙️ RUN MIGRATION 010 (Add Missing Columns)", type="secondary",
     except Exception as e:
         st.error(f"Migration failed: {str(e)}")
         st.exception(e)
+
+# Migration 011: Add Status Column to Samples Table
+if st.button("📊 RUN MIGRATION 011 (Add Samples Status Column)", type="secondary", use_container_width=True):
+    try:
+        import os
+        SessionLocal = get_session_local()
+        db = SessionLocal()
+
+        # Read migration SQL file
+        migration_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'migrations', '011_add_samples_status_column_UP.sql')
+
+        with open(migration_path, 'r') as f:
+            migration_sql = f.read()
+
+        # Execute the DO $$ block as a single statement
+        db.execute(text(migration_sql))
+
+        db.commit()
+        db.close()
+
+        st.success("✅ Migration 011 completed successfully! Status column added to samples table.")
+        st.balloons()
+        st.info("📊 Please refresh the Sample Tracking Dashboard to verify the fix.")
+
+    except Exception as e:
+        st.error(f"Migration failed: {str(e)}")
+        st.exception(e)

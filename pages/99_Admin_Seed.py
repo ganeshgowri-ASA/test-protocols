@@ -389,6 +389,7 @@ with tab3:
     st.markdown("### 📊 Table Record Counts")
 
     try:
+        from config.database import get_session_local
         SessionLocal = get_session_local()
         db = SessionLocal()
 

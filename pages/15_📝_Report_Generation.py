@@ -162,10 +162,10 @@ def render_generate_report(reports_dir):
         if selected_samples:
             with get_db() as db:
                 # Get tests for selected samples
+                # TestExecution.sample_id is a string field, not FK, so query directly
                 test_executions = db.execute(
                     select(TestExecution)
-                    .join(Sample)
-                    .where(Sample.sample_id.in_(selected_samples))
+                    .where(TestExecution.sample_id.in_(selected_samples))
                     .where(TestExecution.status == TestStatus.COMPLETED)
                 ).scalars().all()
                 
@@ -257,10 +257,10 @@ def _generate_report(template_id, sample_ids, test_ids, language, include_charts
                 return False
             
             # Get test executions
+            # TestExecution.sample_id is a string field, not FK, so query directly
             test_executions = db.execute(
                 select(TestExecution)
-                .join(Sample)
-                .where(Sample.sample_id.in_(sample_ids))
+                .where(TestExecution.sample_id.in_(sample_ids))
                 .where(TestExecution.status == TestStatus.COMPLETED)
             ).scalars().all()
             

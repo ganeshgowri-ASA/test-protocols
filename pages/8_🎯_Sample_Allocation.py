@@ -251,7 +251,7 @@ def render_allocation_form():
             st.markdown("**Technician Assignment**")
             
             tech_options = {
-                f"{tech.name} - {tech.email}": tech
+                f"{tech.full_name} - {tech.email}": tech
                 for tech in technicians
             }
             
@@ -649,7 +649,7 @@ def render_search_allocations():
                 with col2:
                     st.markdown("**Resources**")
                     st.caption(f"Equipment: {equipment.name if equipment else 'Not assigned'}")
-                    st.caption(f"Technician: {technician.name if technician else 'Not assigned'}")
+                    st.caption(f"Technician: {technician.full_name if technician else 'Not assigned'}")
                     st.caption(f"Priority: {['High', 'Medium', 'Low'][alloc.priority - 1]}")
 
                 with col3:

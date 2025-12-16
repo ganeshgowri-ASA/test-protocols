@@ -1,87 +1,164 @@
 -- ============================================================================
 -- Migration: 013_sample_traceability_fields_UP.sql
--- Description: Ensure sample traceability fields exist with proper JSONB type
+-- Description: Add missing traceability fields to samples and related tables
 -- Date: 2024
--- Purpose: Safety migration to ensure custody_history, specifications use JSONB
+-- Purpose: Ensure sample traceability chain is complete
 -- ============================================================================
 
 -- ============================================================================
--- SAMPLES TABLE - TRACEABILITY FIELDS
--- These columns may already exist from migration 012
--- This migration ensures they exist and upgrades JSON to JSONB if needed
+-- ADD MISSING COLUMNS TO SAMPLES TABLE
+-- These columns enable full traceability from receipt to completion
 -- ============================================================================
 
--- Add custody_history if not exists (JSONB for better query performance)
-ALTER TABLE samples ADD COLUMN IF NOT EXISTS custody_history JSONB;
-
--- Add specifications if not exists (JSONB for better query performance)
-ALTER TABLE samples ADD COLUMN IF NOT EXISTS specifications JSONB;
-
--- Add inspection_id if not exists
-ALTER TABLE samples ADD COLUMN IF NOT EXISTS inspection_id INTEGER;
-
--- ============================================================================
--- INCOMING_INSPECTIONS TABLE - RECEIPT LINK
--- This column may already exist from migration 004
--- ============================================================================
-
--- Add receipt_id if not exists
-ALTER TABLE incoming_inspections ADD COLUMN IF NOT EXISTS receipt_id INTEGER;
-
--- ============================================================================
--- CREATE INDEXES FOR TRACEABILITY QUERIES
--- ============================================================================
-
--- Index for samples.inspection_id (FK lookup)
-CREATE INDEX IF NOT EXISTS idx_samples_inspection_id ON samples(inspection_id);
-
--- Index for incoming_inspections.receipt_id (FK lookup)
-CREATE INDEX IF NOT EXISTS idx_incoming_inspections_receipt_id ON incoming_inspections(receipt_id);
-
--- GIN index for JSONB custody_history (for @> containment queries)
-CREATE INDEX IF NOT EXISTS idx_samples_custody_history ON samples USING GIN (custody_history);
-
--- GIN index for JSONB specifications (for @> containment queries)
-CREATE INDEX IF NOT EXISTS idx_samples_specifications ON samples USING GIN (specifications);
-
--- ============================================================================
--- ADD FOREIGN KEY CONSTRAINTS IF NOT EXISTS
--- ============================================================================
-
--- Foreign key: samples.inspection_id -> incoming_inspections.id
+-- Add receipt_id if it doesn't exist (links sample to its receipt record)
 DO $$
 BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM information_schema.table_constraints
-        WHERE constraint_name = 'fk_samples_inspection'
-        AND table_name = 'samples'
-    ) THEN
-        ALTER TABLE samples
-        ADD CONSTRAINT fk_samples_inspection
-        FOREIGN KEY (inspection_id) REFERENCES incoming_inspections(id)
-        ON DELETE SET NULL;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_name = 'samples' AND column_name = 'receipt_id') THEN
+        ALTER TABLE samples ADD COLUMN receipt_id INTEGER REFERENCES sample_receipts(id);
+        CREATE INDEX IF NOT EXISTS idx_samples_receipt_id ON samples(receipt_id);
     END IF;
-EXCEPTION WHEN others THEN
-    RAISE NOTICE 'Could not create FK fk_samples_inspection: %', SQLERRM;
 END $$;
 
--- Foreign key: incoming_inspections.receipt_id -> sample_receipts.id
+-- Add inspection_id if it doesn't exist (links sample to its inspection record)
 DO $$
 BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM information_schema.table_constraints
-        WHERE constraint_name = 'fk_incoming_inspections_receipt'
-        AND table_name = 'incoming_inspections'
-    ) THEN
-        ALTER TABLE incoming_inspections
-        ADD CONSTRAINT fk_incoming_inspections_receipt
-        FOREIGN KEY (receipt_id) REFERENCES sample_receipts(id)
-        ON DELETE SET NULL;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_name = 'samples' AND column_name = 'inspection_id') THEN
+        ALTER TABLE samples ADD COLUMN inspection_id INTEGER REFERENCES incoming_inspections(id);
+        CREATE INDEX IF NOT EXISTS idx_samples_inspection_id ON samples(inspection_id);
     END IF;
-EXCEPTION WHEN others THEN
-    RAISE NOTICE 'Could not create FK fk_incoming_inspections_receipt: %', SQLERRM;
+END $$;
+
+-- Add batch_number if it doesn't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_name = 'samples' AND column_name = 'batch_number') THEN
+        ALTER TABLE samples ADD COLUMN batch_number VARCHAR(100);
+    END IF;
+END $$;
+
+-- Add custody_history if it doesn't exist (chain of custody tracking)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_name = 'samples' AND column_name = 'custody_history') THEN
+        ALTER TABLE samples ADD COLUMN custody_history JSON;
+    END IF;
 END $$;
 
 -- ============================================================================
--- END OF MIGRATION
+-- ADD MISSING COLUMNS TO INCOMING_INSPECTIONS TABLE
+-- These columns enable allocation workflow tracking
+-- ============================================================================
+
+-- Add receipt_id to link inspection to receipt
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_name = 'incoming_inspections' AND column_name = 'receipt_id') THEN
+        ALTER TABLE incoming_inspections ADD COLUMN receipt_id INTEGER REFERENCES sample_receipts(id);
+        CREATE INDEX IF NOT EXISTS idx_incoming_inspections_receipt_id ON incoming_inspections(receipt_id);
+    END IF;
+END $$;
+
+-- Add allocation_triggered flag
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_name = 'incoming_inspections' AND column_name = 'allocation_triggered') THEN
+        ALTER TABLE incoming_inspections ADD COLUMN allocation_triggered BOOLEAN DEFAULT FALSE;
+    END IF;
+END $$;
+
+-- Add allocated_sample_id to track which sample was created from this inspection
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_name = 'incoming_inspections' AND column_name = 'allocated_sample_id') THEN
+        ALTER TABLE incoming_inspections ADD COLUMN allocated_sample_id INTEGER;
+    END IF;
+END $$;
+
+-- ============================================================================
+-- ADD MISSING COLUMNS TO SERVICE_REQUESTS TABLE
+-- These columns enable sample quantity tracking
+-- ============================================================================
+
+-- Add expected_sample_quantity
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_name = 'service_requests' AND column_name = 'expected_sample_quantity') THEN
+        ALTER TABLE service_requests ADD COLUMN expected_sample_quantity INTEGER DEFAULT 1;
+    END IF;
+END $$;
+
+-- Add actual_sample_quantity
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_name = 'service_requests' AND column_name = 'actual_sample_quantity') THEN
+        ALTER TABLE service_requests ADD COLUMN actual_sample_quantity INTEGER;
+    END IF;
+END $$;
+
+-- Add quantity_verified flag
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_name = 'service_requests' AND column_name = 'quantity_verified') THEN
+        ALTER TABLE service_requests ADD COLUMN quantity_verified BOOLEAN DEFAULT FALSE;
+    END IF;
+END $$;
+
+-- Add receipt_id to link service request to receipt
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_name = 'service_requests' AND column_name = 'receipt_id') THEN
+        ALTER TABLE service_requests ADD COLUMN receipt_id INTEGER REFERENCES sample_receipts(id);
+    END IF;
+END $$;
+
+-- ============================================================================
+-- CREATE SAMPLE_RECEIPTS TABLE IF NOT EXISTS
+-- This table is needed for the traceability chain
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS sample_receipts (
+    id SERIAL PRIMARY KEY,
+    receipt_number VARCHAR(50) UNIQUE NOT NULL,
+    service_request_id INTEGER REFERENCES service_requests(id),
+    received_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    received_by_id INTEGER REFERENCES users(id),
+    client_name VARCHAR(100),
+    client_reference VARCHAR(100),
+    courier_name VARCHAR(100),
+    tracking_number VARCHAR(100),
+    package_count INTEGER DEFAULT 1,
+    package_condition VARCHAR(50),
+    package_photos JSON,
+    expected_sample_count INTEGER,
+    actual_sample_count INTEGER,
+    quantity_mismatch BOOLEAN DEFAULT FALSE,
+    mismatch_notes TEXT,
+    requires_supervisor_approval BOOLEAN DEFAULT FALSE,
+    supervisor_approved BOOLEAN,
+    supervisor_id INTEGER REFERENCES users(id),
+    approval_date TIMESTAMP,
+    approval_notes TEXT,
+    status VARCHAR(20) DEFAULT 'pending',
+    remarks TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_sample_receipts_service_request ON sample_receipts(service_request_id);
+CREATE INDEX IF NOT EXISTS idx_sample_receipts_received_date ON sample_receipts(received_date);
+CREATE INDEX IF NOT EXISTS idx_sample_receipts_status ON sample_receipts(status);
+
+-- ============================================================================
+-- END OF MIGRATION 013
 -- ============================================================================

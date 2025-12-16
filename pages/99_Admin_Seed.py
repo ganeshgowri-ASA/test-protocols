@@ -139,7 +139,7 @@ if st.button("🔬 RUN MIGRATION 009 (ISO 17025 Sample IDs)", type="secondary", 
            db = SessionLocal()
 
       # Read migration SQL file
-        ation_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'migrations', '009_add_iso17025_sample_ids_UP.sql')
+        migration_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'migrations', '009_add_iso17025_sample_ids_UP.sql')
 
               with open(migration_path, 'r') as f:
              migration_sql = f.read()

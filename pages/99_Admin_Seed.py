@@ -106,6 +106,13 @@ MIGRATIONS = [
         "file_path": "database/migrations/013_sample_traceability_fields",
         "category": "sample"
     },
+    {
+        "id": "014",
+        "name": "Sample Specifications Column",
+        "description": "Add specifications JSON column to samples table for Sample Allocation page",
+        "file_path": "database/migrations/014_sample_specifications_column",
+        "category": "sample"
+    },
 ]
 
 # ============================================================================

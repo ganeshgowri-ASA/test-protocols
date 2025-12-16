@@ -64,9 +64,10 @@ def run_phase1_migration_if_needed():
             cursor.execute(migration_sql)
             conn.commit()
             logger.info("✅ Phase 1 migration completed successfully!")
+
         else:
             logger.info("Phase 1 tables already exist. Skipping migration.")
-        
+
         cursor.close()
     except Exception as e:
         logger.error(f"Phase 1 migration error: {e}")

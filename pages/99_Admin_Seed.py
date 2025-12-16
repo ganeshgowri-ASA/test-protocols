@@ -170,7 +170,7 @@ if st.button("⚙️ RUN MIGRATION 010 (Add Missing Columns)", type="secondary",
            db = SessionLocal()
 
   # Read migration SQL file
-  migration_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'migrations', '010_add_missing_columns_UP.sql')
+          migration_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'migrations', '010_add_missing_columns_UP.sql')
 
   with open(migration_path, 'r') as f:
          migration_sql = f.read()

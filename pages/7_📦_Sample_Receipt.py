@@ -291,6 +291,7 @@ def render_receive_sample_form():
                 serial_numbers_list = [s.strip() for s in serial_number.split(',') if s.strip()] if serial_number else []
                 
                 # Create sample record
+                # Note: received_date is stored via created_at and in notes
                 new_sample = Sample(
                     sample_id=sample_id,
                     qr_code=qr_code_text,
@@ -305,9 +306,8 @@ def render_receive_sample_form():
                     status=SampleStatus.RECEIVED,
                     storage_location=storage_location,
                     current_location=storage_location,
-                    notes=f"Condition: {condition}\n{condition_notes}\n{notes}".strip(),
+                    notes=f"Condition: {condition}\nReceived: {received_date}\n{condition_notes}\n{notes}".strip(),
                     photos=photo_paths if photo_paths else None,
-                    received_date=datetime.combine(received_date, datetime.now().time()),
                     created_at=datetime.utcnow()
                 )
                 

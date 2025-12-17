@@ -26,91 +26,91 @@ MIGRATIONS = [
         "id": "002",
         "name": "Sample Management",
         "description": "Create comprehensive sample management tables (receipts, samples, tracking)",
-        "file_path": "database/migrations/002_sample_management",
+        "file_path": "docs/migrations/002_sample_management",
         "category": "sample"
     },
     {
         "id": "003",
         "name": "User Roles",
         "description": "Add role-based access control columns",
-        "file_path": "database/migrations/003_user_roles",
+        "file_path": "docs/migrations/003_user_roles",
         "category": "auth"
     },
     {
         "id": "004",
         "name": "Test Protocols Enhancement",
         "description": "Add protocol versioning and template fields",
-        "file_path": "database/migrations/004_test_protocols_enhancement",
+        "file_path": "docs/migrations/004_test_protocols_enhancement",
         "category": "testing"
     },
     {
         "id": "005",
         "name": "Equipment Booking Enhancement",
         "description": "Add recurring booking and conflict detection",
-        "file_path": "database/migrations/005_equipment_booking_enhancement",
+        "file_path": "docs/migrations/005_equipment_booking_enhancement",
         "category": "equipment"
     },
     {
         "id": "006",
         "name": "Audit Trail Enhancement",
         "description": "Add comprehensive audit logging fields",
-        "file_path": "database/migrations/006_audit_trail_enhancement",
+        "file_path": "docs/migrations/006_audit_trail_enhancement",
         "category": "audit"
     },
     {
         "id": "007",
         "name": "Document Management",
         "description": "Add document versioning and approval workflow",
-        "file_path": "database/migrations/007_document_management",
+        "file_path": "docs/migrations/007_document_management",
         "category": "documents"
     },
     {
         "id": "008",
         "name": "Training Records",
         "description": "Add staff training and certification tracking",
-        "file_path": "database/migrations/008_training_records",
+        "file_path": "docs/migrations/008_training_records",
         "category": "training"
     },
     {
         "id": "009",
         "name": "BOM Management",
         "description": "Add bill of materials and inventory tracking",
-        "file_path": "database/migrations/009_bom_management",
+        "file_path": "docs/migrations/009_bom_management",
         "category": "inventory"
     },
     {
         "id": "010",
         "name": "QR Code Scanning",
         "description": "Add QR scan logging and tracking",
-        "file_path": "database/migrations/010_qr_code_scanning",
+        "file_path": "docs/migrations/010_qr_code_scanning",
         "category": "tracking"
     },
     {
         "id": "011",
         "name": "Report Generation",
         "description": "Add report templates and generation history",
-        "file_path": "database/migrations/011_report_generation",
+        "file_path": "docs/migrations/011_report_generation",
         "category": "reports"
     },
     {
         "id": "012",
         "name": "Data Analysis",
         "description": "Add analysis results and statistical data tables",
-        "file_path": "database/migrations/012_data_analysis",
+        "file_path": "docs/migrations/012_data_analysis",
         "category": "analysis"
     },
     {
         "id": "013",
         "name": "Sample Traceability Fields",
         "description": "Add receipt_id, allocation tracking, and traceability columns to samples and inspections",
-        "file_path": "database/migrations/013_sample_traceability_fields",
+        "file_path": "docs/migrations/013_sample_traceability_fields",
         "category": "sample"
     },
     {
         "id": "014",
         "name": "Sample Specifications Column",
         "description": "Add specifications JSON column to samples table for Sample Allocation page",
-        "file_path": "database/migrations/014_sample_specifications_column",
+        "file_path": "docs/migrations/014_sample_specifications_column",
         "category": "sample"
     },
 ]

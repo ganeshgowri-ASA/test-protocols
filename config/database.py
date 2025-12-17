@@ -115,6 +115,64 @@ def get_db() -> Generator[Session, None, None]:
         db.close()
 
 
+def _sync_missing_columns(engine):
+    """
+    Sync missing columns to existing tables.
+
+    SQLAlchemy's create_all() doesn't add columns to existing tables.
+    This function adds any missing columns defined in the models.
+    """
+    from sqlalchemy import text, inspect
+
+    inspector = inspect(engine)
+
+    # Define columns that need to exist (table, column, sql_type, default)
+    # These are columns defined in models but may be missing from older databases
+    required_columns = [
+        # samples table columns (from migration 013, 014)
+        ('samples', 'specifications', 'JSON', None),
+        ('samples', 'receipt_id', 'INTEGER', None),
+        ('samples', 'inspection_id', 'INTEGER', None),
+        ('samples', 'batch_number', 'VARCHAR(100)', None),
+        ('samples', 'custody_history', 'JSON', None),
+        ('samples', 'qr_data', 'JSON', None),
+        ('samples', 'photos', 'JSON', None),
+        ('samples', 'assigned_protocol_ids', 'JSON', None),
+        # incoming_inspections table columns (from migration 013)
+        ('incoming_inspections', 'receipt_id', 'INTEGER', None),
+        ('incoming_inspections', 'allocation_triggered', 'BOOLEAN', 'FALSE'),
+        ('incoming_inspections', 'allocated_sample_id', 'INTEGER', None),
+        # service_requests table columns (from migration 013)
+        ('service_requests', 'expected_sample_quantity', 'INTEGER', '1'),
+        ('service_requests', 'actual_sample_quantity', 'INTEGER', None),
+        ('service_requests', 'quantity_verified', 'BOOLEAN', 'FALSE'),
+        ('service_requests', 'receipt_id', 'INTEGER', None),
+    ]
+
+    with engine.connect() as conn:
+        for table_name, column_name, sql_type, default in required_columns:
+            # Check if table exists
+            if table_name not in inspector.get_table_names():
+                continue
+
+            # Check if column exists
+            existing_columns = [col['name'] for col in inspector.get_columns(table_name)]
+            if column_name not in existing_columns:
+                # Add the missing column
+                default_clause = f" DEFAULT {default}" if default else ""
+                try:
+                    # Use appropriate syntax based on database type
+                    if 'sqlite' in str(engine.url):
+                        conn.execute(text(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {sql_type}{default_clause}"))
+                    else:
+                        # PostgreSQL syntax
+                        conn.execute(text(f"ALTER TABLE {table_name} ADD COLUMN IF NOT EXISTS {column_name} {sql_type}{default_clause}"))
+                    conn.commit()
+                    print(f"INFO: Added missing column {table_name}.{column_name}")
+                except Exception as e:
+                    print(f"WARNING: Could not add column {table_name}.{column_name}: {e}")
+
+
 def init_database():
     """
     Initialize database - create all tables
@@ -145,6 +203,9 @@ def init_database():
 
     # Create all tables
     Base.metadata.create_all(bind=engine)
+
+    # Sync schema - add any missing columns to existing tables
+    _sync_missing_columns(engine)
 
     # Initialize session factory
     SessionLocal = get_session_local()

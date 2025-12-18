@@ -48,6 +48,7 @@ from database.models import (
 
     # Report Generation Models
     ReportTemplate,
+    GeneratedReport,
     ScheduledReport,
 
     # Enums
@@ -131,4 +132,6 @@ __all__ = [
 
     # Report Generation Models
     'ReportTemplate',
-    'ScheduledReport',]
+    'GeneratedReport',
+    'ScheduledReport',
+]

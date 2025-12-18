@@ -7,7 +7,7 @@ from datetime import datetime
 from config.database import get_session_local, get_engine
 from database.seed_data import seed_test_protocols
 
-st.set_page_config(page_title="Database Admin - SolarQuest LIMS", page_icon="🛠️")
+st.set_page_config(page_title="Database Admin - HeliOS Quest LIMS", page_icon="🛠️")
 
 # ============================================================================
 # PASSWORD PROTECTION

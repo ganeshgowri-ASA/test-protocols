@@ -29,7 +29,7 @@ class AppConfig:
     """Application configuration class"""
 
     # Application metadata
-    APP_NAME: str = "SolarQuest LIMS - Solar PV Testing & Quality Management System"
+    APP_NAME: str = "HeliOS Quest LIMS - Solar PV Testing & Quality Management System"
     APP_VERSION: str = "1.0.0"
     APP_DESCRIPTION: str = "Solar PV Testing & Quality Management System"
 

@@ -32,6 +32,7 @@ from database import (
     RouteCard, SampleStatus, InspectionStatus
 )
 from sqlalchemy import select, desc, and_
+from sqlalchemy.orm import load_only
 
 # Page configuration
 setup_page_config(page_title="Sample Registration", page_icon="🏷️")
@@ -351,8 +352,23 @@ def render_allocated_samples_list():
 
     try:
         with get_db() as db:
+            # Use load_only to exclude notes column that may not exist in database
             samples = db.execute(
-                select(Sample)
+                select(Sample).options(
+                    load_only(
+                        Sample.id,
+                        Sample.sample_id,
+                        Sample.project_id,
+                        Sample.sample_type,
+                        Sample.manufacturer,
+                        Sample.status,
+                        Sample.current_location,
+                        Sample.allocation_date,
+                        Sample.tests_completed,
+                        Sample.tests_total,
+                        Sample.qr_code_image_path
+                    )
+                )
                 .order_by(desc(Sample.allocation_date))
                 .limit(100)
             ).scalars().all()

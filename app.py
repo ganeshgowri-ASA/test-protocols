@@ -40,7 +40,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 logger.info("=" * 60)
-logger.info("SOLAR PV LIMS-QMS - APPLICATION STARTING")
+logger.info("HELIOS QUEST LIMS - APPLICATION STARTING")
 logger.info(f"Start time: {datetime.now().isoformat()}")
 logger.info(f"Python version: {sys.version}")
 logger.info(f"Working directory: {os.getcwd()}")
@@ -188,14 +188,14 @@ except Exception as e:
 # ============================================================================
 
 st.set_page_config(
-    page_title="Solar PV Testing LIMS-QMS",
+    page_title="HeliOS Quest LIMS - Solar PV Testing & Quality Management System",
     page_icon="☀️",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
         'Get Help': 'https://github.com/ganeshgowri-ASA/test-protocols',
         'Report a bug': 'https://github.com/ganeshgowri-ASA/test-protocols/issues',
-        'About': "Solar PV Testing LIMS-QMS v1.0.0"
+        'About': "HeliOS Quest LIMS - Solar PV Testing & Quality Management System v1.0.0"
     }
 )
 
@@ -375,7 +375,7 @@ def render_sidebar():
         # Logo/Branding
         st.markdown("""
             <div style='text-align: center; padding: 1rem 0;'>
-                <h2 style='margin: 0; color: #FF6B35;'>☀️ Solar PV LIMS</h2>
+                <h2 style='margin: 0; color: #FF6B35;'>☀️ HeliOS Quest LIMS</h2>
                 <p style='margin: 0; color: #666; font-size: 0.875rem;'>v1.0.0</p>
             </div>
         """, unsafe_allow_html=True)
@@ -482,15 +482,15 @@ def render_dashboard():
     # Header
     st.markdown("""
         <div class='main-header'>
-            <h1>☀️ Solar PV Testing LIMS-QMS System</h1>
-            <p style=\"margin: 0; opacity: 0.9;\">Unified Testing Protocol Management</p>
+            <h1>☀️ HeliOS Quest LIMS</h1>
+            <p style=\"margin: 0; opacity: 0.9;\">Solar PV Testing & Quality Management System</p>
         </div>
     """, unsafe_allow_html=True)
     
     # Welcome message
     st.markdown("""
-        ## 🏠 Welcome to the Solar PV Testing LIMS-QMS System
-        
+        ## 🏠 Welcome to HeliOS Quest LIMS
+
         A comprehensive, production-ready platform for managing all aspects of solar PV module
         testing, from service requests through final reporting.
     """)
@@ -587,7 +587,7 @@ def render_dashboard():
     st.divider()
     st.markdown("""
         <div style='text-align: center; color: #666; padding: 20px;'>
-            <p>Solar PV Testing LIMS-QMS System v1.0.0 | 
+            <p>HeliOS Quest LIMS - Solar PV Testing & Quality Management System v1.0.0 |
             54 Testing Protocols | Complete Traceability | Production Ready</p>
         </div>
     """, unsafe_allow_html=True)

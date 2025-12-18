@@ -37,6 +37,7 @@ from database import (
     ReportTemplate, GeneratedReport, ScheduledReport
 )
 from sqlalchemy import select, desc
+from sqlalchemy.orm import load_only
 import json
 
 # Page configuration
@@ -127,9 +128,13 @@ def render_generate_report(reports_dir):
     st.markdown("#### 📦 Select Data for Report")
     
     with get_db() as db:
-        # Get samples for reporting
+        # Get samples for reporting - exclude specifications column which may not exist in DB
         samples = db.execute(
             select(Sample)
+            .options(load_only(
+                Sample.id, Sample.sample_id, Sample.manufacturer, Sample.model_number,
+                Sample.status, Sample.created_at
+            ))
             .where(Sample.status.in_([
                 SampleStatus.COMPLETED,
                 SampleStatus.ANALYZED,
@@ -138,7 +143,7 @@ def render_generate_report(reports_dir):
             .order_by(desc(Sample.created_at))
             .limit(100)
         ).scalars().all()
-        
+
         sample_options = {
             s.sample_id: f"{s.sample_id} - {s.manufacturer or 'N/A'} {s.model_number or ''}"
             for s in samples
@@ -246,9 +251,14 @@ def _generate_report(template_id, sample_ids, test_ids, language, include_charts
     
     try:
         with get_db() as db:
-            # Get samples and tests
+            # Get samples and tests - exclude specifications column which may not exist in DB
             samples = db.execute(
                 select(Sample)
+                .options(load_only(
+                    Sample.id, Sample.sample_id, Sample.manufacturer, Sample.model_number,
+                    Sample.serial_number, Sample.status, Sample.tests_completed, Sample.tests_total,
+                    Sample.overall_result, Sample.created_at, Sample.updated_at
+                ))
                 .where(Sample.sample_id.in_(sample_ids))
             ).scalars().all()
             
@@ -380,7 +390,9 @@ def _generate_report(template_id, sample_ids, test_ids, language, include_charts
             for sample in samples:
                 if sample.status != SampleStatus.REPORTED:
                     sample_record = db.execute(
-                        select(Sample).where(Sample.id == sample.id)
+                        select(Sample)
+                        .options(load_only(Sample.id, Sample.status))
+                        .where(Sample.id == sample.id)
                     ).scalar()
                     if sample_record:
                         sample_record.status = SampleStatus.REPORTED
@@ -398,12 +410,17 @@ def _generate_report(template_id, sample_ids, test_ids, language, include_charts
 
 def _preview_report(sample_ids, language):
     """Preview report content"""
-    
+
     st.markdown("### 👁️ Report Preview")
-    
+
     with get_db() as db:
         samples = db.execute(
             select(Sample)
+            .options(load_only(
+                Sample.id, Sample.sample_id, Sample.manufacturer, Sample.model_number,
+                Sample.serial_number, Sample.status, Sample.tests_completed, Sample.tests_total,
+                Sample.overall_result
+            ))
             .where(Sample.sample_id.in_(sample_ids))
         ).scalars().all()
         

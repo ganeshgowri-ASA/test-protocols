@@ -31,6 +31,7 @@ from database import (
     IncomingInspection, SampleTestAssignment, QRScanLog, SampleStatus
 )
 from sqlalchemy import select, desc, func
+from sqlalchemy.orm import load_only
 
 # Page configuration
 setup_page_config(page_title="Sample Tracking", page_icon="📊")
@@ -173,6 +174,10 @@ def render_dashboard():
     with get_db() as db:
         recent_samples = db.execute(
             select(Sample)
+            .options(load_only(
+                Sample.id, Sample.sample_id, Sample.status,
+                Sample.current_location, Sample.updated_at
+            ))
             .order_by(desc(Sample.updated_at))
             .limit(10)
         ).scalars().all()
@@ -277,6 +282,12 @@ def render_qr_scanner():
             with get_db() as db:
                 sample = db.execute(
                     select(Sample)
+                    .options(load_only(
+                        Sample.id, Sample.sample_id, Sample.project_id, Sample.sample_type,
+                        Sample.manufacturer, Sample.model_number, Sample.serial_number,
+                        Sample.status, Sample.current_location, Sample.tests_completed,
+                        Sample.tests_total, Sample.qr_code_image_path, Sample.updated_at
+                    ))
                     .where(Sample.sample_id == decoded['sample_id'])
                 ).scalar()
 
@@ -466,19 +477,30 @@ def render_sample_tracker():
 
     if search_value:
         with get_db() as db:
+            # Define columns to load - exclude specifications which may not exist in DB
+            sample_columns = load_only(
+                Sample.id, Sample.sample_id, Sample.project_id, Sample.sample_type,
+                Sample.manufacturer, Sample.model_number, Sample.serial_number,
+                Sample.status, Sample.current_location, Sample.tests_completed,
+                Sample.tests_total, Sample.overall_result, Sample.qr_code_image_path,
+                Sample.created_at, Sample.updated_at
+            )
             if search_type == "Sample ID":
                 sample = db.execute(
                     select(Sample)
+                    .options(sample_columns)
                     .where(Sample.sample_id.contains(search_value.upper()))
                 ).scalar()
             elif search_type == "Project ID":
                 sample = db.execute(
                     select(Sample)
+                    .options(sample_columns)
                     .where(Sample.project_id.contains(search_value.upper()))
                 ).scalar()
             else:
                 sample = db.execute(
                     select(Sample)
+                    .options(sample_columns)
                     .where(Sample.serial_number.contains(search_value))
                 ).scalar()
 
@@ -714,6 +736,9 @@ def render_location_map():
                 with get_db() as db:
                     samples = db.execute(
                         select(Sample)
+                        .options(load_only(
+                            Sample.id, Sample.sample_id, Sample.status, Sample.updated_at
+                        ))
                         .where(Sample.current_location == location)
                         .limit(20)
                     ).scalars().all()

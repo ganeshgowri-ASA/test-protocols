@@ -26,6 +26,7 @@ from database import (
     SampleStatus, SampleStatusHistory, User
 )
 from sqlalchemy import select, desc, and_, or_, func
+from sqlalchemy.orm import load_only
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas as pdf_canvas
 from reportlab.lib.units import inch
@@ -511,7 +512,25 @@ def render_view_samples():
     
     # Get samples
     with get_db() as db:
-        query = select(Sample).order_by(desc(Sample.created_at))
+        # Use load_only to exclude notes column that may not exist in database
+        query = select(Sample).options(
+            load_only(
+                Sample.id,
+                Sample.sample_id,
+                Sample.qr_code,
+                Sample.sample_type,
+                Sample.manufacturer,
+                Sample.model_number,
+                Sample.serial_number,
+                Sample.batch_number,
+                Sample.status,
+                Sample.storage_location,
+                Sample.current_location,
+                Sample.created_at,
+                Sample.qr_code_image_path,
+                Sample.photos
+            )
+        ).order_by(desc(Sample.created_at))
         
         # Apply filters
         conditions = []
@@ -598,11 +617,6 @@ def render_view_samples():
                             key=f"dl_{sample.id}",
                             use_container_width=True
                         )
-                
-                # Notes
-                if sample.notes:
-                    st.markdown("**Notes:**")
-                    st.text(sample.notes)
                 
                 # Photos
                 if sample.photos:

@@ -7,7 +7,7 @@ import os
 
 # Page config
 st.set_page_config(
-    page_title="Equipment Management",
+    page_title="Equipment Management - SolarQuest LIMS",
     page_icon="🔧",
     layout="wide"
 )

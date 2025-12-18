@@ -29,9 +29,9 @@ class AppConfig:
     """Application configuration class"""
 
     # Application metadata
-    APP_NAME: str = "Solar PV Testing LIMS-QMS"
+    APP_NAME: str = "SolarQuest LIMS - Solar PV Testing & Quality Management System"
     APP_VERSION: str = "1.0.0"
-    APP_DESCRIPTION: str = "Unified testing protocol management system"
+    APP_DESCRIPTION: str = "Solar PV Testing & Quality Management System"
 
     # Database configuration
     DATABASE_URL: str = os.getenv(

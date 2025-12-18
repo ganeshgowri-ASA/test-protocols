@@ -51,11 +51,11 @@ def run_phase1_migration_if_needed():
     try:
         conn = sqlite3.connect('lims_qms.db')
         cursor = conn.cursor()
-        
+
         # Check if equipment_management table exists
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='equipment_management'")
         table_exists = cursor.fetchone()
-        
+
         if not table_exists:
             logger.info("Phase 1 tables not found. Running migration...")
             migration_file = Path(__file__).parent / 'docs' / 'migrations' / '001_equipment_management_UP.sql'
@@ -76,6 +76,99 @@ def run_phase1_migration_if_needed():
         if 'conn' in locals():
             conn.close()
 
+
+def run_critical_column_migrations():
+    """
+    Auto-run critical column migrations for missing columns.
+    Works with both PostgreSQL (Railway) and SQLite (local).
+
+    This fixes errors like 'column samples.specifications does not exist'
+    """
+    database_url = os.getenv('DATABASE_URL', '')
+
+    # List of critical columns that must exist
+    critical_columns = [
+        {
+            'table': 'samples',
+            'column': 'specifications',
+            'type_pg': 'JSON',
+            'type_sqlite': 'TEXT',
+            'migration_file': '014_sample_specifications_column_UP.sql'
+        },
+    ]
+
+    try:
+        if 'postgresql' in database_url or 'postgres' in database_url:
+            # PostgreSQL connection for Railway
+            logger.info("Checking critical columns for PostgreSQL...")
+            import psycopg2
+
+            conn = psycopg2.connect(database_url)
+            cursor = conn.cursor()
+
+            for col_info in critical_columns:
+                # Check if column exists in PostgreSQL
+                cursor.execute("""
+                    SELECT EXISTS (
+                        SELECT 1 FROM information_schema.columns
+                        WHERE table_name = %s AND column_name = %s
+                    )
+                """, (col_info['table'], col_info['column']))
+
+                column_exists = cursor.fetchone()[0]
+
+                if not column_exists:
+                    logger.info(f"Adding missing column: {col_info['table']}.{col_info['column']}")
+
+                    # Try to run the migration file first
+                    migration_path = Path(__file__).parent / 'docs' / 'migrations' / col_info['migration_file']
+                    if migration_path.exists():
+                        with open(migration_path, 'r') as f:
+                            migration_sql = f.read()
+                        cursor.execute(migration_sql)
+                        logger.info(f"✅ Migration {col_info['migration_file']} executed successfully")
+                    else:
+                        # Fallback: direct ALTER TABLE
+                        alter_sql = f"ALTER TABLE {col_info['table']} ADD COLUMN IF NOT EXISTS {col_info['column']} {col_info['type_pg']}"
+                        cursor.execute(alter_sql)
+                        logger.info(f"✅ Added column {col_info['table']}.{col_info['column']}")
+
+                    conn.commit()
+                else:
+                    logger.info(f"Column {col_info['table']}.{col_info['column']} already exists")
+
+            cursor.close()
+            conn.close()
+
+        else:
+            # SQLite for local development
+            logger.info("Checking critical columns for SQLite...")
+            conn = sqlite3.connect('lims_qms.db')
+            cursor = conn.cursor()
+
+            for col_info in critical_columns:
+                # Check if column exists in SQLite
+                cursor.execute(f"PRAGMA table_info({col_info['table']})")
+                columns = [row[1] for row in cursor.fetchall()]
+
+                if col_info['column'] not in columns:
+                    logger.info(f"Adding missing column: {col_info['table']}.{col_info['column']}")
+                    alter_sql = f"ALTER TABLE {col_info['table']} ADD COLUMN {col_info['column']} {col_info['type_sqlite']}"
+                    cursor.execute(alter_sql)
+                    conn.commit()
+                    logger.info(f"✅ Added column {col_info['table']}.{col_info['column']}")
+                else:
+                    logger.info(f"Column {col_info['table']}.{col_info['column']} already exists")
+
+            cursor.close()
+            conn.close()
+
+        logger.info("✅ Critical column migrations check completed")
+
+    except Exception as e:
+        logger.warning(f"Critical column migration check failed (non-fatal): {e}")
+        # Don't raise - allow app to continue, user can run migration manually via Admin Seed
+
 # ============================================================================
 # DATABASE INITIALIZATION - MOVED HERE AFTER LOGGER SETUP (FIX FOR CRITICAL ISSUE #1)
 # ============================================================================
@@ -85,6 +178,7 @@ try:
     logger.info("Attempting to initialize database...")
     init_database()
     run_phase1_migration_if_needed()
+    run_critical_column_migrations()  # Fix missing columns like samples.specifications
     logger.info("✅ Database initialization completed successfully!")
 except Exception as e:
     logger.warning(f"Database initialization failed (will retry later): {e}")

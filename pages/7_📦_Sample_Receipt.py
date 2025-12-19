@@ -638,10 +638,29 @@ def render_chain_of_custody():
     with get_db() as db:
         samples = db.execute(
             select(Sample)
-            .order_by(desc(Sample.created_at))
+            .options(load_only(
+                Sample.id,
+                Sample.sample_id,
+                Sample.project_id,
+                Sample.service_request_id,
+                Sample.receipt_id,
+                Sample.sample_type,
+                Sample.manufacturer,
+                Sample.model_number,
+                Sample.serial_number,
+                Sample.batch_number,
+                Sample.qr_code,
+                Sample.qr_code_image_path,
+                Sample.status,
+                Sample.current_location,
+                Sample.storage_location,
+                Sample.created_at,
+                Sample.updated_at
+            ))
+            .order_by(Sample.created_at.desc())
             .limit(100)
         ).scalars().all()
-        
+
         sample_options = {
             f"{s.qr_code} - {s.sample_id} ({s.sample_type})": s
             for s in samples

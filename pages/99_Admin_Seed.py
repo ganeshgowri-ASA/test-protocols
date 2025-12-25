@@ -19,7 +19,7 @@ MIGRATIONS = [
         "id": "001",
         "name": "Equipment Management",
         "description": "Create equipment and calibration tables for Phase 1",
-        "file_path": "docs/migrations/001_equipment_management",
+        "file_path": "database/migrations/001_equipment_management",
         "category": "core"
     },
     {

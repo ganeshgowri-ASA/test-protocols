@@ -220,46 +220,68 @@ def render_training_catalog():
 
         trainings = db.execute(query.order_by(StaffTraining.title)).scalars().all()
 
-        if trainings:
-            for training in trainings:
-                with st.expander(f"📖 {training.title} ({training.training_id})"):
-                    col1, col2 = st.columns(2)
+        # Extract data while session is open to avoid DetachedInstanceError
+        trainings_data = []
+        for training in trainings:
+            trainings_data.append({
+                'id': training.id,
+                'training_id': training.training_id,
+                'title': training.title,
+                'category': training.category,
+                'training_type': training.training_type,
+                'duration_hours': training.duration_hours,
+                'valid_months': training.valid_months,
+                'passing_score': training.passing_score,
+                'assessment_required': training.assessment_required,
+                'description': training.description,
+                'required_for_roles': training.required_for_roles
+            })
 
-                    with col1:
-                        st.markdown(f"**ID:** {training.training_id}")
-                        st.markdown(f"**Category:** {training.category.title() if training.category else 'N/A'}")
-                        st.markdown(f"**Type:** {training.training_type.title() if training.training_type else 'N/A'}")
-                        st.markdown(f"**Duration:** {training.duration_hours} hours")
+    if trainings_data:
+        for training_data in trainings_data:
+            with st.expander(f"📖 {training_data['title']} ({training_data['training_id']})"):
+                col1, col2 = st.columns(2)
 
-                    with col2:
-                        st.markdown(f"**Valid for:** {training.valid_months} months")
-                        st.markdown(f"**Passing Score:** {training.passing_score}%")
-                        st.markdown(f"**Assessment:** {'Yes' if training.assessment_required else 'No'}")
+                with col1:
+                    st.markdown(f"**ID:** {training_data['training_id']}")
+                    st.markdown(f"**Category:** {training_data['category'].title() if training_data['category'] else 'N/A'}")
+                    st.markdown(f"**Type:** {training_data['training_type'].title() if training_data['training_type'] else 'N/A'}")
+                    st.markdown(f"**Duration:** {training_data['duration_hours']} hours")
 
-                    if training.description:
-                        st.markdown(f"**Description:** {training.description}")
+                with col2:
+                    st.markdown(f"**Valid for:** {training_data['valid_months']} months")
+                    st.markdown(f"**Passing Score:** {training_data['passing_score']}%")
+                    st.markdown(f"**Assessment:** {'Yes' if training_data['assessment_required'] else 'No'}")
 
-                    if training.required_for_roles:
-                        st.markdown(f"**Required for:** {', '.join([r.title() for r in training.required_for_roles])}")
+                if training_data['description']:
+                    st.markdown(f"**Description:** {training_data['description']}")
 
-                    # Action buttons
-                    col1, col2, col3 = st.columns(3)
+                if training_data['required_for_roles']:
+                    st.markdown(f"**Required for:** {', '.join([r.title() for r in training_data['required_for_roles']])}")
 
-                    with col1:
-                        if st.button("📝 Schedule Training", key=f"schedule_{training.id}"):
-                            st.session_state.schedule_training_id = training.id
+                # Action buttons
+                col1, col2, col3 = st.columns(3)
 
-                    with col2:
-                        if st.button("✏️ Edit", key=f"edit_{training.id}"):
-                            st.info("Edit functionality")
+                with col1:
+                    if st.button("📝 Schedule Training", key=f"schedule_{training_data['id']}"):
+                        st.session_state.schedule_training_id = training_data['id']
 
-                    with col3:
-                        if st.button("🗑️ Deactivate", key=f"deactivate_{training.id}"):
-                            training.is_active = False
-                            db.commit()
-                            st.rerun()
-        else:
-            st.info("No training courses found")
+                with col2:
+                    if st.button("✏️ Edit", key=f"edit_{training_data['id']}"):
+                        st.info("Edit functionality")
+
+                with col3:
+                    if st.button("🗑️ Deactivate", key=f"deactivate_{training_data['id']}"):
+                        with get_db() as db:
+                            training_obj = db.execute(
+                                select(StaffTraining).where(StaffTraining.id == training_data['id'])
+                            ).scalar_one_or_none()
+                            if training_obj:
+                                training_obj.is_active = False
+                                db.commit()
+                        st.rerun()
+    else:
+        st.info("No training courses found")
 
 
 def render_training_records():

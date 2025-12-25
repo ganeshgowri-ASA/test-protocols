@@ -26,7 +26,7 @@ from database import (
     SampleStatus, AllocationStatus, EquipmentStatus, UserRole
 )
 from sqlalchemy import select, desc, and_, or_, func
-from sqlalchemy.orm import load_only
+from sqlalchemy.orm import load_only, selectinload, joinedload
 
 # Page configuration
 setup_page_config(page_title="Sample Allocation", page_icon="🎯")
@@ -411,9 +411,14 @@ def render_allocation_schedule():
     st.markdown("### 📊 Allocation Schedule - Gantt Chart View")
 
     with get_db() as db:
-        # Get all allocations
+        # Get all allocations with eager loading to avoid N+1 queries
         allocations = db.execute(
             select(SampleAllocation)
+            .options(
+                selectinload(SampleAllocation.sample),
+                selectinload(SampleAllocation.protocol),
+                selectinload(SampleAllocation.equipment)
+            )
             .where(SampleAllocation.status != AllocationStatus.CANCELLED)
             .order_by(SampleAllocation.scheduled_start)
         ).scalars().all()
@@ -422,143 +427,153 @@ def render_allocation_schedule():
             st.info("No allocations scheduled yet. Create allocations in the 'Allocate Sample' tab.")
             return
 
-        # Filters
-        col1, col2, col3 = st.columns(3)
-
-        with col1:
-            status_filter = st.multiselect(
-                "Filter by Status",
-                options=[s.value for s in AllocationStatus],
-                default=[AllocationStatus.SCHEDULED.value, AllocationStatus.IN_PROGRESS.value]
-            )
-
-        with col2:
-            date_from = st.date_input(
-                "From Date",
-                value=datetime.now().date() - timedelta(days=7)
-            )
-
-        with col3:
-            date_to = st.date_input(
-                "To Date",
-                value=datetime.now().date() + timedelta(days=30)
-            )
-
-        # Filter allocations
-        filtered_allocations = [
-            a for a in allocations
-            if a.status.value in status_filter
-            and a.scheduled_start.date() >= date_from
-            and a.scheduled_start.date() <= date_to
-        ]
-
-        if not filtered_allocations:
-            st.warning("No allocations match the selected filters")
-            return
-
-        st.markdown(f"**Showing {len(filtered_allocations)} allocation(s)**")
-
-        # Summary metrics
-        col1, col2, col3, col4 = st.columns(4)
-        col1.metric("Total", len(filtered_allocations))
-        col2.metric("Scheduled", len([a for a in filtered_allocations if a.status == AllocationStatus.SCHEDULED]))
-        col3.metric("In Progress", len([a for a in filtered_allocations if a.status == AllocationStatus.IN_PROGRESS]))
-        col4.metric("Completed", len([a for a in filtered_allocations if a.status == AllocationStatus.COMPLETED]))
-
-        st.divider()
-
-        # Prepare data for Gantt chart
-        gantt_data = []
-        
-        for alloc in filtered_allocations:
-            # Get related data
-            sample = db.execute(select(Sample).where(Sample.id == alloc.sample_id)).scalar()
-            protocol = db.execute(select(TestProtocol).where(TestProtocol.id == alloc.protocol_id)).scalar()
-            
-            task_name = f"{sample.sample_id if sample else 'Unknown'} - {protocol.protocol_id if protocol else 'Unknown'}"
-            
-            # Color by status
-            color_map = {
-                AllocationStatus.SCHEDULED: '#FFA500',
-                AllocationStatus.IN_PROGRESS: '#1E90FF',
-                AllocationStatus.COMPLETED: '#32CD32',
-                AllocationStatus.ON_HOLD: '#FFD700',
-                AllocationStatus.CANCELLED: '#DC143C'
-            }
-            
-            gantt_data.append({
-                'Task': task_name,
-                'Start': alloc.scheduled_start,
-                'Finish': alloc.scheduled_end,
-                'Resource': f"Priority {alloc.priority}",
-                'Status': alloc.status.value,
-                'Color': color_map.get(alloc.status, '#808080')
+        # Extract data while session is open to avoid DetachedInstanceError
+        allocations_data = []
+        for alloc in allocations:
+            allocations_data.append({
+                'id': alloc.id,
+                'allocation_number': alloc.allocation_number,
+                'sample_id': alloc.sample.sample_id if alloc.sample else 'Unknown',
+                'protocol_id': alloc.protocol.protocol_id if alloc.protocol else 'Unknown',
+                'equipment_name': alloc.equipment.name if alloc.equipment else None,
+                'scheduled_start': alloc.scheduled_start,
+                'scheduled_end': alloc.scheduled_end,
+                'priority': alloc.priority,
+                'status': alloc.status.value if hasattr(alloc.status, 'value') else str(alloc.status),
+                'status_enum': alloc.status
             })
 
-        # Create Gantt chart
-        df_gantt = pd.DataFrame(gantt_data)
-        
-        fig = ff.create_gantt(
-            df_gantt,
-            colors=[row['Color'] for _, row in df_gantt.iterrows()],
-            index_col='Resource',
-            show_colorbar=True,
-            group_tasks=True,
-            showgrid_x=True,
-            showgrid_y=True,
-            title='Sample Allocation Timeline'
+    # Filters (outside session context)
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        status_filter = st.multiselect(
+            "Filter by Status",
+            options=[s.value for s in AllocationStatus],
+            default=[AllocationStatus.SCHEDULED.value, AllocationStatus.IN_PROGRESS.value]
         )
-        
-        fig.update_layout(
-            height=max(400, len(filtered_allocations) * 30),
-            xaxis_title="Timeline",
-            yaxis_title="Allocations"
+
+    with col2:
+        date_from = st.date_input(
+            "From Date",
+            value=datetime.now().date() - timedelta(days=7)
         )
-        
-        st.plotly_chart(fig, use_container_width=True)
 
-        st.divider()
+    with col3:
+        date_to = st.date_input(
+            "To Date",
+            value=datetime.now().date() + timedelta(days=30)
+        )
 
-        # Resource utilization view
-        st.markdown("### 📈 Resource Utilization")
+    # Filter allocations using extracted data
+    filtered_allocations = [
+        a for a in allocations_data
+        if a['status'] in status_filter
+        and a['scheduled_start'].date() >= date_from
+        and a['scheduled_start'].date() <= date_to
+    ]
 
-        # Equipment utilization
-        equipment_usage = {}
-        for alloc in filtered_allocations:
-            if alloc.equipment_id:
-                equipment = db.execute(select(Equipment).where(Equipment.id == alloc.equipment_id)).scalar()
-                if equipment:
-                    eq_name = equipment.name
-                    if eq_name not in equipment_usage:
-                        equipment_usage[eq_name] = 0
-                    # Calculate duration in hours
-                    duration = (alloc.scheduled_end - alloc.scheduled_start).total_seconds() / 3600
-                    equipment_usage[eq_name] += duration
+    if not filtered_allocations:
+        st.warning("No allocations match the selected filters")
+        return
 
-        if equipment_usage:
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                st.markdown("**Equipment Usage (Hours)**")
-                for eq_name, hours in sorted(equipment_usage.items(), key=lambda x: x[1], reverse=True):
-                    st.metric(eq_name, f"{hours:.1f}h")
-            
-            with col2:
-                # Create bar chart
-                fig_eq = go.Figure(data=[
-                    go.Bar(
-                        x=list(equipment_usage.keys()),
-                        y=list(equipment_usage.values()),
-                        marker_color='lightblue'
-                    )
-                ])
-                fig_eq.update_layout(
-                    title="Equipment Utilization",
-                    xaxis_title="Equipment",
-                    yaxis_title="Hours Allocated",
-                    height=300
+    st.markdown(f"**Showing {len(filtered_allocations)} allocation(s)**")
+
+    # Summary metrics
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Total", len(filtered_allocations))
+    col2.metric("Scheduled", len([a for a in filtered_allocations if a['status'] == AllocationStatus.SCHEDULED.value]))
+    col3.metric("In Progress", len([a for a in filtered_allocations if a['status'] == AllocationStatus.IN_PROGRESS.value]))
+    col4.metric("Completed", len([a for a in filtered_allocations if a['status'] == AllocationStatus.COMPLETED.value]))
+
+    st.divider()
+
+    # Prepare data for Gantt chart using extracted data
+    gantt_data = []
+
+    # Color by status
+    color_map = {
+        AllocationStatus.SCHEDULED.value: '#FFA500',
+        AllocationStatus.IN_PROGRESS.value: '#1E90FF',
+        AllocationStatus.COMPLETED.value: '#32CD32',
+        AllocationStatus.ON_HOLD.value: '#FFD700',
+        AllocationStatus.CANCELLED.value: '#DC143C'
+    }
+
+    for alloc_data in filtered_allocations:
+        task_name = f"{alloc_data['sample_id']} - {alloc_data['protocol_id']}"
+
+        gantt_data.append({
+            'Task': task_name,
+            'Start': alloc_data['scheduled_start'],
+            'Finish': alloc_data['scheduled_end'],
+            'Resource': f"Priority {alloc_data['priority']}",
+            'Status': alloc_data['status'],
+            'Color': color_map.get(alloc_data['status'], '#808080')
+        })
+
+    # Create Gantt chart
+    df_gantt = pd.DataFrame(gantt_data)
+
+    fig = ff.create_gantt(
+        df_gantt,
+        colors=[row['Color'] for _, row in df_gantt.iterrows()],
+        index_col='Resource',
+        show_colorbar=True,
+        group_tasks=True,
+        showgrid_x=True,
+        showgrid_y=True,
+        title='Sample Allocation Timeline'
+    )
+
+    fig.update_layout(
+        height=max(400, len(filtered_allocations) * 30),
+        xaxis_title="Timeline",
+        yaxis_title="Allocations"
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.divider()
+
+    # Resource utilization view
+    st.markdown("### 📈 Resource Utilization")
+
+    # Equipment utilization using extracted data
+    equipment_usage = {}
+    for alloc_data in filtered_allocations:
+        if alloc_data['equipment_name']:
+            eq_name = alloc_data['equipment_name']
+            if eq_name not in equipment_usage:
+                equipment_usage[eq_name] = 0
+            # Calculate duration in hours
+            duration = (alloc_data['scheduled_end'] - alloc_data['scheduled_start']).total_seconds() / 3600
+            equipment_usage[eq_name] += duration
+
+    if equipment_usage:
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.markdown("**Equipment Usage (Hours)**")
+            for eq_name, hours in sorted(equipment_usage.items(), key=lambda x: x[1], reverse=True):
+                st.metric(eq_name, f"{hours:.1f}h")
+
+        with col2:
+            # Create bar chart
+            fig_eq = go.Figure(data=[
+                go.Bar(
+                    x=list(equipment_usage.keys()),
+                    y=list(equipment_usage.values()),
+                    marker_color='lightblue'
                 )
-                st.plotly_chart(fig_eq, use_container_width=True)
+            ])
+            fig_eq.update_layout(
+                title="Equipment Utilization",
+                xaxis_title="Equipment",
+                yaxis_title="Hours Allocated",
+                height=300
+            )
+            st.plotly_chart(fig_eq, use_container_width=True)
 
 
 def render_search_allocations():
@@ -567,8 +582,15 @@ def render_search_allocations():
     st.markdown("### 🔍 Search & Manage Allocations")
 
     with get_db() as db:
+        # Use eager loading to avoid N+1 queries
         allocations = db.execute(
             select(SampleAllocation)
+            .options(
+                selectinload(SampleAllocation.sample),
+                selectinload(SampleAllocation.protocol),
+                selectinload(SampleAllocation.equipment),
+                selectinload(SampleAllocation.technician)
+            )
             .order_by(desc(SampleAllocation.created_at))
         ).scalars().all()
 
@@ -576,142 +598,174 @@ def render_search_allocations():
             st.info("No allocations found")
             return
 
-        # Search filters
-        col1, col2, col3 = st.columns(3)
-
-        with col1:
-            search_sample = st.text_input(
-                "Search by Sample ID",
-                placeholder="SAMPLE-2024-..."
-            )
-
-        with col2:
-            status_filter = st.selectbox(
-                "Filter by Status",
-                options=["All"] + [s.value for s in AllocationStatus]
-            )
-
-        with col3:
-            priority_filter = st.selectbox(
-                "Filter by Priority",
-                options=["All", 1, 2, 3],
-                format_func=lambda x: {
-                    "All": "All Priorities",
-                    1: "🔴 High",
-                    2: "🟡 Medium",
-                    3: "🟢 Low"
-                }[x]
-            )
-
-        st.divider()
-
-        # Display allocations
-        displayed_count = 0
-        
+        # Extract data while session is open to avoid DetachedInstanceError
+        allocations_data = []
         for alloc in allocations:
-            # Get related data
-            sample = db.execute(select(Sample).where(Sample.id == alloc.sample_id)).scalar()
-            protocol = db.execute(select(TestProtocol).where(TestProtocol.id == alloc.protocol_id)).scalar()
-            equipment = db.execute(select(Equipment).where(Equipment.id == alloc.equipment_id)).scalar() if alloc.equipment_id else None
-            technician = db.execute(select(User).where(User.id == alloc.technician_id)).scalar() if alloc.technician_id else None
+            allocations_data.append({
+                'id': alloc.id,
+                'allocation_number': alloc.allocation_number,
+                'sample_id': alloc.sample.sample_id if alloc.sample else 'N/A',
+                'protocol_id': alloc.protocol.protocol_id if alloc.protocol else 'N/A',
+                'protocol_name': alloc.protocol.name if alloc.protocol else 'N/A',
+                'equipment_name': alloc.equipment.name if alloc.equipment else 'Not assigned',
+                'technician_name': alloc.technician.full_name if alloc.technician else 'Not assigned',
+                'scheduled_start': alloc.scheduled_start,
+                'scheduled_end': alloc.scheduled_end,
+                'priority': alloc.priority,
+                'status': alloc.status.value if hasattr(alloc.status, 'value') else str(alloc.status),
+                'notes': alloc.notes
+            })
 
-            # Apply filters
-            if search_sample and (not sample or search_sample.upper() not in sample.sample_id.upper()):
-                continue
-            
-            if status_filter != "All" and alloc.status.value != status_filter:
-                continue
-            
-            if priority_filter != "All" and alloc.priority != priority_filter:
-                continue
+    # Search filters (outside session context)
+    col1, col2, col3 = st.columns(3)
 
-            displayed_count += 1
+    with col1:
+        search_sample = st.text_input(
+            "Search by Sample ID",
+            placeholder="SAMPLE-2024-..."
+        )
 
-            # Status icons
-            status_icons = {
-                AllocationStatus.SCHEDULED: "📅",
-                AllocationStatus.IN_PROGRESS: "⚙️",
-                AllocationStatus.COMPLETED: "✅",
-                AllocationStatus.ON_HOLD: "⏸️",
-                AllocationStatus.CANCELLED: "❌"
-            }
-            status_icon = status_icons.get(alloc.status, "⚪")
+    with col2:
+        status_filter = st.selectbox(
+            "Filter by Status",
+            options=["All"] + [s.value for s in AllocationStatus]
+        )
 
-            priority_icons = {1: "🔴", 2: "🟡", 3: "🟢"}
-            priority_icon = priority_icons.get(alloc.priority, "⚪")
+    with col3:
+        priority_filter = st.selectbox(
+            "Filter by Priority",
+            options=["All", 1, 2, 3],
+            format_func=lambda x: {
+                "All": "All Priorities",
+                1: "🔴 High",
+                2: "🟡 Medium",
+                3: "🟢 Low"
+            }[x]
+        )
 
-            with st.expander(
-                f"{status_icon} {alloc.allocation_number} | {sample.sample_id if sample else 'N/A'} | {protocol.protocol_id if protocol else 'N/A'} | {priority_icon}",
-                expanded=False
-            ):
-                col1, col2, col3 = st.columns(3)
+    st.divider()
 
-                with col1:
-                    st.markdown("**Allocation Details**")
-                    st.caption(f"Number: {alloc.allocation_number}")
-                    st.caption(f"Sample: {sample.sample_id if sample else 'N/A'}")
-                    st.caption(f"Protocol: {protocol.name if protocol else 'N/A'}")
-                    st.caption(f"Status: {alloc.status.value.upper()}")
+    # Status icons mapping
+    status_icons = {
+        AllocationStatus.SCHEDULED.value: "📅",
+        AllocationStatus.IN_PROGRESS.value: "⚙️",
+        AllocationStatus.COMPLETED.value: "✅",
+        AllocationStatus.ON_HOLD.value: "⏸️",
+        AllocationStatus.CANCELLED.value: "❌"
+    }
+    priority_icons = {1: "🔴", 2: "🟡", 3: "🟢"}
 
-                with col2:
-                    st.markdown("**Resources**")
-                    st.caption(f"Equipment: {equipment.name if equipment else 'Not assigned'}")
-                    st.caption(f"Technician: {technician.full_name if technician else 'Not assigned'}")
-                    st.caption(f"Priority: {['High', 'Medium', 'Low'][alloc.priority - 1]}")
+    # Display allocations using extracted data
+    displayed_count = 0
 
-                with col3:
-                    st.markdown("**Schedule**")
-                    st.caption(f"Start: {alloc.scheduled_start.strftime('%Y-%m-%d %H:%M')}")
-                    st.caption(f"End: {alloc.scheduled_end.strftime('%Y-%m-%d %H:%M')}")
-                    duration = (alloc.scheduled_end - alloc.scheduled_start).total_seconds() / 3600
-                    st.caption(f"Duration: {duration:.1f}h")
+    for alloc_data in allocations_data:
+        # Apply filters
+        if search_sample and search_sample.upper() not in alloc_data['sample_id'].upper():
+            continue
 
-                if alloc.notes:
-                    st.markdown(f"**Notes:** {alloc.notes}")
+        if status_filter != "All" and alloc_data['status'] != status_filter:
+            continue
 
-                # Action buttons
-                col1, col2, col3, col4 = st.columns(4)
+        if priority_filter != "All" and alloc_data['priority'] != priority_filter:
+            continue
 
-                with col1:
-                    if alloc.status == AllocationStatus.SCHEDULED and st.button(
-                        "▶️ Start", key=f"start_{alloc.id}"
-                    ):
-                        alloc.status = AllocationStatus.IN_PROGRESS
-                        alloc.actual_start = datetime.now()
-                        db.commit()
-                        st.success("Started!")
-                        st.rerun()
+        displayed_count += 1
 
-                with col2:
-                    if alloc.status == AllocationStatus.IN_PROGRESS and st.button(
-                        "✅ Complete", key=f"complete_{alloc.id}"
-                    ):
-                        alloc.status = AllocationStatus.COMPLETED
-                        alloc.actual_end = datetime.now()
-                        db.commit()
-                        st.success("Completed!")
-                        st.rerun()
+        status_icon = status_icons.get(alloc_data['status'], "⚪")
+        priority_icon = priority_icons.get(alloc_data['priority'], "⚪")
 
-                with col3:
-                    if alloc.status in [AllocationStatus.SCHEDULED, AllocationStatus.IN_PROGRESS] and st.button(
-                        "⏸️ Hold", key=f"hold_{alloc.id}"
-                    ):
-                        alloc.status = AllocationStatus.ON_HOLD
-                        db.commit()
-                        st.warning("On hold")
-                        st.rerun()
+        with st.expander(
+            f"{status_icon} {alloc_data['allocation_number']} | {alloc_data['sample_id']} | {alloc_data['protocol_id']} | {priority_icon}",
+            expanded=False
+        ):
+            col1, col2, col3 = st.columns(3)
 
-                with col4:
-                    if st.button("❌ Cancel", key=f"cancel_{alloc.id}"):
-                        alloc.status = AllocationStatus.CANCELLED
-                        db.commit()
-                        st.error("Cancelled")
-                        st.rerun()
+            with col1:
+                st.markdown("**Allocation Details**")
+                st.caption(f"Number: {alloc_data['allocation_number']}")
+                st.caption(f"Sample: {alloc_data['sample_id']}")
+                st.caption(f"Protocol: {alloc_data['protocol_name']}")
+                st.caption(f"Status: {alloc_data['status'].upper()}")
 
-        if displayed_count == 0:
-            st.info("No allocations match the search criteria")
-        else:
-            st.caption(f"Showing {displayed_count} of {len(allocations)} allocations")
+            with col2:
+                st.markdown("**Resources**")
+                st.caption(f"Equipment: {alloc_data['equipment_name']}")
+                st.caption(f"Technician: {alloc_data['technician_name']}")
+                st.caption(f"Priority: {['High', 'Medium', 'Low'][alloc_data['priority'] - 1]}")
+
+            with col3:
+                st.markdown("**Schedule**")
+                st.caption(f"Start: {alloc_data['scheduled_start'].strftime('%Y-%m-%d %H:%M')}")
+                st.caption(f"End: {alloc_data['scheduled_end'].strftime('%Y-%m-%d %H:%M')}")
+                duration = (alloc_data['scheduled_end'] - alloc_data['scheduled_start']).total_seconds() / 3600
+                st.caption(f"Duration: {duration:.1f}h")
+
+            if alloc_data['notes']:
+                st.markdown(f"**Notes:** {alloc_data['notes']}")
+
+            # Action buttons - use separate session for updates
+            col1, col2, col3, col4 = st.columns(4)
+
+            with col1:
+                if alloc_data['status'] == AllocationStatus.SCHEDULED.value and st.button(
+                    "▶️ Start", key=f"start_{alloc_data['id']}"
+                ):
+                    with get_db() as db:
+                        alloc_obj = db.execute(
+                            select(SampleAllocation).where(SampleAllocation.id == alloc_data['id'])
+                        ).scalar_one_or_none()
+                        if alloc_obj:
+                            alloc_obj.status = AllocationStatus.IN_PROGRESS
+                            alloc_obj.actual_start = datetime.now()
+                            db.commit()
+                    st.success("Started!")
+                    st.rerun()
+
+            with col2:
+                if alloc_data['status'] == AllocationStatus.IN_PROGRESS.value and st.button(
+                    "✅ Complete", key=f"complete_{alloc_data['id']}"
+                ):
+                    with get_db() as db:
+                        alloc_obj = db.execute(
+                            select(SampleAllocation).where(SampleAllocation.id == alloc_data['id'])
+                        ).scalar_one_or_none()
+                        if alloc_obj:
+                            alloc_obj.status = AllocationStatus.COMPLETED
+                            alloc_obj.actual_end = datetime.now()
+                            db.commit()
+                    st.success("Completed!")
+                    st.rerun()
+
+            with col3:
+                if alloc_data['status'] in [AllocationStatus.SCHEDULED.value, AllocationStatus.IN_PROGRESS.value] and st.button(
+                    "⏸️ Hold", key=f"hold_{alloc_data['id']}"
+                ):
+                    with get_db() as db:
+                        alloc_obj = db.execute(
+                            select(SampleAllocation).where(SampleAllocation.id == alloc_data['id'])
+                        ).scalar_one_or_none()
+                        if alloc_obj:
+                            alloc_obj.status = AllocationStatus.ON_HOLD
+                            db.commit()
+                    st.warning("On hold")
+                    st.rerun()
+
+            with col4:
+                if st.button("❌ Cancel", key=f"cancel_{alloc_data['id']}"):
+                    with get_db() as db:
+                        alloc_obj = db.execute(
+                            select(SampleAllocation).where(SampleAllocation.id == alloc_data['id'])
+                        ).scalar_one_or_none()
+                        if alloc_obj:
+                            alloc_obj.status = AllocationStatus.CANCELLED
+                            db.commit()
+                    st.error("Cancelled")
+                    st.rerun()
+
+    if displayed_count == 0:
+        st.info("No allocations match the search criteria")
+    else:
+        st.caption(f"Showing {displayed_count} of {len(allocations_data)} allocations")
 
 
 if __name__ == "__main__":

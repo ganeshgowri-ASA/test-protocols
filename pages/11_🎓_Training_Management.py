@@ -26,6 +26,7 @@ from database import (
     StaffTraining, StaffTrainingRecord, User, TrainingStatus, TestProtocol
 )
 from sqlalchemy import select, desc, func, and_, or_
+from sqlalchemy.orm import load_only
 
 # Page configuration
 setup_page_config(page_title="Training Management", page_icon="🎓")
@@ -287,8 +288,16 @@ def render_training_records():
                 )
 
                 # Select staff
+                # Use load_only to avoid loading password_hash column that may not exist
                 with get_db() as db:
-                    users = db.execute(select(User).where(User.is_active == True)).scalars().all()
+                    users = db.execute(
+                        select(User)
+                        .options(load_only(
+                            User.id, User.username, User.email, User.full_name,
+                            User.role, User.is_active
+                        ))
+                        .where(User.is_active == True)
+                    ).scalars().all()
                     user_options = {f"{u.full_name} ({u.username})": u for u in users}
 
                 selected_user = st.selectbox(
@@ -365,7 +374,9 @@ def render_training_records():
                 ).scalar()
 
                 user = db.execute(
-                    select(User).where(User.id == record.user_id)
+                    select(User)
+                    .options(load_only(User.id, User.full_name, User.username))
+                    .where(User.id == record.user_id)
                 ).scalar()
 
                 status_colors = {
@@ -500,7 +511,15 @@ def render_competency_matrix():
     )
 
     with get_db() as db:
-        users = db.execute(select(User).where(User.is_active == True)).scalars().all()
+        # Use load_only to avoid loading password_hash column that may not exist
+        users = db.execute(
+            select(User)
+            .options(load_only(
+                User.id, User.username, User.email, User.full_name,
+                User.role, User.is_active
+            ))
+            .where(User.is_active == True)
+        ).scalars().all()
         trainings = db.execute(select(StaffTraining).where(StaffTraining.is_active == True)).scalars().all()
         protocols = db.execute(select(TestProtocol).where(TestProtocol.is_active == True)).scalars().all()
 
@@ -707,7 +726,9 @@ def render_expiring_certifications():
                     select(StaffTraining).where(StaffTraining.id == record.training_id)
                 ).scalar()
                 user = db.execute(
-                    select(User).where(User.id == record.user_id)
+                    select(User)
+                    .options(load_only(User.id, User.full_name, User.username))
+                    .where(User.id == record.user_id)
                 ).scalar()
 
                 days_expired = (datetime.utcnow() - record.expiry_date).days
@@ -730,7 +751,9 @@ def render_expiring_certifications():
                     select(StaffTraining).where(StaffTraining.id == record.training_id)
                 ).scalar()
                 user = db.execute(
-                    select(User).where(User.id == record.user_id)
+                    select(User)
+                    .options(load_only(User.id, User.full_name, User.username))
+                    .where(User.id == record.user_id)
                 ).scalar()
 
                 days_until = (record.expiry_date - datetime.utcnow()).days
@@ -916,8 +939,16 @@ def render_iso_compliance_reports():
     with get_db() as db:
         # Compliance summary
         st.markdown("#### 📊 Compliance Summary")
-        
-        users = db.execute(select(User).where(User.is_active == True)).scalars().all()
+
+        # Use load_only to avoid loading password_hash column that may not exist
+        users = db.execute(
+            select(User)
+            .options(load_only(
+                User.id, User.username, User.email, User.full_name,
+                User.role, User.is_active
+            ))
+            .where(User.is_active == True)
+        ).scalars().all()
         trainings = db.execute(select(StaffTraining).where(StaffTraining.is_active == True)).scalars().all()
         
         col1, col2, col3 = st.columns(3)

@@ -300,14 +300,6 @@ class IncomingInspection(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Link to sample receipt (added to match migration 002)
-    receipt_id = Column(Integer, ForeignKey("sample_receipts.id"))
-
-    # Allocation tracking (added to match migration 002)
-    allocation_triggered = Column(Boolean, default=False)
-    allocated_sample_id = Column(Integer)
-
-    __table_args__ = ({'extend_existing': True},)
     __table_args__ = (
         Index('idx_incoming_inspections_number', 'inspection_number'),
         Index('idx_incoming_inspections_status', 'status'),

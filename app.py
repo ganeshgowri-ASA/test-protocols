@@ -40,7 +40,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 logger.info("=" * 60)
-logger.info("SOLAR PV LIMS-QMS - APPLICATION STARTING")
+logger.info("HELIOS QUEST LIMS - APPLICATION STARTING")
 logger.info(f"Start time: {datetime.now().isoformat()}")
 logger.info(f"Python version: {sys.version}")
 logger.info(f"Working directory: {os.getcwd()}")
@@ -51,11 +51,11 @@ def run_phase1_migration_if_needed():
     try:
         conn = sqlite3.connect('lims_qms.db')
         cursor = conn.cursor()
-        
+
         # Check if equipment_management table exists
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='equipment_management'")
         table_exists = cursor.fetchone()
-        
+
         if not table_exists:
             logger.info("Phase 1 tables not found. Running migration...")
             migration_file = Path(__file__).parent / 'docs' / 'migrations' / '001_equipment_management_UP.sql'
@@ -76,6 +76,99 @@ def run_phase1_migration_if_needed():
         if 'conn' in locals():
             conn.close()
 
+
+def run_critical_column_migrations():
+    """
+    Auto-run critical column migrations for missing columns.
+    Works with both PostgreSQL (Railway) and SQLite (local).
+
+    This fixes errors like 'column samples.specifications does not exist'
+    """
+    database_url = os.getenv('DATABASE_URL', '')
+
+    # List of critical columns that must exist
+    critical_columns = [
+        {
+            'table': 'samples',
+            'column': 'specifications',
+            'type_pg': 'JSON',
+            'type_sqlite': 'TEXT',
+            'migration_file': '014_sample_specifications_column_UP.sql'
+        },
+    ]
+
+    try:
+        if 'postgresql' in database_url or 'postgres' in database_url:
+            # PostgreSQL connection for Railway
+            logger.info("Checking critical columns for PostgreSQL...")
+            import psycopg2
+
+            conn = psycopg2.connect(database_url)
+            cursor = conn.cursor()
+
+            for col_info in critical_columns:
+                # Check if column exists in PostgreSQL
+                cursor.execute("""
+                    SELECT EXISTS (
+                        SELECT 1 FROM information_schema.columns
+                        WHERE table_name = %s AND column_name = %s
+                    )
+                """, (col_info['table'], col_info['column']))
+
+                column_exists = cursor.fetchone()[0]
+
+                if not column_exists:
+                    logger.info(f"Adding missing column: {col_info['table']}.{col_info['column']}")
+
+                    # Try to run the migration file first
+                    migration_path = Path(__file__).parent / 'docs' / 'migrations' / col_info['migration_file']
+                    if migration_path.exists():
+                        with open(migration_path, 'r') as f:
+                            migration_sql = f.read()
+                        cursor.execute(migration_sql)
+                        logger.info(f"✅ Migration {col_info['migration_file']} executed successfully")
+                    else:
+                        # Fallback: direct ALTER TABLE
+                        alter_sql = f"ALTER TABLE {col_info['table']} ADD COLUMN IF NOT EXISTS {col_info['column']} {col_info['type_pg']}"
+                        cursor.execute(alter_sql)
+                        logger.info(f"✅ Added column {col_info['table']}.{col_info['column']}")
+
+                    conn.commit()
+                else:
+                    logger.info(f"Column {col_info['table']}.{col_info['column']} already exists")
+
+            cursor.close()
+            conn.close()
+
+        else:
+            # SQLite for local development
+            logger.info("Checking critical columns for SQLite...")
+            conn = sqlite3.connect('lims_qms.db')
+            cursor = conn.cursor()
+
+            for col_info in critical_columns:
+                # Check if column exists in SQLite
+                cursor.execute(f"PRAGMA table_info({col_info['table']})")
+                columns = [row[1] for row in cursor.fetchall()]
+
+                if col_info['column'] not in columns:
+                    logger.info(f"Adding missing column: {col_info['table']}.{col_info['column']}")
+                    alter_sql = f"ALTER TABLE {col_info['table']} ADD COLUMN {col_info['column']} {col_info['type_sqlite']}"
+                    cursor.execute(alter_sql)
+                    conn.commit()
+                    logger.info(f"✅ Added column {col_info['table']}.{col_info['column']}")
+                else:
+                    logger.info(f"Column {col_info['table']}.{col_info['column']} already exists")
+
+            cursor.close()
+            conn.close()
+
+        logger.info("✅ Critical column migrations check completed")
+
+    except Exception as e:
+        logger.warning(f"Critical column migration check failed (non-fatal): {e}")
+        # Don't raise - allow app to continue, user can run migration manually via Admin Seed
+
 # ============================================================================
 # DATABASE INITIALIZATION - MOVED HERE AFTER LOGGER SETUP (FIX FOR CRITICAL ISSUE #1)
 # ============================================================================
@@ -85,6 +178,7 @@ try:
     logger.info("Attempting to initialize database...")
     init_database()
     run_phase1_migration_if_needed()
+    run_critical_column_migrations()  # Fix missing columns like samples.specifications
     logger.info("✅ Database initialization completed successfully!")
 except Exception as e:
     logger.warning(f"Database initialization failed (will retry later): {e}")
@@ -94,14 +188,14 @@ except Exception as e:
 # ============================================================================
 
 st.set_page_config(
-    page_title="Solar PV Testing LIMS-QMS",
+    page_title="HeliOS Quest LIMS - Solar PV Testing & Quality Management System",
     page_icon="☀️",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
         'Get Help': 'https://github.com/ganeshgowri-ASA/test-protocols',
         'Report a bug': 'https://github.com/ganeshgowri-ASA/test-protocols/issues',
-        'About': "Solar PV Testing LIMS-QMS v1.0.0"
+        'About': "HeliOS Quest LIMS - Solar PV Testing & Quality Management System v1.0.0"
     }
 )
 
@@ -281,7 +375,7 @@ def render_sidebar():
         # Logo/Branding
         st.markdown("""
             <div style='text-align: center; padding: 1rem 0;'>
-                <h2 style='margin: 0; color: #FF6B35;'>☀️ Solar PV LIMS</h2>
+                <h2 style='margin: 0; color: #FF6B35;'>☀️ HeliOS Quest LIMS</h2>
                 <p style='margin: 0; color: #666; font-size: 0.875rem;'>v1.0.0</p>
             </div>
         """, unsafe_allow_html=True)
@@ -388,15 +482,15 @@ def render_dashboard():
     # Header
     st.markdown("""
         <div class='main-header'>
-            <h1>☀️ Solar PV Testing LIMS-QMS System</h1>
-            <p style=\"margin: 0; opacity: 0.9;\">Unified Testing Protocol Management</p>
+            <h1>☀️ HeliOS Quest LIMS</h1>
+            <p style=\"margin: 0; opacity: 0.9;\">Solar PV Testing & Quality Management System</p>
         </div>
     """, unsafe_allow_html=True)
     
     # Welcome message
     st.markdown("""
-        ## 🏠 Welcome to the Solar PV Testing LIMS-QMS System
-        
+        ## 🏠 Welcome to HeliOS Quest LIMS
+
         A comprehensive, production-ready platform for managing all aspects of solar PV module
         testing, from service requests through final reporting.
     """)
@@ -493,7 +587,7 @@ def render_dashboard():
     st.divider()
     st.markdown("""
         <div style='text-align: center; color: #666; padding: 20px;'>
-            <p>Solar PV Testing LIMS-QMS System v1.0.0 | 
+            <p>HeliOS Quest LIMS - Solar PV Testing & Quality Management System v1.0.0 |
             54 Testing Protocols | Complete Traceability | Production Ready</p>
         </div>
     """, unsafe_allow_html=True)

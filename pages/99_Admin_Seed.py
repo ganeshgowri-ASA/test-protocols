@@ -7,7 +7,50 @@ from datetime import datetime
 from config.database import get_session_local, get_engine
 from database.seed_data import seed_test_protocols
 
-st.set_page_config(page_title="Database Admin", page_icon="🛠️")
+st.set_page_config(page_title="Database Admin - HeliOS Quest LIMS", page_icon="🛠️")
+
+# ============================================================================
+# PASSWORD PROTECTION
+# ============================================================================
+
+ADMIN_SEED_PASSWORD = "INDsIvAbcv@6G"
+
+def check_password():
+    """Returns True if the user entered the correct password."""
+
+    def password_entered():
+        """Check whether password entered by user is correct."""
+        if st.session_state.get("admin_seed_password") == ADMIN_SEED_PASSWORD:
+            st.session_state["admin_seed_authenticated"] = True
+            st.session_state["admin_seed_auth_attempted"] = False
+            del st.session_state["admin_seed_password"]  # Don't store password
+        else:
+            st.session_state["admin_seed_authenticated"] = False
+            st.session_state["admin_seed_auth_attempted"] = True
+
+    # First run or not authenticated
+    if "admin_seed_authenticated" not in st.session_state:
+        st.session_state["admin_seed_authenticated"] = False
+
+    if not st.session_state["admin_seed_authenticated"]:
+        st.title("🔐 Admin Seed - Authentication Required")
+        st.warning("⚠️ This page requires administrator authentication to access.")
+        st.text_input(
+            "Enter Admin Password",
+            type="password",
+            on_change=password_entered,
+            key="admin_seed_password"
+        )
+        # Show error if authentication failed (user tried but entered wrong password)
+        if "admin_seed_auth_attempted" in st.session_state and st.session_state["admin_seed_auth_attempted"]:
+            st.error("❌ Incorrect password. Please try again.")
+        return False
+
+    return True
+
+# Check password before showing any content
+if not check_password():
+    st.stop()
 
 # ============================================================================
 # MIGRATIONS DEFINITION
@@ -19,7 +62,7 @@ MIGRATIONS = [
         "id": "001",
         "name": "Equipment Management",
         "description": "Create equipment and calibration tables for Phase 1",
-        "file_path": "docs/migrations/001_equipment_management",
+        "file_path": "database/migrations/001_equipment_management",
         "category": "core"
     },
     {

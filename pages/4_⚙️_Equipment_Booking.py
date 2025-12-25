@@ -105,7 +105,7 @@ def render_equipment_list():
                 }.get(eq.status, "⚪")
 
                 with st.expander(
-                    f"{status_color} {eq.name} ({eq.equipment_code}) - {eq.status.value.upper().replace('_', ' ')}",
+                    f"{status_color} {eq.name} ({eq.equipment_code}) - {eq.status.value.upper().replace('_', ' ') if eq.status else 'UNKNOWN'}",
                     expanded=(eq.status == EquipmentStatus.AVAILABLE)
                 ):
                     col1, col2, col3 = st.columns(3)
@@ -113,7 +113,7 @@ def render_equipment_list():
                     with col1:
                         st.markdown(f"**Code:** {eq.equipment_code}")
                         st.markdown(f"**Category:** {eq.category.title() if eq.category else 'N/A'}")
-                        st.markdown(f"**Status:** {eq.status.value.upper().replace('_', ' ')}")
+                        st.markdown(f"**Status:** {eq.status.value.upper().replace('_', ' ') if eq.status else 'UNKNOWN'}")
 
                     with col2:
                         st.markdown(f"**Manufacturer:** {eq.manufacturer or 'N/A'}")

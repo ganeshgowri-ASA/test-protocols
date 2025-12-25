@@ -26,6 +26,7 @@ from database import (
     SampleStatus, AllocationStatus, EquipmentStatus, UserRole
 )
 from sqlalchemy import select, desc, and_, or_, func
+from sqlalchemy.orm import load_only
 
 # Page configuration
 setup_page_config(page_title="Sample Allocation", page_icon="🎯")
@@ -131,8 +132,14 @@ def render_allocation_form():
 
     with get_db() as db:
         # Get samples available for allocation (Received or Allocated status)
+        # Use load_only to avoid loading columns that may not exist in database
         samples = db.execute(
             select(Sample)
+            .options(load_only(
+                Sample.id, Sample.sample_id, Sample.sample_type,
+                Sample.manufacturer, Sample.status, Sample.current_location,
+                Sample.allocation_date
+            ))
             .where(Sample.status.in_([SampleStatus.RECEIVED, SampleStatus.ALLOCATED, SampleStatus.ASSIGNED]))
             .order_by(desc(Sample.allocation_date))
         ).scalars().all()

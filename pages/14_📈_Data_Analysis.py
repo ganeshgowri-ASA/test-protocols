@@ -30,6 +30,7 @@ from database import (
     TestStatus, SampleStatus, AnalysisResult, DataExport, User
 )
 from sqlalchemy import select, desc, func, and_, or_
+from sqlalchemy.orm import load_only
 
 # Page configuration
 setup_page_config(page_title="Data Analysis", page_icon="📊")
@@ -142,8 +143,11 @@ def get_filtered_data(date_start, date_end, protocol_filter, status_filter):
             
             technician = None
             if test.technician_id:
+                # Only load id and full_name to avoid missing columns like password_hash
                 technician = db.execute(
-                    select(User).where(User.id == test.technician_id)
+                    select(User)
+                    .options(load_only(User.id, User.full_name))
+                    .where(User.id == test.technician_id)
                 ).scalar_one_or_none()
             
             data.append({

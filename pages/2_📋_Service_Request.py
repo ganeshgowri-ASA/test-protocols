@@ -19,6 +19,7 @@ from config.protocols_registry import get_cached_protocol_registry
 from components.navigation import render_header, render_sidebar_navigation
 from database import ServiceRequest, RequestStatus
 from sqlalchemy import select, desc, asc, and_, or_, func
+from sqlalchemy.orm import load_only
 
 # Page configuration
 setup_page_config(page_title="Service Request", page_icon="📋")
@@ -274,86 +275,114 @@ def render_requests_list():
                 st.info("No service requests found")
                 return
 
-            # Filters
-            col1, col2, col3 = st.columns(3)
-
-            with col1:
-                status_filter = st.selectbox(
-                    "Filter by Status",
-                    ["All", "Draft", "Submitted", "Approved", "In Progress", "Completed"]
-                )
-
-            with col2:
-                priority_filter = st.selectbox(
-                    "Filter by Priority",
-                    ["All", "Normal", "High", "Urgent"]
-                )
-
-            # Display requests as cards
+            # Extract data while session is open to avoid DetachedInstanceError
+            requests_data = []
             for req in requests:
-                # Apply filters
-                if status_filter != "All" and req.status.value != status_filter.lower().replace(" ", "_"):
-                    continue
+                requests_data.append({
+                    'id': req.id,
+                    'request_number': req.request_number,
+                    'client_name': req.client_name,
+                    'client_email': req.client_email,
+                    'client_organization': req.client_organization,
+                    'sample_type': req.sample_type,
+                    'sample_count': req.sample_count,
+                    'priority': req.priority,
+                    'status': req.status.value if hasattr(req.status, 'value') else str(req.status),
+                    'status_enum': req.status,
+                    'created_at': req.created_at,
+                    'requested_protocols': req.requested_protocols or []
+                })
 
-                if priority_filter != "All" and req.priority != priority_filter.lower():
-                    continue
+        # Filters (outside session context - using extracted data)
+        col1, col2, col3 = st.columns(3)
 
-                with st.expander(
-                    f"🎫 {req.request_number} - {req.client_name} ({req.status.value.upper()})",
-                    expanded=False
-                ):
-                    col1, col2, col3 = st.columns(3)
+        with col1:
+            status_filter = st.selectbox(
+                "Filter by Status",
+                ["All", "Draft", "Submitted", "Approved", "In Progress", "Completed"]
+            )
 
-                    with col1:
-                        st.markdown(f"**Client:** {req.client_name}")
-                        st.markdown(f"**Email:** {req.client_email}")
-                        st.markdown(f"**Organization:** {req.client_organization or 'N/A'}")
+        with col2:
+            priority_filter = st.selectbox(
+                "Filter by Priority",
+                ["All", "Normal", "High", "Urgent"]
+            )
 
-                    with col2:
-                        st.markdown(f"**Sample Type:** {req.sample_type.title() if req.sample_type else 'N/A'}")
-                        st.markdown(f"**Quantity:** {req.sample_count}")
-                        st.markdown(f"**Priority:** {req.priority.upper() if req.priority else 'N/A'}")
+        # Display requests as cards
+        for req_data in requests_data:
+            # Apply filters
+            if status_filter != "All" and req_data['status'] != status_filter.lower().replace(" ", "_"):
+                continue
 
-                    with col3:
-                        st.markdown(f"**Status:** {req.status.value.upper()}")
-                        st.markdown(f"**Created:** {req.created_at.strftime('%Y-%m-%d')}")
-                        st.markdown(f"**Protocols:** {len(req.requested_protocols or [])}")
+            if priority_filter != "All" and req_data['priority'] != priority_filter.lower():
+                continue
 
-                    if req.requested_protocols:
-                        st.markdown("**Selected Protocols:**")
-                        protocol_text = ", ".join(req.requested_protocols)
-                        st.caption(protocol_text)
+            with st.expander(
+                f"🎫 {req_data['request_number']} - {req_data['client_name']} ({req_data['status'].upper()})",
+                expanded=False
+            ):
+                col1, col2, col3 = st.columns(3)
 
-                    # Action buttons
-                    col1, col2, col3, col4 = st.columns(4)
+                with col1:
+                    st.markdown(f"**Client:** {req_data['client_name']}")
+                    st.markdown(f"**Email:** {req_data['client_email']}")
+                    st.markdown(f"**Organization:** {req_data['client_organization'] or 'N/A'}")
 
-                    with col1:
-                        if st.button("👁️ View Details", key=f"view_{req.id}"):
-                            st.session_state.view_request_id = req.id
+                with col2:
+                    st.markdown(f"**Sample Type:** {req_data['sample_type'].title() if req_data['sample_type'] else 'N/A'}")
+                    st.markdown(f"**Quantity:** {req_data['sample_count']}")
+                    st.markdown(f"**Priority:** {req_data['priority'].upper() if req_data['priority'] else 'N/A'}")
 
-                    with col2:
-                        if st.button("✏️ Edit", key=f"edit_{req.id}"):
-                            st.info("Edit functionality - Coming soon!")
+                with col3:
+                    st.markdown(f"**Status:** {req_data['status'].upper()}")
+                    st.markdown(f"**Created:** {req_data['created_at'].strftime('%Y-%m-%d')}")
+                    st.markdown(f"**Protocols:** {len(req_data['requested_protocols'])}")
 
-                    with col3:
-                        if req.status == RequestStatus.SUBMITTED:
-                            if st.button("✅ Approve", key=f"approve_{req.id}"):
-                                req.status = RequestStatus.APPROVED
-                                req.approved_at = datetime.utcnow()
-                                db.commit()
-                                st.success("Request approved!")
-                                st.rerun()
+                if req_data['requested_protocols']:
+                    st.markdown("**Selected Protocols:**")
+                    protocol_text = ", ".join(req_data['requested_protocols'])
+                    st.caption(protocol_text)
 
-                    with col4:
-                        if st.button("🗑️ Delete", key=f"delete_{req.id}"):
-                            if st.session_state.get(f"confirm_delete_{req.id}", False):
-                                db.delete(req)
-                                db.commit()
-                                st.success("Request deleted")
-                                st.rerun()
-                            else:
-                                st.session_state[f"confirm_delete_{req.id}"] = True
-                                st.warning("Click again to confirm deletion")
+                # Action buttons
+                col1, col2, col3, col4 = st.columns(4)
+
+                with col1:
+                    if st.button("👁️ View Details", key=f"view_{req_data['id']}"):
+                        st.session_state.view_request_id = req_data['id']
+
+                with col2:
+                    if st.button("✏️ Edit", key=f"edit_{req_data['id']}"):
+                        st.info("Edit functionality - Coming soon!")
+
+                with col3:
+                    if req_data['status'] == 'submitted':
+                        if st.button("✅ Approve", key=f"approve_{req_data['id']}"):
+                            with get_db() as db:
+                                req_obj = db.execute(
+                                    select(ServiceRequest).where(ServiceRequest.id == req_data['id'])
+                                ).scalar_one_or_none()
+                                if req_obj:
+                                    req_obj.status = RequestStatus.APPROVED
+                                    req_obj.approved_at = datetime.utcnow()
+                                    db.commit()
+                            st.success("Request approved!")
+                            st.rerun()
+
+                with col4:
+                    if st.button("🗑️ Delete", key=f"delete_{req_data['id']}"):
+                        if st.session_state.get(f"confirm_delete_{req_data['id']}", False):
+                            with get_db() as db:
+                                req_obj = db.execute(
+                                    select(ServiceRequest).where(ServiceRequest.id == req_data['id'])
+                                ).scalar_one_or_none()
+                                if req_obj:
+                                    db.delete(req_obj)
+                                    db.commit()
+                            st.success("Request deleted")
+                            st.rerun()
+                        else:
+                            st.session_state[f"confirm_delete_{req_data['id']}"] = True
+                            st.warning("Click again to confirm deletion")
 
     except Exception as e:
         st.error(f"Error loading service requests: {str(e)}")
@@ -380,15 +409,25 @@ def render_search_interface():
                     )
                 ).scalars().all()
 
-                st.markdown(f"**Found {len(results)} result(s)**")
-
+                # Extract data while session is open
+                results_data = []
                 for req in results:
-                    st.markdown(f"""
-                    **{req.request_number}** - {req.client_name}
-                    - Status: {req.status.value.upper()}
-                    - Created: {req.created_at.strftime('%Y-%m-%d')}
-                    """)
-                    st.divider()
+                    results_data.append({
+                        'request_number': req.request_number,
+                        'client_name': req.client_name,
+                        'status': req.status.value if hasattr(req.status, 'value') else str(req.status),
+                        'created_at': req.created_at
+                    })
+
+            st.markdown(f"**Found {len(results_data)} result(s)**")
+
+            for req_data in results_data:
+                st.markdown(f"""
+                **{req_data['request_number']}** - {req_data['client_name']}
+                - Status: {req_data['status'].upper()}
+                - Created: {req_data['created_at'].strftime('%Y-%m-%d')}
+                """)
+                st.divider()
 
         except Exception as e:
             st.error(f"Search error: {str(e)}")

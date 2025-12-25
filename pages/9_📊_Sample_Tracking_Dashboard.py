@@ -182,29 +182,42 @@ def render_dashboard():
             .limit(10)
         ).scalars().all()
 
+        # Extract data while session is open to avoid DetachedInstanceError
+        recent_samples_data = []
         if recent_samples:
             for sample in recent_samples:
-                status_icons = {
-                    SampleStatus.RECEIVED: '📥',
-                    SampleStatus.INSPECTED: '🔍',
-                    SampleStatus.ALLOCATED: '🏷️',
-                    SampleStatus.ASSIGNED: '📋',
-                    SampleStatus.IN_TEST: '🔬',
-                    SampleStatus.COMPLETED: '✅',
-                    SampleStatus.ANALYZED: '📊',
-                    SampleStatus.REPORTED: '📄',
-                    SampleStatus.REJECTED: '❌',
-                    SampleStatus.ON_HOLD: '⏸️'
-                }
-                icon = status_icons.get(sample.status, '⚪')
+                recent_samples_data.append({
+                    'sample_id': sample.sample_id,
+                    'current_location': sample.current_location,
+                    'status': sample.status.value if hasattr(sample.status, 'value') else str(sample.status),
+                    'status_enum': sample.status,
+                    'updated_at': sample.updated_at
+                })
 
-                col1, col2, col3, col4 = st.columns([2, 2, 1, 1])
-                col1.markdown(f"{icon} **{sample.sample_id}**")
-                col2.markdown(f"{sample.current_location or 'Unknown'}")
-                col3.markdown(f"{sample.status.value.upper()}")
-                col4.markdown(f"{sample.updated_at.strftime('%H:%M') if sample.updated_at else 'N/A'}")
-        else:
-            st.info("No recent activity")
+    if recent_samples_data:
+        status_icons = {
+            SampleStatus.RECEIVED: '📥',
+            SampleStatus.INSPECTED: '🔍',
+            SampleStatus.ALLOCATED: '🏷️',
+            SampleStatus.ASSIGNED: '📋',
+            SampleStatus.IN_TEST: '🔬',
+            SampleStatus.COMPLETED: '✅',
+            SampleStatus.ANALYZED: '📊',
+            SampleStatus.REPORTED: '📄',
+            SampleStatus.REJECTED: '❌',
+            SampleStatus.ON_HOLD: '⏸️'
+        }
+
+        for sample_data in recent_samples_data:
+            icon = status_icons.get(sample_data['status_enum'], '⚪')
+
+            col1, col2, col3, col4 = st.columns([2, 2, 1, 1])
+            col1.markdown(f"{icon} **{sample_data['sample_id']}**")
+            col2.markdown(f"{sample_data['current_location'] or 'Unknown'}")
+            col3.markdown(f"{sample_data['status'].upper()}")
+            col4.markdown(f"{sample_data['updated_at'].strftime('%H:%M') if sample_data['updated_at'] else 'N/A'}")
+    else:
+        st.info("No recent activity")
 
     # Alerts
     st.markdown("#### Alerts & Notifications")
@@ -743,11 +756,20 @@ def render_location_map():
                         .limit(20)
                     ).scalars().all()
 
+                    # Extract data while session is open
+                    samples_data = []
                     for sample in samples:
-                        col1, col2, col3 = st.columns([2, 1, 1])
-                        col1.markdown(f"**{sample.sample_id}**")
-                        col2.markdown(f"{sample.status.value.upper()}")
-                        col3.markdown(f"{sample.updated_at.strftime('%Y-%m-%d') if sample.updated_at else 'N/A'}")
+                        samples_data.append({
+                            'sample_id': sample.sample_id,
+                            'status': sample.status.value if hasattr(sample.status, 'value') else str(sample.status),
+                            'updated_at': sample.updated_at
+                        })
+
+                for sample_data in samples_data:
+                    col1, col2, col3 = st.columns([2, 1, 1])
+                    col1.markdown(f"**{sample_data['sample_id']}**")
+                    col2.markdown(f"{sample_data['status'].upper()}")
+                    col3.markdown(f"{sample_data['updated_at'].strftime('%Y-%m-%d') if sample_data['updated_at'] else 'N/A'}")
 
 
 if __name__ == "__main__":

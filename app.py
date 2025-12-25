@@ -221,8 +221,6 @@ def try_database_connection():
     Attempt database connection with exponential backoff.
     This runs in background and doesn't block UI.
     """
-    global DB_STATE
-    
     if DB_STATE['initialized']:
         return DB_STATE['connected']
     

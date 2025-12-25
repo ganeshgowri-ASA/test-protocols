@@ -175,24 +175,36 @@ def render_inventory_overview():
     
     # Recent inventory activity
     st.markdown("#### 🔄 Recent Inventory Activity")
-    
+
     with get_db() as db:
         recent_inventory = db.execute(
             select(SampleInventory)
             .order_by(desc(SampleInventory.updated_at))
             .limit(10)
         ).scalars().all()
-        
+
+        # Extract data while session is open to avoid DetachedInstanceError
+        inventory_data = []
         if recent_inventory:
             for inv in recent_inventory:
-                col1, col2, col3, col4, col5 = st.columns([2, 2, 1.5, 1, 1])
-                col1.markdown(f"**{inv.sample_id_code or 'N/A'}**")
-                col2.markdown(f"📍 {inv.full_location_path or 'Unknown'}")
-                col3.markdown(f"{inv.inventory_status.value if inv.inventory_status else 'N/A'}")
-                col4.markdown(f"{inv.condition or 'N/A'}")
-                col5.markdown(f"{inv.updated_at.strftime('%m-%d %H:%M') if inv.updated_at else 'N/A'}")
-        else:
-            st.info("No recent inventory activity")
+                inventory_data.append({
+                    'sample_id_code': inv.sample_id_code,
+                    'full_location_path': inv.full_location_path,
+                    'inventory_status': inv.inventory_status.value if inv.inventory_status else 'N/A',
+                    'condition': inv.condition,
+                    'updated_at': inv.updated_at
+                })
+
+    if inventory_data:
+        for inv_data in inventory_data:
+            col1, col2, col3, col4, col5 = st.columns([2, 2, 1.5, 1, 1])
+            col1.markdown(f"**{inv_data['sample_id_code'] or 'N/A'}**")
+            col2.markdown(f"📍 {inv_data['full_location_path'] or 'Unknown'}")
+            col3.markdown(f"{inv_data['inventory_status']}")
+            col4.markdown(f"{inv_data['condition'] or 'N/A'}")
+            col5.markdown(f"{inv_data['updated_at'].strftime('%m-%d %H:%M') if inv_data['updated_at'] else 'N/A'}")
+    else:
+        st.info("No recent inventory activity")
 
 
 def render_search_locate():

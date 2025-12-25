@@ -316,29 +316,45 @@ def render_inspections_list():
                 st.info("No inspections found")
                 return
 
+            # Extract data while session is open to avoid DetachedInstanceError
+            inspections_data = []
             for insp in inspections:
-                status_emoji = "✅" if insp.passed else "❌"
+                inspections_data.append({
+                    'id': insp.id,
+                    'inspection_number': insp.inspection_number,
+                    'sample_id': insp.sample_id,
+                    'status': insp.status.value if hasattr(insp.status, 'value') else str(insp.status),
+                    'passed': insp.passed,
+                    'inspection_date': insp.inspection_date,
+                    'frame_condition': insp.frame_condition,
+                    'glass_condition': insp.glass_condition,
+                    'remarks': insp.remarks
+                })
 
-                with st.expander(
-                    f"{status_emoji} {insp.inspection_number} - {insp.sample_id} ({insp.status.value.upper()})",
-                    expanded=False
-                ):
-                    col1, col2, col3 = st.columns(3)
+        # Display inspections (outside session context)
+        for insp_data in inspections_data:
+            status_emoji = "✅" if insp_data['passed'] else "❌"
 
-                    with col1:
-                        st.markdown(f"**Sample ID:** {insp.sample_id}")
-                        st.markdown(f"**Date:** {insp.inspection_date.strftime('%Y-%m-%d %H:%M')}")
+            with st.expander(
+                f"{status_emoji} {insp_data['inspection_number']} - {insp_data['sample_id']} ({insp_data['status'].upper()})",
+                expanded=False
+            ):
+                col1, col2, col3 = st.columns(3)
 
-                    with col2:
-                        st.markdown(f"**Status:** {insp.status.value.upper()}")
-                        st.markdown(f"**Passed:** {'Yes' if insp.passed else 'No'}")
+                with col1:
+                    st.markdown(f"**Sample ID:** {insp_data['sample_id']}")
+                    st.markdown(f"**Date:** {insp_data['inspection_date'].strftime('%Y-%m-%d %H:%M')}")
 
-                    with col3:
-                        st.markdown(f"**Frame:** {insp.frame_condition.title() if insp.frame_condition else 'N/A'}")
-                        st.markdown(f"**Glass:** {insp.glass_condition.title() if insp.glass_condition else 'N/A'}")
+                with col2:
+                    st.markdown(f"**Status:** {insp_data['status'].upper()}")
+                    st.markdown(f"**Passed:** {'Yes' if insp_data['passed'] else 'No'}")
 
-                    if insp.remarks:
-                        st.markdown(f"**Remarks:** {insp.remarks}")
+                with col3:
+                    st.markdown(f"**Frame:** {insp_data['frame_condition'].title() if insp_data['frame_condition'] else 'N/A'}")
+                    st.markdown(f"**Glass:** {insp_data['glass_condition'].title() if insp_data['glass_condition'] else 'N/A'}")
+
+                if insp_data['remarks']:
+                    st.markdown(f"**Remarks:** {insp_data['remarks']}")
 
     except Exception as e:
         st.error(f"Error loading inspections: {str(e)}")

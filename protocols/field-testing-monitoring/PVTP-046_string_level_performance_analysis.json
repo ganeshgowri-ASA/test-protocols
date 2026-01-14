@@ -1,0 +1,756 @@
+{
+  "protocol_id": "PVTP-046",
+  "version": "1.0",
+  "title": "String-level Performance Analysis",
+  "category": "Field Testing & Monitoring",
+  "description": "Comprehensive protocol for monitoring and analyzing PV string-level performance including mismatch detection, underperformance identification, and fault diagnosis at the string level",
+  "scope": "Real-time string monitoring, comparative analysis, fault detection, and optimization strategies for utility-scale PV plants",
+  "standards": [
+    "IEC 61724-1:2021 - PV system performance monitoring",
+    "IEC 62446-1:2016 - Requirements for system documentation, commissioning tests and inspection",
+    "IEC 60891:2021 - Procedures for temperature and irradiance corrections to measured I-V characteristics",
+    "IEC 61829:2015 - Crystalline silicon photovoltaic array - On-site measurement of current-voltage characteristics"
+  ],
+
+  "iot_integration": {
+    "enabled": true,
+    "protocols": ["MQTT", "Modbus TCP", "OPC-UA", "RESTful API"],
+    "data_sources": [
+      {
+        "source_id": "string_monitoring_devices",
+        "type": "smart_string_monitors",
+        "protocol": "Modbus TCP",
+        "polling_interval_sec": 10,
+        "parameters": ["string_voltage", "string_current", "string_power", "string_energy", "string_temperature", "fault_flags"]
+      },
+      {
+        "source_id": "combiner_box_sensors",
+        "type": "dc_combiner_monitoring",
+        "protocol": "MQTT",
+        "polling_interval_sec": 5,
+        "parameters": ["per_string_current", "combiner_voltage", "combiner_temp", "fuse_status", "surge_protection_status"]
+      },
+      {
+        "source_id": "inverter_string_data",
+        "type": "inverter_mppt_channels",
+        "protocol": "Modbus TCP",
+        "polling_interval_sec": 10,
+        "parameters": ["mppt_voltage", "mppt_current", "mppt_power", "mppt_efficiency", "insulation_resistance"]
+      },
+      {
+        "source_id": "iv_curve_tracers",
+        "type": "portable_string_testers",
+        "protocol": "RESTful API",
+        "polling_interval_sec": "on_demand",
+        "parameters": ["iv_curve_data", "isc", "voc", "imp", "vmp", "pmax", "fill_factor"]
+      },
+      {
+        "source_id": "irradiance_array",
+        "type": "distributed_poa_sensors",
+        "protocol": "MQTT",
+        "polling_interval_sec": 10,
+        "parameters": ["poa_irradiance_per_zone", "reference_cell_isc"]
+      },
+      {
+        "source_id": "module_level_monitoring",
+        "type": "module_level_power_electronics_data",
+        "protocol": "OPC-UA",
+        "polling_interval_sec": 30,
+        "parameters": ["module_voltage", "module_current", "module_power", "module_temp", "optimizer_status"]
+      }
+    ],
+    "data_pipeline": {
+      "ingestion": "MQTT Broker + Apache Kafka",
+      "processing": "Apache Spark for real-time string comparison and anomaly detection",
+      "storage": "InfluxDB (time-series) + PostgreSQL (fault events, IV curves)",
+      "analytics": "Python (Pandas, NumPy, scikit-learn for anomaly detection, pvlib for expected performance)"
+    }
+  },
+
+  "weather_station_linkage": {
+    "required_sensors": {
+      "irradiance_distributed": {
+        "POA_pyranometers": {
+          "sensor_type": "Class A or reference cells",
+          "accuracy": "±2%",
+          "mounting": "Representative locations across plant (one per block/zone)",
+          "quantity": "Minimum 5-10 distributed across large plant",
+          "importance": "CRITICAL for identifying localized irradiance variations vs string issues"
+        },
+        "GHI_pyranometer": {
+          "sensor_type": "Class A",
+          "accuracy": "±2%",
+          "use": "Overall site irradiance baseline"
+        }
+      },
+      "temperature_distributed": {
+        "module_temperature_sensors": {
+          "sensor_type": "PT100 or thermocouples",
+          "mounting": "Representative module back surfaces per zone",
+          "quantity": "Minimum 5-10 distributed",
+          "use": "Temperature correction for string performance analysis"
+        },
+        "ambient_temperature": {
+          "sensor_type": "PT100 in ventilated shield",
+          "quantity": "Multiple locations for large plants",
+          "use": "Environmental characterization"
+        }
+      }
+    },
+    "data_synchronization": {
+      "timestamp_source": "NTP server",
+      "sync_accuracy_ms": 100,
+      "importance": "Synchronized measurements across all strings for fair comparison",
+      "timezone": "UTC"
+    }
+  },
+
+  "scada_integration": {
+    "enabled": true,
+    "connection_type": "OPC-UA / Modbus TCP",
+    "real_time_monitoring": {
+      "plant_level": ["total_dc_power", "total_ac_power", "string_count_operational", "underperforming_strings_count"],
+      "inverter_level": ["inverter_dc_power", "string_count_per_inverter", "mppt_efficiency"],
+      "string_level": ["individual_string_power", "string_current_voltage", "performance_index", "fault_status"],
+      "comparative_dashboards": ["String ranking by performance", "Heatmap of string performance", "Outlier detection alerts"]
+    },
+    "automated_diagnostics": {
+      "string_comparison": {
+        "method": "Compare each string against ensemble average or expected model",
+        "threshold": "Flag strings performing < 90% of expected",
+        "factors": "Account for local irradiance, temperature, soiling variations"
+      },
+      "fault_classification": {
+        "low_current": "Module shadowing, soiling, degradation, bypass diode failure",
+        "low_voltage": "Open circuit, connector issue, module crack",
+        "high_current_imbalance": "Potential ground fault or reverse current",
+        "zero_power": "Fuse blown, disconnect open, wiring fault"
+      }
+    },
+    "alarm_integration": {
+      "critical_alarms": [
+        "String zero power (complete failure)",
+        "String current imbalance > 50% from expected",
+        "Ground fault detected",
+        "Arc fault detected"
+      ],
+      "warning_alarms": [
+        "String underperformance > 10%",
+        "String-to-string variation excessive",
+        "Gradual performance decline detected"
+      ],
+      "notification_channels": ["SCADA_HMI", "email", "SMS", "mobile_app", "work_order_system"]
+    }
+  },
+
+  "test_parameters": {
+    "string_configuration_details": {
+      "documentation": {
+        "string_layout_map": "Geographic location of each string in plant",
+        "modules_per_string": "Typical 20-30 modules",
+        "module_technology": "Mono-Si, Poly-Si, PERC, TOPCon, etc.",
+        "rated_power_per_string": "Module power × modules per string",
+        "wiring_configuration": "Series, with bypass diodes per module or group",
+        "combiner_box_assignment": "Which strings feed which combiners and inverters"
+      }
+    },
+    "monitoring_architecture": {
+      "string_level_sensors": {
+        "current_measurement": {
+          "method": "Hall-effect sensor, shunt resistor, or fuse monitor",
+          "accuracy": "±1% of reading",
+          "location": "Combiner box input or dedicated string monitor"
+        },
+        "voltage_measurement": {
+          "method": "High-impedance voltage divider",
+          "accuracy": "±0.5% of reading",
+          "measurement_point": "String positive and negative terminals"
+        },
+        "power_calculation": {
+          "formula": "P_string = V_string × I_string",
+          "sampling_rate": "1-10 Hz",
+          "integration": "Daily energy per string"
+        }
+      },
+      "iv_curve_measurement": {
+        "portable_iv_tracer": {
+          "use": "Periodic detailed string characterization",
+          "frequency": "Quarterly or when underperformance detected",
+          "parameters": "Full IV curve, Voc, Isc, Vmp, Imp, Pmax, FF",
+          "analysis": "Identify specific failure modes from curve shape"
+        }
+      },
+      "module_level_monitoring": {
+        "power_optimizers_or_microinverters": {
+          "advantage": "Module-level visibility within string",
+          "data": "Per-module voltage, current, power",
+          "fault_detection": "Pinpoint exact underperforming module"
+        }
+      }
+    },
+    "environmental_context": {
+      "irradiance_zoning": "Divide plant into zones with representative POA sensors",
+      "temperature_zoning": "Monitor temperature variations across plant",
+      "soiling_zoning": "Track differential soiling (e.g., edge of plant vs center)",
+      "shading_analysis": "Identify strings affected by shading (trees, structures, terrain)"
+    }
+  },
+
+  "performance_metrics": {
+    "string_performance_index": {
+      "normalized_performance": {
+        "formula": "SPI = P_string_actual / P_string_expected",
+        "P_string_expected": "Based on irradiance, temperature, and rated power",
+        "ideal_value": "1.0 (100%)",
+        "typical_range": "0.95-1.05 (within measurement and environmental uncertainty)",
+        "action_threshold": "SPI < 0.90 triggers investigation"
+      },
+      "relative_performance": {
+        "formula": "RP = P_string / mean(P_all_strings_same_conditions)",
+        "use": "Compare string to peer group under same irradiance zone",
+        "advantage": "Self-referencing, less dependent on accurate irradiance measurement"
+      }
+    },
+    "string_energy_yield": {
+      "daily_energy_per_string": {
+        "formula": "E_string_daily = ∫₀²⁴ P_string(t) dt",
+        "unit": "kWh",
+        "comparison": "Rank strings by daily energy, identify bottom performers"
+      },
+      "specific_yield_per_string": {
+        "formula": "Y_f_string = E_string / P_rated_string",
+        "unit": "kWh/kWp",
+        "use": "Normalize for different string sizes"
+      }
+    },
+    "string_mismatch_metrics": {
+      "string_to_string_variation": {
+        "formula": "σ(P_strings) / mean(P_strings) at same irradiance and temperature",
+        "interpretation": "Low CV (<3%) is good, high CV (>10%) indicates issues",
+        "causes": "Soiling differences, module degradation variation, shading, faults"
+      },
+      "current_imbalance": {
+        "formula": "max(|I_string - I_mean|) / I_mean",
+        "concern_threshold": ">20% deviation from mean current",
+        "causes": "Module failure, shading, bypass diode activation"
+      }
+    },
+    "iv_curve_parameters": {
+      "Voc_per_string": {
+        "expected": "N_modules × Voc_module (at cell temperature)",
+        "deviation": "Low Voc indicates module degradation or bypass diode failure",
+        "measurement": "Early morning or late evening IV curve"
+      },
+      "Isc_per_string": {
+        "expected": "Isc_module × (G_POA / 1000)",
+        "deviation": "Low Isc indicates shading, soiling, or module degradation"
+      },
+      "fill_factor": {
+        "formula": "FF = (Vmp × Imp) / (Voc × Isc)",
+        "typical": "0.75-0.80 for good modules",
+        "degradation_indicator": "FF drop indicates series resistance increase or diode issues"
+      }
+    },
+    "fault_detection_metrics": {
+      "open_circuit_detection": {
+        "indicator": "Voltage present but zero current (or very low current)",
+        "cause": "Blown fuse, open connector, broken wire"
+      },
+      "short_circuit_detection": {
+        "indicator": "Current present but very low voltage",
+        "cause": "Module bypass, severe shading, ground fault"
+      },
+      "ground_fault": {
+        "indicator": "Current imbalance between positive and negative conductors",
+        "detection": "Ground fault detector in inverter or combiner",
+        "severity": "Critical safety issue"
+      },
+      "arc_fault": {
+        "indicator": "High-frequency current noise, intermittent connection",
+        "detection": "Arc fault circuit interrupter (AFCI) in inverter",
+        "severity": "Critical fire risk"
+      }
+    }
+  },
+
+  "long_term_trend_analysis": {
+    "enabled": true,
+    "analysis_methods": {
+      "string_performance_evolution": {
+        "metric": "Monthly SPI for each string",
+        "trend_detection": "Is performance declining over time? (degradation, soiling accumulation)",
+        "ranking_stability": "Do bottom-performing strings remain consistent? (systematic issue vs random variation)"
+      },
+      "mismatch_evolution": {
+        "metric": "Coefficient of variation of string powers over time",
+        "interpretation": "Increasing mismatch indicates differential degradation or emerging faults",
+        "alert": "If CV increases by >50% from baseline, investigate"
+      },
+      "failure_rate_by_string_location": {
+        "spatial_analysis": "Are certain zones of plant more prone to string failures?",
+        "factors": ["Proximity to roads (dust)", "Shading patterns", "Microclimatic variations", "Installation quality variations"]
+      },
+      "seasonal_string_patterns": {
+        "analysis": "Do certain strings underperform in specific seasons?",
+        "causes": ["Seasonal shading", "Snow accumulation patterns", "Differential soiling in dry season"]
+      }
+    }
+  },
+
+  "predictive_modeling": {
+    "enabled": true,
+    "models": {
+      "expected_string_performance_model": {
+        "physical_model": {
+          "formula": "P_expected = P_rated × (G_POA / 1000) × (1 + γ × (T_cell - 25)) × (1 - soiling_loss) × η_wiring",
+          "inputs": ["G_POA (zone-specific)", "T_cell (zone-specific)", "Rated power", "Temperature coefficient", "Soiling estimate", "Wiring losses"],
+          "output": "Expected string power for comparison with actual",
+          "use": "Flag underperforming strings"
+        },
+        "machine_learning_model": {
+          "algorithm": "Random Forest or Gradient Boosting",
+          "features": ["G_POA", "T_ambient", "T_module", "wind_speed", "time_of_day", "string_location"],
+          "target": "String power",
+          "training": "Learn from well-performing strings",
+          "application": "Predict expected power for each string, flag deviations"
+        }
+      },
+      "anomaly_detection": {
+        "statistical_methods": {
+          "z_score": "Flag strings with power Z-score < -2 relative to peers",
+          "isolation_forest": "Unsupervised learning to detect anomalous string behavior",
+          "control_charts": "CUSUM or EWMA charts for early detection of performance drift"
+        },
+        "time_series_anomaly_detection": {
+          "model": "ARIMA or LSTM for forecasting string power",
+          "detection": "Large residuals indicate anomalies",
+          "advantage": "Accounts for temporal patterns and trends"
+        }
+      },
+      "fault_classification": {
+        "supervised_learning": {
+          "training_data": "Historical string data labeled with known fault types",
+          "features": ["V_string", "I_string", "P_string", "Temperature-corrected metrics", "Time patterns"],
+          "algorithms": "Decision tree, Random Forest, SVM, Neural Network",
+          "output": "Fault type prediction (soiling, shading, module failure, wiring issue, etc.)"
+        }
+      },
+      "predictive_maintenance": {
+        "string_failure_prediction": {
+          "features": ["Performance decline rate", "Current imbalance trend", "Environmental stress exposure", "String age"],
+          "model": "Survival analysis or time-to-failure regression",
+          "output": "Probability of string failure in next 30/90/365 days",
+          "action": "Prioritize inspection and maintenance"
+        }
+      }
+    },
+    "model_validation": {
+      "training_period": "6-12 months of data",
+      "validation_period": "3 months",
+      "test_period": "3 months (most recent)",
+      "metrics": ["Precision, Recall, F1-score for fault detection", "RMSE for power prediction"],
+      "acceptance": "Fault detection F1-score > 0.80, Power prediction RMSE < 5%"
+    }
+  },
+
+  "test_procedure": {
+    "phases": [
+      {
+        "phase": "1_baseline_establishment",
+        "duration": "1 month after commissioning",
+        "activities": [
+          "Install or verify string-level monitoring sensors on all strings",
+          "Perform baseline IV curve measurement on representative sample of strings (10-20%)",
+          "Document string layout, module configuration, wiring",
+          "Verify all strings produce expected power under clear-sky conditions",
+          "Establish baseline performance distribution (mean, std dev of string powers)",
+          "Identify and correct any commissioning issues"
+        ]
+      },
+      {
+        "phase": "2_continuous_monitoring",
+        "duration": "ongoing (plant lifetime)",
+        "activities": [
+          "Continuous string-level power monitoring (10-second to 1-minute intervals)",
+          "Automated calculation of String Performance Index (SPI) for each string",
+          "Real-time comparison of strings within same irradiance zone",
+          "Automated anomaly detection and alarming",
+          "Daily ranking of strings by performance",
+          "Data quality checks and sensor validation"
+        ]
+      },
+      {
+        "phase": "3_periodic_detailed_analysis",
+        "frequency": "monthly",
+        "activities": [
+          "Comprehensive analysis of all strings' monthly performance",
+          "Identify and rank underperforming strings (bottom 10%)",
+          "Analyze patterns: geographic, seasonal, fault-type",
+          "IV curve testing of flagged strings",
+          "Root cause analysis of underperformance",
+          "Generate work orders for corrective actions"
+        ]
+      },
+      {
+        "phase": "4_field_investigations",
+        "frequency": "as needed (triggered by anomaly detection)",
+        "activities": [
+          "Physical inspection of flagged strings and modules",
+          "Detailed IV curve tracing",
+          "Thermal imaging (if hotspots suspected)",
+          "Visual inspection for physical damage, soiling, shading",
+          "Electrical testing (insulation resistance, ground fault)",
+          "Corrective actions (module replacement, connector repair, cleaning)"
+        ]
+      },
+      {
+        "phase": "5_annual_comprehensive_review",
+        "frequency": "annual",
+        "activities": [
+          "Full-year string performance summary",
+          "Trend analysis: degradation, mismatch evolution, failure rates",
+          "IV curve testing of statistically significant sample (10-20% of strings)",
+          "Predictive model validation and updates",
+          "Economic analysis: cost of underperformance vs cost of corrective actions",
+          "Strategic recommendations: targeted O&M, design improvements for future plants"
+        ]
+      }
+    ]
+  },
+
+  "data_analysis": {
+    "automated_calculations": [
+      {
+        "metric": "String Performance Index (SPI)",
+        "formula": "SPI = P_string / (P_rated × (G_POA / 1000) × temp_correction)",
+        "frequency": "real-time (every 10 seconds to 1 minute)",
+        "quality_filter": "Only calculate when G_POA > 200 W/m²",
+        "alarm_threshold": "SPI < 0.90"
+      },
+      {
+        "metric": "Daily Energy per String",
+        "formula": "E_string_daily = ∫ P_string dt",
+        "frequency": "daily",
+        "ranking": "Rank all strings by daily energy"
+      },
+      {
+        "metric": "String Coefficient of Variation",
+        "formula": "CV = σ(P_strings) / mean(P_strings)",
+        "frequency": "hourly, daily",
+        "interpretation": "CV < 5% is good, > 10% indicates significant mismatch"
+      },
+      {
+        "metric": "Relative Performance",
+        "formula": "RP_string = P_string / median(P_strings_in_zone)",
+        "frequency": "real-time",
+        "advantage": "Zone-specific comparison reduces environmental variation"
+      },
+      {
+        "metric": "Cumulative Underperformance Energy Loss",
+        "formula": "E_loss_string = Σ(P_expected - P_actual) × Δt",
+        "frequency": "cumulative (daily, monthly, annual)",
+        "economic": "E_loss × electricity_price = Revenue loss per string"
+      }
+    ],
+    "iv_curve_analysis": {
+      "automated_parameter_extraction": [
+        "Voc, Isc, Vmp, Imp, Pmax, FF from IV curve data",
+        "Comparison with expected values (accounting for G, T)",
+        "Series resistance calculation from slope at Voc",
+        "Shunt resistance from slope at Isc"
+      ],
+      "fault_diagnosis_from_iv_shape": {
+        "low_FF": "Series resistance increase (hot joints, corrosion)",
+        "low_Voc": "Bypass diode failure, cell cracks",
+        "low_Isc": "Shading, soiling, module degradation",
+        "multiple_steps": "Bypass diode activation due to shaded or failed modules",
+        "very_low_Vmp": "Multiple module failures or severe mismatch"
+      }
+    },
+    "spatial_analysis": {
+      "heatmap_visualization": {
+        "map": "Plant layout with color-coded string performance",
+        "identification": "Visually identify zones of underperformance",
+        "use_cases": ["Localized soiling", "Shading issues", "Installation quality variations"]
+      },
+      "clustering_analysis": {
+        "method": "K-means or DBSCAN clustering of string performance",
+        "identification": "Group strings by similar behavior",
+        "diagnosis": "Clusters may correspond to different failure modes or environmental conditions"
+      }
+    },
+    "temporal_analysis": {
+      "time_of_day_patterns": {
+        "analysis": "Is underperformance time-dependent?",
+        "shading": "Morning/evening underperformance suggests shading",
+        "temperature": "Midday underperformance may be temperature-related"
+      },
+      "seasonal_patterns": {
+        "analysis": "Performance by season",
+        "causes": ["Winter shading", "Summer dust storms", "Seasonal soiling patterns"]
+      }
+    },
+    "data_quality_checks": {
+      "validation_rules": [
+        "0 <= V_string <= 1.2 × Voc_STC × N_modules",
+        "0 <= I_string <= 1.2 × Isc_STC",
+        "P_string >= 0 AND P_string <= 1.2 × P_rated_string",
+        "For same irradiance zone: |P_string - median(P_zone)| / median(P_zone) < 0.30 (otherwise flag)",
+        "E_string_daily >= 0 AND E_string_daily <= P_rated_string × 12 hours"
+      ],
+      "sensor_validation": {
+        "cross_checks": "Compare multiple strings in same combiner box (should have similar currents)",
+        "drift_detection": "Compare string sensor readings with inverter MPPT channel data"
+      }
+    }
+  },
+
+  "quality_control": {
+    "qc_checkpoints": [
+      {
+        "checkpoint": "QC-046-01",
+        "description": "String sensor installation verification",
+        "frequency": "At commissioning",
+        "acceptance_criteria": "All strings have functional current and voltage sensors, data logging correctly",
+        "responsible": "Commissioning engineer"
+      },
+      {
+        "checkpoint": "QC-046-02",
+        "description": "Baseline string performance verification",
+        "frequency": "Within first month of operation",
+        "acceptance_criteria": "All strings produce within ±10% of expected power, no outliers",
+        "responsible": "Performance engineer"
+      },
+      {
+        "checkpoint": "QC-046-03",
+        "description": "String monitoring data quality check",
+        "frequency": "Weekly",
+        "acceptance_criteria": "Data completeness >98%, no sensor drift or communication errors",
+        "responsible": "Data analyst"
+      },
+      {
+        "checkpoint": "QC-046-04",
+        "description": "Anomaly detection validation",
+        "frequency": "Monthly",
+        "acceptance_criteria": "Flagged strings investigated, false positive rate <10%",
+        "responsible": "O&M manager"
+      },
+      {
+        "checkpoint": "QC-046-05",
+        "description": "IV curve quality check",
+        "frequency": "After each IV curve measurement",
+        "acceptance_criteria": "IV curve smooth and physically reasonable, no measurement artifacts",
+        "responsible": "Test technician"
+      }
+    ],
+    "calibration_schedule": {
+      "current_sensors": "Annual calibration or verification",
+      "voltage_sensors": "Annual verification",
+      "iv_curve_tracer": "Annual calibration against NIST-traceable standards",
+      "irradiance_sensors": "Annual calibration"
+    },
+    "audit_trail": {
+      "string_performance_records": "Time-series database of all string measurements",
+      "iv_curve_archive": "All IV curves with metadata (date, conditions, string ID)",
+      "fault_events_log": "All detected anomalies, investigations, and resolutions",
+      "maintenance_work_orders": "String-specific maintenance actions and outcomes"
+    }
+  },
+
+  "non_conformance": {
+    "nc_criteria": [
+      {
+        "nc_id": "NC-046-01",
+        "condition": "String produces zero power for >1 hour during daylight",
+        "severity": "critical",
+        "action": "Immediate investigation - check fuse, disconnect, wiring, modules"
+      },
+      {
+        "nc_id": "NC-046-02",
+        "condition": "String SPI < 0.80 for more than 3 days",
+        "severity": "major",
+        "action": "Field investigation - IV curve test, visual inspection, thermal imaging, identify and fix root cause"
+      },
+      {
+        "nc_id": "NC-046-03",
+        "condition": "String current imbalance > 30% from zone average",
+        "severity": "major",
+        "action": "Investigate shading, soiling, module failures, or bypass diode issues"
+      },
+      {
+        "nc_id": "NC-046-04",
+        "condition": "String-to-string variation CV > 15% within same irradiance zone",
+        "severity": "moderate",
+        "action": "Analyze mismatch causes, prioritize correction of worst performers"
+      },
+      {
+        "nc_id": "NC-046-05",
+        "condition": "Ground fault or arc fault detected on string",
+        "severity": "critical",
+        "action": "Immediate de-energization, thorough electrical inspection, safety assessment before re-energization"
+      }
+    ],
+    "capa_process": {
+      "documentation": "NC report with string data plots, IV curves, photos, analysis",
+      "investigation": "Root cause analysis - module failure, wiring issue, environmental factor, design flaw",
+      "corrective_action": "Immediate fix - module replacement, connector repair, cleaning, wiring correction",
+      "preventive_action": "Update monitoring thresholds, improve maintenance procedures, design changes for future",
+      "verification": "Confirm string returns to expected performance, monitor for recurrence",
+      "timeline": "Critical NC within 24 hours, major within 1 week, moderate within 2 weeks"
+    }
+  },
+
+  "preventive_maintenance": {
+    "pm_schedule": [
+      {
+        "pm_id": "PM-046-01",
+        "task": "String performance review and anomaly investigation",
+        "frequency": "monthly",
+        "duration_hours": 4,
+        "checklist": ["Review monthly string performance data", "Identify and rank underperformers", "Analyze patterns and trends", "Generate work orders for field investigations"]
+      },
+      {
+        "pm_id": "PM-046-02",
+        "task": "IV curve testing of representative sample",
+        "frequency": "semi-annual",
+        "duration_hours": 16,
+        "checklist": ["Select 10-20% sample of strings (include best, worst, and average performers)", "Perform IV curve measurements", "Analyze and document results", "Identify strings needing corrective action"]
+      },
+      {
+        "pm_id": "PM-046-03",
+        "task": "String sensor calibration verification",
+        "frequency": "annual",
+        "duration_hours": 8,
+        "checklist": ["Verify current and voltage sensor accuracy", "Cross-check with portable meters", "Recalibrate if needed", "Document results"]
+      },
+      {
+        "pm_id": "PM-046-04",
+        "task": "Combiner box inspection",
+        "frequency": "annual",
+        "duration_hours": 4,
+        "checklist": ["Inspect fuses", "Check connections for corrosion or overheating", "Verify surge protection devices", "Test ground fault detection", "Clean and secure enclosure"]
+      },
+      {
+        "pm_id": "PM-046-05",
+        "task": "Data system health check",
+        "frequency": "weekly",
+        "duration_minutes": 30,
+        "checklist": ["Review data completeness", "Check for sensor or communication failures", "Verify anomaly detection algorithms functioning", "Test alarm notifications"]
+      }
+    ]
+  },
+
+  "traceability": {
+    "string_traceability": {
+      "string_id": "Unique identifier for each string",
+      "physical_location": "Combiner box, inverter MPPT channel, GPS coordinates",
+      "module_composition": "Serial numbers of modules in string (if tracked)",
+      "installation_date": "Commissioning date",
+      "performance_history": "Full time-series of voltage, current, power, energy"
+    },
+    "iv_curve_traceability": {
+      "iv_curve_archive": "All IV curves with string ID, date, time, environmental conditions",
+      "equipment_used": "IV curve tracer model and serial number",
+      "analyst": "Technician who performed measurement"
+    },
+    "fault_event_traceability": {
+      "event_log": "All anomalies detected with timestamp, severity, description",
+      "investigation_records": "Findings, photos, test results",
+      "corrective_actions": "Actions taken, parts replaced, cost",
+      "resolution": "Verification of performance restoration"
+    }
+  },
+
+  "reporting": {
+    "automated_reports": [
+      {
+        "report_type": "Daily String Performance Summary",
+        "frequency": "daily",
+        "distribution_time": "08:00 local time",
+        "recipients": ["O&M team", "Performance engineer"],
+        "content": ["Number of strings flagged as underperforming", "Top 10 worst performing strings", "Comparison with previous day", "Urgent actions needed"]
+      },
+      {
+        "report_type": "Monthly String Analysis Report",
+        "frequency": "monthly",
+        "distribution_date": "5th of following month",
+        "recipients": ["Technical team", "Management"],
+        "content": ["Monthly performance of all strings", "Underperformance trends", "Mismatch analysis", "IV curve test results", "Corrective actions taken", "Economic impact of underperformance"]
+      },
+      {
+        "report_type": "Annual String Performance Review",
+        "frequency": "annual",
+        "distribution_date": "January 31",
+        "recipients": ["All stakeholders"],
+        "content": ["Full year string performance analysis", "Failure rate and reliability assessment", "Long-term degradation and mismatch trends", "Economic analysis of string-level losses", "Recommendations for O&M and design"]
+      }
+    ],
+    "dashboard": {
+      "real_time_string_dashboard": {
+        "platform": "Grafana / SCADA",
+        "refresh_rate_seconds": 30,
+        "visualizations": [
+          "Heatmap of plant with color-coded string performance",
+          "Live list of underperforming strings",
+          "String performance distribution histogram",
+          "Time-series of selected strings",
+          "Alarmed strings list"
+        ]
+      },
+      "historical_string_analysis": {
+        "visualizations": [
+          "String ranking by monthly energy",
+          "String performance trends over time",
+          "Mismatch evolution plots",
+          "Failure rate by string location"
+        ]
+      }
+    }
+  },
+
+  "acceptance_criteria": {
+    "data_completeness": ">98% for all strings",
+    "sensor_accuracy": "Current ±1%, Voltage ±0.5%",
+    "string_performance_range": ">95% of strings with SPI > 0.90",
+    "string_to_string_variation": "CV < 10% within irradiance zone",
+    "anomaly_detection_accuracy": "False positive rate <10%, False negative rate <5%"
+  },
+
+  "integration_apis": {
+    "lims_integration": {
+      "endpoint": "/api/lims/string-performance",
+      "data_exchange": ["String performance data", "IV curve results", "Fault events"],
+      "sync_frequency": "daily"
+    },
+    "qms_integration": {
+      "endpoint": "/api/qms/string-qc",
+      "data_exchange": ["QC checkpoints", "NC reports", "CAPA actions"],
+      "sync_frequency": "real-time"
+    },
+    "project_management": {
+      "endpoint": "/api/pm/string-maintenance",
+      "data_exchange": ["Work orders for string investigations", "Parts replacement tracking", "Labor hours"],
+      "sync_frequency": "real-time"
+    },
+    "asset_management": {
+      "endpoint": "/api/asset/string-inventory",
+      "data_exchange": ["String registry", "Module composition", "Maintenance history"],
+      "sync_frequency": "daily"
+    }
+  },
+
+  "metadata": {
+    "created_by": "PV Testing Protocol Framework",
+    "created_date": "2025-11-12",
+    "last_modified": "2025-11-12",
+    "version_history": [
+      {
+        "version": "1.0",
+        "date": "2025-11-12",
+        "changes": "Initial protocol with comprehensive string-level performance monitoring, anomaly detection, fault diagnosis, and predictive analytics"
+      }
+    ],
+    "tags": ["string-monitoring", "anomaly-detection", "iv-curve-analysis", "mismatch", "fault-diagnosis", "predictive-maintenance"],
+    "related_protocols": ["PVTP-040", "PVTP-042", "PVTP-047"]
+  }
+}

@@ -1,0 +1,683 @@
+{
+  "protocol_id": "PVTP-040",
+  "version": "1.0",
+  "title": "Outdoor Field Performance Monitoring",
+  "category": "Field Testing & Monitoring",
+  "description": "Comprehensive outdoor field performance monitoring protocol with real-time data acquisition, weather correlation, and long-term performance analysis",
+  "scope": "Continuous monitoring of PV system performance under real outdoor conditions",
+  "standards": [
+    "IEC 61724-1:2021 - PV system performance monitoring",
+    "IEC 61724-2:2016 - Capacity evaluation",
+    "IEC 61724-3:2016 - Energy evaluation",
+    "IEC 61853-1:2011 - Irradiance and temperature performance measurements"
+  ],
+
+  "iot_integration": {
+    "enabled": true,
+    "protocols": ["MQTT", "OPC-UA", "Modbus TCP", "RESTful API"],
+    "data_sources": [
+      {
+        "source_id": "field_datalogger_01",
+        "type": "primary_datalogger",
+        "manufacturer": "configurable",
+        "protocol": "Modbus TCP",
+        "polling_interval_sec": 10,
+        "parameters": ["DC_power", "DC_voltage", "DC_current", "AC_power", "AC_voltage", "AC_current", "frequency"]
+      },
+      {
+        "source_id": "weather_station_01",
+        "type": "meteorological_station",
+        "protocol": "MQTT",
+        "polling_interval_sec": 5,
+        "parameters": ["GHI", "POA", "DNI", "DHI", "ambient_temp", "module_temp", "wind_speed", "wind_direction", "humidity", "pressure"]
+      },
+      {
+        "source_id": "scada_system",
+        "type": "plant_scada",
+        "protocol": "OPC-UA",
+        "polling_interval_sec": 30,
+        "parameters": ["plant_power", "grid_frequency", "transformer_temp", "inverter_status", "alarm_status"]
+      }
+    ],
+    "data_pipeline": {
+      "ingestion": "Apache Kafka / AWS IoT Core",
+      "processing": "Apache Spark Streaming",
+      "storage": "InfluxDB / TimescaleDB",
+      "analytics": "Python/Pandas/NumPy"
+    }
+  },
+
+  "weather_station_linkage": {
+    "required_sensors": {
+      "irradiance": {
+        "GHI": {
+          "sensor_type": "Thermopile pyranometer (Class A)",
+          "accuracy": "±2%",
+          "calibration_interval_months": 24,
+          "measurement_range": "0-1500 W/m²"
+        },
+        "POA": {
+          "sensor_type": "Thermopile pyranometer or reference cell",
+          "accuracy": "±2%",
+          "tilt_angle": "match_module_tilt",
+          "azimuth": "match_module_azimuth"
+        },
+        "DNI": {
+          "sensor_type": "Pyrheliometer (optional)",
+          "accuracy": "±2%",
+          "tracking": "solar_tracker_mounted"
+        },
+        "DHI": {
+          "sensor_type": "Pyranometer with shadow band",
+          "accuracy": "±3%"
+        }
+      },
+      "temperature": {
+        "ambient_temperature": {
+          "sensor_type": "PT100 / Thermistor",
+          "accuracy": "±0.5°C",
+          "shielding": "naturally_ventilated"
+        },
+        "module_back_temperature": {
+          "sensor_type": "PT100 attached to module back",
+          "accuracy": "±0.5°C",
+          "location": "center_of_module_back"
+        }
+      },
+      "environmental": {
+        "wind_speed": {
+          "sensor_type": "Anemometer",
+          "accuracy": "±0.5 m/s",
+          "height": "module_height"
+        },
+        "wind_direction": {
+          "sensor_type": "Wind vane",
+          "accuracy": "±5°"
+        },
+        "relative_humidity": {
+          "sensor_type": "Capacitive humidity sensor",
+          "accuracy": "±3%"
+        },
+        "barometric_pressure": {
+          "sensor_type": "Digital barometer",
+          "accuracy": "±1 hPa"
+        }
+      }
+    },
+    "data_synchronization": {
+      "timestamp_source": "NTP server",
+      "sync_accuracy_ms": 100,
+      "timezone": "UTC"
+    }
+  },
+
+  "scada_integration": {
+    "enabled": true,
+    "connection_type": "OPC-UA / DNP3 / IEC 61850",
+    "real_time_monitoring": {
+      "plant_level": ["total_ac_power", "total_dc_power", "plant_efficiency", "grid_export", "transformer_loading"],
+      "inverter_level": ["ac_power", "dc_power", "efficiency", "operating_state", "fault_codes", "reactive_power", "power_factor"],
+      "string_level": ["dc_voltage", "dc_current", "dc_power", "string_faults"],
+      "module_level": ["voltage_per_module", "hotspot_detection", "bypass_diode_status"]
+    },
+    "alarm_integration": {
+      "critical_alarms": ["inverter_fault", "grid_disconnection", "fire_alarm", "security_breach"],
+      "warning_alarms": ["performance_deviation", "temperature_limit", "irradiance_sensor_fault"],
+      "notification_channels": ["email", "SMS", "dashboard_alert", "SCADA_HMI"]
+    },
+    "control_commands": {
+      "remote_control": ["inverter_start_stop", "reactive_power_setpoint", "power_curtailment"],
+      "authentication": "role_based_access_control",
+      "audit_logging": true
+    }
+  },
+
+  "test_parameters": {
+    "monitoring_duration": {
+      "minimum_period_months": 12,
+      "recommended_period_years": 25,
+      "reporting_intervals": ["hourly", "daily", "monthly", "quarterly", "annual"]
+    },
+    "electrical_measurements": {
+      "dc_side": {
+        "voltage_range_V": "0-1500",
+        "current_range_A": "0-20",
+        "power_accuracy": "±1%",
+        "sampling_rate_Hz": 1
+      },
+      "ac_side": {
+        "voltage_range_V": "0-800",
+        "current_range_A": "0-100",
+        "power_accuracy": "±0.5%",
+        "sampling_rate_Hz": 1,
+        "power_factor_range": "±1"
+      }
+    },
+    "environmental_conditions": {
+      "irradiance_range_W_per_m2": "0-1500",
+      "temperature_range_C": "-40 to +85",
+      "wind_speed_range_m_per_s": "0-40",
+      "humidity_range_percent": "0-100"
+    }
+  },
+
+  "performance_metrics": {
+    "performance_ratio": {
+      "formula": "PR = (E_AC / (G_POA * P_STC * H)) * G_STC",
+      "parameters": {
+        "E_AC": "AC energy output (kWh)",
+        "G_POA": "Plane-of-array irradiation (kWh/m²)",
+        "P_STC": "Rated power at STC (kW)",
+        "H": "Time period (hours)",
+        "G_STC": "STC irradiance = 1000 W/m²"
+      },
+      "target_range": "75-85%",
+      "calculation_intervals": ["daily", "monthly", "annual"]
+    },
+    "capacity_factor": {
+      "formula": "CF = (E_AC_actual / E_AC_theoretical) * 100",
+      "target_range": "15-25%"
+    },
+    "specific_yield": {
+      "formula": "Y_f = E_AC / P_STC",
+      "unit": "kWh/kWp",
+      "typical_range": "1200-2000 kWh/kWp/year"
+    },
+    "system_efficiency": {
+      "formula": "η_sys = (E_AC / (G_POA * A_array)) * 100",
+      "components": {
+        "module_efficiency": "η_module",
+        "inverter_efficiency": "η_inverter",
+        "dc_losses": "losses_DC",
+        "ac_losses": "losses_AC"
+      }
+    }
+  },
+
+  "long_term_trend_analysis": {
+    "enabled": true,
+    "analysis_methods": {
+      "time_series_decomposition": {
+        "components": ["trend", "seasonality", "residual"],
+        "methods": ["STL", "X-13-ARIMA-SEATS"]
+      },
+      "regression_analysis": {
+        "linear_regression": {
+          "formula": "PR(t) = β₀ + β₁·t + ε",
+          "confidence_interval": "95%"
+        },
+        "polynomial_regression": {
+          "order": 2,
+          "use_case": "non_linear_degradation"
+        },
+        "seasonal_regression": {
+          "seasonal_factors": ["month", "irradiance_level", "temperature_range"]
+        }
+      },
+      "moving_averages": {
+        "simple_moving_average": {
+          "window_sizes_days": [7, 30, 90, 365]
+        },
+        "exponential_weighted_moving_average": {
+          "alpha": 0.1,
+          "use_case": "recent_trend_emphasis"
+        }
+      },
+      "statistical_process_control": {
+        "control_charts": ["Shewhart", "CUSUM", "EWMA"],
+        "control_limits": "±3σ",
+        "out_of_control_rules": ["Rule 1: 1 point > 3σ", "Rule 2: 2 of 3 points > 2σ", "Rule 3: 4 of 5 points > 1σ"]
+      }
+    },
+    "visualization": {
+      "time_series_plots": ["PR_vs_time", "power_vs_irradiance", "efficiency_vs_temperature"],
+      "heatmaps": ["performance_by_hour_month", "alarm_frequency_by_inverter"],
+      "correlation_matrices": ["weather_vs_performance", "temperature_vs_efficiency"]
+    }
+  },
+
+  "predictive_modeling": {
+    "enabled": true,
+    "models": {
+      "performance_forecasting": {
+        "arima": {
+          "description": "AutoRegressive Integrated Moving Average",
+          "parameters": {"p": 1, "d": 1, "q": 1},
+          "forecast_horizon_days": 30,
+          "use_case": "short_term_performance_prediction"
+        },
+        "sarima": {
+          "description": "Seasonal ARIMA",
+          "parameters": {"seasonal_period": 365},
+          "use_case": "seasonal_performance_pattern"
+        },
+        "prophet": {
+          "description": "Facebook Prophet for time series",
+          "features": ["trend", "yearly_seasonality", "weekly_seasonality", "holidays"],
+          "use_case": "long_term_forecasting_with_uncertainty"
+        },
+        "lstm": {
+          "description": "Long Short-Term Memory neural network",
+          "architecture": {"layers": 3, "units_per_layer": 50},
+          "training_data_years": 2,
+          "use_case": "complex_pattern_recognition"
+        }
+      },
+      "anomaly_detection": {
+        "isolation_forest": {
+          "contamination": 0.01,
+          "use_case": "outlier_detection"
+        },
+        "autoencoder": {
+          "type": "neural_network",
+          "use_case": "complex_anomaly_patterns"
+        },
+        "statistical_methods": {
+          "z_score": {"threshold": 3},
+          "iqr_method": {"multiplier": 1.5}
+        }
+      },
+      "degradation_prediction": {
+        "linear_model": {
+          "formula": "P(t) = P₀ × (1 - Rd × t)",
+          "parameters": {"Rd": "degradation_rate_per_year"}
+        },
+        "machine_learning": {
+          "algorithms": ["Random Forest", "Gradient Boosting", "XGBoost"],
+          "features": ["age", "cumulative_irradiation", "temperature_cycles", "humidity_exposure"],
+          "target": "remaining_useful_life"
+        }
+      }
+    },
+    "model_validation": {
+      "training_period_months": 24,
+      "validation_period_months": 6,
+      "test_period_months": 3,
+      "metrics": ["RMSE", "MAE", "MAPE", "R²"]
+    }
+  },
+
+  "test_procedure": {
+    "phases": [
+      {
+        "phase": "1_system_commissioning",
+        "duration": "1 week",
+        "activities": [
+          "Install and calibrate all monitoring equipment",
+          "Configure IoT devices and establish communication",
+          "Integrate with SCADA and weather station",
+          "Verify data acquisition and storage",
+          "Establish baseline performance"
+        ]
+      },
+      {
+        "phase": "2_continuous_monitoring",
+        "duration": "ongoing",
+        "activities": [
+          "Automated data collection (10-second to 1-minute intervals)",
+          "Real-time data validation and quality checks",
+          "Automated alerts for anomalies",
+          "Daily/weekly/monthly reporting",
+          "Performance ratio calculation"
+        ]
+      },
+      {
+        "phase": "3_periodic_analysis",
+        "frequency": "monthly",
+        "activities": [
+          "Trend analysis and visualization",
+          "Performance benchmarking",
+          "Degradation assessment",
+          "Predictive model updates",
+          "Corrective action recommendations"
+        ]
+      },
+      {
+        "phase": "4_annual_review",
+        "frequency": "annual",
+        "activities": [
+          "Comprehensive performance evaluation",
+          "Long-term degradation rate calculation",
+          "Warranty compliance verification",
+          "Model accuracy assessment",
+          "Strategic recommendations for O&M optimization"
+        ]
+      }
+    ]
+  },
+
+  "data_analysis": {
+    "automated_calculations": [
+      {
+        "metric": "Daily Performance Ratio",
+        "formula": "PR_daily = (E_AC_daily / (G_POA_daily × P_rated)) × 1000",
+        "frequency": "daily",
+        "threshold_min": 0.70,
+        "threshold_max": 0.90
+      },
+      {
+        "metric": "Temperature Corrected Performance Ratio",
+        "formula": "PR_temp_corrected = PR × (1 + γ × (T_module - 25))",
+        "parameters": {"γ": "temperature_coefficient"},
+        "frequency": "daily"
+      },
+      {
+        "metric": "Availability",
+        "formula": "A = (T_operational / T_total) × 100",
+        "target": ">98%"
+      },
+      {
+        "metric": "Grid Availability",
+        "formula": "GA = (T_grid_available / T_total) × 100",
+        "target": ">99%"
+      }
+    ],
+    "correlation_analysis": {
+      "irradiance_vs_power": {
+        "method": "linear_regression",
+        "expected_R2": ">0.95"
+      },
+      "temperature_vs_efficiency": {
+        "method": "polynomial_regression",
+        "temperature_coefficient_range": "-0.3 to -0.5 %/°C"
+      },
+      "wind_vs_temperature": {
+        "method": "multivariate_analysis"
+      }
+    },
+    "data_quality_checks": {
+      "validation_rules": [
+        "irradiance >= 0 AND irradiance <= 1500",
+        "module_temp >= ambient_temp - 5",
+        "power >= 0 AND power <= 1.2 × rated_power",
+        "efficiency >= 0 AND efficiency <= 0.25",
+        "PR >= 0 AND PR <= 1.2"
+      ],
+      "missing_data_handling": {
+        "interpolation": "linear_for_gaps_less_than_15min",
+        "flagging": "mark_extended_gaps",
+        "reporting": "data_completeness_percentage_in_report"
+      }
+    }
+  },
+
+  "quality_control": {
+    "qc_checkpoints": [
+      {
+        "checkpoint": "QC-040-01",
+        "description": "Sensor calibration verification",
+        "frequency": "quarterly",
+        "acceptance_criteria": "Within ±2% of reference",
+        "responsible": "Field Technician"
+      },
+      {
+        "checkpoint": "QC-040-02",
+        "description": "Data acquisition system validation",
+        "frequency": "monthly",
+        "acceptance_criteria": "Data completeness >98%, timestamp accuracy <1s",
+        "responsible": "Data Engineer"
+      },
+      {
+        "checkpoint": "QC-040-03",
+        "description": "Performance ratio validation",
+        "frequency": "daily",
+        "acceptance_criteria": "PR within expected range (0.70-0.90)",
+        "responsible": "Automated system / O&M Engineer"
+      },
+      {
+        "checkpoint": "QC-040-04",
+        "description": "Weather station comparison",
+        "frequency": "weekly",
+        "acceptance_criteria": "Cross-validation with nearby stations within ±5%",
+        "responsible": "Data Analyst"
+      },
+      {
+        "checkpoint": "QC-040-05",
+        "description": "SCADA data integrity check",
+        "frequency": "daily",
+        "acceptance_criteria": "No data gaps, consistent with field measurements",
+        "responsible": "SCADA Administrator"
+      }
+    ],
+    "calibration_schedule": {
+      "pyranometers": "24 months",
+      "temperature_sensors": "24 months",
+      "power_meters": "12 months",
+      "reference_modules": "12 months"
+    },
+    "audit_trail": {
+      "sensor_maintenance_log": true,
+      "calibration_certificates": true,
+      "data_modification_log": true,
+      "alarm_acknowledgment_log": true
+    }
+  },
+
+  "non_conformance": {
+    "nc_criteria": [
+      {
+        "nc_id": "NC-040-01",
+        "condition": "Daily PR < 0.70 for 3 consecutive days",
+        "severity": "major",
+        "action": "Immediate field investigation and root cause analysis"
+      },
+      {
+        "nc_id": "NC-040-02",
+        "condition": "Data completeness < 95% for one week",
+        "severity": "moderate",
+        "action": "Check communication systems and data loggers"
+      },
+      {
+        "nc_id": "NC-040-03",
+        "condition": "Sensor calibration drift > ±5%",
+        "severity": "major",
+        "action": "Recalibrate or replace sensor immediately"
+      },
+      {
+        "nc_id": "NC-040-04",
+        "condition": "SCADA communication loss > 4 hours",
+        "severity": "critical",
+        "action": "Emergency response to restore communication"
+      },
+      {
+        "nc_id": "NC-040-05",
+        "condition": "Degradation rate > 1% per year",
+        "severity": "major",
+        "action": "Detailed investigation and warranty claim evaluation"
+      }
+    ],
+    "capa_process": {
+      "documentation": "NC report with timestamp, description, severity",
+      "investigation": "Root cause analysis using 5-Why or Fishbone",
+      "corrective_action": "Immediate fix to resolve the issue",
+      "preventive_action": "Long-term measures to prevent recurrence",
+      "verification": "Follow-up monitoring to confirm effectiveness",
+      "timeline": "Complete CAPA within 30 days of NC detection"
+    }
+  },
+
+  "preventive_maintenance": {
+    "pm_schedule": [
+      {
+        "pm_id": "PM-040-01",
+        "task": "Visual inspection of monitoring equipment",
+        "frequency": "monthly",
+        "duration_hours": 2,
+        "checklist": ["Check sensor physical condition", "Verify mounting stability", "Clean sensor surfaces", "Check cable connections"]
+      },
+      {
+        "pm_id": "PM-040-02",
+        "task": "Data acquisition system backup and verification",
+        "frequency": "weekly",
+        "duration_hours": 1,
+        "checklist": ["Verify automated backups", "Test data retrieval", "Check storage capacity", "Review error logs"]
+      },
+      {
+        "pm_id": "PM-040-03",
+        "task": "Weather station comprehensive maintenance",
+        "frequency": "quarterly",
+        "duration_hours": 4,
+        "checklist": ["Clean all sensors", "Check calibration status", "Verify alignment", "Test communication", "Replace desiccant if applicable"]
+      },
+      {
+        "pm_id": "PM-040-04",
+        "task": "SCADA system health check",
+        "frequency": "monthly",
+        "duration_hours": 2,
+        "checklist": ["Review system logs", "Check database performance", "Verify backup integrity", "Test alarm notifications"]
+      },
+      {
+        "pm_id": "PM-040-05",
+        "task": "Reference module cleaning and inspection",
+        "frequency": "weekly",
+        "duration_hours": 1,
+        "checklist": ["Clean module surface", "Check for shading", "Verify electrical connections", "Compare with other modules"]
+      }
+    ],
+    "pm_optimization": {
+      "condition_based_maintenance": "Use predictive models to optimize PM schedule",
+      "spare_parts_inventory": ["Sensors", "Communication modules", "Cables", "Mounting hardware"],
+      "training_requirements": "Technicians certified in sensor calibration and data systems"
+    }
+  },
+
+  "traceability": {
+    "equipment_traceability": {
+      "sensors": {
+        "serial_numbers": true,
+        "calibration_certificates": true,
+        "installation_date": true,
+        "maintenance_history": true,
+        "replacement_log": true
+      },
+      "dataloggers": {
+        "device_id": true,
+        "firmware_version": true,
+        "configuration_file": true,
+        "change_log": true
+      },
+      "communication_devices": {
+        "MAC_address": true,
+        "IP_address": true,
+        "network_configuration": true
+      }
+    },
+    "data_traceability": {
+      "data_lineage": "Track data from sensor to final report",
+      "processing_steps": "Document all transformations and calculations",
+      "version_control": "Maintain versions of analysis scripts and models",
+      "audit_trail": "Log all data access, modifications, and exports"
+    },
+    "documentation": {
+      "system_design_documents": true,
+      "sensor_layout_drawings": true,
+      "communication_architecture": true,
+      "data_flow_diagrams": true,
+      "standard_operating_procedures": true
+    },
+    "blockchain_integration": {
+      "enabled": false,
+      "use_case": "Immutable performance data for warranty claims",
+      "platform": "Hyperledger Fabric / Ethereum"
+    }
+  },
+
+  "reporting": {
+    "automated_reports": [
+      {
+        "report_type": "Daily Performance Summary",
+        "frequency": "daily",
+        "distribution_time": "08:00 local time",
+        "recipients": ["O&M Manager", "Plant Manager"],
+        "content": ["Total energy production", "Performance ratio", "Availability", "Alarms summary", "Weather summary"]
+      },
+      {
+        "report_type": "Weekly Performance Analysis",
+        "frequency": "weekly",
+        "distribution_day": "Monday",
+        "recipients": ["Technical Team", "Management"],
+        "content": ["Week-over-week comparison", "Trend analysis", "Underperformance alerts", "Maintenance activities", "Data quality metrics"]
+      },
+      {
+        "report_type": "Monthly Performance Report",
+        "frequency": "monthly",
+        "distribution_date": "5th of following month",
+        "recipients": ["All Stakeholders"],
+        "content": ["Comprehensive performance analysis", "Budget vs actual", "Degradation assessment", "Predictive insights", "Recommendations"]
+      },
+      {
+        "report_type": "Annual Performance Evaluation",
+        "frequency": "annual",
+        "distribution_date": "January 31",
+        "recipients": ["Executive Management", "Investors", "Asset Owners"],
+        "content": ["Year in review", "Long-term trends", "Warranty compliance", "Financial performance", "Strategic recommendations"]
+      }
+    ],
+    "dashboard": {
+      "real_time_dashboard": {
+        "platform": "Grafana / Power BI / Custom Streamlit",
+        "refresh_rate_seconds": 10,
+        "key_metrics": ["Live Power", "PR", "Irradiance", "Temperature", "Alarms"],
+        "access": "web_based_secured"
+      },
+      "historical_dashboard": {
+        "time_ranges": ["24h", "7d", "30d", "1y", "lifetime"],
+        "comparisons": ["year_over_year", "budget_vs_actual", "peer_benchmarking"]
+      }
+    },
+    "api_access": {
+      "enabled": true,
+      "endpoint": "https://api.pvmonitoring.com/v1/field-performance",
+      "authentication": "OAuth 2.0 / API Key",
+      "rate_limit": "1000 requests/hour",
+      "data_formats": ["JSON", "CSV", "Parquet"]
+    }
+  },
+
+  "acceptance_criteria": {
+    "data_completeness": ">98% over reporting period",
+    "sensor_accuracy": "Within ±2% of calibrated reference",
+    "performance_ratio_range": "0.75-0.85 (typical)",
+    "system_availability": ">98%",
+    "data_latency": "<5 minutes from acquisition to storage",
+    "report_generation": "Automated within 1 hour of period end"
+  },
+
+  "integration_apis": {
+    "lims_integration": {
+      "endpoint": "/api/lims/field-performance",
+      "data_exchange": ["Test results", "Calibration data", "QC checkpoints"],
+      "sync_frequency": "hourly"
+    },
+    "qms_integration": {
+      "endpoint": "/api/qms/field-monitoring",
+      "data_exchange": ["NC reports", "CAPA actions", "Audit results"],
+      "sync_frequency": "real-time"
+    },
+    "project_management": {
+      "endpoint": "/api/pm/monitoring-tasks",
+      "data_exchange": ["PM schedules", "Work orders", "Resource allocation"],
+      "sync_frequency": "daily"
+    },
+    "asset_management": {
+      "endpoint": "/api/asset/field-equipment",
+      "data_exchange": ["Equipment registry", "Maintenance history", "Depreciation data"],
+      "sync_frequency": "daily"
+    }
+  },
+
+  "metadata": {
+    "created_by": "PV Testing Protocol Framework",
+    "created_date": "2025-11-12",
+    "last_modified": "2025-11-12",
+    "version_history": [
+      {
+        "version": "1.0",
+        "date": "2025-11-12",
+        "changes": "Initial protocol creation with comprehensive IoT, SCADA, and predictive analytics integration"
+      }
+    ],
+    "tags": ["field-testing", "performance-monitoring", "IoT", "SCADA", "predictive-analytics", "long-term-monitoring"],
+    "related_protocols": ["PVTP-041", "PVTP-042", "PVTP-043", "PVTP-044", "PVTP-045", "PVTP-046", "PVTP-047"]
+  }
+}
